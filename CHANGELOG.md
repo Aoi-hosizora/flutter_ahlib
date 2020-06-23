@@ -2,4 +2,10 @@
 
 + Initial flutter_ahlib
 + Add `AppendIndicator`, `ListPlaceHolderText`, `AppendableListView`, `RefreshableListView`, `ScrollFloatingActionButton` widgets
-+ Add `ScrollMoreController`, `ScrollFabController` controllers.
++ Add `ScrollMoreController`, `ScrollFabController` controllers
+
+## [1.0.2] - Add widgets from mmnj
+
++ Add `RefreshableStaggeredGridView`, `IconText`, `RippleSizedView`, `SliverContainer` widgets
++ Add `ActionController` controller
++ Add `showPopupMenu()` function
