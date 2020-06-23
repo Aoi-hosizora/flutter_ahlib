@@ -1,0 +1,5 @@
+version:
+  revision: 8abf0a6d8c0d94fc5a6a6761025fcf035870d8c0
+  channel: master
+
+project_type: package
