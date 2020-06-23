@@ -1,3 +1,5 @@
-## [0.0.1] - TODO: Add release date.
+## [0.0.1] - Initial flutter_ahlib
 
-* TODO: Describe initial release.
++ Initial flutter_ahlib
++ Add `AppendIndicator`, `ListPlaceHolderText`, `AppendableListView`, `RefreshableListView`, `ScrollFloatingActionButton` widgets
++ Add `ScrollMoreController`, `ScrollFabController` controllers.
