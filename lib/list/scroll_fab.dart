@@ -1,4 +1,4 @@
-import 'package:flutter_ahlib/src/list/scroll_fab_controller.dart';
+import 'package:flutter_ahlib/list/scroll_fab_controller.dart';
 import 'package:flutter/material.dart';
 
 class ScrollFloatingActionButton extends StatefulWidget {

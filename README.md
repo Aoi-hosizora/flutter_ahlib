@@ -1,10 +1,10 @@
 # flutter_ahlib
 
 + AoiHosizora's personal library used in flutter, contains some useful widgets and utils.
-+ See package in [flutter_ahlib 1.0.0](https://pub.dev/packages/flutter_ahlib)
++ See package in https://pub.dev/packages/flutter_ahlib
 
 ```yaml
-flutter_ahlib: ^1.0.0
+flutter_ahlib: ^1.0.1
 ```
 
 ### Functions

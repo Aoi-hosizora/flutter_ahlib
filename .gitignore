@@ -77,3 +77,4 @@ build/
 
 ### Project ###
 publish.sh
+/example/pubspec.lock
