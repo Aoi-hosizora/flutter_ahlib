@@ -11,11 +11,6 @@ class ScrollMoreController extends ScrollController {
   void detachRefresh() => _refreshIndicatorKey = null;
 
   void scrollWithAnimate(double offset) {
-    if (offset < 0) {
-      offset = 0;
-    } else if (offset > position.maxScrollExtent) {
-      offset = position.maxScrollExtent;
-    }
     animateTo(
       offset,
       curve: Curves.easeOutCirc,

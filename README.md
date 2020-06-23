@@ -4,7 +4,7 @@
 + See package in https://pub.dev/packages/flutter_ahlib
 
 ```yaml
-flutter_ahlib: ^1.0.1
+flutter_ahlib: ^1.0.3
 ```
 
 ### Functions
