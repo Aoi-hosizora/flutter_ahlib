@@ -1,12 +1,13 @@
 # flutter_ahlib
 
-+ AoiHosizora's personal library used in flutter
-+ See package in []()
++ AoiHosizora's personal library used in flutter, contains some useful widgets and utils.
++ See package in [flutter_ahlib 1.0.0](https://pub.dev/packages/flutter_ahlib)
 
 ```yaml
-flutter_ahlib: ^0.0.1
+flutter_ahlib: ^1.0.0
 ```
 
 ### Functions
 
-+ Some list widgets and controllers
++ Scroll list helper widgets:
+    + `AppendIndicator` `ListPlaceHolderText` `AppendableListView` `RefreshableListView` `ScrollFloatingActionButton`

@@ -1,4 +1,4 @@
-## [0.0.1] - Initial flutter_ahlib
+## [1.0.0] - Initial flutter_ahlib
 
 + Initial flutter_ahlib
 + Add `AppendIndicator`, `ListPlaceHolderText`, `AppendableListView`, `RefreshableListView`, `ScrollFloatingActionButton` widgets
