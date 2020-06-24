@@ -17,3 +17,9 @@
 ## [1.0.5] - Update ListPlaceHolderText
 
 + Add `ListPlaceHolderSetting` to list widgets
+
+## [1.0.8] - Add DrawerListView
+
++ Add `DrawerListView<T>` and some types
++ Rename `PopupMenuItem` to `PopupActionItem`
++ Update `RippleSizedView` actions

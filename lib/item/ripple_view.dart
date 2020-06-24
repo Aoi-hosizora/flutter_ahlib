@@ -16,7 +16,11 @@ class RippleSizedView extends StatefulWidget {
     @required this.position,
     @required this.size,
     this.onTap,
-    this.onLongPress,
+    this.onLongPressed,
+    this.onBodyTap,
+    this.onBodyLongPressed,
+    this.onLeadingTap,
+    this.onLeadingLongPressed,
   })  : assert(leading != null),
         assert(body != null),
         assert(position != null),
@@ -28,17 +32,86 @@ class RippleSizedView extends StatefulWidget {
   final RippleSizedViewPosition position;
   final Size size;
   final void Function() onTap;
-  final void Function() onLongPress;
+  final void Function() onLongPressed;
+  final void Function() onBodyTap;
+  final void Function() onBodyLongPressed;
+  final void Function() onLeadingTap;
+  final void Function() onLeadingLongPressed;
 
   @override
   _RippleSizedViewState createState() => _RippleSizedViewState();
 }
 
 class _RippleSizedViewState extends State<RippleSizedView> {
+  Offset _pointerDownPosition;
+
+  void _onPointerDown(PointerDownEvent e) {
+    _pointerDownPosition = e.position;
+  }
+
+  void _onTap() {
+    if (widget.onTap != null) {
+      widget.onTap();
+      return;
+    }
+    var h = widget.size.height;
+    var w = widget.size.width;
+    var dx = _pointerDownPosition?.dx ?? 0;
+    var dy = _pointerDownPosition?.dy ?? 0;
+
+    var lt = widget.onLeadingTap ?? () {};
+    var bt = widget.onBodyTap ?? () {};
+    switch (widget.position) {
+      case RippleSizedViewPosition.top:
+        (dy <= h ? lt : bt)();
+        break;
+      case RippleSizedViewPosition.bottom:
+        (dy >= h ? lt : bt)();
+        break;
+      case RippleSizedViewPosition.left:
+        (dx <= w ? lt : bt)();
+        break;
+      case RippleSizedViewPosition.right:
+        (dx >= w ? lt : bt)();
+        break;
+    }
+  }
+
+  void _onLongPressed() {
+    if (widget.onLongPressed != null) {
+      widget.onLongPressed();
+      return;
+    }
+    var h = widget.size.height;
+    var w = widget.size.width;
+    var dx = _pointerDownPosition?.dx ?? 0;
+    var dy = _pointerDownPosition?.dy ?? 0;
+
+    var ll = widget.onLeadingLongPressed ?? () {};
+    var bl = widget.onBodyLongPressed ?? () {};
+    switch (widget.position) {
+      case RippleSizedViewPosition.top:
+        (dy <= h ? ll : bl)();
+        break;
+      case RippleSizedViewPosition.bottom:
+        (dy >= h ? ll : bl)();
+        break;
+      case RippleSizedViewPosition.left:
+        (dx <= w ? ll : bl)();
+        break;
+      case RippleSizedViewPosition.right:
+        (dx >= w ? ll : bl)();
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     Widget fill;
-    Widget sizedBox = SizedBox(height: widget.size.height, width: widget.size.width);
+    Widget sizedBox = SizedBox(
+      height: widget.size.height,
+      width: widget.size.width,
+    );
     AlignmentDirectional alignment;
     switch (widget.position) {
       case RippleSizedViewPosition.top:
@@ -58,17 +131,21 @@ class _RippleSizedViewState extends State<RippleSizedView> {
         alignment = AlignmentDirectional.centerEnd;
         break;
     }
+
     return Stack(
       alignment: alignment,
       children: [
         widget.leading,
         Positioned.fill(
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: widget.onTap,
-              onLongPress: widget.onLongPress,
-              child: fill,
+          child: Listener(
+            onPointerDown: (m) => _onPointerDown(m),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                child: fill,
+                onTap: _onTap,
+                onLongPress: _onLongPressed,
+              ),
             ),
           ),
         ),
