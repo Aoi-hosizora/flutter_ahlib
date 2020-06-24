@@ -13,3 +13,7 @@
 ## [1.0.3] - Fix ScrollMoreController
 
 + Fix `ScrollMoreController`.`scrollWithAnimate`
+
+## [1.0.5] - Update ListPlaceHolderText
+
++ Add `ListPlaceHolderSetting` to list widgets

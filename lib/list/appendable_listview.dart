@@ -11,6 +11,7 @@ class AppendableListView<T> extends StatefulWidget {
     @required this.data,
     @required this.getData,
     this.onStateChanged,
+    this.placeholderText,
     this.padding,
     this.separator,
     @required this.itemBuilder,
@@ -25,6 +26,7 @@ class AppendableListView<T> extends StatefulWidget {
   final List<T> data;
   final GetPageDataFunction<T> getData;
   final StateChangedCallback onStateChanged;
+  final ListPlaceHolderSetting placeholderText;
   final EdgeInsetsGeometry padding;
   final Widget separator;
   final Widget Function(BuildContext, T) itemBuilder;
@@ -116,6 +118,7 @@ class _AppendableListViewState<T> extends State<AppendableListView<T>>
         key: _refreshIndicatorKey,
         onRefresh: () => _getData(reset: true),
         child: ListPlaceHolderText.from(
+          placeholderText: widget.placeholderText,
           onRefresh: _refreshIndicatorKey.currentState?.show,
           isLoading: _loading,
           errorText: _errorMessage,
