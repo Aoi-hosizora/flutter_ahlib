@@ -4,7 +4,7 @@
 + See package in https://pub.dev/packages/flutter_ahlib
 
 ```yaml
-flutter_ahlib: ^1.0.3
+flutter_ahlib: ^1.0.4
 ```
 
 ### Functions
@@ -23,3 +23,4 @@ flutter_ahlib: ^1.0.3
     + `SliverContainer`
 + Commons:
     + `ActionController`
+    + `Logger`

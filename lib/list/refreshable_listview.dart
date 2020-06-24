@@ -10,6 +10,7 @@ class RefreshableListView<T> extends StatefulWidget {
     @required this.data,
     @required this.getData,
     this.onStateChanged,
+    this.placeholderText,
     this.padding,
     this.separator,
     @required this.itemBuilder,
@@ -24,6 +25,7 @@ class RefreshableListView<T> extends StatefulWidget {
   final List<T> data;
   final GetNonPageDataFunction<T> getData;
   final StateChangedCallback onStateChanged;
+  final ListPlaceHolderSetting placeholderText;
   final EdgeInsetsGeometry padding;
   final Widget separator;
   final Widget Function(BuildContext, T) itemBuilder;
@@ -94,6 +96,7 @@ class _RefreshableListViewState<T> extends State<RefreshableListView<T>>
       key: _refreshIndicatorKey,
       onRefresh: () => _getData(),
       child: ListPlaceHolderText.from(
+        placeholderText: widget.placeholderText,
         onRefresh: _refreshIndicatorKey.currentState?.show,
         isLoading: _loading,
         errorText: _errorMessage,

@@ -11,6 +11,18 @@ enum PlaceHolderState {
   error,
 }
 
+class ListPlaceHolderSetting {
+  const ListPlaceHolderSetting({
+    this.loadingText,
+    this.nothingText,
+    this.retryText,
+  });
+
+  final String loadingText;
+  final String nothingText;
+  final String retryText;
+}
+
 typedef StateChangedCallback = void Function(PlaceHolderState);
 
 class ListPlaceHolderText extends StatefulWidget {
@@ -21,10 +33,7 @@ class ListPlaceHolderText extends StatefulWidget {
     @required this.state,
     this.errorText,
     this.onChanged,
-    // text
-    this.loadingText,
-    this.nothingText,
-    this.retryText,
+    this.placeholderText,
   })  : assert(child != null),
         assert(state != null),
         super(key: key);
@@ -36,10 +45,7 @@ class ListPlaceHolderText extends StatefulWidget {
     @required bool isEmpty,
     @required bool isLoading,
     StateChangedCallback onChanged,
-    // text
-    String loadingText,
-    String nothingText,
-    String retryText,
+    ListPlaceHolderSetting placeholderText,
   }) : this(
           child: child,
           onRefresh: onRefresh,
@@ -50,9 +56,7 @@ class ListPlaceHolderText extends StatefulWidget {
                   : errorText != null && errorText.isNotEmpty ? PlaceHolderState.error : PlaceHolderState.nothing,
           errorText: errorText,
           onChanged: onChanged,
-          loadingText: loadingText,
-          nothingText: nothingText,
-          retryText: retryText,
+          placeholderText: placeholderText,
         );
 
   final Widget child;
@@ -60,9 +64,7 @@ class ListPlaceHolderText extends StatefulWidget {
   final PlaceHolderState state;
   final String errorText;
   final StateChangedCallback onChanged;
-  final String loadingText;
-  final String nothingText;
-  final String retryText;
+  final ListPlaceHolderSetting placeholderText;
 
   @override
   _ListPlaceHolderTextState createState() => _ListPlaceHolderTextState();
@@ -89,7 +91,7 @@ class _ListPlaceHolderTextState extends State<ListPlaceHolderText> {
       case PlaceHolderState.loading:
         return Center(
           child: Text(
-            widget.loadingText ?? 'Loading...',
+            widget.placeholderText?.loadingText ?? 'Loading...',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 20),
           ),
@@ -111,7 +113,7 @@ class _ListPlaceHolderTextState extends State<ListPlaceHolderText> {
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                 child: Text(
-                  widget.nothingText ?? 'Nothing',
+                  widget.placeholderText?.nothingText ?? 'Nothing',
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 20),
                 ),
@@ -119,7 +121,7 @@ class _ListPlaceHolderTextState extends State<ListPlaceHolderText> {
               Padding(
                 padding: EdgeInsets.all(5),
                 child: OutlineButton(
-                  child: Text(widget.retryText ?? 'Retry'),
+                  child: Text(widget.placeholderText?.retryText ?? 'Retry'),
                   onPressed: () {
                     widget.onRefresh?.call();
                     if (mounted) {
@@ -156,7 +158,7 @@ class _ListPlaceHolderTextState extends State<ListPlaceHolderText> {
               Padding(
                 padding: EdgeInsets.all(5),
                 child: OutlineButton(
-                  child: Text(widget.retryText ?? 'Retry'),
+                  child: Text(widget.placeholderText?.retryText ?? 'Retry'),
                   onPressed: () {
                     widget.onRefresh?.call();
                     if (mounted) {
