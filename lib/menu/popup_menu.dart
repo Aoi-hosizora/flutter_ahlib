@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/menu/icon_text.dart';
 
-class PopupMenuItem {
-  PopupMenuItem({
+class PopupActionItem {
+  const PopupActionItem({
     @required this.text,
     @required this.icon,
     @required this.action,
@@ -10,15 +10,15 @@ class PopupMenuItem {
         assert(icon != null),
         assert(action != null);
 
-  String text;
-  IconData icon;
-  void Function() action;
+  final String text;
+  final IconData icon;
+  final void Function() action;
 }
 
 void showPopupMenu({
   @required BuildContext context,
   @required Widget title,
-  @required List<PopupMenuItem> items,
+  @required List<PopupActionItem> items,
 }) {
   showDialog(
     context: context,
