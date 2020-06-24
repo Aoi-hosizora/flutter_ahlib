@@ -4,7 +4,7 @@
 + See package in https://pub.dev/packages/flutter_ahlib
 
 ```yaml
-flutter_ahlib: ^1.0.5
+flutter_ahlib: ^1.0.6
 ```
 
 ### Functions
@@ -16,10 +16,12 @@ flutter_ahlib: ^1.0.5
     + `RefreshableListView`
     + `ScrollFloatingActionButton`
     + `RefreshableStaggeredGridView`
-+ Menu and item widgets and functions:
-    + `IconText`
-    + `showPopupMenu()`
++ Item widgets and functions:
     + `RippleSizedView`
     + `SliverContainer`
++ Menu widgets and functions:
+    + `IconText`
+    + `showPopupMenu()`
+    + `DrawerListView<T>`
 + Commons:
     + `ActionController`
