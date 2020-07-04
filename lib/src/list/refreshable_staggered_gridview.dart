@@ -4,14 +4,14 @@ import 'package:flutter_ahlib/src/list/scroll_more_controller.dart';
 import 'package:flutter_ahlib/src/list/type.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
-/// appendable StaggeredGridView which packing `AppendIndicator`, `RefreshIndicator`, `ListPlaceholderText`, `Scrollbar` and `ListView`
+/// appendable StaggeredGridView which packing `AppendIndicator`, `RefreshIndicator`, `PlaceholderText`, `Scrollbar` and `ListView`
 class RefreshableStaggeredGridView<T> extends StatefulWidget {
   const RefreshableStaggeredGridView({
     Key key,
     @required this.data,
     @required this.getData,
     this.onStateChanged,
-    this.placeholderText,
+    this.placeholdetSetting,
     this.padding,
     @required this.itemBuilder,
     this.controller,
@@ -31,8 +31,8 @@ class RefreshableStaggeredGridView<T> extends StatefulWidget {
 
   final List<T> data;
   final GetNonPageDataFunction<T> getData;
-  final StateChangedCallback onStateChanged;
-  final ListPlaceholderSetting placeholderText;
+  final PlaceholderStateChangedCallback onStateChanged;
+  final PlaceholderSetting placeholdetSetting;
   final EdgeInsetsGeometry padding;
   final Widget Function(BuildContext, T) itemBuilder;
   final ScrollMoreController controller;
@@ -110,14 +110,14 @@ class _RefreshableStaggeredGridViewState<T> extends State<RefreshableStaggeredGr
     return RefreshIndicator(
       key: _refreshIndicatorKey,
       onRefresh: () => _getData(),
-      child: ListPlaceholderText.from(
-        placeholderText: widget.placeholderText,
+      child: PlaceholderText.from(
+        setting: widget.placeholdetSetting,
         onRefresh: _refreshIndicatorKey.currentState?.show,
         isLoading: _loading,
         errorText: _errorMessage,
         isEmpty: widget.data.isEmpty,
         onChanged: widget.onStateChanged,
-        child: Column(
+        childBuilder: (c) => Column(
           children: [
             widget.topWidget ?? SizedBox(height: 0),
             Expanded(

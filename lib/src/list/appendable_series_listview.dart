@@ -1,15 +1,21 @@
-import 'package:flutter_ahlib/src/list/append_indicator.dart';
-import 'package:flutter_ahlib/src/list/placeholder_text.dart';
-import 'package:flutter_ahlib/src/list/scroll_more_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_ahlib/src/list/type.dart';
+import 'package:flutter_ahlib/flutter_ahlib.dart';
+
+/// data model for `AppendableSeriesListView`
+class PageData<T, U> {
+  List<T> data;
+  U maxId;
+
+  PageData({this.data, this.maxId});
+}
 
 /// appendable ListView which packing `AppendIndicator`, `RefreshIndicator`, `PlaceholderText`, `Scrollbar` and `ListView`
-class AppendableListView<T> extends StatefulWidget {
-  const AppendableListView({
+class AppendableSeriesListView<T, U> extends StatefulWidget {
+  const AppendableSeriesListView({
     Key key,
     @required this.data,
     @required this.getData,
+    @required this.nothingMaxId,
     this.onStateChanged,
     this.placeholdetSetting,
     this.padding,
@@ -24,7 +30,8 @@ class AppendableListView<T> extends StatefulWidget {
         super(key: key);
 
   final List<T> data;
-  final GetPageDataFunction<T> getData;
+  final GetSeriesDataFunction<T, U> getData;
+  final U nothingMaxId;
   final PlaceholderStateChangedCallback onStateChanged;
   final PlaceholderSetting placeholdetSetting;
   final EdgeInsetsGeometry padding;
@@ -35,10 +42,11 @@ class AppendableListView<T> extends StatefulWidget {
   final Widget bottomWidget;
 
   @override
-  _AppendableListViewState<T> createState() => _AppendableListViewState<T>();
+  _AppendableSeriesListViewState<T, U> createState() => _AppendableSeriesListViewState<T, U>();
 }
 
-class _AppendableListViewState<T> extends State<AppendableListView<T>> with AutomaticKeepAliveClientMixin<AppendableListView<T>> {
+class _AppendableSeriesListViewState<T, U> extends State<AppendableSeriesListView<T, U>>
+    with AutomaticKeepAliveClientMixin<AppendableSeriesListView<T, U>> {
   @override
   bool get wantKeepAlive => true;
 
@@ -47,8 +55,8 @@ class _AppendableListViewState<T> extends State<AppendableListView<T>> with Auto
   GlobalKey<AppendIndicatorState> _appendIndicatorKey;
   GlobalKey<RefreshIndicatorState> _refreshIndicatorKey;
 
-  // page data, error message
-  int _page = 0;
+  // id data, last id data, error message
+  U _maxId, _lastMaxId;
   bool _loading = true;
   String _errorMessage;
 
@@ -74,35 +82,41 @@ class _AppendableListViewState<T> extends State<AppendableListView<T>> with Auto
 
   Future<void> _getData({bool reset}) async {
     if (reset) {
-      _page = 0;
+      _maxId = null;
+      _lastMaxId = null;
     }
-    // 0 -> 1
-    _page++;
+
+    // has no next
+    if (widget.nothingMaxId == _maxId) {
+      return;
+    }
 
     // start refresh
-    final func = widget.getData(page: _page);
+    final func = widget.getData(maxId: _maxId);
     _loading = true;
     if (mounted) setState(() {});
 
-    return func.then((List<T> list) async {
-      // success to get data, empty errorMessage
+    return func.then((data) async {
+      // success to get data, update maxId, empty errorMessage
+      _lastMaxId = _maxId;
+      _maxId = data.maxId;
       _errorMessage = null;
       if (reset) {
         widget.data.clear();
         if (mounted) setState(() {});
         await Future.delayed(Duration(milliseconds: 20)); // must delayed
-        widget.data.addAll(list);
+        widget.data.addAll(data.data);
       } else {
-        widget.data.addAll(list); // append directly
+        widget.data.addAll(data.data); // append directly
         _controller.scrollDown();
       }
-      if (list.length == 0) {
-        _page--; // not next, restore last page
+      if (data.data.length == 0) {
+        _maxId = _lastMaxId; // not next, problem!!!!!!
       }
     }).catchError((e) {
-      // error arowsed, restore last page
+      // error arowsed, restore last maxId
       _errorMessage = e.toString();
-      _page--;
+      _maxId = _lastMaxId;
     }).whenComplete(() {
       // finish loading
       _loading = false;

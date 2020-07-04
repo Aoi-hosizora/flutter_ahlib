@@ -11,7 +11,7 @@ flutter_ahlib: ^1.0.9
 
 + Scroll list helper widgets:
     + `AppendIndicator`
-    + `ListPlaceholderText`
+    + `PlaceholderText`
     + `AppendableListView`
     + `RefreshableListView`
     + `RefreshableStaggeredGridView`

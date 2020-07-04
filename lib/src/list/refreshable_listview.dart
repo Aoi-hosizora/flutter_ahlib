@@ -3,14 +3,14 @@ import 'package:flutter_ahlib/src/list/scroll_more_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/src/list/type.dart';
 
-/// refreshable LisrView which packing `RefreshIndicator`, `ListPlaceholderText`, `Scrollbar` and `ListView`
+/// refreshable LisrView which packing `RefreshIndicator`, `PlaceholderText`, `Scrollbar` and `ListView`
 class RefreshableListView<T> extends StatefulWidget {
   const RefreshableListView({
     Key key,
     @required this.data,
     @required this.getData,
     this.onStateChanged,
-    this.placeholderText,
+    this.placeholdetSetting,
     this.padding,
     this.separator,
     @required this.itemBuilder,
@@ -24,8 +24,8 @@ class RefreshableListView<T> extends StatefulWidget {
 
   final List<T> data;
   final GetNonPageDataFunction<T> getData;
-  final StateChangedCallback onStateChanged;
-  final ListPlaceholderSetting placeholderText;
+  final PlaceholderStateChangedCallback onStateChanged;
+  final PlaceholderSetting placeholdetSetting;
   final EdgeInsetsGeometry padding;
   final Widget separator;
   final Widget Function(BuildContext, T) itemBuilder;
@@ -98,14 +98,14 @@ class _RefreshableListViewState<T> extends State<RefreshableListView<T>>
     return RefreshIndicator(
       key: _refreshIndicatorKey,
       onRefresh: () => _getData(),
-      child: ListPlaceholderText.from(
-        placeholderText: widget.placeholderText,
+      child: PlaceholderText.from(
+        setting: widget.placeholdetSetting,
         onRefresh: _refreshIndicatorKey.currentState?.show,
         isLoading: _loading,
         errorText: _errorMessage,
         isEmpty: widget.data.isEmpty,
         onChanged: widget.onStateChanged,
-        child: Column(
+        childBuilder: (c) => Column(
           children: [
             widget.topWidget ?? SizedBox(height: 0),
             Expanded(

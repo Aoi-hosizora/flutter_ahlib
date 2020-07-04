@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/src/list/type.dart';
 
-/// `normal`: !isEmpty
-///
-/// `loading`: isLoading
-/// 
-/// `error`: errorText != null && errorText.isNotEmpty
-/// 
-/// `empty`: isEmpty
+/// `normal` : `!isEmpty`,
+/// `loading` : `isLoading`,
+/// `error` : `errorText != null && errorText.isNotEmpty`,
+/// `empty` : `isEmpty`
 enum PlaceholderState {
   normal,
   loading,
@@ -15,41 +12,48 @@ enum PlaceholderState {
   error,
 }
 
-class ListPlaceholderSetting {
-  const ListPlaceholderSetting({
+/// Setting for `PlaceholderText` display text and progress
+class PlaceholderSetting {
+  const PlaceholderSetting({
     this.loadingText,
     this.nothingText,
     this.retryText,
+    this.showProgress,
+    this.progressSize,
   });
 
   final String loadingText;
   final String nothingText;
   final String retryText;
+  final bool showProgress;
+  final double progressSize;
 }
 
-class ListPlaceholderText extends StatefulWidget {
-  const ListPlaceholderText({
+/// Placeholder text used for mainly `ListView`,
+/// Order: `normal` (!isEmpty) -> `loading` (isLoading) -> `error` (errorText != null) -> `nothing` (else)
+class PlaceholderText extends StatefulWidget {
+  const PlaceholderText({
     Key key,
-    @required this.child,
+    @required this.childBuilder,
     @required this.onRefresh,
     @required this.state,
     this.errorText,
     this.onChanged,
-    this.placeholderText,
-  })  : assert(child != null),
+    this.setting,
+  })  : assert(childBuilder != null),
         assert(state != null),
         super(key: key);
 
-  ListPlaceholderText.from({
-    @required Widget child,
+  PlaceholderText.from({
+    @required Widget Function(BuildContext) childBuilder,
     @required void Function() onRefresh,
     String errorText,
     @required bool isEmpty,
     @required bool isLoading,
-    StateChangedCallback onChanged,
-    ListPlaceholderSetting placeholderText,
+    PlaceholderStateChangedCallback onChanged,
+    PlaceholderSetting setting,
   }) : this(
-          child: child,
+          childBuilder: childBuilder,
           onRefresh: onRefresh,
           state: !isEmpty
               ? PlaceholderState.normal
@@ -58,21 +62,21 @@ class ListPlaceholderText extends StatefulWidget {
                   : errorText != null && errorText.isNotEmpty ? PlaceholderState.error : PlaceholderState.nothing,
           errorText: errorText,
           onChanged: onChanged,
-          placeholderText: placeholderText,
+          setting: setting,
         );
 
-  final Widget child;
+  final Widget Function(BuildContext) childBuilder;
   final void Function() onRefresh;
   final PlaceholderState state;
   final String errorText;
-  final StateChangedCallback onChanged;
-  final ListPlaceholderSetting placeholderText;
+  final PlaceholderStateChangedCallback onChanged;
+  final PlaceholderSetting setting;
 
   @override
-  _ListPlaceholderTextState createState() => _ListPlaceholderTextState();
+  _PlaceholderTextState createState() => _PlaceholderTextState();
 }
 
-class _ListPlaceholderTextState extends State<ListPlaceholderText> {
+class _PlaceholderTextState extends State<PlaceholderText> {
   PlaceholderState _lastState;
   @override
   void initState() {
@@ -89,13 +93,30 @@ class _ListPlaceholderTextState extends State<ListPlaceholderText> {
 
     switch (widget.state) {
       case PlaceholderState.normal:
-        return widget.child;
+        return widget.childBuilder(context);
       case PlaceholderState.loading:
         return Center(
-          child: Text(
-            widget.placeholderText?.loadingText ?? 'Loading...',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              widget.setting?.showProgress ?? false
+                  ? Padding(
+                      padding: EdgeInsets.all(30),
+                      child: SizedBox(
+                        height: widget.setting?.progressSize ?? 40,
+                        width: widget.setting?.progressSize ?? 40,
+                        child: CircularProgressIndicator(),
+                      ),
+                    )
+                  : SizedBox(height: 0),
+              Text(
+                widget.setting?.loadingText ?? 'Loading...',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: Theme.of(context).textTheme.headline6.fontSize,
+                ),
+              ),
+            ],
           ),
         );
       case PlaceholderState.nothing:
@@ -115,15 +136,17 @@ class _ListPlaceholderTextState extends State<ListPlaceholderText> {
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                 child: Text(
-                  widget.placeholderText?.nothingText ?? 'Nothing',
+                  widget.setting?.nothingText ?? 'Nothing',
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 20),
+                  style: TextStyle(
+                    fontSize: Theme.of(context).textTheme.headline6.fontSize,
+                  ),
                 ),
               ),
               Padding(
                 padding: EdgeInsets.all(5),
                 child: OutlineButton(
-                  child: Text(widget.placeholderText?.retryText ?? 'Retry'),
+                  child: Text(widget.setting?.retryText ?? 'Retry'),
                   onPressed: () {
                     widget.onRefresh?.call();
                     if (mounted) setState(() {});
@@ -152,13 +175,15 @@ class _ListPlaceholderTextState extends State<ListPlaceholderText> {
                 child: Text(
                   widget.errorText ?? 'Unknown',
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 20),
+                  style: TextStyle(
+                    fontSize: Theme.of(context).textTheme.headline6.fontSize,
+                  ),
                 ),
               ),
               Padding(
                 padding: EdgeInsets.all(5),
                 child: OutlineButton(
-                  child: Text(widget.placeholderText?.retryText ?? 'Retry'),
+                  child: Text(widget.setting?.retryText ?? 'Retry'),
                   onPressed: () {
                     widget.onRefresh?.call();
                     if (mounted) setState(() {});
@@ -169,7 +194,7 @@ class _ListPlaceholderTextState extends State<ListPlaceholderText> {
           ),
         );
       default:
-        return null;
+        return SizedBox(height: 0);
     }
   }
 }
