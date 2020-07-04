@@ -1,10 +1,10 @@
-import 'package:flutter_ahlib/list/append_indicator.dart';
-import 'package:flutter_ahlib/list/placeholder_text.dart';
-import 'package:flutter_ahlib/list/scroll_more_controller.dart';
+import 'package:flutter_ahlib/src/list/append_indicator.dart';
+import 'package:flutter_ahlib/src/list/placeholder_text.dart';
+import 'package:flutter_ahlib/src/list/scroll_more_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_ahlib/src/list/type.dart';
 
-typedef GetPageDataFunction<T> = Future<List<T>> Function({int page});
-
+/// appendable ListView which packing `AppendIndicator`, `RefreshIndicator`, `ListPlaceholderText`, `Scrollbar` and `ListView`
 class AppendableListView<T> extends StatefulWidget {
   const AppendableListView({
     Key key,
@@ -26,7 +26,7 @@ class AppendableListView<T> extends StatefulWidget {
   final List<T> data;
   final GetPageDataFunction<T> getData;
   final StateChangedCallback onStateChanged;
-  final ListPlaceHolderSetting placeholderText;
+  final ListPlaceholderSetting placeholderText;
   final EdgeInsetsGeometry padding;
   final Widget separator;
   final Widget Function(BuildContext, T) itemBuilder;
@@ -43,11 +43,14 @@ class _AppendableListViewState<T> extends State<AppendableListView<T>>
   @override
   bool get wantKeepAlive => true;
 
+  // copy of widget.controller or new controller
   ScrollMoreController _controller;
   GlobalKey<AppendIndicatorState> _appendIndicatorKey;
   GlobalKey<RefreshIndicatorState> _refreshIndicatorKey;
+
+  // page data, error message
   int _page = 0;
-  bool _loading = false;
+  bool _loading = true;
   String _errorMessage;
 
   @override
@@ -74,37 +77,37 @@ class _AppendableListViewState<T> extends State<AppendableListView<T>>
     if (reset) {
       _page = 0;
     }
+    // 0 -> 1
     _page++;
 
+    // start refresh
     final func = widget.getData(page: _page);
     _loading = true;
-    if (mounted) {
-      setState(() {});
-    }
+    if (mounted) setState(() {});
+
     return func.then((List<T> list) async {
+      // success to get data, empty errorMessage
       _errorMessage = null;
       if (reset) {
         widget.data.clear();
-        if (mounted) {
-          setState(() {});
-        }
-        await Future.delayed(Duration(milliseconds: 20));
+        if (mounted) setState(() {});
+        await Future.delayed(Duration(milliseconds: 20)); // must delayed
         widget.data.addAll(list);
       } else {
-        widget.data.addAll(list);
+        widget.data.addAll(list); // append directly
         _controller.scrollDown();
       }
       if (list.length == 0) {
-        _page--;
+        _page--; // not next, restore last page
       }
     }).catchError((e) {
+      // error arowsed, restore last page
       _errorMessage = e.toString();
       _page--;
     }).whenComplete(() {
+      // finish loading
       _loading = false;
-      if (mounted) {
-        setState(() {});
-      }
+      if (mounted) setState(() {});
     });
   }
 
@@ -117,7 +120,7 @@ class _AppendableListViewState<T> extends State<AppendableListView<T>>
       child: RefreshIndicator(
         key: _refreshIndicatorKey,
         onRefresh: () => _getData(reset: true),
-        child: ListPlaceHolderText.from(
+        child: ListPlaceholderText.from(
           placeholderText: widget.placeholderText,
           onRefresh: _refreshIndicatorKey.currentState?.show,
           isLoading: _loading,

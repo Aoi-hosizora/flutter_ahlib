@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// A auto controller for `ScrollFloatingActionButton`, include show fab and hide fav function
 class ScrollFabController {
   AnimationController _animeController;
 

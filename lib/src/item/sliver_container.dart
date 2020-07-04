@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// Wrap `Container` into `SliverToBoxAdapter`
 class SliverContainer extends StatefulWidget {
   const SliverContainer({
     Key key,

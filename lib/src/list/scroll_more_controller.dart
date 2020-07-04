@@ -1,6 +1,10 @@
-import 'package:flutter_ahlib/list/append_indicator.dart';
+import 'package:flutter_ahlib/src/list/append_indicator.dart';
 import 'package:flutter/material.dart';
 
+/// More function of `ScrollController`
+/// 
+/// includeing: `scrollWithAnimate`, `scrollTop`, `scrollBottom`, `scrollDown`, `scrollUp`,
+/// `swipeDown` (need `attachAppend`), `refresh` (need `attachRefresh`)
 class ScrollMoreController extends ScrollController {
   GlobalKey<AppendIndicatorState> _appendIndicatorKey;
   GlobalKey<RefreshIndicatorState> _refreshIndicatorKey;
@@ -22,16 +26,17 @@ class ScrollMoreController extends ScrollController {
     scrollWithAnimate(0.0);
   }
 
+  /// BUG!!!
   void scrollBottom() {
     scrollWithAnimate(position.maxScrollExtent);
   }
 
-  void scrollDown() {
-    scrollWithAnimate(offset + 50);
+  void scrollDown({int scrollOffset = 50}) {
+    scrollWithAnimate(offset + scrollOffset);
   }
 
-  void scrollUp() {
-    scrollWithAnimate(offset - 50);
+  void scrollUp({int scrollOffset = 50}) {
+    scrollWithAnimate(offset - scrollOffset);
   }
 
   Future<void> swipeDown() {

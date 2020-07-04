@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 typedef Action<T> = T Function();
 
+/// Controller for some action, include a `map<String, Action>` to save callbacks.
 class ActionController {
   Map<String, Action> _actions = {};
 

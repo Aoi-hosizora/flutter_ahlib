@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 
 enum DrawerItemType { page, action, divider }
 
+/// abstract type for deawer item
 abstract class DrawerItem {
   const DrawerItem({this.type});
 
   final DrawerItemType type;
 }
 
+/// `DrawerItem` used for navigator a page (`Widget view`)
 class DrawerPage<T> extends DrawerItem {
   const DrawerPage({
     @required this.title,
@@ -25,6 +27,7 @@ class DrawerPage<T> extends DrawerItem {
   final T selection;
 }
 
+/// `DrawerItem` used to invoke an action (`void Function() action`)
 class DrawerAction extends DrawerItem {
   const DrawerAction({
     @required this.title,
@@ -40,6 +43,7 @@ class DrawerAction extends DrawerItem {
   final void Function() action;
 }
 
+/// `DrawerItem` used to show a divider (`Divider divider`)
 class DrawerDivider extends DrawerItem {
   const DrawerDivider({
     @required this.divider,
@@ -49,6 +53,28 @@ class DrawerDivider extends DrawerItem {
   final Divider divider;
 }
 
+/// A wrapped `Column` for `Drawer`
+/// Demo:
+/// 
+/// ```
+/// 
+/// enum DrawerSelection { none, home, favorite, download, search, history }
+/// 
+/// Drawer(
+///   child: ListView(
+///     padding: WdgeInsets.all(0),
+///     children: [
+///       DrawerHeader(),
+///       DrawerListView<DrawerSelection>(
+///         items: [xxx],
+///         highlightColor: Colors.grey[200],
+///         currentDrawerSelection: widget.currentDrawerSelection,
+///         rootSelection: DrawerSelection.home,
+///       ),
+///     ],
+///   ),
+/// )
+/// ```
 class DrawerListView<T> extends StatefulWidget {
   const DrawerListView({
     Key key,
@@ -113,6 +139,8 @@ class _DrawerListViewState<T> extends State<DrawerListView<T>> {
               );
             case DrawerItemType.divider:
               return (item as DrawerDivider).divider;
+            default:
+              return SizedBox(height: 0);
           }
         },
       ).toList(),

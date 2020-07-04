@@ -4,18 +4,18 @@
 + See package in https://pub.dev/packages/flutter_ahlib
 
 ```yaml
-flutter_ahlib: ^1.0.8
+flutter_ahlib: ^1.0.9
 ```
 
 ### Functions
 
 + Scroll list helper widgets:
     + `AppendIndicator`
-    + `ListPlaceHolderText`
+    + `ListPlaceholderText`
     + `AppendableListView`
     + `RefreshableListView`
-    + `ScrollFloatingActionButton`
     + `RefreshableStaggeredGridView`
+    + `ScrollFloatingActionButton`
 + Item widgets and functions:
     + `RippleSizedView`
     + `SliverContainer`

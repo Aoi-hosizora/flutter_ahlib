@@ -1,8 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-
-typedef AppendCallback = Future<void> Function();
+import 'package:flutter_ahlib/src/list/type.dart';
 
 /// `null` -> not contain Positioned,
 /// `none` -> is positioned animating,
@@ -12,6 +11,7 @@ enum _AppendIndicatorMode {
   appending,
 }
 
+/// A indicator same with `RefreshIndicator`, show in the bottom of view, mainly for showing append infomation.
 class AppendIndicator extends StatefulWidget {
   const AppendIndicator({
     Key key,
@@ -32,6 +32,7 @@ class AppendIndicator extends StatefulWidget {
   AppendIndicatorState createState() => AppendIndicatorState();
 }
 
+/// State for `AppendIndicator`, only `show()` can be used.
 class AppendIndicatorState extends State<AppendIndicator> {
   _AppendIndicatorMode _mode;
   Future<void> _pendingRefreshFuture;
@@ -70,23 +71,18 @@ class AppendIndicatorState extends State<AppendIndicator> {
       return;
     }
     _mode = _AppendIndicatorMode.appending;
-    if (mounted) {
-      setState(() {});
-    }
+    if (mounted) setState(() {});
 
     final result = widget.onAppend();
     result?.whenComplete(() async {
       if (mounted && _mode == _AppendIndicatorMode.appending) {
         completer.complete();
         _mode = _AppendIndicatorMode.none;
-        if (mounted) {
-          setState(() {});
-        }
+        if (mounted) setState(() {});
+
         await Future.delayed(_kAnimatedDuration);
         _mode = null;
-        if (mounted) {
-          setState(() {});
-        }
+        if (mounted) setState(() {});
       }
     });
   }

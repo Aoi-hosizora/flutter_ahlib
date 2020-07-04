@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_ahlib/src/list/type.dart';
 
 /// `normal`: !isEmpty
+///
 /// `loading`: isLoading
+/// 
 /// `error`: errorText != null && errorText.isNotEmpty
+/// 
 /// `empty`: isEmpty
-enum PlaceHolderState {
+enum PlaceholderState {
   normal,
   loading,
   nothing,
   error,
 }
 
-class ListPlaceHolderSetting {
-  const ListPlaceHolderSetting({
+class ListPlaceholderSetting {
+  const ListPlaceholderSetting({
     this.loadingText,
     this.nothingText,
     this.retryText,
@@ -23,10 +27,8 @@ class ListPlaceHolderSetting {
   final String retryText;
 }
 
-typedef StateChangedCallback = void Function(PlaceHolderState);
-
-class ListPlaceHolderText extends StatefulWidget {
-  const ListPlaceHolderText({
+class ListPlaceholderText extends StatefulWidget {
+  const ListPlaceholderText({
     Key key,
     @required this.child,
     @required this.onRefresh,
@@ -38,22 +40,22 @@ class ListPlaceHolderText extends StatefulWidget {
         assert(state != null),
         super(key: key);
 
-  ListPlaceHolderText.from({
+  ListPlaceholderText.from({
     @required Widget child,
     @required void Function() onRefresh,
     String errorText,
     @required bool isEmpty,
     @required bool isLoading,
     StateChangedCallback onChanged,
-    ListPlaceHolderSetting placeholderText,
+    ListPlaceholderSetting placeholderText,
   }) : this(
           child: child,
           onRefresh: onRefresh,
           state: !isEmpty
-              ? PlaceHolderState.normal
+              ? PlaceholderState.normal
               : isLoading
-                  ? PlaceHolderState.loading
-                  : errorText != null && errorText.isNotEmpty ? PlaceHolderState.error : PlaceHolderState.nothing,
+                  ? PlaceholderState.loading
+                  : errorText != null && errorText.isNotEmpty ? PlaceholderState.error : PlaceholderState.nothing,
           errorText: errorText,
           onChanged: onChanged,
           placeholderText: placeholderText,
@@ -61,17 +63,17 @@ class ListPlaceHolderText extends StatefulWidget {
 
   final Widget child;
   final void Function() onRefresh;
-  final PlaceHolderState state;
+  final PlaceholderState state;
   final String errorText;
   final StateChangedCallback onChanged;
-  final ListPlaceHolderSetting placeholderText;
+  final ListPlaceholderSetting placeholderText;
 
   @override
-  _ListPlaceHolderTextState createState() => _ListPlaceHolderTextState();
+  _ListPlaceholderTextState createState() => _ListPlaceholderTextState();
 }
 
-class _ListPlaceHolderTextState extends State<ListPlaceHolderText> {
-  PlaceHolderState _lastState;
+class _ListPlaceholderTextState extends State<ListPlaceholderText> {
+  PlaceholderState _lastState;
   @override
   void initState() {
     super.initState();
@@ -86,9 +88,9 @@ class _ListPlaceHolderTextState extends State<ListPlaceHolderText> {
     }
 
     switch (widget.state) {
-      case PlaceHolderState.normal:
+      case PlaceholderState.normal:
         return widget.child;
-      case PlaceHolderState.loading:
+      case PlaceholderState.loading:
         return Center(
           child: Text(
             widget.placeholderText?.loadingText ?? 'Loading...',
@@ -96,7 +98,7 @@ class _ListPlaceHolderTextState extends State<ListPlaceHolderText> {
             style: TextStyle(fontSize: 20),
           ),
         );
-      case PlaceHolderState.nothing:
+      case PlaceholderState.nothing:
         return Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -124,16 +126,14 @@ class _ListPlaceHolderTextState extends State<ListPlaceHolderText> {
                   child: Text(widget.placeholderText?.retryText ?? 'Retry'),
                   onPressed: () {
                     widget.onRefresh?.call();
-                    if (mounted) {
-                      setState(() {});
-                    }
+                    if (mounted) setState(() {});
                   },
                 ),
               ),
             ],
           ),
         );
-      case PlaceHolderState.error:
+      case PlaceholderState.error:
         return Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -161,9 +161,7 @@ class _ListPlaceHolderTextState extends State<ListPlaceHolderText> {
                   child: Text(widget.placeholderText?.retryText ?? 'Retry'),
                   onPressed: () {
                     widget.onRefresh?.call();
-                    if (mounted) {
-                      setState(() {});
-                    }
+                    if (mounted) setState(() {});
                   },
                 ),
               ),
