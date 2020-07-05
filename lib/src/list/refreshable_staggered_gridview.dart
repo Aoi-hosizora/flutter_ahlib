@@ -4,46 +4,51 @@ import 'package:flutter_ahlib/src/list/scroll_more_controller.dart';
 import 'package:flutter_ahlib/src/list/type.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
-/// appendable StaggeredGridView which packing `AppendIndicator`, `RefreshIndicator`, `PlaceholderText`, `Scrollbar` and `ListView`
+/// Refreshable `StaggeredGridView` which packing `AppendIndicator`, `RefreshIndicator`, `PlaceholderText`, `Scrollbar` and `ListView`
 class RefreshableStaggeredGridView<T> extends StatefulWidget {
   const RefreshableStaggeredGridView({
     Key key,
     @required this.data,
     @required this.getData,
     this.onStateChanged,
-    this.placeholdetSetting,
-    this.padding,
-    @required this.itemBuilder,
+    this.placeholderSetting,
     this.controller,
-    this.topWidget,
-    this.bottomWidget,
+    @required this.itemBuilder,
+    @required this.staggeredTileBuilder,
+    this.padding,
+    this.shrinkWrap,
+    this.physics,
+    this.reverse,
     this.primary,
+    @required this.crossAxisCount,
     this.crossAxisSpacing = 0,
     this.mainAxisSpacing = 0,
-    @required this.crossAxisCount,
-    @required this.staggeredTileBuilder,
+    this.topWidget,
+    this.bottomWidget,
   })  : assert(data != null),
         assert(getData != null),
         assert(itemBuilder != null),
-        assert(crossAxisCount != null),
         assert(staggeredTileBuilder != null),
+        assert(crossAxisCount != null),
         super(key: key);
 
   final List<T> data;
   final GetNonPageDataFunction<T> getData;
   final PlaceholderStateChangedCallback onStateChanged;
-  final PlaceholderSetting placeholdetSetting;
-  final EdgeInsetsGeometry padding;
-  final Widget Function(BuildContext, T) itemBuilder;
+  final PlaceholderSetting placeholderSetting;
   final ScrollMoreController controller;
-  final Widget topWidget;
-  final Widget bottomWidget;
-
+  final Widget Function(BuildContext, T) itemBuilder;
+  final StaggeredTile Function(int) staggeredTileBuilder;
+  final EdgeInsetsGeometry padding;
+  final bool shrinkWrap;
+  final ScrollPhysics physics;
+  final bool reverse;
   final bool primary;
+  final int crossAxisCount;
   final double crossAxisSpacing;
   final double mainAxisSpacing;
-  final int crossAxisCount;
-  final StaggeredTile Function(int) staggeredTileBuilder;
+  final Widget topWidget;
+  final Widget bottomWidget;
 
   @override
   _RefreshableStaggeredGridViewState<T> createState() => _RefreshableStaggeredGridViewState<T>();
@@ -111,7 +116,7 @@ class _RefreshableStaggeredGridViewState<T> extends State<RefreshableStaggeredGr
       key: _refreshIndicatorKey,
       onRefresh: () => _getData(),
       child: PlaceholderText.from(
-        setting: widget.placeholdetSetting,
+        setting: widget.placeholderSetting,
         onRefresh: _refreshIndicatorKey.currentState?.show,
         isLoading: _loading,
         errorText: _errorMessage,
@@ -123,9 +128,10 @@ class _RefreshableStaggeredGridViewState<T> extends State<RefreshableStaggeredGr
             Expanded(
               child: Scrollbar(
                 child: StaggeredGridView.countBuilder(
-                  controller: _controller,
-                  physics: AlwaysScrollableScrollPhysics(),
                   padding: widget.padding,
+                  shrinkWrap: widget.shrinkWrap ?? false,
+                  physics: widget.physics,
+                  reverse: widget.reverse ?? false,
                   primary: widget.primary,
                   crossAxisSpacing: widget.crossAxisSpacing,
                   mainAxisSpacing: widget.mainAxisSpacing,

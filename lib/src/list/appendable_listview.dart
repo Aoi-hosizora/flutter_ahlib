@@ -4,18 +4,22 @@ import 'package:flutter_ahlib/src/list/scroll_more_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/src/list/type.dart';
 
-/// appendable ListView which packing `AppendIndicator`, `RefreshIndicator`, `PlaceholderText`, `Scrollbar` and `ListView`
+/// Appendable `ListView` which packing `AppendIndicator`, `RefreshIndicator`, `PlaceholderText`, `Scrollbar` and `ListView`
 class AppendableListView<T> extends StatefulWidget {
   const AppendableListView({
     Key key,
     @required this.data,
     @required this.getData,
     this.onStateChanged,
-    this.placeholdetSetting,
-    this.padding,
-    this.separator,
-    @required this.itemBuilder,
+    this.placeholderSetting,
     this.controller,
+    @required this.itemBuilder,
+    this.padding,
+    this.shrinkWrap,
+    this.physics,
+    this.reverse,
+    this.primary,
+    this.separator,
     this.topWidget,
     this.bottomWidget,
   })  : assert(data != null),
@@ -26,11 +30,15 @@ class AppendableListView<T> extends StatefulWidget {
   final List<T> data;
   final GetPageDataFunction<T> getData;
   final PlaceholderStateChangedCallback onStateChanged;
-  final PlaceholderSetting placeholdetSetting;
-  final EdgeInsetsGeometry padding;
-  final Widget separator;
-  final Widget Function(BuildContext, T) itemBuilder;
+  final PlaceholderSetting placeholderSetting;
   final ScrollMoreController controller;
+  final Widget Function(BuildContext, T) itemBuilder;
+  final EdgeInsetsGeometry padding;
+  final bool shrinkWrap;
+  final ScrollPhysics physics;
+  final bool reverse;
+  final bool primary;
+  final Widget separator;
   final Widget topWidget;
   final Widget bottomWidget;
 
@@ -72,7 +80,7 @@ class _AppendableListViewState<T> extends State<AppendableListView<T>> with Auto
     super.dispose();
   }
 
-  Future<void> _getData({bool reset}) async {
+  Future<void> _getData({@required bool reset}) async {
     if (reset) {
       _page = 0;
     }
@@ -120,7 +128,7 @@ class _AppendableListViewState<T> extends State<AppendableListView<T>> with Auto
         key: _refreshIndicatorKey,
         onRefresh: () => _getData(reset: true),
         child: PlaceholderText.from(
-          setting: widget.placeholdetSetting,
+          setting: widget.placeholderSetting,
           onRefresh: _refreshIndicatorKey.currentState?.show,
           isLoading: _loading,
           errorText: _errorMessage,
@@ -133,7 +141,9 @@ class _AppendableListViewState<T> extends State<AppendableListView<T>> with Auto
                 child: Scrollbar(
                   child: ListView.separated(
                     controller: _controller,
-                    physics: AlwaysScrollableScrollPhysics(),
+                    shrinkWrap: widget.shrinkWrap ?? false,
+                    physics: widget.physics,
+                    reverse: widget.reverse ?? false,
                     padding: widget.padding,
                     itemCount: widget.data.length,
                     separatorBuilder: (c, idx) => widget.separator ?? SizedBox(height: 0),

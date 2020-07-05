@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_ahlib/flutter_ahlib.dart';
+import 'package:flutter_ahlib/src/list/append_indicator.dart';
+import 'package:flutter_ahlib/src/list/placeholder_text.dart';
+import 'package:flutter_ahlib/src/list/scroll_more_controller.dart';
+import 'package:flutter_ahlib/src/list/type.dart';
 
-/// Appendable series `ListView` which packing `AppendIndicator`, `RefreshIndicator`, `PlaceholderText`, `Scrollbar` and `ListView`
-class AppendableSeriesListView<T, U> extends StatefulWidget {
-  const AppendableSeriesListView({
+class AppendableSeriesSliverListView<T, U> extends StatefulWidget {
+  const AppendableSeriesSliverListView({
     Key key,
     @required this.data,
     @required this.getData,
@@ -16,10 +18,9 @@ class AppendableSeriesListView<T, U> extends StatefulWidget {
     this.shrinkWrap,
     this.physics,
     this.reverse,
-    this.primary,
     this.separator,
-    this.topWidget,
-    this.bottomWidget,
+    this.topSliver,
+    this.bottomSliver,
   })  : assert(data != null),
         assert(getData != null),
         assert(itemBuilder != null),
@@ -36,17 +37,15 @@ class AppendableSeriesListView<T, U> extends StatefulWidget {
   final bool shrinkWrap;
   final ScrollPhysics physics;
   final bool reverse;
-  final bool primary;
   final Widget separator;
-  final Widget topWidget;
-  final Widget bottomWidget;
-
+  final Widget topSliver;
+  final Widget bottomSliver;
   @override
-  _AppendableSeriesListViewState<T, U> createState() => _AppendableSeriesListViewState<T, U>();
+  _AppendableSeriesSliverListViewState<T, U> createState() => _AppendableSeriesSliverListViewState<T, U>();
 }
 
-class _AppendableSeriesListViewState<T, U> extends State<AppendableSeriesListView<T, U>>
-    with AutomaticKeepAliveClientMixin<AppendableSeriesListView<T, U>> {
+class _AppendableSeriesSliverListViewState<T, U> extends State<AppendableSeriesSliverListView<T, U>>
+    with AutomaticKeepAliveClientMixin<AppendableSeriesSliverListView<T, U>> {
   @override
   bool get wantKeepAlive => true;
 
@@ -140,25 +139,36 @@ class _AppendableSeriesListViewState<T, U> extends State<AppendableSeriesListVie
           errorText: _errorMessage,
           isEmpty: widget.data.isEmpty,
           onChanged: widget.onStateChanged,
-          childBuilder: (c) => Column(
-            children: [
-              widget.topWidget ?? SizedBox(height: 0),
-              Expanded(
-                child: Scrollbar(
-                  child: ListView.separated(
-                    controller: _controller,
-                    shrinkWrap: widget.shrinkWrap ?? false,
-                    physics: widget.physics,
-                    reverse: widget.reverse ?? false,
-                    padding: widget.padding,
-                    itemCount: widget.data.length,
-                    separatorBuilder: (c, idx) => widget.separator ?? SizedBox(height: 0),
-                    itemBuilder: (c, idx) => widget.itemBuilder(c, widget.data[idx]),
+          childBuilder: (c) => Scrollbar(
+            child: CustomScrollView(
+              // controller: _controller, // TODO
+              shrinkWrap: widget.shrinkWrap ?? false,
+              physics: widget.physics,
+              reverse: widget.reverse ?? false,
+              slivers: [
+                widget.topSliver ?? SliverToBoxAdapter(),
+                SliverPadding(
+                  padding: widget.padding,
+                  sliver: SliverList(
+                    delegate: widget.separator == null
+                        ? SliverChildBuilderDelegate(
+                            (c, idx) => widget.itemBuilder(c, widget.data[idx]),
+                            childCount: widget.data.length,
+                          )
+                        : SliverChildBuilderDelegate(
+                            (c, idx) => idx % 2 == 0
+                                ? widget.itemBuilder(
+                                    c,
+                                    widget.data[idx ~/ 2],
+                                  )
+                                : widget.separator,
+                            childCount: widget.data.length * 2 - 1,
+                          ),
                   ),
                 ),
-              ),
-              widget.bottomWidget ?? SizedBox(height: 0),
-            ],
+                widget.bottomSliver ?? SliverToBoxAdapter(),
+              ],
+            ),
           ),
         ),
       ),
