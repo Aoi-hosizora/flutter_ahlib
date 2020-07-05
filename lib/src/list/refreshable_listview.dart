@@ -3,7 +3,7 @@ import 'package:flutter_ahlib/src/list/scroll_more_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/src/list/type.dart';
 
-/// refreshable LisrView which packing `RefreshIndicator`, `PlaceholderText`, `Scrollbar` and `ListView`
+/// Refreshable `ListView` which packing `RefreshIndicator`, `PlaceholderText`, `Scrollbar` and `ListView`
 class RefreshableListView<T> extends StatefulWidget {
   const RefreshableListView({
     Key key,

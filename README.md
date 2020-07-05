@@ -4,24 +4,36 @@
 + See package in https://pub.dev/packages/flutter_ahlib
 
 ```yaml
-flutter_ahlib: ^1.0.9
+flutter_ahlib: ^1.0.10
+```
+
+### Usage
+
+```dart
+import 'package:flutter_ahlib/flutter_ahlib.dart';
 ```
 
 ### Functions
 
-+ Scroll list helper widgets:
++ List helper widgets:
     + `AppendIndicator`
     + `PlaceholderText`
     + `AppendableListView`
+    + `AppendableStaggeredGridView`
+    + `AppendableSeriesListView`
+    + `AppendableSeriesStaggeredGridView`
     + `RefreshableListView`
     + `RefreshableStaggeredGridView`
+    + `ScrollMoreController`
++ Fab helper widgets:
     + `ScrollFloatingActionButton`
+    + `ScrollFabController`
 + Item widgets and functions:
     + `RippleSizedView`
     + `SliverContainer`
 + Menu widgets and functions:
     + `IconText`
     + `showPopupMenu()`
-    + `DrawerListView<T>`
-+ Commons:
+    + `DrawerListView`
++ Common:
     + `ActionController`

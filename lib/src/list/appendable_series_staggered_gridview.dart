@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_ahlib/flutter_ahlib.dart';
+import 'package:flutter_ahlib/src/list/append_indicator.dart';
+import 'package:flutter_ahlib/src/list/placeholder_text.dart';
+import 'package:flutter_ahlib/src/list/scroll_more_controller.dart';
+import 'package:flutter_ahlib/src/list/type.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
-/// Appendable series `ListView` which packing `AppendIndicator`, `RefreshIndicator`, `PlaceholderText`, `Scrollbar` and `ListView`
-class AppendableSeriesListView<T, U> extends StatefulWidget {
-  const AppendableSeriesListView({
+/// Appendable series `StaggeredGridView` which packing `AppendIndicator`, `RefreshIndicator`, `PlaceholderText`, `Scrollbar` and `ListView`
+class AppendableSeriesStaggeredGridView<T, U> extends StatefulWidget {
+  const AppendableSeriesStaggeredGridView({
     Key key,
     @required this.data,
     @required this.getData,
@@ -11,14 +15,20 @@ class AppendableSeriesListView<T, U> extends StatefulWidget {
     this.onStateChanged,
     this.placeholdetSetting,
     this.padding,
-    this.separator,
     @required this.itemBuilder,
     this.controller,
     this.topWidget,
     this.bottomWidget,
+    this.primary,
+    this.crossAxisSpacing = 0,
+    this.mainAxisSpacing = 0,
+    @required this.crossAxisCount,
+    @required this.staggeredTileBuilder,
   })  : assert(data != null),
         assert(getData != null),
         assert(itemBuilder != null),
+        assert(crossAxisCount != null),
+        assert(staggeredTileBuilder != null),
         super(key: key);
 
   final List<T> data;
@@ -27,18 +37,23 @@ class AppendableSeriesListView<T, U> extends StatefulWidget {
   final PlaceholderStateChangedCallback onStateChanged;
   final PlaceholderSetting placeholdetSetting;
   final EdgeInsetsGeometry padding;
-  final Widget separator;
   final Widget Function(BuildContext, T) itemBuilder;
   final ScrollMoreController controller;
   final Widget topWidget;
   final Widget bottomWidget;
 
+  final bool primary;
+  final double crossAxisSpacing;
+  final double mainAxisSpacing;
+  final int crossAxisCount;
+  final StaggeredTile Function(int) staggeredTileBuilder;
+
   @override
-  _AppendableSeriesListViewState<T, U> createState() => _AppendableSeriesListViewState<T, U>();
+  _AppendableSeriesStaggeredGridViewState<T, U> createState() => _AppendableSeriesStaggeredGridViewState<T, U>();
 }
 
-class _AppendableSeriesListViewState<T, U> extends State<AppendableSeriesListView<T, U>>
-    with AutomaticKeepAliveClientMixin<AppendableSeriesListView<T, U>> {
+class _AppendableSeriesStaggeredGridViewState<T, U> extends State<AppendableSeriesStaggeredGridView<T, U>>
+    with AutomaticKeepAliveClientMixin<AppendableSeriesStaggeredGridView<T, U>> {
   @override
   bool get wantKeepAlive => true;
 
@@ -60,7 +75,6 @@ class _AppendableSeriesListViewState<T, U> extends State<AppendableSeriesListVie
     WidgetsBinding.instance.addPostFrameCallback((_) => _refreshIndicatorKey?.currentState?.show());
 
     _controller = widget.controller ?? ScrollMoreController();
-    _controller.attachAppend(_appendIndicatorKey);
     _controller.attachRefresh(_refreshIndicatorKey);
   }
 
@@ -72,7 +86,7 @@ class _AppendableSeriesListViewState<T, U> extends State<AppendableSeriesListVie
     super.dispose();
   }
 
-  Future<void> _getData({bool reset}) async {
+  Future<void> _getData({@required bool reset}) async {
     if (reset) {
       _maxId = null;
       _lastMaxId = null;
@@ -137,12 +151,16 @@ class _AppendableSeriesListViewState<T, U> extends State<AppendableSeriesListVie
               widget.topWidget ?? SizedBox(height: 0),
               Expanded(
                 child: Scrollbar(
-                  child: ListView.separated(
+                  child: StaggeredGridView.countBuilder(
                     controller: _controller,
                     physics: AlwaysScrollableScrollPhysics(),
                     padding: widget.padding,
+                    primary: widget.primary,
+                    crossAxisSpacing: widget.crossAxisSpacing,
+                    mainAxisSpacing: widget.mainAxisSpacing,
+                    crossAxisCount: widget.crossAxisCount,
+                    staggeredTileBuilder: widget.staggeredTileBuilder,
                     itemCount: widget.data.length,
-                    separatorBuilder: (c, idx) => widget.separator ?? SizedBox(height: 0),
                     itemBuilder: (c, idx) => widget.itemBuilder(c, widget.data[idx]),
                   ),
                 ),

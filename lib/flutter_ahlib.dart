@@ -10,6 +10,9 @@ export 'src/item/sliver_container.dart';
 
 export 'src/list/append_indicator.dart';
 export 'src/list/appendable_listview.dart';
+export 'src/list/appendable_series_listview.dart';
+export 'src/list/appendable_series_staggered_gridview.dart';
+export 'src/list/appendable_staggered_gridview.dart';
 export 'src/list/placeholder_text.dart';
 export 'src/list/refreshable_listview.dart';
 export 'src/list/refreshable_staggered_gridview.dart';

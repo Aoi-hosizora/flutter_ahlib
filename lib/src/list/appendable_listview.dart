@@ -4,7 +4,7 @@ import 'package:flutter_ahlib/src/list/scroll_more_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/src/list/type.dart';
 
-/// appendable ListView which packing `AppendIndicator`, `RefreshIndicator`, `PlaceholderText`, `Scrollbar` and `ListView`
+/// Appendable `ListView` which packing `AppendIndicator`, `RefreshIndicator`, `PlaceholderText`, `Scrollbar` and `ListView`
 class AppendableListView<T> extends StatefulWidget {
   const AppendableListView({
     Key key,
@@ -72,7 +72,7 @@ class _AppendableListViewState<T> extends State<AppendableListView<T>> with Auto
     super.dispose();
   }
 
-  Future<void> _getData({bool reset}) async {
+  Future<void> _getData({@required bool reset}) async {
     if (reset) {
       _page = 0;
     }
