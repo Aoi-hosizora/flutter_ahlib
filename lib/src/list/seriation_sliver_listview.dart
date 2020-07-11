@@ -3,11 +3,10 @@ import 'package:flutter_ahlib/src/list/append_indicator.dart';
 import 'package:flutter_ahlib/src/list/placeholder_text.dart';
 import 'package:flutter_ahlib/src/list/scroll_more_controller.dart';
 import 'package:flutter_ahlib/src/list/type.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
-/// Appendable series `StaggeredGridView` which packing `AppendIndicator`, `RefreshIndicator`, `PlaceholderText`, `Scrollbar` and `ListView`
-class AppendableSeriesStaggeredGridView<T, U> extends StatefulWidget {
-  const AppendableSeriesStaggeredGridView({
+/// Appendable series `SliverListView` which packing `AppendIndicator`, `RefreshIndicator`, `PlaceholderText`, `Scrollbar` and `SliverList`
+class SeriationSliverListView<T, U> extends StatefulWidget {
+  const SeriationSliverListView({
     Key key,
     @required this.data,
     @required this.getData,
@@ -16,22 +15,16 @@ class AppendableSeriesStaggeredGridView<T, U> extends StatefulWidget {
     this.placeholderSetting,
     this.controller,
     @required this.itemBuilder,
-    @required this.staggeredTileBuilder,
     this.padding,
     this.shrinkWrap,
     this.physics,
     this.reverse,
-    this.primary,
-    @required this.crossAxisCount,
-    this.crossAxisSpacing = 0,
-    this.mainAxisSpacing = 0,
-    this.topWidget,
-    this.bottomWidget,
+    this.separator,
+    this.topSliver,
+    this.bottomSliver,
   })  : assert(data != null),
         assert(getData != null),
         assert(itemBuilder != null),
-        assert(staggeredTileBuilder != null),
-        assert(crossAxisCount != null),
         super(key: key);
 
   final List<T> data;
@@ -41,24 +34,19 @@ class AppendableSeriesStaggeredGridView<T, U> extends StatefulWidget {
   final PlaceholderSetting placeholderSetting;
   final ScrollMoreController controller;
   final Widget Function(BuildContext, T) itemBuilder;
-  final StaggeredTile Function(int) staggeredTileBuilder;
   final EdgeInsetsGeometry padding;
   final bool shrinkWrap;
   final ScrollPhysics physics;
   final bool reverse;
-  final bool primary;
-  final int crossAxisCount;
-  final double crossAxisSpacing;
-  final double mainAxisSpacing;
-  final Widget topWidget;
-  final Widget bottomWidget;
-
+  final Widget separator;
+  final Widget topSliver;
+  final Widget bottomSliver;
   @override
-  _AppendableSeriesStaggeredGridViewState<T, U> createState() => _AppendableSeriesStaggeredGridViewState<T, U>();
+  _SeriationSliverListViewState<T, U> createState() => _SeriationSliverListViewState<T, U>();
 }
 
-class _AppendableSeriesStaggeredGridViewState<T, U> extends State<AppendableSeriesStaggeredGridView<T, U>>
-    with AutomaticKeepAliveClientMixin<AppendableSeriesStaggeredGridView<T, U>> {
+class _SeriationSliverListViewState<T, U> extends State<SeriationSliverListView<T, U>>
+    with AutomaticKeepAliveClientMixin<SeriationSliverListView<T, U>> {
   @override
   bool get wantKeepAlive => true;
 
@@ -80,6 +68,7 @@ class _AppendableSeriesStaggeredGridViewState<T, U> extends State<AppendableSeri
     WidgetsBinding.instance.addPostFrameCallback((_) => _refreshIndicatorKey?.currentState?.show());
 
     _controller = widget.controller ?? ScrollMoreController();
+    _controller.attachAppend(_appendIndicatorKey);
     _controller.attachRefresh(_refreshIndicatorKey);
   }
 
@@ -91,7 +80,7 @@ class _AppendableSeriesStaggeredGridViewState<T, U> extends State<AppendableSeri
     super.dispose();
   }
 
-  Future<void> _getData({@required bool reset}) async {
+  Future<void> _getData({bool reset}) async {
     if (reset) {
       _maxId = null;
       _lastMaxId = null;
@@ -151,29 +140,36 @@ class _AppendableSeriesStaggeredGridViewState<T, U> extends State<AppendableSeri
           errorText: _errorMessage,
           isEmpty: widget.data.isEmpty,
           onChanged: widget.onStateChanged,
-          childBuilder: (c) => Column(
-            children: [
-              widget.topWidget ?? SizedBox(height: 0),
-              Expanded(
-                child: Scrollbar(
-                  child: StaggeredGridView.countBuilder(
-                    controller: _controller,
-                    padding: widget.padding,
-                    shrinkWrap: widget.shrinkWrap ?? false,
-                    physics: widget.physics,
-                    reverse: widget.reverse ?? false,
-                    primary: widget.primary,
-                    crossAxisSpacing: widget.crossAxisSpacing,
-                    mainAxisSpacing: widget.mainAxisSpacing,
-                    crossAxisCount: widget.crossAxisCount,
-                    staggeredTileBuilder: widget.staggeredTileBuilder,
-                    itemCount: widget.data.length,
-                    itemBuilder: (c, idx) => widget.itemBuilder(c, widget.data[idx]),
+          childBuilder: (c) => Scrollbar(
+            child: CustomScrollView(
+              controller: _controller,
+              shrinkWrap: widget.shrinkWrap ?? false,
+              physics: widget.physics,
+              reverse: widget.reverse ?? false,
+              slivers: [
+                widget.topSliver ?? SliverToBoxAdapter(),
+                SliverPadding(
+                  padding: widget.padding,
+                  sliver: SliverList(
+                    delegate: widget.separator == null
+                        ? SliverChildBuilderDelegate(
+                            (c, idx) => widget.itemBuilder(c, widget.data[idx]),
+                            childCount: widget.data.length,
+                          )
+                        : SliverChildBuilderDelegate(
+                            (c, idx) => idx % 2 == 0
+                                ? widget.itemBuilder(
+                                    c,
+                                    widget.data[idx ~/ 2],
+                                  )
+                                : widget.separator,
+                            childCount: widget.data.length * 2 - 1,
+                          ),
                   ),
                 ),
-              ),
-              widget.bottomWidget ?? SizedBox(height: 0),
-            ],
+                widget.bottomSliver ?? SliverToBoxAdapter(),
+              ],
+            ),
           ),
         ),
       ),

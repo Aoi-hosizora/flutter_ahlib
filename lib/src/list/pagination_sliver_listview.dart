@@ -1,13 +1,15 @@
+import 'package:flutter_ahlib/src/list/append_indicator.dart';
+import 'package:flutter_ahlib/src/list/placeholder_text.dart';
+import 'package:flutter_ahlib/src/list/scroll_more_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_ahlib/flutter_ahlib.dart';
+import 'package:flutter_ahlib/src/list/type.dart';
 
-/// Appendable series `ListView` which packing `AppendIndicator`, `RefreshIndicator`, `PlaceholderText`, `Scrollbar` and `ListView`
-class AppendableSeriesListView<T, U> extends StatefulWidget {
-  const AppendableSeriesListView({
+/// Appendable pagination `SliverListView` which packing `AppendIndicator`, `RefreshIndicator`, `PlaceholderText`, `Scrollbar` and `ListView`
+class PaginationSliverListView<T> extends StatefulWidget {
+  const PaginationSliverListView({
     Key key,
     @required this.data,
     @required this.getData,
-    @required this.nothingMaxId,
     this.onStateChanged,
     this.placeholderSetting,
     this.controller,
@@ -18,16 +20,15 @@ class AppendableSeriesListView<T, U> extends StatefulWidget {
     this.reverse,
     this.primary,
     this.separator,
-    this.topWidget,
-    this.bottomWidget,
+    this.topSliver,
+    this.bottomSliver,
   })  : assert(data != null),
         assert(getData != null),
         assert(itemBuilder != null),
         super(key: key);
 
   final List<T> data;
-  final GetSeriesDataFunction<T, U> getData;
-  final U nothingMaxId;
+  final GetPageDataFunction<T> getData;
   final PlaceholderStateChangedCallback onStateChanged;
   final PlaceholderSetting placeholderSetting;
   final ScrollMoreController controller;
@@ -38,15 +39,15 @@ class AppendableSeriesListView<T, U> extends StatefulWidget {
   final bool reverse;
   final bool primary;
   final Widget separator;
-  final Widget topWidget;
-  final Widget bottomWidget;
+  final Widget topSliver;
+  final Widget bottomSliver;
 
   @override
-  _AppendableSeriesListViewState<T, U> createState() => _AppendableSeriesListViewState<T, U>();
+  _PaginationSliverListViewState<T> createState() => _PaginationSliverListViewState<T>();
 }
 
-class _AppendableSeriesListViewState<T, U> extends State<AppendableSeriesListView<T, U>>
-    with AutomaticKeepAliveClientMixin<AppendableSeriesListView<T, U>> {
+class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T>>
+    with AutomaticKeepAliveClientMixin<PaginationSliverListView<T>> {
   @override
   bool get wantKeepAlive => true;
 
@@ -55,8 +56,8 @@ class _AppendableSeriesListViewState<T, U> extends State<AppendableSeriesListVie
   GlobalKey<AppendIndicatorState> _appendIndicatorKey;
   GlobalKey<RefreshIndicatorState> _refreshIndicatorKey;
 
-  // id data, last id data, error message
-  U _maxId, _lastMaxId;
+  // page data, error message
+  int _page = 0;
   bool _loading = true;
   String _errorMessage;
 
@@ -80,43 +81,37 @@ class _AppendableSeriesListViewState<T, U> extends State<AppendableSeriesListVie
     super.dispose();
   }
 
-  Future<void> _getData({bool reset}) async {
+  Future<void> _getData({@required bool reset}) async {
     if (reset) {
-      _maxId = null;
-      _lastMaxId = null;
+      _page = 0;
     }
-
-    // has no next
-    if (widget.nothingMaxId == _maxId) {
-      return;
-    }
+    // 0 -> 1
+    _page++;
 
     // start refresh
-    final func = widget.getData(maxId: _maxId);
+    final func = widget.getData(page: _page);
     _loading = true;
     if (mounted) setState(() {});
 
-    return func.then((data) async {
-      // success to get data, update maxId, empty errorMessage
-      _lastMaxId = _maxId;
-      _maxId = data.maxId;
+    return func.then((List<T> list) async {
+      // success to get data, empty errorMessage
       _errorMessage = null;
       if (reset) {
         widget.data.clear();
         if (mounted) setState(() {});
         await Future.delayed(Duration(milliseconds: 20)); // must delayed
-        widget.data.addAll(data.data);
+        widget.data.addAll(list);
       } else {
-        widget.data.addAll(data.data); // append directly
+        widget.data.addAll(list); // append directly
         _controller.scrollDown();
       }
-      if (data.data.length == 0) {
-        _maxId = _lastMaxId; // not next, problem!!!!!!
+      if (list.length == 0) {
+        _page--; // not next, restore last page
       }
     }).catchError((e) {
-      // error arowsed, restore last maxId
+      // error arowsed, restore last page
       _errorMessage = e.toString();
-      _maxId = _lastMaxId;
+      _page--;
     }).whenComplete(() {
       // finish loading
       _loading = false;
@@ -140,25 +135,36 @@ class _AppendableSeriesListViewState<T, U> extends State<AppendableSeriesListVie
           errorText: _errorMessage,
           isEmpty: widget.data.isEmpty,
           onChanged: widget.onStateChanged,
-          childBuilder: (c) => Column(
-            children: [
-              widget.topWidget ?? SizedBox(height: 0),
-              Expanded(
-                child: Scrollbar(
-                  child: ListView.separated(
-                    controller: _controller,
-                    shrinkWrap: widget.shrinkWrap ?? false,
-                    physics: widget.physics,
-                    reverse: widget.reverse ?? false,
-                    padding: widget.padding,
-                    itemCount: widget.data.length,
-                    separatorBuilder: (c, idx) => widget.separator ?? SizedBox(height: 0),
-                    itemBuilder: (c, idx) => widget.itemBuilder(c, widget.data[idx]),
+          childBuilder: (c) => Scrollbar(
+            child: CustomScrollView(
+              controller: _controller,
+              shrinkWrap: widget.shrinkWrap ?? false,
+              physics: widget.physics,
+              reverse: widget.reverse ?? false,
+              slivers: [
+                widget.topSliver ?? SliverToBoxAdapter(),
+                SliverPadding(
+                  padding: widget.padding,
+                  sliver: SliverList(
+                    delegate: widget.separator == null
+                        ? SliverChildBuilderDelegate(
+                            (c, idx) => widget.itemBuilder(c, widget.data[idx]),
+                            childCount: widget.data.length,
+                          )
+                        : SliverChildBuilderDelegate(
+                            (c, idx) => idx % 2 == 0
+                                ? widget.itemBuilder(
+                                    c,
+                                    widget.data[idx ~/ 2],
+                                  )
+                                : widget.separator,
+                            childCount: widget.data.length * 2 - 1,
+                          ),
                   ),
                 ),
-              ),
-              widget.bottomWidget ?? SizedBox(height: 0),
-            ],
+                widget.bottomSliver ?? SliverToBoxAdapter(),
+              ],
+            ),
           ),
         ),
       ),

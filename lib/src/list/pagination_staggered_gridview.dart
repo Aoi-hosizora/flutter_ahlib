@@ -3,49 +3,60 @@ import 'package:flutter_ahlib/src/list/append_indicator.dart';
 import 'package:flutter_ahlib/src/list/placeholder_text.dart';
 import 'package:flutter_ahlib/src/list/scroll_more_controller.dart';
 import 'package:flutter_ahlib/src/list/type.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
-class AppendableSeriesSliverListView<T, U> extends StatefulWidget {
-  const AppendableSeriesSliverListView({
+/// Appendable pagination `StaggeredGridView` which packing `AppendIndicator`, `RefreshIndicator`, `PlaceholderText`, `Scrollbar` and `ListView`
+class PaginationStaggeredGridView<T> extends StatefulWidget {
+  const PaginationStaggeredGridView({
     Key key,
     @required this.data,
     @required this.getData,
-    @required this.nothingMaxId,
     this.onStateChanged,
     this.placeholderSetting,
     this.controller,
     @required this.itemBuilder,
+    @required this.staggeredTileBuilder,
     this.padding,
     this.shrinkWrap,
     this.physics,
     this.reverse,
-    this.separator,
-    this.topSliver,
-    this.bottomSliver,
+    this.primary,
+    @required this.crossAxisCount,
+    this.crossAxisSpacing = 0,
+    this.mainAxisSpacing = 0,
+    this.topWidget,
+    this.bottomWidget,
   })  : assert(data != null),
         assert(getData != null),
         assert(itemBuilder != null),
+        assert(staggeredTileBuilder != null),
+        assert(crossAxisCount != null),
         super(key: key);
 
   final List<T> data;
-  final GetSeriesDataFunction<T, U> getData;
-  final U nothingMaxId;
+  final GetPageDataFunction<T> getData;
   final PlaceholderStateChangedCallback onStateChanged;
   final PlaceholderSetting placeholderSetting;
   final ScrollMoreController controller;
   final Widget Function(BuildContext, T) itemBuilder;
+  final StaggeredTile Function(int) staggeredTileBuilder;
   final EdgeInsetsGeometry padding;
   final bool shrinkWrap;
   final ScrollPhysics physics;
   final bool reverse;
-  final Widget separator;
-  final Widget topSliver;
-  final Widget bottomSliver;
+  final bool primary;
+  final int crossAxisCount;
+  final double crossAxisSpacing;
+  final double mainAxisSpacing;
+  final Widget topWidget;
+  final Widget bottomWidget;
+
   @override
-  _AppendableSeriesSliverListViewState<T, U> createState() => _AppendableSeriesSliverListViewState<T, U>();
+  _PaginationStaggeredGridViewState<T> createState() => _PaginationStaggeredGridViewState<T>();
 }
 
-class _AppendableSeriesSliverListViewState<T, U> extends State<AppendableSeriesSliverListView<T, U>>
-    with AutomaticKeepAliveClientMixin<AppendableSeriesSliverListView<T, U>> {
+class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGridView<T>>
+    with AutomaticKeepAliveClientMixin<PaginationStaggeredGridView<T>> {
   @override
   bool get wantKeepAlive => true;
 
@@ -54,8 +65,8 @@ class _AppendableSeriesSliverListViewState<T, U> extends State<AppendableSeriesS
   GlobalKey<AppendIndicatorState> _appendIndicatorKey;
   GlobalKey<RefreshIndicatorState> _refreshIndicatorKey;
 
-  // id data, last id data, error message
-  U _maxId, _lastMaxId;
+  // page data, error message
+  int _page = 0;
   bool _loading = true;
   String _errorMessage;
 
@@ -67,7 +78,6 @@ class _AppendableSeriesSliverListViewState<T, U> extends State<AppendableSeriesS
     WidgetsBinding.instance.addPostFrameCallback((_) => _refreshIndicatorKey?.currentState?.show());
 
     _controller = widget.controller ?? ScrollMoreController();
-    _controller.attachAppend(_appendIndicatorKey);
     _controller.attachRefresh(_refreshIndicatorKey);
   }
 
@@ -79,43 +89,37 @@ class _AppendableSeriesSliverListViewState<T, U> extends State<AppendableSeriesS
     super.dispose();
   }
 
-  Future<void> _getData({bool reset}) async {
+  Future<void> _getData({@required bool reset}) async {
     if (reset) {
-      _maxId = null;
-      _lastMaxId = null;
+      _page = 0;
     }
-
-    // has no next
-    if (widget.nothingMaxId == _maxId) {
-      return;
-    }
+    // 0 -> 1
+    _page++;
 
     // start refresh
-    final func = widget.getData(maxId: _maxId);
+    final func = widget.getData(page: _page);
     _loading = true;
     if (mounted) setState(() {});
 
-    return func.then((data) async {
-      // success to get data, update maxId, empty errorMessage
-      _lastMaxId = _maxId;
-      _maxId = data.maxId;
+    return func.then((List<T> list) async {
+      // success to get data, empty errorMessage
       _errorMessage = null;
       if (reset) {
         widget.data.clear();
         if (mounted) setState(() {});
         await Future.delayed(Duration(milliseconds: 20)); // must delayed
-        widget.data.addAll(data.data);
+        widget.data.addAll(list);
       } else {
-        widget.data.addAll(data.data); // append directly
+        widget.data.addAll(list); // append directly
         _controller.scrollDown();
       }
-      if (data.data.length == 0) {
-        _maxId = _lastMaxId; // not next, problem!!!!!!
+      if (list.length == 0) {
+        _page--; // not next, restore last page
       }
     }).catchError((e) {
-      // error arowsed, restore last maxId
+      // error arowsed, restore last page
       _errorMessage = e.toString();
-      _maxId = _lastMaxId;
+      _page--;
     }).whenComplete(() {
       // finish loading
       _loading = false;
@@ -139,36 +143,29 @@ class _AppendableSeriesSliverListViewState<T, U> extends State<AppendableSeriesS
           errorText: _errorMessage,
           isEmpty: widget.data.isEmpty,
           onChanged: widget.onStateChanged,
-          childBuilder: (c) => Scrollbar(
-            child: CustomScrollView(
-              // controller: _controller, // TODO
-              shrinkWrap: widget.shrinkWrap ?? false,
-              physics: widget.physics,
-              reverse: widget.reverse ?? false,
-              slivers: [
-                widget.topSliver ?? SliverToBoxAdapter(),
-                SliverPadding(
-                  padding: widget.padding,
-                  sliver: SliverList(
-                    delegate: widget.separator == null
-                        ? SliverChildBuilderDelegate(
-                            (c, idx) => widget.itemBuilder(c, widget.data[idx]),
-                            childCount: widget.data.length,
-                          )
-                        : SliverChildBuilderDelegate(
-                            (c, idx) => idx % 2 == 0
-                                ? widget.itemBuilder(
-                                    c,
-                                    widget.data[idx ~/ 2],
-                                  )
-                                : widget.separator,
-                            childCount: widget.data.length * 2 - 1,
-                          ),
+          childBuilder: (c) => Column(
+            children: [
+              widget.topWidget ?? SizedBox(height: 0),
+              Expanded(
+                child: Scrollbar(
+                  child: StaggeredGridView.countBuilder(
+                    controller: _controller,
+                    padding: widget.padding,
+                    shrinkWrap: widget.shrinkWrap ?? false,
+                    physics: widget.physics,
+                    reverse: widget.reverse ?? false,
+                    primary: widget.primary,
+                    crossAxisSpacing: widget.crossAxisSpacing,
+                    mainAxisSpacing: widget.mainAxisSpacing,
+                    crossAxisCount: widget.crossAxisCount,
+                    staggeredTileBuilder: widget.staggeredTileBuilder,
+                    itemCount: widget.data.length,
+                    itemBuilder: (c, idx) => widget.itemBuilder(c, widget.data[idx]),
                   ),
                 ),
-                widget.bottomSliver ?? SliverToBoxAdapter(),
-              ],
-            ),
+              ),
+              widget.bottomWidget ?? SizedBox(height: 0),
+            ],
           ),
         ),
       ),

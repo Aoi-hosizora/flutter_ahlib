@@ -4,9 +4,9 @@ import 'package:flutter_ahlib/src/list/scroll_more_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/src/list/type.dart';
 
-/// Appendable `ListView` which packing `AppendIndicator`, `RefreshIndicator`, `PlaceholderText`, `Scrollbar` and `ListView`
-class AppendableListView<T> extends StatefulWidget {
-  const AppendableListView({
+/// Appendable pagination `ListView` which packing `AppendIndicator`, `RefreshIndicator`, `PlaceholderText`, `Scrollbar` and `ListView`
+class PaginationListView<T> extends StatefulWidget {
+  const PaginationListView({
     Key key,
     @required this.data,
     @required this.getData,
@@ -43,10 +43,10 @@ class AppendableListView<T> extends StatefulWidget {
   final Widget bottomWidget;
 
   @override
-  _AppendableListViewState<T> createState() => _AppendableListViewState<T>();
+  _PaginationListViewState<T> createState() => _PaginationListViewState<T>();
 }
 
-class _AppendableListViewState<T> extends State<AppendableListView<T>> with AutomaticKeepAliveClientMixin<AppendableListView<T>> {
+class _PaginationListViewState<T> extends State<PaginationListView<T>> with AutomaticKeepAliveClientMixin<PaginationListView<T>> {
   @override
   bool get wantKeepAlive => true;
 

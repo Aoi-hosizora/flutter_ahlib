@@ -35,3 +35,8 @@
 ## [1.0.10] - Add two AppendableList
 
 + Add `AppendableSeriesStaggeredGridView` and `AppendableStaggeredGridView`
+
+## [1.0.11] - Update list package
+
++ Update some name: `PaginationListView` `SeriationListView` `PaginationStaggeredGridView` `SeriationStaggeredGridView`
++ Add sliver: `RefreshableSliverListView` `PaginationSliverListView` `SeriationSliverListView`

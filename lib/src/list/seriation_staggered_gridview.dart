@@ -5,12 +5,13 @@ import 'package:flutter_ahlib/src/list/scroll_more_controller.dart';
 import 'package:flutter_ahlib/src/list/type.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
-/// Appendable `StaggeredGridView` which packing `AppendIndicator`, `RefreshIndicator`, `PlaceholderText`, `Scrollbar` and `ListView`
-class AppendableStaggeredGridView<T> extends StatefulWidget {
-  const AppendableStaggeredGridView({
+/// Appendable series `StaggeredGridView` which packing `AppendIndicator`, `RefreshIndicator`, `PlaceholderText`, `Scrollbar` and `ListView`
+class SeriationStaggeredGridView<T, U> extends StatefulWidget {
+  const SeriationStaggeredGridView({
     Key key,
     @required this.data,
     @required this.getData,
+    @required this.nothingMaxId,
     this.onStateChanged,
     this.placeholderSetting,
     this.controller,
@@ -34,7 +35,8 @@ class AppendableStaggeredGridView<T> extends StatefulWidget {
         super(key: key);
 
   final List<T> data;
-  final GetPageDataFunction<T> getData;
+  final GetSeriesDataFunction<T, U> getData;
+  final U nothingMaxId;
   final PlaceholderStateChangedCallback onStateChanged;
   final PlaceholderSetting placeholderSetting;
   final ScrollMoreController controller;
@@ -52,11 +54,11 @@ class AppendableStaggeredGridView<T> extends StatefulWidget {
   final Widget bottomWidget;
 
   @override
-  _AppendableStaggeredGridViewState<T> createState() => _AppendableStaggeredGridViewState<T>();
+  _SeriationStaggeredGridViewState<T, U> createState() => _SeriationStaggeredGridViewState<T, U>();
 }
 
-class _AppendableStaggeredGridViewState<T> extends State<AppendableStaggeredGridView<T>>
-    with AutomaticKeepAliveClientMixin<AppendableStaggeredGridView<T>> {
+class _SeriationStaggeredGridViewState<T, U> extends State<SeriationStaggeredGridView<T, U>>
+    with AutomaticKeepAliveClientMixin<SeriationStaggeredGridView<T, U>> {
   @override
   bool get wantKeepAlive => true;
 
@@ -65,8 +67,8 @@ class _AppendableStaggeredGridViewState<T> extends State<AppendableStaggeredGrid
   GlobalKey<AppendIndicatorState> _appendIndicatorKey;
   GlobalKey<RefreshIndicatorState> _refreshIndicatorKey;
 
-  // page data, error message
-  int _page = 0;
+  // id data, last id data, error message
+  U _maxId, _lastMaxId;
   bool _loading = true;
   String _errorMessage;
 
@@ -91,35 +93,41 @@ class _AppendableStaggeredGridViewState<T> extends State<AppendableStaggeredGrid
 
   Future<void> _getData({@required bool reset}) async {
     if (reset) {
-      _page = 0;
+      _maxId = null;
+      _lastMaxId = null;
     }
-    // 0 -> 1
-    _page++;
+
+    // has no next
+    if (widget.nothingMaxId == _maxId) {
+      return;
+    }
 
     // start refresh
-    final func = widget.getData(page: _page);
+    final func = widget.getData(maxId: _maxId);
     _loading = true;
     if (mounted) setState(() {});
 
-    return func.then((List<T> list) async {
-      // success to get data, empty errorMessage
+    return func.then((data) async {
+      // success to get data, update maxId, empty errorMessage
+      _lastMaxId = _maxId;
+      _maxId = data.maxId;
       _errorMessage = null;
       if (reset) {
         widget.data.clear();
         if (mounted) setState(() {});
         await Future.delayed(Duration(milliseconds: 20)); // must delayed
-        widget.data.addAll(list);
+        widget.data.addAll(data.data);
       } else {
-        widget.data.addAll(list); // append directly
+        widget.data.addAll(data.data); // append directly
         _controller.scrollDown();
       }
-      if (list.length == 0) {
-        _page--; // not next, restore last page
+      if (data.data.length == 0) {
+        _maxId = _lastMaxId; // not next, problem!!!!!!
       }
     }).catchError((e) {
-      // error arowsed, restore last page
+      // error arowsed, restore last maxId
       _errorMessage = e.toString();
-      _page--;
+      _maxId = _lastMaxId;
     }).whenComplete(() {
       // finish loading
       _loading = false;

@@ -18,17 +18,19 @@ export 'src/list/scroll_more_controller.dart';
 export 'src/list/type.dart';
 
 // list - listview
-export 'src/list/appendable_listview.dart';
-export 'src/list/appendable_series_listview.dart';
+export 'src/list/pagination_listview.dart';
+export 'src/list/seriation_listview.dart';
 export 'src/list/refreshable_listview.dart';
 
 // list - gridview
-export 'src/list/appendable_staggered_gridview.dart';
-export 'src/list/appendable_series_staggered_gridview.dart';
+export 'src/list/pagination_staggered_gridview.dart';
+export 'src/list/seriation_staggered_gridview.dart';
 export 'src/list/refreshable_staggered_gridview.dart';
 
-// list - sliverlist
-export 'src/list/appendable_series_sliver_listview.dart';
+// list - sliver listview
+export 'src/list/pagination_sliver_listview.dart';
+export 'src/list/seriation_sliver_listview.dart';
+export 'src/list/refreshable_sliver_listview.dart';
 
 // menu
 export 'src/menu/drawer.dart';

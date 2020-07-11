@@ -4,7 +4,7 @@
 + See package in https://pub.dev/packages/flutter_ahlib
 
 ```yaml
-flutter_ahlib: ^1.0.10
+flutter_ahlib: ^1.0.11
 ```
 
 ### Usage
@@ -15,16 +15,19 @@ import 'package:flutter_ahlib/flutter_ahlib.dart';
 
 ### Functions
 
-+ List helper widgets:
++ List / SliverList helper widgets:
     + `AppendIndicator`
     + `PlaceholderText`
-    + `AppendableListView`
-    + `AppendableStaggeredGridView`
-    + `AppendableSeriesListView`
-    + `AppendableSeriesStaggeredGridView`
+    + `ScrollMoreController`
     + `RefreshableListView`
     + `RefreshableStaggeredGridView`
-    + `ScrollMoreController`
+    + `RefreshableSliverListView`
+    + `PaginationListView`
+    + `PaginationStaggeredGridView`
+    + `PaginationSliverListView`
+    + `SeriationListView`
+    + `SeriationStaggeredGridView`
+    + `SeriationSliverListView`
 + Fab helper widgets:
     + `ScrollFloatingActionButton`
     + `ScrollFabController`
