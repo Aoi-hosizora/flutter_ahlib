@@ -50,8 +50,6 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
   @override
   bool get wantKeepAlive => true;
 
-  // copy of widget.controller or new controller
-  ScrollMoreController _controller;
   GlobalKey<AppendIndicatorState> _appendIndicatorKey;
   GlobalKey<RefreshIndicatorState> _refreshIndicatorKey;
 
@@ -67,16 +65,12 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
     _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
     WidgetsBinding.instance.addPostFrameCallback((_) => _refreshIndicatorKey?.currentState?.show());
 
-    _controller = widget.controller ?? ScrollMoreController();
-    _controller.attachAppend(_appendIndicatorKey);
-    _controller.attachRefresh(_refreshIndicatorKey);
+    widget.controller?.attachAppend(_appendIndicatorKey);
+    widget.controller?.attachRefresh(_refreshIndicatorKey);
   }
 
   @override
   void dispose() {
-    if (_controller != widget.controller) {
-      _controller.dispose();
-    }
     super.dispose();
   }
 
@@ -102,7 +96,7 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
         widget.data.addAll(list);
       } else {
         widget.data.addAll(list); // append directly
-        _controller.scrollDown();
+        widget.controller?.scrollDown();
       }
       if (list.length == 0) {
         _page--; // not next, restore last page
@@ -140,7 +134,7 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
               Expanded(
                 child: Scrollbar(
                   child: ListView.separated(
-                    controller: _controller,
+                    controller: widget.controller,
                     shrinkWrap: widget.shrinkWrap ?? false,
                     physics: widget.physics,
                     reverse: widget.reverse ?? false,

@@ -62,8 +62,6 @@ class _SeriationStaggeredGridViewState<T, U> extends State<SeriationStaggeredGri
   @override
   bool get wantKeepAlive => true;
 
-  // copy of widget.controller or new controller
-  ScrollMoreController _controller;
   GlobalKey<AppendIndicatorState> _appendIndicatorKey;
   GlobalKey<RefreshIndicatorState> _refreshIndicatorKey;
 
@@ -79,16 +77,8 @@ class _SeriationStaggeredGridViewState<T, U> extends State<SeriationStaggeredGri
     _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
     WidgetsBinding.instance.addPostFrameCallback((_) => _refreshIndicatorKey?.currentState?.show());
 
-    _controller = widget.controller ?? ScrollMoreController();
-    _controller.attachRefresh(_refreshIndicatorKey);
-  }
-
-  @override
-  void dispose() {
-    if (_controller != widget.controller) {
-      _controller.dispose();
-    }
-    super.dispose();
+    widget.controller?.attachAppend(_appendIndicatorKey);
+    widget.controller?.attachRefresh(_refreshIndicatorKey);
   }
 
   Future<void> _getData({@required bool reset}) async {
@@ -119,7 +109,7 @@ class _SeriationStaggeredGridViewState<T, U> extends State<SeriationStaggeredGri
         widget.data.addAll(data.data);
       } else {
         widget.data.addAll(data.data); // append directly
-        _controller.scrollDown();
+        widget.controller?.scrollDown();
       }
       if (data.data.length == 0) {
         _maxId = _lastMaxId; // not next, problem!!!!!!
@@ -157,7 +147,7 @@ class _SeriationStaggeredGridViewState<T, U> extends State<SeriationStaggeredGri
               Expanded(
                 child: Scrollbar(
                   child: StaggeredGridView.countBuilder(
-                    controller: _controller,
+                    controller: widget.controller,
                     padding: widget.padding,
                     shrinkWrap: widget.shrinkWrap ?? false,
                     physics: widget.physics,

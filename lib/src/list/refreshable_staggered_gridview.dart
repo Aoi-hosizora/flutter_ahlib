@@ -59,8 +59,6 @@ class _RefreshableStaggeredGridViewState<T> extends State<RefreshableStaggeredGr
   @override
   bool get wantKeepAlive => true;
 
-  // copy of widget.controller or new controller
-  ScrollMoreController _controller;
   GlobalKey<RefreshIndicatorState> _refreshIndicatorKey;
 
   // loading, error message
@@ -72,17 +70,6 @@ class _RefreshableStaggeredGridViewState<T> extends State<RefreshableStaggeredGr
     super.initState();
     _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
     WidgetsBinding.instance.addPostFrameCallback((_) => _refreshIndicatorKey?.currentState?.show());
-
-    _controller = widget.controller ?? ScrollMoreController();
-    _controller.attachRefresh(_refreshIndicatorKey);
-  }
-
-  @override
-  void dispose() {
-    if (_controller != widget.controller) {
-      _controller.dispose();
-    }
-    super.dispose();
   }
 
   Future<void> _getData() async {
@@ -128,6 +115,7 @@ class _RefreshableStaggeredGridViewState<T> extends State<RefreshableStaggeredGr
             Expanded(
               child: Scrollbar(
                 child: StaggeredGridView.countBuilder(
+                  controller: widget.controller,
                   padding: widget.padding,
                   shrinkWrap: widget.shrinkWrap ?? false,
                   physics: widget.physics,

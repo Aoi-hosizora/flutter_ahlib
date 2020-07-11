@@ -6,10 +6,9 @@ class ScrollFloatingActionButton extends StatefulWidget {
   const ScrollFloatingActionButton({
     Key key,
     this.fabController,
-    @required this.scrollController,
+    this.scrollController,
     @required this.fab,
-  })  : assert(scrollController != null),
-        assert(fab != null),
+  })  : assert(fab != null),
         super(key: key);
 
   final ScrollFabController fabController;
@@ -39,7 +38,8 @@ class _ScrollFloatingActionButtonState extends State<ScrollFloatingActionButton>
       parent: _animeController,
       curve: Interval(0, 1, curve: Curves.easeOutBack),
     );
-    widget.scrollController.addListener(_scrollListener);
+
+    widget.scrollController?.addListener(_scrollListener);
     widget.fabController?.attach(_animeController);
   }
 

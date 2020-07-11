@@ -32,10 +32,6 @@
 + Split `lib/src/list` to `lib/src/fab`
 + Add some document comments
 
-## [1.0.10] - Add two AppendableList
-
-+ Add `AppendableSeriesStaggeredGridView` and `AppendableStaggeredGridView`
-
 ## [1.0.11] - Update list package
 
 + Update some name: `PaginationListView` `SeriationListView` `PaginationStaggeredGridView` `SeriationStaggeredGridView`

@@ -13,6 +13,7 @@ class PaginationSliverListView<T> extends StatefulWidget {
     this.onStateChanged,
     this.placeholderSetting,
     this.controller,
+    this.innerController,
     @required this.itemBuilder,
     this.padding,
     this.shrinkWrap,
@@ -32,6 +33,7 @@ class PaginationSliverListView<T> extends StatefulWidget {
   final PlaceholderStateChangedCallback onStateChanged;
   final PlaceholderSetting placeholderSetting;
   final ScrollMoreController controller;
+  final ScrollController innerController;
   final Widget Function(BuildContext, T) itemBuilder;
   final EdgeInsetsGeometry padding;
   final bool shrinkWrap;
@@ -51,8 +53,6 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
   @override
   bool get wantKeepAlive => true;
 
-  // copy of widget.controller or new controller
-  ScrollMoreController _controller;
   GlobalKey<AppendIndicatorState> _appendIndicatorKey;
   GlobalKey<RefreshIndicatorState> _refreshIndicatorKey;
 
@@ -68,17 +68,8 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
     _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
     WidgetsBinding.instance.addPostFrameCallback((_) => _refreshIndicatorKey?.currentState?.show());
 
-    _controller = widget.controller ?? ScrollMoreController();
-    _controller.attachAppend(_appendIndicatorKey);
-    _controller.attachRefresh(_refreshIndicatorKey);
-  }
-
-  @override
-  void dispose() {
-    if (_controller != widget.controller) {
-      _controller.dispose();
-    }
-    super.dispose();
+    widget.controller?.attachAppend(_appendIndicatorKey);
+    widget.controller?.attachRefresh(_refreshIndicatorKey);
   }
 
   Future<void> _getData({@required bool reset}) async {
@@ -103,7 +94,7 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
         widget.data.addAll(list);
       } else {
         widget.data.addAll(list); // append directly
-        _controller.scrollDown();
+        widget.controller?.scrollDown();
       }
       if (list.length == 0) {
         _page--; // not next, restore last page
@@ -137,7 +128,7 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
           onChanged: widget.onStateChanged,
           childBuilder: (c) => Scrollbar(
             child: CustomScrollView(
-              controller: _controller,
+              controller: widget.innerController,
               shrinkWrap: widget.shrinkWrap ?? false,
               physics: widget.physics,
               reverse: widget.reverse ?? false,

@@ -12,6 +12,7 @@ class RefreshableSliverListView<T> extends StatefulWidget {
     this.onStateChanged,
     this.placeholderSetting,
     this.controller,
+    this.innerController,
     @required this.itemBuilder,
     this.padding,
     this.shrinkWrap,
@@ -31,6 +32,7 @@ class RefreshableSliverListView<T> extends StatefulWidget {
   final PlaceholderStateChangedCallback onStateChanged;
   final PlaceholderSetting placeholderSetting;
   final ScrollMoreController controller;
+  final ScrollController innerController;
   final Widget Function(BuildContext, T) itemBuilder;
   final EdgeInsetsGeometry padding;
   final bool shrinkWrap;
@@ -50,8 +52,6 @@ class _RefreshableSliverListViewState<T> extends State<RefreshableSliverListView
   @override
   bool get wantKeepAlive => true;
 
-  // copy of widget.controller or new controller
-  ScrollMoreController _controller;
   GlobalKey<RefreshIndicatorState> _refreshIndicatorKey;
 
   // loading, error message
@@ -64,16 +64,7 @@ class _RefreshableSliverListViewState<T> extends State<RefreshableSliverListView
     _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
     WidgetsBinding.instance.addPostFrameCallback((_) => _refreshIndicatorKey?.currentState?.show());
 
-    _controller = widget.controller ?? ScrollMoreController();
-    _controller.attachRefresh(_refreshIndicatorKey);
-  }
-
-  @override
-  void dispose() {
-    if (_controller != widget.controller) {
-      _controller.dispose();
-    }
-    super.dispose();
+    widget.controller?.attachRefresh(_refreshIndicatorKey);
   }
 
   Future<void> _getData() async {
@@ -115,7 +106,7 @@ class _RefreshableSliverListViewState<T> extends State<RefreshableSliverListView
         onChanged: widget.onStateChanged,
         childBuilder: (c) => Scrollbar(
           child: CustomScrollView(
-            controller: _controller,
+            controller: widget.innerController,
             shrinkWrap: widget.shrinkWrap ?? false,
             physics: widget.physics,
             reverse: widget.reverse ?? false,

@@ -49,8 +49,6 @@ class _RefreshableListViewState<T> extends State<RefreshableListView<T>> with Au
   @override
   bool get wantKeepAlive => true;
 
-  // copy of widget.controller or new controller
-  ScrollMoreController _controller;
   GlobalKey<RefreshIndicatorState> _refreshIndicatorKey;
 
   // loading, error message
@@ -63,16 +61,7 @@ class _RefreshableListViewState<T> extends State<RefreshableListView<T>> with Au
     _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
     WidgetsBinding.instance.addPostFrameCallback((_) => _refreshIndicatorKey?.currentState?.show());
 
-    _controller = widget.controller ?? ScrollMoreController();
-    _controller.attachRefresh(_refreshIndicatorKey);
-  }
-
-  @override
-  void dispose() {
-    if (_controller != widget.controller) {
-      _controller.dispose();
-    }
-    super.dispose();
+    widget.controller?.attachRefresh(_refreshIndicatorKey);
   }
 
   Future<void> _getData() async {
@@ -118,7 +107,7 @@ class _RefreshableListViewState<T> extends State<RefreshableListView<T>> with Au
             Expanded(
               child: Scrollbar(
                 child: ListView.separated(
-                  controller: _controller,
+                  controller: widget.controller,
                   shrinkWrap: widget.shrinkWrap ?? false,
                   physics: widget.physics,
                   reverse: widget.reverse ?? false,

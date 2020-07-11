@@ -14,6 +14,7 @@ class SeriationSliverListView<T, U> extends StatefulWidget {
     this.onStateChanged,
     this.placeholderSetting,
     this.controller,
+    this.innerController,
     @required this.itemBuilder,
     this.padding,
     this.shrinkWrap,
@@ -33,6 +34,7 @@ class SeriationSliverListView<T, U> extends StatefulWidget {
   final PlaceholderStateChangedCallback onStateChanged;
   final PlaceholderSetting placeholderSetting;
   final ScrollMoreController controller;
+  final ScrollController innerController;
   final Widget Function(BuildContext, T) itemBuilder;
   final EdgeInsetsGeometry padding;
   final bool shrinkWrap;
@@ -50,8 +52,6 @@ class _SeriationSliverListViewState<T, U> extends State<SeriationSliverListView<
   @override
   bool get wantKeepAlive => true;
 
-  // copy of widget.controller or new controller
-  ScrollMoreController _controller;
   GlobalKey<AppendIndicatorState> _appendIndicatorKey;
   GlobalKey<RefreshIndicatorState> _refreshIndicatorKey;
 
@@ -67,17 +67,9 @@ class _SeriationSliverListViewState<T, U> extends State<SeriationSliverListView<
     _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
     WidgetsBinding.instance.addPostFrameCallback((_) => _refreshIndicatorKey?.currentState?.show());
 
-    _controller = widget.controller ?? ScrollMoreController();
-    _controller.attachAppend(_appendIndicatorKey);
-    _controller.attachRefresh(_refreshIndicatorKey);
-  }
-
-  @override
-  void dispose() {
-    if (_controller != widget.controller) {
-      _controller.dispose();
-    }
-    super.dispose();
+    widget.controller?.bind(() => widget.innerController);
+    widget.controller?.attachAppend(_appendIndicatorKey);
+    widget.controller?.attachRefresh(_refreshIndicatorKey);
   }
 
   Future<void> _getData({bool reset}) async {
@@ -108,7 +100,7 @@ class _SeriationSliverListViewState<T, U> extends State<SeriationSliverListView<
         widget.data.addAll(data.data);
       } else {
         widget.data.addAll(data.data); // append directly
-        _controller.scrollDown();
+        widget.controller?.scrollDown();
       }
       if (data.data.length == 0) {
         _maxId = _lastMaxId; // not next, problem!!!!!!
@@ -142,7 +134,7 @@ class _SeriationSliverListViewState<T, U> extends State<SeriationSliverListView<
           onChanged: widget.onStateChanged,
           childBuilder: (c) => Scrollbar(
             child: CustomScrollView(
-              controller: _controller,
+              controller: widget.innerController,
               shrinkWrap: widget.shrinkWrap ?? false,
               physics: widget.physics,
               reverse: widget.reverse ?? false,
