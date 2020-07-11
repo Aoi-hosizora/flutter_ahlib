@@ -14,74 +14,71 @@ class ScrollMoreController extends ScrollController {
   void detachAppend() => _appendIndicatorKey = null;
   void detachRefresh() => _refreshIndicatorKey = null;
 
-  ScrollController Function() _controllerFunc;
-  ScrollController get _controller {
-    var a = _controllerFunc?.call();
-    print(a == null);
-    return a;
-  }
+  ScrollController Function() _bindCtrlFunc;
+  ScrollController get _bindedCtrl => _bindCtrlFunc?.call();
 
-  void bind(ScrollController Function() func) => _controllerFunc = func;
-  void unbind() => _controllerFunc = null;
+  void bind(ScrollController Function() func) => _bindCtrlFunc = func;
+  void unbind() => _bindCtrlFunc = null;
 
   @override
   void addListener(VoidCallback listener) {
-    var f = _controller?.addListener ?? super.addListener;
+    var f = _bindedCtrl?.addListener ?? super.addListener;
     f(listener);
   }
 
   @override
   void removeListener(VoidCallback listener) {
-    var f = _controller?.removeListener ?? super.removeListener;
+    var f = _bindedCtrl?.removeListener ?? super.removeListener;
     f(listener);
   }
 
   @protected
   @override
   void notifyListeners() {
-    var f = _controller?.notifyListeners ?? super.notifyListeners;
+    var f = _bindedCtrl?.notifyListeners ?? super.notifyListeners;
     return f();
   }
 
   @override
   Future<void> animateTo(double offset, {@required Duration duration, @required Curve curve}) {
-    var f = _controller?.animateTo ?? super.animateTo;
+    print(_bindedCtrl == null);
+    var f = _bindedCtrl?.animateTo ?? super.animateTo;
     return f(offset, duration: duration, curve: curve);
   }
 
   @override
   void jumpTo(double value) {
-    var f = _controller?.jumpTo ?? super.jumpTo;
+    var f = _bindedCtrl?.jumpTo ?? super.jumpTo;
     return f(value);
   }
 
   @override
   ScrollPosition createScrollPosition(ScrollPhysics physics, ScrollContext context, ScrollPosition oldPosition) {
-    var f = _controller?.createScrollPosition ?? super.createScrollPosition;
+    var f = _bindedCtrl?.createScrollPosition ?? super.createScrollPosition;
     return f(physics, context, oldPosition);
   }
 
   @override
-  bool get hasClients => _controller?.hasClients ?? super.hasClients;
+  bool get hasClients => _bindedCtrl?.hasClients ?? super.hasClients;
 
   @override
-  bool get hasListeners => _controller?.hasListeners ?? super.hasListeners;
+  bool get hasListeners => _bindedCtrl?.hasListeners ?? super.hasListeners;
 
   @override
-  double get initialScrollOffset => _controller?.initialScrollOffset ?? super.initialScrollOffset;
+  double get initialScrollOffset => _bindedCtrl?.initialScrollOffset ?? super.initialScrollOffset;
 
   @override
-  bool get keepScrollOffset => _controller?.keepScrollOffset ?? super.keepScrollOffset;
+  bool get keepScrollOffset => _bindedCtrl?.keepScrollOffset ?? super.keepScrollOffset;
 
   @override
-  double get offset => _controller?.offset ?? super.offset;
+  double get offset => _bindedCtrl?.offset ?? super.offset;
 
   @override
-  ScrollPosition get position => _controller?.position ?? super.position;
+  ScrollPosition get position => _bindedCtrl?.position ?? super.position;
 
   @override
   @protected
-  Iterable<ScrollPosition> get positions => _controller?.positions ?? super.positions;
+  Iterable<ScrollPosition> get positions => _bindedCtrl?.positions ?? super.positions;
 
   void scrollWithAnimate(double offset) {
     animateTo(

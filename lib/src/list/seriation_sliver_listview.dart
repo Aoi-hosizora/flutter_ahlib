@@ -25,6 +25,7 @@ class SeriationSliverListView<T, U> extends StatefulWidget {
     this.bottomSliver,
   })  : assert(data != null),
         assert(getData != null),
+        assert(controller == null || innerController != null),
         assert(itemBuilder != null),
         super(key: key);
 

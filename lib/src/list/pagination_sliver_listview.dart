@@ -26,6 +26,7 @@ class PaginationSliverListView<T> extends StatefulWidget {
   })  : assert(data != null),
         assert(getData != null),
         assert(itemBuilder != null),
+        assert(controller == null || innerController != null),
         super(key: key);
 
   final List<T> data;
