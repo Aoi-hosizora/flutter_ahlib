@@ -1,5 +1,5 @@
+import 'package:flutter_ahlib/src/common/placeholder_text.dart';
 import 'package:flutter_ahlib/src/list/append_indicator.dart';
-import 'package:flutter_ahlib/src/list/placeholder_text.dart';
 import 'package:flutter_ahlib/src/list/scroll_more_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/src/list/type.dart';

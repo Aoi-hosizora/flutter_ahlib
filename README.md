@@ -15,9 +15,8 @@ import 'package:flutter_ahlib/flutter_ahlib.dart';
 
 ### Functions
 
-+ List / SliverList helper widgets:
++ List:
     + `AppendIndicator`
-    + `PlaceholderText`
     + `ScrollMoreController`
     + `RefreshableListView`
     + `RefreshableStaggeredGridView`
@@ -28,15 +27,18 @@ import 'package:flutter_ahlib/flutter_ahlib.dart';
     + `SeriationListView`
     + `SeriationStaggeredGridView`
     + `SeriationSliverListView`
-+ Fab helper widgets:
++ Common:
+    + `PlaceholderText`
     + `ScrollFloatingActionButton`
     + `ScrollFabController`
-+ Item widgets and functions:
+    + `ActionController`
+    + `DrawerListView`
+    + `showPopupMenu()`
++ Item:
     + `RippleSizedView`
     + `SliverContainer`
-+ Menu widgets and functions:
     + `IconText`
-    + `showPopupMenu()`
-    + `DrawerListView`
-+ Common:
-    + `ActionController`
+
+### Dependencies
+
++ [flutter_staggered_grid_view](https://pub.dev/packages/flutter_staggered_grid_view)

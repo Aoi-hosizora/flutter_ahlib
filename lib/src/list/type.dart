@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_ahlib/src/list/placeholder_text.dart';
 
 /// Append callback funtion, used in `AppendIndicator`
 typedef AppendCallback = Future<void> Function();
-
-/// Placeholder state changed callback function, used in `PlaceholderText`
-typedef PlaceholderStateChangedCallback = void Function(PlaceholderState);
 
 /// data model for `AppendableSeriesListView` and `AppendableSeriesStaggeredGridView`
 class SeriesData<T, U> {

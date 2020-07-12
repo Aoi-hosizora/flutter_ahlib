@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_ahlib/src/list/type.dart';
 
 /// `normal` : `!isEmpty`,
 /// `loading` : `isLoading`,
@@ -11,6 +10,9 @@ enum PlaceholderState {
   nothing,
   error,
 }
+
+/// Placeholder state changed callback function, used in `PlaceholderText`
+typedef PlaceholderStateChangedCallback = void Function(PlaceholderState);
 
 /// Setting for `PlaceholderText` display text and progress
 class PlaceholderSetting {
@@ -35,7 +37,7 @@ class PlaceholderText extends StatefulWidget {
   const PlaceholderText({
     Key key,
     @required this.childBuilder,
-    @required this.onRefresh,
+    this.onRefresh,
     @required this.state,
     this.errorText,
     this.onChanged,
@@ -46,7 +48,7 @@ class PlaceholderText extends StatefulWidget {
 
   PlaceholderText.from({
     @required Widget Function(BuildContext) childBuilder,
-    @required void Function() onRefresh,
+    void Function() onRefresh,
     String errorText,
     @required bool isEmpty,
     @required bool isLoading,

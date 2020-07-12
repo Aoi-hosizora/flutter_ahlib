@@ -1,5 +1,6 @@
-import 'package:flutter_ahlib/src/fab/scroll_fab_controller.dart';
+import 'package:flutter_ahlib/src/common/action_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_ahlib/src/common/scroll_fab_controller.dart';
 
 /// A fab which include scroll animation, which use `ScrollController` and register `ScrollFabController`
 class ScrollFloatingActionButton extends StatefulWidget {
@@ -26,6 +27,7 @@ class _ScrollFloatingActionButtonState extends State<ScrollFloatingActionButton>
   Animation<double> _fabAnimation;
   final _kFabAnimationOffset = 50;
   final _kFabAnimationDuration = Duration(milliseconds: 250);
+  ActionController _actionController;
 
   @override
   void initState() {
@@ -38,15 +40,21 @@ class _ScrollFloatingActionButtonState extends State<ScrollFloatingActionButton>
       parent: _animeController,
       curve: Interval(0, 1, curve: Curves.easeOutBack),
     );
+    _actionController = ActionController();
 
     widget.scrollController?.addListener(_scrollListener);
     widget.fabController?.attach(_animeController);
+    widget.fabController?.attachAction(_actionController);
+
+    _actionController.addAction('addListener', () => widget.scrollController?.addListener(_scrollListener));
+    _actionController.addAction('removeListener', () => widget.scrollController?.removeListener(_scrollListener));
   }
 
   @override
   void dispose() {
     _animeController.dispose();
-    widget.scrollController.removeListener(_scrollListener);
+    _actionController.dispose();
+    widget.scrollController?.removeListener(_scrollListener);
     super.dispose();
   }
 

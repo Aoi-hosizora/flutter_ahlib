@@ -20,6 +20,15 @@ class ScrollMoreController extends ScrollController {
   void bind(ScrollController Function() func) => _bindCtrlFunc = func;
   void unbind() => _bindCtrlFunc = null;
 
+  @mustCallSuper
+  @override
+  void dispose() {
+    detachAppend();
+    detachRefresh();
+    unbind();
+    super.dispose();
+  }
+
   @override
   void addListener(VoidCallback listener) {
     var f = _bindedCtrl?.addListener ?? super.addListener;
@@ -41,7 +50,6 @@ class ScrollMoreController extends ScrollController {
 
   @override
   Future<void> animateTo(double offset, {@required Duration duration, @required Curve curve}) {
-    print(_bindedCtrl == null);
     var f = _bindedCtrl?.animateTo ?? super.animateTo;
     return f(offset, duration: duration, curve: curve);
   }
@@ -80,6 +88,7 @@ class ScrollMoreController extends ScrollController {
   @protected
   Iterable<ScrollPosition> get positions => _bindedCtrl?.positions ?? super.positions;
 
+  /// Scroll with `easeOutCirc` and 500ms
   void scrollWithAnimate(double offset) {
     animateTo(
       offset,
