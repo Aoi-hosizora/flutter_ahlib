@@ -7,6 +7,7 @@ export 'src/common/drawer_list.dart';
 export 'src/common/popup_menu.dart';
 export 'src/common/scroll_fab.dart';
 export 'src/common/scroll_fab_controller.dart';
+export 'src/common/local_network_image_provider.dart';
 
 // item
 export 'src/item/ripple_view.dart';

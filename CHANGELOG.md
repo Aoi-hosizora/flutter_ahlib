@@ -36,3 +36,8 @@
 
 + Update some name: `PaginationListView` `SeriationListView` `PaginationStaggeredGridView` `SeriationStaggeredGridView`
 + Add sliver: `RefreshableSliverListView` `PaginationSliverListView` `SeriationSliverListView`
+
+## [1.0.12] - Add LocalOrNetworkImageProvider
+
++ Update file structure
++ Add `LocalOrNetworkImageProvider`
