@@ -17,6 +17,7 @@ class LocalOrNetworkImageProvider extends ImageProvider<image_provider.LocalOrNe
     this.headers,
     this.onFile,
     this.onNetwork,
+    this.cacheManager,
   })  : assert(file != null),
         assert(url != null);
 
@@ -30,6 +31,8 @@ class LocalOrNetworkImageProvider extends ImageProvider<image_provider.LocalOrNe
   final Function() onFile;
   @override
   final Function() onNetwork;
+  @override
+  final DefaultCacheManager cacheManager;
 
   @override
   Future<LocalOrNetworkImageProvider> obtainKey(ImageConfiguration configuration) {
@@ -37,7 +40,10 @@ class LocalOrNetworkImageProvider extends ImageProvider<image_provider.LocalOrNe
   }
 
   @override
-  ImageStreamCompleter load(image_provider.LocalOrNetworkImageProvider key, DecoderCallback decode) {
+  ImageStreamCompleter load(
+    image_provider.LocalOrNetworkImageProvider key,
+    DecoderCallback decode,
+  ) {
     final chunkEvents = StreamController<ImageChunkEvent>();
     return MultiFrameImageStreamCompleter(
       codec: _loadAsync(key, chunkEvents, decode).first,
@@ -62,7 +68,7 @@ class LocalOrNetworkImageProvider extends ImageProvider<image_provider.LocalOrNe
 
     var file = await this.file.call();
     var url = await key.url.call();
-    assert(file != null || url != null);
+    assert(file != null || (url != null && url.isNotEmpty));
 
     if (file != null && await file.exists()) {
       var bytes = await file.readAsBytes();
@@ -72,12 +78,11 @@ class LocalOrNetworkImageProvider extends ImageProvider<image_provider.LocalOrNe
       return;
     }
 
-    assert(url != null && url.isNotEmpty);
     try {
-      var mngr = DefaultCacheManager();
-      var h = headers ?? {};
-      h['Accept-Encoding'] = '';
+      var mngr = cacheManager ?? DefaultCacheManager();
+      var h = (headers ?? {})..['Accept-Encoding'] = '';
       var stream = mngr.getFileStream(url, withProgress: true, headers: h);
+
       int totalSize;
       http.head(url, headers: {
         'Accept': '*/*',
@@ -85,8 +90,10 @@ class LocalOrNetworkImageProvider extends ImageProvider<image_provider.LocalOrNe
       }).then((data) {
         totalSize = int.tryParse(data.headers['content-length']);
       });
+
       await for (var result in stream) {
         if (result is DownloadProgress) {
+          print('${result.downloaded} ${result.totalSize} $totalSize');
           chunkEvents.add(ImageChunkEvent(
             cumulativeBytesLoaded: result.downloaded,
             expectedTotalBytes: result.totalSize ?? totalSize,
