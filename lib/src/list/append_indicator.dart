@@ -3,15 +3,20 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/src/list/type.dart';
 
-/// `null` -> not contain Positioned,
-/// `none` -> is positioned animating,
-/// `appending` -> show and refreshing
+/// Used in `AnimatedOpacity` and `onAppend.whenComplete`.
+const _kAnimatedDuration = Duration(milliseconds: 500);
+
+/// Represents indicator's state.
 enum _AppendIndicatorMode {
+  /// Indicate is now positioned animating.
   none,
+
+  /// Indicate is now showing and refreshing.
   appending,
 }
 
-/// A indicator same with `RefreshIndicator`, show in the bottom of view, mainly for showing append infomation.
+/// An indicator widget same with [RefreshIndicator],
+/// show in the bottom of view, mainly used for showing append information.
 class AppendIndicator extends StatefulWidget {
   const AppendIndicator({
     Key key,
@@ -23,21 +28,26 @@ class AppendIndicator extends StatefulWidget {
         assert(onAppend != null),
         super(key: key);
 
+  /// The widget below this widget in the tree.
   final Widget child;
+
+  /// A function that's called when the indicator is appending.
   final AppendCallback onAppend;
+
+  /// The progress indicator's background color.
   final Color backgroundColor;
+
+  /// The progress indicator's color as an animated value.
   final Animation<Color> valueColor;
 
   @override
   AppendIndicatorState createState() => AppendIndicatorState();
 }
 
-/// State for `AppendIndicator`, only `show()` can be used.
+/// The state of [AppendIndicator], can be used to show the append indicator, see the [show] method.
 class AppendIndicatorState extends State<AppendIndicator> {
   _AppendIndicatorMode _mode;
-  Future<void> _pendingRefreshFuture;
-  var _kAnimatedDuration = Duration(milliseconds: 500);
-
+  Future<void> _pendingAppendFuture;
   double _extent = -1;
   double _pointerDownPosition = 0;
 
@@ -64,12 +74,14 @@ class AppendIndicatorState extends State<AppendIndicator> {
     }
   }
 
+  /// Inner implementation of [show], used in [show], [_onScroll] and [_onPointerMove].
   void _show() {
     final Completer<void> completer = Completer<void>();
-    _pendingRefreshFuture = completer.future;
+    _pendingAppendFuture = completer.future;
     if (!mounted || _mode != null) {
       return;
     }
+
     _mode = _AppendIndicatorMode.appending;
     if (mounted) setState(() {});
 
@@ -87,11 +99,13 @@ class AppendIndicatorState extends State<AppendIndicator> {
     });
   }
 
+  /// Show the indicator and run the callback as if it had been started interactively.
+  /// If this method is called while the callback is running, it quietly does nothing.
   Future<void> show() {
     if (_mode == null) {
       _show();
     }
-    return _pendingRefreshFuture;
+    return _pendingAppendFuture;
   }
 
   @override

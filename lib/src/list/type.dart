@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Append callback funtion, used in `AppendIndicator`
+/// Append callback function, used in [AppendIndicator].
 typedef AppendCallback = Future<void> Function();
 
 /// data model for `AppendableSeriesListView` and `AppendableSeriesStaggeredGridView`
