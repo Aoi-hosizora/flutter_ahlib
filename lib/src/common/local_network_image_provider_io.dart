@@ -8,9 +8,8 @@ import 'package:flutter/painting.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'local_network_image_provider.dart' as image_provider;
 
-/// `image_provider.LocalOrNetworkImageProvider` implement
-class LocalOrNetworkImageProvider extends ImageProvider<image_provider.LocalOrNetworkImageProvider>
-    implements image_provider.LocalOrNetworkImageProvider {
+/// Default implementation of [LocalOrNetworkImageProvider].
+class LocalOrNetworkImageProvider extends ImageProvider<image_provider.LocalOrNetworkImageProvider> implements image_provider.LocalOrNetworkImageProvider {
   const LocalOrNetworkImageProvider({
     @required this.file,
     @required this.url,
@@ -23,27 +22,31 @@ class LocalOrNetworkImageProvider extends ImageProvider<image_provider.LocalOrNe
 
   @override
   final Future<io.File> Function() file;
+
   @override
   final Future<String> Function() url;
+
   @override
   final Map<String, String> headers;
+
   @override
   final Function() onFile;
+
   @override
   final Function() onNetwork;
+
   @override
   final DefaultCacheManager cacheManager;
 
+  /// Override the [LocalOrNetworkImageProvider] and [ImageProvider].
   @override
   Future<LocalOrNetworkImageProvider> obtainKey(ImageConfiguration configuration) {
     return SynchronousFuture<LocalOrNetworkImageProvider>(this);
   }
 
+  /// Override the [LocalOrNetworkImageProvider] and [ImageProvider].
   @override
-  ImageStreamCompleter load(
-    image_provider.LocalOrNetworkImageProvider key,
-    DecoderCallback decode,
-  ) {
+  ImageStreamCompleter load(image_provider.LocalOrNetworkImageProvider key, DecoderCallback decode) {
     final chunkEvents = StreamController<ImageChunkEvent>();
     return MultiFrameImageStreamCompleter(
       codec: _loadAsync(key, chunkEvents, decode).first,
@@ -59,11 +62,8 @@ class LocalOrNetworkImageProvider extends ImageProvider<image_provider.LocalOrNe
     );
   }
 
-  Stream<ui.Codec> _loadAsync(
-    LocalOrNetworkImageProvider key,
-    StreamController<ImageChunkEvent> chunkEvents,
-    DecoderCallback decode,
-  ) async* {
+  /// Used in [MultiFrameImageStreamCompleter] for [load].
+  Stream<ui.Codec> _loadAsync(LocalOrNetworkImageProvider key, StreamController<ImageChunkEvent> chunkEvents, DecoderCallback decode) async* {
     assert(key == this);
 
     var file = await this.file.call();
@@ -79,6 +79,7 @@ class LocalOrNetworkImageProvider extends ImageProvider<image_provider.LocalOrNe
     }
 
     try {
+      // get file size from http at the same time
       var mngr = cacheManager ?? DefaultCacheManager();
       var h = (headers ?? {})..['Accept-Encoding'] = '';
       var stream = mngr.getFileStream(url, withProgress: true, headers: h);
@@ -91,9 +92,10 @@ class LocalOrNetworkImageProvider extends ImageProvider<image_provider.LocalOrNe
         totalSize = int.tryParse(data.headers['content-length']);
       });
 
+      // await stream info
       await for (var result in stream) {
         if (result is DownloadProgress) {
-          print('${result.downloaded} ${result.totalSize} $totalSize');
+          // print('${result.downloaded} ${result.totalSize} $totalSize');
           chunkEvents.add(ImageChunkEvent(
             cumulativeBytesLoaded: result.downloaded,
             expectedTotalBytes: result.totalSize ?? totalSize,

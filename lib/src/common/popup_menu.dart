@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/src/item/icon_text.dart';
 
-/// item for `showPopupMenu`, mainly will be used in `IconText`
+/// Popup menu item used in [showPopupMenu].
 class PopupActionItem {
   const PopupActionItem({
     @required this.text,
@@ -11,20 +11,27 @@ class PopupActionItem {
         assert(icon != null),
         assert(action != null);
 
+  /// Action text.
   final String text;
+
+  /// Action icon.
   final IconData icon;
+
+  /// Action function.
   final void Function() action;
 }
 
-/// show popup menu of `List<PopupActionItem` by `SimpleDialog`
+/// Show popup menu of list of [PopupActionItem] with [IconText] in [SimpleDialog].
 void showPopupMenu({
   @required BuildContext context,
   @required Widget title,
   @required List<PopupActionItem> items,
+  bool popWhenPressed = true,
 }) {
   assert(context != null);
   assert(title != null);
   assert(items != null);
+  assert(popWhenPressed != null);
 
   showDialog(
     context: context,
@@ -38,7 +45,9 @@ void showPopupMenu({
                 text: Text(i.text),
               ),
               onPressed: () {
-                Navigator.pop(c);
+                if (popWhenPressed) {
+                  Navigator.pop(c);
+                }
                 i.action();
               },
             ),

@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
 
-enum DrawerItemType { page, action, divider }
+/// A type that describes the kind of [DrawerItem].
+enum DrawerItemType {
+  page, // DrawerPage
+  action, // DrawerAction
+  divider, // DrawerDivider
+}
 
-/// abstract type for deawer item
+/// Abstract drawer type used in [DrawerListView],
+/// inherited by [DrawerPage], [DrawerAction] and [DrawerDivider].
 abstract class DrawerItem {
   const DrawerItem({this.type});
 
   final DrawerItemType type;
 }
 
-/// `DrawerItem` used for navigator a page (`Widget view`)
+/// A [DrawerItem] used to navigate to a page.
 class DrawerPage<T> extends DrawerItem {
   const DrawerPage({
     @required this.title,
@@ -27,7 +33,7 @@ class DrawerPage<T> extends DrawerItem {
   final T selection;
 }
 
-/// `DrawerItem` used to invoke an action (`void Function() action`)
+/// A [DrawerItem] used to invoke an action.
 class DrawerAction extends DrawerItem {
   const DrawerAction({
     @required this.title,
@@ -43,7 +49,7 @@ class DrawerAction extends DrawerItem {
   final void Function() action;
 }
 
-/// `DrawerItem` used to show a divider (`Divider divider`)
+/// A [DrawerItem] used to show a divider.
 class DrawerDivider extends DrawerItem {
   const DrawerDivider({
     @required this.divider,
@@ -53,16 +59,13 @@ class DrawerDivider extends DrawerItem {
   final Divider divider;
 }
 
-/// A wrapped `Column` for `Drawer`
+/// A wrapped [Column] with [DrawerItem] used in [ListView] with [Drawer].
 /// Demo:
-/// 
 /// ```
-/// 
-/// enum DrawerSelection { none, home, favorite, download, search, history }
-/// 
+/// enum DrawerSelection { home }
 /// Drawer(
 ///   child: ListView(
-///     padding: WdgeInsets.all(0),
+///     padding: EdgeInsets.all(0),
 ///     children: [
 ///       DrawerHeader(),
 ///       DrawerListView<DrawerSelection>(
@@ -85,9 +88,16 @@ class DrawerListView<T> extends StatefulWidget {
   })  : assert(items != null),
         super(key: key);
 
+  /// A list of [DrawerItem].
   final List<DrawerItem> items;
+
+  /// Highlight color for current selected item.
   final Color highlightColor;
+
+  /// Current selected item, used a enum [T].
   final T currentDrawerSelection;
+
+  /// The root item, used a enum [T].
   final T rootSelection;
 
   @override
@@ -95,11 +105,13 @@ class DrawerListView<T> extends StatefulWidget {
 }
 
 class _DrawerListViewState<T> extends State<DrawerListView<T>> {
-  void goto(DrawerPage<T> page) {
-    if (widget.currentDrawerSelection == page.selection) {
+  /// Navigate to the specific page by [DrawerPage].
+  void _goto(DrawerPage<T> page) {
+    if (page.selection == widget.currentDrawerSelection) {
       return;
     }
     Navigator.pop(context);
+
     if (page.selection == widget.rootSelection) {
       Navigator.popUntil(context, (r) => r.isFirst);
     } else {
@@ -120,14 +132,12 @@ class _DrawerListViewState<T> extends State<DrawerListView<T>> {
             case DrawerItemType.page:
               DrawerPage<T> page = item;
               return Container(
-                color: widget.currentDrawerSelection != page.selection
-                    ? Colors.transparent
-                    : widget.highlightColor ?? Colors.grey[200],
+                color: widget.currentDrawerSelection != page.selection ? Colors.transparent : widget.highlightColor ?? Colors.grey[200],
                 child: ListTile(
                   leading: Icon(page.icon),
                   title: Text(page.title),
                   selected: widget.currentDrawerSelection == page.selection,
-                  onTap: () => goto(page),
+                  onTap: () => _goto(page),
                 ),
               );
             case DrawerItemType.action:

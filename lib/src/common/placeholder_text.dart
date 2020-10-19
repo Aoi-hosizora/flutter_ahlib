@@ -1,45 +1,76 @@
 import 'package:flutter/material.dart';
 
-/// `normal` : `!isEmpty`,
-/// `loading` : `isLoading`,
-/// `error` : `errorText != null && errorText.isNotEmpty`,
-/// `empty` : `isEmpty`
+/// A state used to describe the current state of [PlaceholderText].
 enum PlaceholderState {
-  normal,
-  loading,
-  nothing,
-  error,
+  normal, // !isEmpty
+  loading, // isLoading
+  nothing, // errorText != null && errorText.isNotEmpty
+  error, // isEmpty
 }
 
-/// Placeholder state changed callback function, used in `PlaceholderText`
+/// [PlaceholderState] changed callback function, used in [PlaceholderText].
 typedef PlaceholderStateChangedCallback = void Function(PlaceholderState);
 
-/// Setting for `PlaceholderText` display text and progress
+/// Setting for displaying [PlaceholderText].
 class PlaceholderSetting {
   const PlaceholderSetting({
     this.loadingText,
     this.nothingText,
     this.retryText,
     this.showProgress,
+    this.textStyle,
+    this.iconSize,
     this.progressSize,
+    this.textPadding,
+    this.iconPadding,
+    this.buttonPadding,
+    this.progressPadding,
   });
 
+  /// Text for loading.
   final String loadingText;
+
+  /// Text for empty list.
   final String nothingText;
+
+  /// Text for retry button.
   final String retryText;
+
+  /// Show progress or not when loading.
   final bool showProgress;
+
+  /// Text style for plain texts.
+  final TextStyle textStyle;
+
+  /// Size of icons.
+  final double iconSize;
+
+  /// Size of progress when loading.
   final double progressSize;
+
+  /// Padding around text.
+  final EdgeInsets textPadding;
+
+  /// Padding around icon.
+  final EdgeInsets iconPadding;
+
+  /// Padding around button.
+  final EdgeInsets buttonPadding;
+
+  /// Padding around progress when loading.
+  final EdgeInsets progressPadding;
 }
 
-/// Placeholder text used for mainly `ListView`,
-/// Order: `normal` (!isEmpty) -> `loading` (isLoading) -> `error` (errorText != null) -> `nothing` (else)
+/// Placeholder text used for mainly [ListView], include loading, nothing, error retry.
+///
+/// Handle logic order: `normal` (!isEmpty) -> `loading` (isLoading) -> `error` (errorText != null) -> `nothing` (else).
 class PlaceholderText extends StatefulWidget {
   const PlaceholderText({
     Key key,
     @required this.childBuilder,
     this.onRefresh,
-    @required this.state,
     this.errorText,
+    @required this.state,
     this.onChanged,
     this.setting,
   })  : assert(childBuilder != null),
@@ -47,6 +78,7 @@ class PlaceholderText extends StatefulWidget {
         super(key: key);
 
   PlaceholderText.from({
+    Key key,
     @required Widget Function(BuildContext) childBuilder,
     void Function() onRefresh,
     String errorText,
@@ -55,23 +87,31 @@ class PlaceholderText extends StatefulWidget {
     PlaceholderStateChangedCallback onChanged,
     PlaceholderSetting setting,
   }) : this(
+          key: key,
           childBuilder: childBuilder,
           onRefresh: onRefresh,
-          state: !isEmpty
-              ? PlaceholderState.normal
-              : isLoading
-                  ? PlaceholderState.loading
-                  : errorText != null && errorText.isNotEmpty ? PlaceholderState.error : PlaceholderState.nothing,
           errorText: errorText,
+          state: !isEmpty ? PlaceholderState.normal : isLoading ? PlaceholderState.loading : errorText?.isNotEmpty == true ? PlaceholderState.error : PlaceholderState.nothing,
           onChanged: onChanged,
           setting: setting,
         );
 
+  /// Builder for child.
   final Widget Function(BuildContext) childBuilder;
+
+  /// Refresh event for retry.
   final void Function() onRefresh;
-  final PlaceholderState state;
+
+  /// Error message, can be empty or null.
   final String errorText;
+
+  /// Placeholder's current state.
+  final PlaceholderState state;
+
+  /// Callback when [state] changed.
   final PlaceholderStateChangedCallback onChanged;
+
+  /// Display setting for [PlaceholderText].
   final PlaceholderSetting setting;
 
   @override
@@ -79,7 +119,9 @@ class PlaceholderText extends StatefulWidget {
 }
 
 class _PlaceholderTextState extends State<PlaceholderText> {
+  /// Store the last state, used to check onChanged event.
   PlaceholderState _lastState;
+
   @override
   void initState() {
     super.initState();
@@ -93,34 +135,50 @@ class _PlaceholderTextState extends State<PlaceholderText> {
       _lastState = widget.state;
     }
 
+    var textStyle = widget.setting.textStyle ?? TextStyle(fontSize: Theme.of(context).textTheme.headline6.fontSize);
+    var iconSize = widget.setting.iconSize ?? 50;
+    var progressSize = widget.setting?.progressSize ?? 40;
+    var textPadding = widget.setting.textPadding ?? EdgeInsets.symmetric(horizontal: 20, vertical: 5);
+    var iconPadding = widget.setting.iconPadding ?? EdgeInsets.all(5);
+    var buttonPadding = widget.setting.buttonPadding ?? EdgeInsets.all(5);
+    var progressPadding = widget.setting.progressPadding ?? EdgeInsets.all(30);
+
     switch (widget.state) {
+      ////////////////////////////////////////////////////////////////
+      // normal
       case PlaceholderState.normal:
         return widget.childBuilder(context);
+      ////////////////////////////////////////////////////////////////
+      // loading
       case PlaceholderState.loading:
         return Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              widget.setting?.showProgress ?? false
+              widget.setting?.showProgress == true
                   ? Padding(
-                      padding: EdgeInsets.all(30),
+                      padding: progressPadding,
                       child: SizedBox(
-                        height: widget.setting?.progressSize ?? 40,
-                        width: widget.setting?.progressSize ?? 40,
+                        height: progressSize,
+                        width: progressSize,
                         child: CircularProgressIndicator(),
                       ),
                     )
                   : SizedBox(height: 0),
-              Text(
-                widget.setting?.loadingText ?? 'Loading...',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: Theme.of(context).textTheme.headline6.fontSize,
+              Padding(
+                padding: textPadding,
+                child: Text(
+                  widget.setting?.loadingText ?? 'Loading...',
+                  textAlign: TextAlign.center,
+                  style: textStyle,
                 ),
               ),
             ],
           ),
         );
+      ////////////////////////////////////////////////////////////////
+      // nothing
       case PlaceholderState.nothing:
         return Center(
           child: Column(
@@ -128,27 +186,27 @@ class _PlaceholderTextState extends State<PlaceholderText> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Padding(
-                padding: EdgeInsets.all(5),
+                padding: iconPadding,
                 child: Icon(
                   Icons.clear_all,
-                  size: 50,
+                  size: iconSize,
                   color: Colors.grey,
                 ),
               ),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                padding: textPadding,
                 child: Text(
                   widget.setting?.nothingText ?? 'Nothing',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: Theme.of(context).textTheme.headline6.fontSize,
-                  ),
+                  style: textStyle,
                 ),
               ),
               Padding(
-                padding: EdgeInsets.all(5),
+                padding: buttonPadding,
                 child: OutlineButton(
-                  child: Text(widget.setting?.retryText ?? 'Retry'),
+                  child: Text(
+                    widget.setting?.retryText ?? 'Retry',
+                  ),
                   onPressed: () {
                     widget.onRefresh?.call();
                     if (mounted) setState(() {});
@@ -158,6 +216,8 @@ class _PlaceholderTextState extends State<PlaceholderText> {
             ],
           ),
         );
+      ////////////////////////////////////////////////////////////////
+      // error
       case PlaceholderState.error:
         return Center(
           child: Column(
@@ -165,27 +225,27 @@ class _PlaceholderTextState extends State<PlaceholderText> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Padding(
-                padding: EdgeInsets.all(5),
+                padding: iconPadding,
                 child: Icon(
                   Icons.error,
-                  size: 50,
+                  size: iconSize,
                   color: Colors.grey,
                 ),
               ),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                padding: textPadding,
                 child: Text(
-                  widget.errorText ?? 'Unknown',
+                  widget.errorText?.isNotEmpty == true ? widget.errorText.isNotEmpty : 'Unknown',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: Theme.of(context).textTheme.headline6.fontSize,
-                  ),
+                  style: textStyle,
                 ),
               ),
               Padding(
-                padding: EdgeInsets.all(5),
+                padding: buttonPadding,
                 child: OutlineButton(
-                  child: Text(widget.setting?.retryText ?? 'Retry'),
+                  child: Text(
+                    widget.setting?.retryText ?? 'Retry',
+                  ),
                   onPressed: () {
                     widget.onRefresh?.call();
                     if (mounted) setState(() {});
@@ -195,6 +255,8 @@ class _PlaceholderTextState extends State<PlaceholderText> {
             ],
           ),
         );
+      ////////////////////////////////////////////////////////////////
+      // unreachable
       default:
         return SizedBox(height: 0);
     }

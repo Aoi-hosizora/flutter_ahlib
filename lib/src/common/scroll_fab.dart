@@ -2,7 +2,13 @@ import 'package:flutter_ahlib/src/common/action_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/src/common/scroll_fab_controller.dart';
 
-/// A fab which include scroll animation, which use `ScrollController` and register `ScrollFabController`
+/// Used in [_scrollListener] to check if invoked animation.
+final _kFabAnimationOffset = 50;
+
+/// Used for [AnimationController] to invoke an animation.
+final _kFabAnimationDuration = Duration(milliseconds: 250);
+
+/// A fab that wraps [FloatingActionButton] and includes [ScrollController] and [ScrollFabController].
 class ScrollFloatingActionButton extends StatefulWidget {
   const ScrollFloatingActionButton({
     Key key,
@@ -12,21 +18,23 @@ class ScrollFloatingActionButton extends StatefulWidget {
   })  : assert(fab != null),
         super(key: key);
 
+  /// Fab controller with [ScrollFabController].
   final ScrollFabController fabController;
+
+  /// Scroll controller with [ScrollController].
   final ScrollController scrollController;
+
+  /// Content with [FloatingActionButton].
   final Widget fab;
 
   @override
   _ScrollFloatingActionButtonState createState() => _ScrollFloatingActionButtonState();
 }
 
-class _ScrollFloatingActionButtonState extends State<ScrollFloatingActionButton>
-    with TickerProviderStateMixin<ScrollFloatingActionButton> {
+class _ScrollFloatingActionButtonState extends State<ScrollFloatingActionButton> with TickerProviderStateMixin<ScrollFloatingActionButton> {
   bool _showFab = false;
   AnimationController _animeController;
   Animation<double> _fabAnimation;
-  final _kFabAnimationOffset = 50;
-  final _kFabAnimationDuration = Duration(milliseconds: 250);
   ActionController _actionController;
 
   @override
@@ -58,6 +66,7 @@ class _ScrollFloatingActionButtonState extends State<ScrollFloatingActionButton>
     super.dispose();
   }
 
+  /// Listener used in [scrollController].
   void _scrollListener() {
     bool scroll = widget.scrollController.offset >= _kFabAnimationOffset;
     if (scroll != _showFab) {

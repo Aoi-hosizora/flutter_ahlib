@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/src/list/type.dart';
 
-/// Used in `AnimatedOpacity` and `onAppend.whenComplete`.
+/// Used in [AnimatedOpacity] and [onAppend.whenComplete].
 const _kAnimatedDuration = Duration(milliseconds: 500);
 
 /// Represents indicator's state.
