@@ -31,7 +31,6 @@ import 'package:flutter_ahlib/flutter_ahlib.dart';
     + `DrawerListView`
     + `showPopupMenu()`
     + `LocalOrNetworkImageProvider`
-+ Item:
     + `RippleSizedView`
     + `SliverContainer`
     + `IconText`

@@ -13,7 +13,7 @@ class ActionController {
   }
 
   /// Remove an action from the callback list.
-  void removeAction<T>(String key, Action<T> action) {
+  void removeAction<T>(String key) {
     _actions.remove(key);
   }
 

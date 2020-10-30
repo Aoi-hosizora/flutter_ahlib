@@ -8,11 +8,9 @@ export 'src/common/popup_menu.dart';
 export 'src/common/scroll_fab.dart';
 export 'src/common/scroll_fab_controller.dart';
 export 'src/common/local_network_image_provider.dart';
-
-// item
-export 'src/item/ripple_view.dart';
-export 'src/item/sliver_container.dart';
-export 'src/item/icon_text.dart';
+export 'src/common/ripple_view.dart';
+export 'src/common/sliver_container.dart';
+export 'src/common/icon_text.dart';
 
 // list - common
 export 'src/list/append_indicator.dart';

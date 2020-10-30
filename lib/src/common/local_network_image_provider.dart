@@ -10,21 +10,31 @@ abstract class LocalOrNetworkImageProvider extends ImageProvider<LocalOrNetworkI
     Future<File> Function() file,
     Future<String> Function() url,
     Map<String, String> headers,
+    double scale,
     Function() onFile,
     Function() onNetwork,
     DefaultCacheManager cacheManager,
   }) = image_provider.LocalOrNetworkImageProvider;
 
+  /// The FILE getter function from which the image will be fetched.
   Future<File> Function() get file;
 
+  /// The URL getter function from which the image will be fetched.
   Future<String> Function() get url;
 
+  /// The HTTP headers that will be used to fetch image from network.
   Map<String, String> get headers;
 
+  /// The scale to place in the [ImageInfo] object of the image.
+  double get scale;
+
+  /// The callback function when file loaded.
   Function() get onFile;
 
+  /// The callback function when image downloaded.
   Function() get onNetwork;
 
+  /// Optional cache manager. If no cache manager is defined DefaultCacheManager() will be used.
   DefaultCacheManager get cacheManager;
 
   @override

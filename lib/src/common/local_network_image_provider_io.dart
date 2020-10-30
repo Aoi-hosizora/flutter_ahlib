@@ -14,27 +14,38 @@ class LocalOrNetworkImageProvider extends ImageProvider<image_provider.LocalOrNe
     @required this.file,
     @required this.url,
     this.headers,
+    this.scale = 1.0,
     this.onFile,
     this.onNetwork,
     this.cacheManager,
   })  : assert(file != null),
         assert(url != null);
 
+  /// File of the image to load.
   @override
   final Future<io.File> Function() file;
 
+  /// Web url of the image to load.
   @override
   final Future<String> Function() url;
 
+  /// Set headers for the image provider, for example for authentication.
   @override
   final Map<String, String> headers;
 
+  /// Scale of the image
+  @override
+  final double scale;
+
+  /// Callback function when file loaded.
   @override
   final Function() onFile;
 
+  /// Callback function when image downloaded.
   @override
   final Function() onNetwork;
 
+  /// Cache manager.
   @override
   final DefaultCacheManager cacheManager;
 
@@ -51,7 +62,7 @@ class LocalOrNetworkImageProvider extends ImageProvider<image_provider.LocalOrNe
     return MultiFrameImageStreamCompleter(
       codec: _loadAsync(key, chunkEvents, decode).first,
       chunkEvents: chunkEvents.stream,
-      scale: 1.0, // key.scale
+      scale: key.scale,
       informationCollector: () sync* {
         yield DiagnosticsProperty<ImageProvider>(
           'Image provider: $this \n Image key: $key',
@@ -70,20 +81,31 @@ class LocalOrNetworkImageProvider extends ImageProvider<image_provider.LocalOrNe
     var url = await key.url.call();
     assert(file != null || (url != null && url.isNotEmpty));
 
-    if (file != null && await file.exists()) {
-      var bytes = await file.readAsBytes();
-      var decoded = await decode(bytes);
-      yield decoded;
-      onFile?.call();
+    // use file
+    if (file != null) {
+      try {
+        if (!await file.exists()) {
+          throw Exception('non-null file is not existed');
+        }
+        var bytes = await file.readAsBytes();
+        var decoded = await decode(bytes);
+        yield decoded;
+      } catch (e) {
+        chunkEvents.addError(e);
+      } finally {
+        onFile?.call();
+        await chunkEvents.close();
+      }
       return;
     }
 
+    // use url
     try {
-      // get file size from http at the same time
       var mngr = cacheManager ?? DefaultCacheManager();
       var h = (headers ?? {})..['Accept-Encoding'] = '';
       var stream = mngr.getFileStream(url, withProgress: true, headers: h);
 
+      // get file size from http at the same time
       int totalSize;
       http.head(url, headers: {
         'Accept': '*/*',

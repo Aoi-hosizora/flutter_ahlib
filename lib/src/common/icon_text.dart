@@ -6,10 +6,10 @@ class IconText extends StatelessWidget {
     Key key,
     @required this.icon,
     @required this.text,
-    this.space = 15,
+    this.space = 15.0,
   })  : assert(icon != null),
         assert(text != null),
-        assert(space == null || space >= 0),
+        assert(space != null && space >= 0),
         super(key: key);
 
   /// The icon of the item.
@@ -19,7 +19,7 @@ class IconText extends StatelessWidget {
   final Text text;
 
   /// Space between [icon] and [text].
-  final int space;
+  final double space;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +28,7 @@ class IconText extends StatelessWidget {
         this.icon,
         SizedBox(
           height: 0,
-          width: this.space ?? 15,
+          width: this.space,
         ),
         this.text,
       ],

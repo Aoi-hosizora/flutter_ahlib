@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_ahlib/src/item/icon_text.dart';
+import 'file:///F:/Projects/flutter_ahlib/lib/src/common/icon_text.dart';
 
 /// Popup menu item used in [showPopupMenu].
 class PopupActionItem {
@@ -27,11 +27,14 @@ void showPopupMenu({
   @required Widget title,
   @required List<PopupActionItem> items,
   bool popWhenPressed = true,
+  bool barrierDismissible = true,
+  Color barrierColor,
 }) {
   assert(context != null);
   assert(title != null);
   assert(items != null);
   assert(popWhenPressed != null);
+  assert(barrierDismissible != null);
 
   showDialog(
     context: context,
@@ -54,5 +57,7 @@ void showPopupMenu({
           )
           .toList(),
     ),
+    barrierDismissible: barrierDismissible,
+    barrierColor: barrierColor,
   );
 }

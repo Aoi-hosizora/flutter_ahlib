@@ -61,9 +61,13 @@ class PlaceholderSetting {
   final EdgeInsets progressPadding;
 }
 
-/// Placeholder text used for mainly [ListView], include loading, nothing, error retry.
+/// Placeholder text used for mainly [ListView], include loading, nothing, error.
 ///
-/// Handle logic order: `normal` (!isEmpty) -> `loading` (isLoading) -> `error` (errorText != null) -> `nothing` (else).
+/// Handle logic order:
+///   `normal` (!isEmpty) ->
+///   `loading` (isLoading) ->
+///   `error` (errorText != null) ->
+///   `nothing` (else).
 class PlaceholderText extends StatefulWidget {
   const PlaceholderText({
     Key key,
@@ -91,7 +95,14 @@ class PlaceholderText extends StatefulWidget {
           childBuilder: childBuilder,
           onRefresh: onRefresh,
           errorText: errorText,
-          state: !isEmpty ? PlaceholderState.normal : isLoading ? PlaceholderState.loading : errorText?.isNotEmpty == true ? PlaceholderState.error : PlaceholderState.nothing,
+          state: !isEmpty // check if it has data first
+              ? PlaceholderState.normal
+              : isLoading // empty, check if is loading
+                  ? PlaceholderState.loading
+                  : errorText?.isNotEmpty == true // loaded, check if error message is empty
+                      ? PlaceholderState.error
+                      : PlaceholderState.nothing,
+          // empty, loaded, noerr -> nothing
           onChanged: onChanged,
           setting: setting,
         );
