@@ -41,3 +41,12 @@
 
 + Update file structure
 + Add `LocalOrNetworkImageProvider`
+
+## [1.1.0] - Refactor the whole library
+
++ Add some comments to api, update some filenames.
++ Merge `common` and `item` packages to `widget`.
++ Add `common` package with `action_controller.dart`, `hash.dart` and `tuple.dart`.
++ Update `list` package, merge `PaginationXXX` and `SeriableXXX` by using `PaginationStrategy`.
++ Add new `hash.dart` and `tuple.dart` from `google/quiver-dart` and `google/tuple.dart`.
++ Rewrite tests for `common` package using `group()` and `test()`.

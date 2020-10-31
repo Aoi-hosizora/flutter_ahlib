@@ -193,13 +193,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "3.0.13"
-  quiver:
-    dependency: "direct main"
-    description:
-      name: quiver
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "2.1.4+1"
   rxdart:
     dependency: transitive
     description:

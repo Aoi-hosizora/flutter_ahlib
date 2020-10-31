@@ -1,7 +1,7 @@
 # flutter_ahlib
 
 + AoiHosizora's personal library used in flutter, contains some useful widgets and utils.
-+ See package in https://pub.dev/packages/flutter_ahlib
++ See package in https://pub.dev/packages/flutter_ahlib.
 
 ### Usage
 
@@ -24,6 +24,9 @@ import 'package:flutter_ahlib/flutter_ahlib.dart';
     + `SliverContainer`
 + Common:
     + `ActionController`
+    + `hashObjects`
+    + `hash2()` ~ `hash6()`
+    + `Tuple2` ~ `Tuple6`
 + List:
     + `AppendIndicator`
     + `ScrollMoreController`

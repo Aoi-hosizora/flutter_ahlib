@@ -22,6 +22,11 @@ class ActionController {
     return _actions[key];
   }
 
+  /// Returns true if this controller contains the given [key].
+  bool containAction(String key) {
+    return _actions.containsKey(key);
+  }
+
   /// Invoke the action by the given [key] in the callback list, return null if not found.
   T invoke<T>(String key) {
     var r = _actions[key]?.call();

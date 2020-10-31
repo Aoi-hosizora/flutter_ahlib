@@ -2,7 +2,7 @@ name: flutter_ahlib
 description: >
     AoiHosizora's personal library used in flutter, 
     contains some useful widgets and utils.
-version: 1.0.12
+version: 1.1.0
 homepage: https://github.com/Aoi-hosizora/flutter_ahlib
 repository: https://github.com/Aoi-hosizora/flutter_ahlib
 
@@ -12,7 +12,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  quiver: ^2.1.4
   flutter_staggered_grid_view: ^0.3.0
   flutter_cache_manager: ^1.4.1
   http: ^0.12.1
