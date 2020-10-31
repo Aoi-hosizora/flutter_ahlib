@@ -31,7 +31,7 @@ class PaginationSliverListView<T> extends StatefulWidget {
     this.topSliver,
     this.bottomSliver,
   })  : assert(data != null),
-        assert((strategy == PaginationStrategy.offsetBased && getDataByOffset != null && initialPage != null) ||
+        assert((strategy == PaginationStrategy.offsetBased && getDataByOffset != null) ||
             (strategy == PaginationStrategy.seekBased && getDataBySeek != null && initialMaxId != nothingMaxId)),
         assert(refreshFirst != null),
         assert(updateOnlyIfNotEmpty != null),
@@ -127,9 +127,7 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
     }
     widget.controller?.attachAppend(_appendIndicatorKey);
     widget.controller?.attachRefresh(_refreshIndicatorKey);
-  }
 
-  _PaginationSliverListViewState() {
     _nextPage = widget.initialPage;
     _nextMaxId = widget.initialMaxId;
   }

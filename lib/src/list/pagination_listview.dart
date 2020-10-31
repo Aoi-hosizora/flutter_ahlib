@@ -29,8 +29,9 @@ class PaginationListView<T> extends StatefulWidget {
     this.separator,
     this.topWidget,
     this.bottomWidget,
-  })  : assert(data != null),
-        assert((strategy == PaginationStrategy.offsetBased && getDataByOffset != null && initialPage != null) ||
+  })
+      : assert(data != null),
+        assert((strategy == PaginationStrategy.offsetBased && getDataByOffset != null) ||
             (strategy == PaginationStrategy.seekBased && getDataBySeek != null && initialMaxId != nothingMaxId)),
         assert(refreshFirst != null),
         assert(updateOnlyIfNotEmpty != null),
@@ -121,9 +122,7 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
     }
     widget.controller?.attachAppend(_appendIndicatorKey);
     widget.controller?.attachRefresh(_refreshIndicatorKey);
-  }
 
-  _PaginationListViewState() {
     _nextPage = widget.initialPage;
     _nextMaxId = widget.initialMaxId;
   }
@@ -147,9 +146,9 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
     // get data
     switch (widget.strategy) {
       case PaginationStrategy.offsetBased:
-        //////////////////////////////////
-        // offsetBased, use _nextPage
-        //////////////////////////////////
+      //////////////////////////////////
+      // offsetBased, use _nextPage
+      //////////////////////////////////
         final func = widget.getDataByOffset(page: _nextPage);
 
         // return future
@@ -185,9 +184,9 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
         });
 
       case PaginationStrategy.seekBased:
-        ////////////////////////////////
-        // seekBased, use _nextMaxId
-        ////////////////////////////////
+      ////////////////////////////////
+      // seekBased, use _nextMaxId
+      ////////////////////////////////
         if (_nextMaxId == widget.nothingMaxId) {
           await Future.delayed(Duration(milliseconds: 100));
           return Future.value();
@@ -244,26 +243,27 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
           errorText: _errorMessage,
           isEmpty: widget.data.isEmpty,
           onChanged: widget.onStateChanged,
-          childBuilder: (c) => Column(
-            children: [
-              if (widget.topWidget != null) widget.topWidget,
-              Expanded(
-                child: Scrollbar(
-                  child: ListView.separated(
-                    controller: widget.controller,
-                    shrinkWrap: widget.shrinkWrap ?? false,
-                    physics: widget.physics,
-                    reverse: widget.reverse ?? false,
-                    padding: widget.padding,
-                    itemCount: widget.data.length,
-                    separatorBuilder: (c, idx) => widget.separator ?? SizedBox(height: 0),
-                    itemBuilder: (c, idx) => widget.itemBuilder(c, widget.data[idx]),
+          childBuilder: (c) =>
+              Column(
+                children: [
+                  if (widget.topWidget != null) widget.topWidget,
+                  Expanded(
+                    child: Scrollbar(
+                      child: ListView.separated(
+                        controller: widget.controller,
+                        shrinkWrap: widget.shrinkWrap ?? false,
+                        physics: widget.physics,
+                        reverse: widget.reverse ?? false,
+                        padding: widget.padding,
+                        itemCount: widget.data.length,
+                        separatorBuilder: (c, idx) => widget.separator ?? SizedBox(height: 0),
+                        itemBuilder: (c, idx) => widget.itemBuilder(c, widget.data[idx]),
+                      ),
+                    ),
                   ),
-                ),
+                  if (widget.bottomWidget != null) widget.bottomWidget,
+                ],
               ),
-              if (widget.bottomWidget != null) widget.bottomWidget,
-            ],
-          ),
         ),
       ),
     );

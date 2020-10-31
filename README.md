@@ -1,5 +1,10 @@
 # flutter_ahlib
 
+[![Build Status](https://travis-ci.org/Aoi-hosizora/flutter_ahlib.svg?branch=master)](https://travis-ci.org/Aoi-hosizora/flutter_ahlib)
+[![pub package](https://img.shields.io/pub/v/flutter_ahlib.svg)](https://pub.dev/packages/flutter_ahlib)
+[![Release](https://img.shields.io/github/v/release/Aoi-hosizora/flutter_ahlib)](https://github.com/Aoi-hosizora/flutter_ahlib/releases)
+[![License](http://img.shields.io/badge/license-mit-blue.svg)](./LICENSE)
+
 + AoiHosizora's personal library used in flutter, contains some useful widgets and utils.
 + See package in https://pub.dev/packages/flutter_ahlib.
 

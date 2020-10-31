@@ -33,8 +33,9 @@ class PaginationStaggeredGridView<T> extends StatefulWidget {
     this.mainAxisSpacing = 0,
     this.topWidget,
     this.bottomWidget,
-  })  : assert(data != null),
-        assert((strategy == PaginationStrategy.offsetBased && getDataByOffset != null && initialPage != null) ||
+  })
+      : assert(data != null),
+        assert((strategy == PaginationStrategy.offsetBased && getDataByOffset != null) ||
             (strategy == PaginationStrategy.seekBased && getDataBySeek != null && initialMaxId != nothingMaxId)),
         assert(refreshFirst != null),
         assert(updateOnlyIfNotEmpty != null),
@@ -136,9 +137,7 @@ class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGrid
     }
     widget.controller?.attachRefresh(_refreshIndicatorKey);
     widget.controller?.attachAppend(_appendIndicatorKey);
-  }
 
-  _PaginationStaggeredGridViewState() {
     _nextPage = widget.initialPage;
     _nextMaxId = widget.initialMaxId;
   }
@@ -147,7 +146,6 @@ class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGrid
   dynamic _nextMaxId; // seekBased
   bool _loading = true;
   String _errorMessage;
-
   Future<void> _getData({@required bool reset}) async {
     // check reset page
     if (reset) {
@@ -259,30 +257,31 @@ class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGrid
           errorText: _errorMessage,
           isEmpty: widget.data.isEmpty,
           onChanged: widget.onStateChanged,
-          childBuilder: (c) => Column(
-            children: [
-              if (widget.topWidget != null) widget.topWidget,
-              Expanded(
-                child: Scrollbar(
-                  child: StaggeredGridView.countBuilder(
-                    controller: widget.controller,
-                    padding: widget.padding,
-                    shrinkWrap: widget.shrinkWrap ?? false,
-                    physics: widget.physics,
-                    reverse: widget.reverse ?? false,
-                    primary: widget.primary,
-                    crossAxisSpacing: widget.crossAxisSpacing,
-                    mainAxisSpacing: widget.mainAxisSpacing,
-                    crossAxisCount: widget.crossAxisCount,
-                    staggeredTileBuilder: widget.staggeredTileBuilder,
-                    itemCount: widget.data.length,
-                    itemBuilder: (c, idx) => widget.itemBuilder(c, widget.data[idx]),
+          childBuilder: (c) =>
+              Column(
+                children: [
+                  if (widget.topWidget != null) widget.topWidget,
+                  Expanded(
+                    child: Scrollbar(
+                      child: StaggeredGridView.countBuilder(
+                        controller: widget.controller,
+                        padding: widget.padding,
+                        shrinkWrap: widget.shrinkWrap ?? false,
+                        physics: widget.physics,
+                        reverse: widget.reverse ?? false,
+                        primary: widget.primary,
+                        crossAxisSpacing: widget.crossAxisSpacing,
+                        mainAxisSpacing: widget.mainAxisSpacing,
+                        crossAxisCount: widget.crossAxisCount,
+                        staggeredTileBuilder: widget.staggeredTileBuilder,
+                        itemCount: widget.data.length,
+                        itemBuilder: (c, idx) => widget.itemBuilder(c, widget.data[idx]),
+                      ),
+                    ),
                   ),
-                ),
+                  if (widget.bottomWidget != null) widget.bottomWidget,
+                ],
               ),
-              if (widget.bottomWidget != null) widget.bottomWidget,
-            ],
-          ),
         ),
       ),
     );

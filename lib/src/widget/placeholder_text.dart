@@ -146,13 +146,13 @@ class _PlaceholderTextState extends State<PlaceholderText> {
       _lastState = widget.state;
     }
 
-    var textStyle = widget.setting.textStyle ?? TextStyle(fontSize: Theme.of(context).textTheme.headline6.fontSize);
-    var iconSize = widget.setting.iconSize ?? 50;
+    var textStyle = widget.setting?.textStyle ?? TextStyle(fontSize: Theme.of(context).textTheme.headline6.fontSize);
+    var iconSize = widget.setting?.iconSize ?? 50;
     var progressSize = widget.setting?.progressSize ?? 40;
-    var textPadding = widget.setting.textPadding ?? EdgeInsets.symmetric(horizontal: 20, vertical: 5);
-    var iconPadding = widget.setting.iconPadding ?? EdgeInsets.all(5);
-    var buttonPadding = widget.setting.buttonPadding ?? EdgeInsets.all(5);
-    var progressPadding = widget.setting.progressPadding ?? EdgeInsets.all(30);
+    var textPadding = widget.setting?.textPadding ?? EdgeInsets.symmetric(horizontal: 20, vertical: 5);
+    var iconPadding = widget.setting?.iconPadding ?? EdgeInsets.all(5);
+    var buttonPadding = widget.setting?.buttonPadding ?? EdgeInsets.all(5);
+    var progressPadding = widget.setting?.progressPadding ?? EdgeInsets.all(30);
 
     switch (widget.state) {
       ////////////////////////////////////////////////////////////////
@@ -246,7 +246,7 @@ class _PlaceholderTextState extends State<PlaceholderText> {
               Padding(
                 padding: textPadding,
                 child: Text(
-                  widget.errorText?.isNotEmpty == true ? widget.errorText.isNotEmpty : 'Unknown',
+                  widget.errorText?.isNotEmpty == true ? widget.errorText : 'Unknown',
                   textAlign: TextAlign.center,
                   style: textStyle,
                 ),
