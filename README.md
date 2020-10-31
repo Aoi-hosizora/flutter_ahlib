@@ -42,7 +42,6 @@ import 'package:flutter_ahlib/flutter_ahlib.dart';
 
 ### Dependencies
 
-+ [quiver](https://pub.dev/packages/quiver)
 + [flutter_staggered_grid_view](https://pub.dev/packages/flutter_staggered_grid_view)
 + [flutter_cache_manager](https://pub.dev/packages/flutter_cache_manager)
 + [http](https://pub.dev/packages/http)

@@ -1,28 +1,21 @@
-## [1.0.1] - Initial flutter_ahlib
+## [1.1.0] - Refactor the whole library
 
-+ Initial `flutter_ahlib`
-+ Add `AppendIndicator`, `ListPlaceholderText`, `AppendableListView`, `RefreshableListView`, `ScrollFloatingActionButton` widgets
-+ Add `ScrollMoreController`, `ScrollFabController` controllers
++ Add some comments to api, update some filenames.
++ Merge `common` and `item` packages to `widget`.
++ Add `common` package with `action_controller.dart`, `hash.dart` and `tuple.dart`.
++ Update `list` package, merge `PaginationXXX` and `SeriableXXX` by using `PaginationStrategy`.
++ Add new `hash.dart` and `tuple.dart` from `google/quiver-dart` and `google/tuple.dart`.
++ Rewrite tests for `common` package using `group()` and `test()`.
 
-## [1.0.2] - Add widgets from mmnj
+## [1.0.12] - Add LocalOrNetworkImageProvider
 
-+ Add `RefreshableStaggeredGridView`, `IconText`, `RippleSizedView`, `SliverContainer` widgets
-+ Add `ActionController` controller
-+ Add `showPopupMenu()` function
++ Update file structure
++ Add `LocalOrNetworkImageProvider`
 
-## [1.0.3] - Fix ScrollMoreController
+## [1.0.11] - Update list package
 
-+ Fix `ScrollMoreController`.`scrollWithAnimate`
-
-## [1.0.5] - Update ListPlaceholderText
-
-+ Add `ListPlaceholderSetting` to list widgets
-
-## [1.0.8] - Add DrawerListView
-
-+ Add `DrawerListView<T>` and some types
-+ Rename `PopupMenuItem` to `PopupActionItem`
-+ Update `RippleSizedView` actions
++ Update some name: `PaginationListView` `SeriationListView` `PaginationStaggeredGridView` `SeriationStaggeredGridView`
++ Add sliver: `RefreshableSliverListView` `PaginationSliverListView` `SeriationSliverListView`
 
 ## [1.0.9] - Update structure
 
@@ -32,21 +25,28 @@
 + Split `lib/src/list` to `lib/src/fab`
 + Add some document comments
 
-## [1.0.11] - Update list package
+## [1.0.8] - Add DrawerListView
 
-+ Update some name: `PaginationListView` `SeriationListView` `PaginationStaggeredGridView` `SeriationStaggeredGridView`
-+ Add sliver: `RefreshableSliverListView` `PaginationSliverListView` `SeriationSliverListView`
++ Add `DrawerListView<T>` and some types
++ Rename `PopupMenuItem` to `PopupActionItem`
++ Update `RippleSizedView` actions
 
-## [1.0.12] - Add LocalOrNetworkImageProvider
+## [1.0.5] - Update ListPlaceholderText
 
-+ Update file structure
-+ Add `LocalOrNetworkImageProvider`
++ Add `ListPlaceholderSetting` to list widgets
 
-## [1.1.0] - Refactor the whole library
+## [1.0.3] - Fix ScrollMoreController
 
-+ Add some comments to api, update some filenames.
-+ Merge `common` and `item` packages to `widget`.
-+ Add `common` package with `action_controller.dart`, `hash.dart` and `tuple.dart`.
-+ Update `list` package, merge `PaginationXXX` and `SeriableXXX` by using `PaginationStrategy`.
-+ Add new `hash.dart` and `tuple.dart` from `google/quiver-dart` and `google/tuple.dart`.
-+ Rewrite tests for `common` package using `group()` and `test()`.
++ Fix `ScrollMoreController`.`scrollWithAnimate`
+
+## [1.0.2] - Add widgets from mmnj
+
++ Add `RefreshableStaggeredGridView`, `IconText`, `RippleSizedView`, `SliverContainer` widgets
++ Add `ActionController` controller
++ Add `showPopupMenu()` function
+
+## [1.0.1] - Initial flutter_ahlib
+
++ Initial `flutter_ahlib`
++ Add `AppendIndicator`, `ListPlaceholderText`, `AppendableListView`, `RefreshableListView`, `ScrollFloatingActionButton` widgets
++ Add `ScrollMoreController`, `ScrollFabController` controllers
