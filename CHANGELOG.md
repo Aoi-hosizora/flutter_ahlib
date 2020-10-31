@@ -1,4 +1,4 @@
-## [1.1.0] - Refactor the whole library
+## [1.1.1] - Refactor the whole library
 
 + Add some comments to api, update some filenames.
 + Merge `common` and `item` packages to `widget`.
