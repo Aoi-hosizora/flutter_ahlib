@@ -1,6 +1,6 @@
-import 'package:flutter_ahlib/src/common/action_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_ahlib/src/common/scroll_fab_controller.dart';
+import 'file:///F:/Projects/flutter_ahlib/lib/src/common/action_controller.dart';
+import 'package:flutter_ahlib/src/widget/scroll_fab_controller.dart';
 
 /// Used in [_scrollListener] to check if invoked animation.
 final _kFabAnimationOffset = 50;

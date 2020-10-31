@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_ahlib/src/list/type.dart';
 
 /// Used in [AnimatedOpacity] and [onAppend.whenComplete].
 const _kAnimatedDuration = Duration(milliseconds: 500);
@@ -14,6 +13,9 @@ enum _AppendIndicatorMode {
   /// Indicate is now showing and refreshing.
   appending,
 }
+
+/// Append callback function, used in [AppendIndicator].
+typedef AppendCallback = Future<void> Function();
 
 /// An indicator widget same with [RefreshIndicator],
 /// show in the bottom of view, mainly used for showing append information.
