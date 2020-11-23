@@ -1,3 +1,7 @@
+## [1.1.2] - Update some bugs in PlaceholderText and PaginationXXX
+1. Fix `PlaceholderText` some bugs.
+2. Update `PaginationXXX` `initialPage` conditions.
+
 ## [1.1.1] - Refactor the whole library
 
 + Add some comments to api, update some filenames.
