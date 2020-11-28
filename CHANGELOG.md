@@ -1,4 +1,5 @@
 ## [1.1.2] - Update some bugs in PlaceholderText and PaginationXXX
+
 1. Fix `PlaceholderText` some bugs.
 2. Update `PaginationXXX` `initialPage` conditions.
 

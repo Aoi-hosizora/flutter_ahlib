@@ -2,9 +2,14 @@ import 'package:flutter/material.dart';
 
 /// A type that describes the kind of [DrawerItem].
 enum DrawerItemType {
-  page, // DrawerPage
-  action, // DrawerAction
-  divider, // DrawerDivider
+  /// Type for [DrawerPage].
+  page,
+
+  /// Type for [DrawerAction].
+  action,
+
+  /// Type for [DrawerDivider].
+  divider,
 }
 
 /// Abstract drawer type used in [DrawerListView],
