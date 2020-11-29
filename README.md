@@ -19,10 +19,10 @@ import 'package:flutter_ahlib/flutter_ahlib.dart';
 + See [pubspec.yaml](./pubspec.yaml)
 
 ```yaml
-flutter_staggered_grid_view: ">=0.3.0 <1.0.0"
-flutter_cache_manager: ">=2.0.0 <3.0.0"
-http: ">=0.12.0 <1.0.0"
-filesize: ">=1.0.0 <2.0.0"
+flutter_staggered_grid_view: ^0.3.2
+flutter_cache_manager: ">=2.0.0 <3.0.0" # 2.0.0
+http: ^0.12.2
+filesize: ^1.0.4
 ```
 
 ### Functions

@@ -1,3 +1,10 @@
+## [1.1.3] - Add more settings for widgets
+
+1. Update `IconText` and `PlaceholderText` parameters.
+2. Fix `LocalOrNetworkImageProvider` header.
+3. Update list widgets.
+4. Add `image` packages and upgrade dependencies.
+
 ## [1.1.2] - Update some bugs in PlaceholderText and PaginationXXX
 
 1. Fix `PlaceholderText` some bugs.
