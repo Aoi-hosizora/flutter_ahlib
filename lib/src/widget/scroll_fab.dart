@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_ahlib/src/common/action_controller.dart';
+import 'package:flutter_ahlib/src/util/action_controller.dart';
 import 'package:flutter_ahlib/src/widget/scroll_fab_controller.dart';
 
 /// Used in [_scrollListener] to check if invoked animation.

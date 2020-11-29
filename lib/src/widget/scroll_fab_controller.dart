@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_ahlib/src/common/action_controller.dart';
+import 'package:flutter_ahlib/src/util/action_controller.dart';
 import 'package:flutter_ahlib/src/widget/scroll_fab.dart';
 
 /// Controller for [ScrollFloatingActionButton], includes show and hide function

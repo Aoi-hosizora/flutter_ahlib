@@ -8,7 +8,7 @@ import 'package:flutter/painting.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'local_network_image_provider.dart' as image_provider;
 
-/// Default implementation of [LocalOrNetworkImageProvider].
+/// Default implementation of [image_provider.LocalOrNetworkImageProvider].
 class LocalOrNetworkImageProvider extends ImageProvider<image_provider.LocalOrNetworkImageProvider> implements image_provider.LocalOrNetworkImageProvider {
   const LocalOrNetworkImageProvider({
     @required this.file,

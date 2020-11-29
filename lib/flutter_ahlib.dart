@@ -7,15 +7,19 @@ export 'src/widget/icon_text.dart';
 export 'src/widget/popup_menu.dart';
 export 'src/widget/scroll_fab.dart';
 export 'src/widget/scroll_fab_controller.dart';
-export 'src/widget/local_network_image_provider.dart';
 export 'src/widget/ripple_sized_view.dart';
 export 'src/widget/sliver_container.dart';
 export 'src/widget/dummy_view.dart';
 
-// common
-export 'src/common/action_controller.dart';
-export 'src/common/hash.dart';
-export 'src/common/tuple.dart';
+// image
+export 'src/image/local_network_image_provider.dart';
+export 'src/image/image_loading_view.dart';
+export 'src/image/image_load_failed_view.dart';
+
+// util
+export 'src/util/action_controller.dart';
+export 'src/util/hash.dart';
+export 'src/util/tuple.dart';
 
 // list
 export 'src/list/append_indicator.dart';

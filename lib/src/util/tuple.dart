@@ -1,6 +1,6 @@
 // Reference from https://github.com/google/tuple.dart/blob/master/lib/tuple.dart.
 
-import 'package:flutter_ahlib/src/common/hash.dart';
+import 'package:flutter_ahlib/src/util/hash.dart';
 
 /// Represents a 2-tuple, or pair.
 class Tuple2<T1, T2> {

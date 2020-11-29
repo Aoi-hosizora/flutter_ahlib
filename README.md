@@ -14,6 +14,17 @@
 import 'package:flutter_ahlib/flutter_ahlib.dart';
 ```
 
+### Dependencies
+
++ See [pubspec.yaml](./pubspec.yaml)
+
+```yaml
+flutter_staggered_grid_view: ">=0.3.0 <1.0.0"
+flutter_cache_manager: ">=2.0.0 <3.0.0"
+http: ">=0.12.0 <1.0.0"
+filesize: ">=1.0.0 <2.0.0"
+```
+
 ### Functions
 
 + Widget:
@@ -24,10 +35,14 @@ import 'package:flutter_ahlib/flutter_ahlib.dart';
     + `showTextPopupMenu()`
     + `ScrollFloatingActionButton`
     + `ScrollFabController`
-    + `LocalOrNetworkImageProvider`
     + `RippleSizedView`
     + `SliverContainer`
-+ Common:
+    + `DummyView`
++ Image:
+    + `LocalOrNetworkImageProvider`
+    + `ImageLoadingView`
+    + `ImageLoadFailedView`
++ Util:
     + `ActionController`
     + `hashObjects`
     + `hash2()` ~ `hash6()`
@@ -36,14 +51,11 @@ import 'package:flutter_ahlib/flutter_ahlib.dart';
     + `AppendIndicator`
     + `ScrollMoreController`
     + `RefreshableListView`
-    + `RefreshableStaggeredGridView`
     + `RefreshableSliverListView`
+    + `RefreshableStaggeredGridView`
     + `PaginationListView`
-    + `PaginationStaggeredGridView`
     + `PaginationSliverListView`
-    + `SeriationListView`
-    + `SeriationStaggeredGridView`
-    + `SeriationSliverListView`
+    + `PaginationStaggeredGridView`
 
 ### Dependencies
 
