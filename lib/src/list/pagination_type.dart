@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// The pagination strategy used in [PaginationListView].
+/// The pagination strategy used in [PaginationListView],
+/// [PaginationSliverListView] and [PaginationStaggeredGridView].
 enum PaginationStrategy {
   /// Use `page` and  `limit` as parameter to query list data.
   offsetBased,

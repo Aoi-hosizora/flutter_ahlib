@@ -5,7 +5,7 @@ import 'package:flutter_ahlib/src/list/scroll_more_controller.dart';
 import 'package:flutter_ahlib/src/widget/placeholder_text.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
-/// Appendable [StaggeredGridView] with [AppendIndicator], [RefreshIndicator], [PlaceholderText], [Scrollbar].
+/// Pagination [StaggeredGridView] with [PlaceholderText], [AppendIndicator], [RefreshIndicator], [Scrollbar].
 class PaginationStaggeredGridView<T> extends StatefulWidget {
   const PaginationStaggeredGridView({
     Key key,
@@ -16,8 +16,12 @@ class PaginationStaggeredGridView<T> extends StatefulWidget {
     this.getDataBySeek,
     this.initialMaxId,
     this.nothingMaxId,
-    this.refreshFirst = true,
+    this.onAppend,
+    this.onError,
+    this.clearWhenRefreshing = false,
+    this.clearWhenError = false,
     this.updateOnlyIfNotEmpty = false,
+    this.refreshFirst = true,
     this.onStateChanged,
     this.placeholderSetting,
     this.controller,
@@ -31,20 +35,24 @@ class PaginationStaggeredGridView<T> extends StatefulWidget {
     @required this.crossAxisCount,
     this.crossAxisSpacing = 0,
     this.mainAxisSpacing = 0,
+    this.mainAxisAlignment,
+    this.mainAxisSize,
+    this.crossAxisAlignment,
     this.topWidget,
     this.bottomWidget,
-  })
-      : assert(data != null),
-        assert((strategy == PaginationStrategy.offsetBased && getDataByOffset != null) ||
-            (strategy == PaginationStrategy.seekBased && getDataBySeek != null && initialMaxId != nothingMaxId)),
-        assert(refreshFirst != null),
+  })  : assert(data != null),
+        assert(strategy != PaginationStrategy.offsetBased || getDataByOffset != null),
+        assert(strategy != PaginationStrategy.seekBased || getDataBySeek != null),
+        assert(clearWhenRefreshing != null),
+        assert(clearWhenError != null),
         assert(updateOnlyIfNotEmpty != null),
+        assert(refreshFirst != null),
         assert(itemBuilder != null),
         assert(staggeredTileBuilder != null),
         assert(crossAxisCount != null),
         super(key: key);
 
-  /// List data, need to create this list outside [PaginationListView].
+  /// List data, need to create this outside.
   final List<T> data;
 
   /// The pagination strategy.
@@ -65,11 +73,23 @@ class PaginationStaggeredGridView<T> extends StatefulWidget {
   /// Nothing maxId value when used [PaginationStrategy.seekBased], nullable.
   final dynamic nothingMaxId;
 
-  /// Do refresh when init view.
-  final bool refreshFirst;
+  /// Callback when data has been appended.
+  final void Function(List<T>) onAppend;
+
+  /// Callback when error invoked.
+  final void Function(dynamic) onError;
+
+  /// Clear list when refreshing data.
+  final bool clearWhenRefreshing;
+
+  /// Clear list when error aroused.
+  final bool clearWhenError;
 
   /// If return data is empty, then do nothing, else update list and parameter.
   final bool updateOnlyIfNotEmpty;
+
+  /// Do refresh when init view.
+  final bool refreshFirst;
 
   /// Callback when [PlaceholderText] state changed.
   final PlaceholderStateChangedCallback onStateChanged;
@@ -77,7 +97,7 @@ class PaginationStaggeredGridView<T> extends StatefulWidget {
   /// Display setting for [PlaceholderText].
   final PlaceholderSetting placeholderSetting;
 
-  /// [StaggeredGridView] controller, with more helper functions.
+  /// [StaggeredGridView] controller, with [ScrollMoreController].
   final ScrollMoreController controller;
 
   /// The itemBuilder for [StaggeredGridView].
@@ -110,6 +130,15 @@ class PaginationStaggeredGridView<T> extends StatefulWidget {
   /// The mainAxisSpacing for [StaggeredGridView].
   final double mainAxisSpacing;
 
+  /// The mainAxisAlignment for [Column].
+  final MainAxisAlignment mainAxisAlignment;
+
+  /// The mainAxisSize for [Column].
+  final MainAxisSize mainAxisSize;
+
+  /// The crossAxisAlignment for [Column].
+  final CrossAxisAlignment crossAxisAlignment;
+
   /// The widget before [StaggeredGridView].
   final Widget topWidget;
 
@@ -121,11 +150,12 @@ class PaginationStaggeredGridView<T> extends StatefulWidget {
 }
 
 class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGridView<T>> with AutomaticKeepAliveClientMixin<PaginationStaggeredGridView<T>> {
-  @override
-  bool get wantKeepAlive => true;
-
   GlobalKey<AppendIndicatorState> _appendIndicatorKey;
   GlobalKey<RefreshIndicatorState> _refreshIndicatorKey;
+  var _loading = false;
+  var _errorMessage = '';
+  int _nextPage;
+  dynamic _nextMaxId;
 
   @override
   void initState() {
@@ -142,12 +172,8 @@ class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGrid
     _nextMaxId = widget.initialMaxId;
   }
 
-  int _nextPage; // offsetBased
-  dynamic _nextMaxId; // seekBased
-  bool _loading = true;
-  String _errorMessage;
   Future<void> _getData({@required bool reset}) async {
-    // check reset page
+    // reset page
     if (reset) {
       _nextPage = widget.initialPage;
       _nextMaxId = widget.initialMaxId;
@@ -155,42 +181,48 @@ class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGrid
 
     // start loading
     _loading = true;
+    if (reset && widget.clearWhenRefreshing) {
+      _errorMessage = '';
+      widget.data.clear();
+    }
     if (mounted) setState(() {});
 
     // get data
     switch (widget.strategy) {
       case PaginationStrategy.offsetBased:
-      //////////////////////////////////
-      // offsetBased, use _nextPage
-      //////////////////////////////////
+        //////////////////////////////////
+        // offsetBased, use _nextPage
+        //////////////////////////////////
         final func = widget.getDataByOffset(page: _nextPage);
 
         // return future
         return func.then((List<T> list) async {
-          // success to get data with no error
-          _errorMessage = null;
-
-          // check update or no nothing
+          // success to get data without error
+          _errorMessage = '';
+          // check list size for update
           if (widget.updateOnlyIfNotEmpty && list.isEmpty) {
-            return; // strange error, maybe server internal error
+            return;
           }
-
-          // update nextPage
-          _nextPage++;
 
           // replace or append
           if (reset) {
             widget.data.clear();
             if (mounted) setState(() {});
-            await Future.delayed(Duration(milliseconds: 20)); // must delayed
-            widget.data.addAll(list); // replace to the new list
+            await Future.delayed(Duration(milliseconds: 20));
+            widget.data.addAll(list);
           } else {
-            widget.data.addAll(list); // append directly
+            widget.data.addAll(list);
             widget.controller?.scrollDown();
           }
+          _nextPage++;
+          widget.onAppend?.call(list);
         }).catchError((e) {
-          // error aroused, record the message
+          // error aroused
           _errorMessage = e.toString();
+          if (widget.clearWhenError) {
+            widget.data.clear();
+          }
+          widget.onError?.call(e);
         }).whenComplete(() {
           // finish loading and setState
           _loading = false;
@@ -198,9 +230,9 @@ class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGrid
         });
 
       case PaginationStrategy.seekBased:
-      ////////////////////////////////
-      // seekBased, use _nextMaxId
-      ////////////////////////////////
+        ////////////////////////////////
+        // seekBased, use _nextMaxId
+        ////////////////////////////////
         if (_nextMaxId == widget.nothingMaxId) {
           await Future.delayed(Duration(milliseconds: 100));
           return Future.value();
@@ -209,30 +241,32 @@ class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGrid
 
         // return future
         return func.then((SeekList<T> data) async {
-          // success to get data with no error
-          _errorMessage = null;
-
-          // check update or no nothing
+          // success to get data without error
+          _errorMessage = '';
+          // check list size for update
           if (widget.updateOnlyIfNotEmpty && data.list.isEmpty) {
-            return; // strange error, maybe server internal error
+            return;
           }
-
-          // update nextMaxId
-          _nextMaxId = data.nextMaxId;
 
           // replace or append
           if (reset) {
             widget.data.clear();
             if (mounted) setState(() {});
-            await Future.delayed(Duration(milliseconds: 20)); // must delayed
-            widget.data.addAll(data.list); // replace to the new list
+            await Future.delayed(Duration(milliseconds: 20));
+            widget.data.addAll(data.list);
           } else {
-            widget.data.addAll(data.list); // append directly
+            widget.data.addAll(data.list);
             widget.controller?.scrollDown();
           }
+          _nextMaxId = data.nextMaxId;
+          widget.onAppend?.call(data.list);
         }).catchError((e) {
-          // error aroused, record the message
+          // error aroused
           _errorMessage = e.toString();
+          if (widget.clearWhenError) {
+            widget.data.clear();
+          }
+          widget.onError?.call(e);
         }).whenComplete(() {
           // finish loading and setState
           _loading = false;
@@ -242,46 +276,51 @@ class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGrid
   }
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
     super.build(context);
-    return AppendIndicator(
-      key: _appendIndicatorKey,
-      onAppend: () => _getData(reset: false),
-      child: RefreshIndicator(
-        key: _refreshIndicatorKey,
-        onRefresh: () => _getData(reset: true),
-        child: PlaceholderText.from(
-          setting: widget.placeholderSetting,
-          onRefresh: _refreshIndicatorKey.currentState?.show,
-          isLoading: _loading,
-          errorText: _errorMessage,
-          isEmpty: widget.data.isEmpty,
-          onChanged: widget.onStateChanged,
-          childBuilder: (c) =>
-              Column(
-                children: [
-                  if (widget.topWidget != null) widget.topWidget,
-                  Expanded(
-                    child: Scrollbar(
-                      child: StaggeredGridView.countBuilder(
-                        controller: widget.controller,
-                        padding: widget.padding,
-                        shrinkWrap: widget.shrinkWrap ?? false,
-                        physics: widget.physics,
-                        reverse: widget.reverse ?? false,
-                        primary: widget.primary,
-                        crossAxisSpacing: widget.crossAxisSpacing,
-                        mainAxisSpacing: widget.mainAxisSpacing,
-                        crossAxisCount: widget.crossAxisCount,
-                        staggeredTileBuilder: widget.staggeredTileBuilder,
-                        itemCount: widget.data.length,
-                        itemBuilder: (c, idx) => widget.itemBuilder(c, widget.data[idx]),
-                      ),
-                    ),
+    return PlaceholderText.from(
+      onRefresh: _refreshIndicatorKey.currentState?.show,
+      isLoading: _loading,
+      isEmpty: widget.data.isEmpty,
+      errorText: _errorMessage,
+      onChanged: widget.onStateChanged,
+      setting: widget.placeholderSetting,
+      childBuilder: (c) => AppendIndicator(
+        key: _appendIndicatorKey,
+        onAppend: () => _getData(reset: false),
+        child: RefreshIndicator(
+          key: _refreshIndicatorKey,
+          onRefresh: () => _getData(reset: true),
+          child: Column(
+            mainAxisAlignment: widget.mainAxisAlignment ?? MainAxisAlignment.start,
+            mainAxisSize: widget.mainAxisSize ?? MainAxisSize.max,
+            crossAxisAlignment: widget.crossAxisAlignment ?? CrossAxisAlignment.center,
+            children: [
+              if (widget.topWidget != null) widget.topWidget,
+              Expanded(
+                child: Scrollbar(
+                  child: StaggeredGridView.countBuilder(
+                    controller: widget.controller,
+                    padding: widget.padding,
+                    shrinkWrap: widget.shrinkWrap ?? false,
+                    physics: widget.physics,
+                    reverse: widget.reverse ?? false,
+                    primary: widget.primary,
+                    crossAxisSpacing: widget.crossAxisSpacing,
+                    mainAxisSpacing: widget.mainAxisSpacing,
+                    crossAxisCount: widget.crossAxisCount,
+                    staggeredTileBuilder: widget.staggeredTileBuilder,
+                    itemCount: widget.data.length,
+                    itemBuilder: (c, idx) => widget.itemBuilder(c, widget.data[idx]),
                   ),
-                  if (widget.bottomWidget != null) widget.bottomWidget,
-                ],
+                ),
               ),
+              if (widget.bottomWidget != null) widget.bottomWidget,
+            ],
+          ),
         ),
       ),
     );

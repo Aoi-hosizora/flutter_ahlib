@@ -53,6 +53,7 @@ class PlaceholderSetting {
         assert(textStyle != null),
         assert(buttonTextStyle != null),
         assert(iconSize != null),
+        assert(iconColor != null),
         assert(progressSize != null),
         assert(showLoadingProgress != null),
         assert(showLoadingText != null),
@@ -63,29 +64,69 @@ class PlaceholderSetting {
         assert(showErrorText != null),
         assert(showErrorRetry != null);
 
-  const PlaceholderSetting.chinese({
+  /// Use Chinese text as default setting.
+  PlaceholderSetting toChinese({
     String loadingText = '加载中...',
     String nothingText = '无内容',
     String retryText = '重试',
     String unknownErrorText = '未知错误',
-  }) : this(
-          loadingText: loadingText,
-          nothingText: nothingText,
-          retryText: retryText,
-          unknownErrorText: unknownErrorText,
-        );
+  }) {
+    return PlaceholderSetting(
+        loadingText: loadingText,
+        nothingText: nothingText,
+        retryText: retryText,
+        unknownErrorText: unknownErrorText,
+        textPadding: this.textPadding,
+        iconPadding: this.iconPadding,
+        buttonPadding: this.buttonPadding,
+        progressPadding: this.progressPadding,
+        textStyle: this.textStyle,
+        buttonTextStyle: this.buttonTextStyle,
+        iconSize: this.iconSize,
+        iconColor: this.iconColor,
+        progressSize: this.progressSize,
+        showLoadingProgress: this.showLoadingProgress,
+        showLoadingText: this.showLoadingText,
+        showNothingIcon: this.showNothingIcon,
+        showNothingText: this.showNothingText,
+        showNothingRetry: this.showNothingRetry,
+        showErrorIcon: this.showErrorIcon,
+        showErrorText: this.showErrorText,
+        showErrorRetry: this.showErrorRetry,
+    );
+  }
 
-  const PlaceholderSetting.japanese({
+  /// Use Japanese text as default setting.
+  PlaceholderSetting toJapanese({
     String loadingText = '読み込み中...',
     String nothingText = '何も見つかりませんでした',
     String retryText = '再試行',
     String unknownErrorText = '未知エラー',
-  }) : this(
-          loadingText: loadingText,
-          nothingText: nothingText,
-          retryText: retryText,
-          unknownErrorText: unknownErrorText,
-        );
+  }) {
+    return PlaceholderSetting(
+      loadingText: loadingText,
+      nothingText: nothingText,
+      retryText: retryText,
+      unknownErrorText: unknownErrorText,
+      textPadding: this.textPadding,
+      iconPadding: this.iconPadding,
+      buttonPadding: this.buttonPadding,
+      progressPadding: this.progressPadding,
+      textStyle: this.textStyle,
+      buttonTextStyle: this.buttonTextStyle,
+      iconSize: this.iconSize,
+      iconColor: this.iconColor,
+      progressSize: this.progressSize,
+      showLoadingProgress: this.showLoadingProgress,
+      showLoadingText: this.showLoadingText,
+      showNothingIcon: this.showNothingIcon,
+      showNothingText: this.showNothingText,
+      showNothingRetry: this.showNothingRetry,
+      showErrorIcon: this.showErrorIcon,
+      showErrorText: this.showErrorText,
+      showErrorRetry: this.showErrorRetry,
+    );
+  }
 
   // text
   final String loadingText;

@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/src/common/action_controller.dart';
+import 'package:flutter_ahlib/src/widget/scroll_fab.dart';
 
 /// Controller for [ScrollFloatingActionButton], includes show and hide function
 class ScrollFabController {
-  AnimationController _animeController;
+  AnimationController _animController;
   ActionController _actionController;
 
   /// Register the given [AnimationController] with this controller.
-  void attach(AnimationController c) => _animeController = c;
+  void attachAnim(AnimationController c) => _animController = c;
 
   /// Unregister the given [AnimationController] with this controller.
-  void detach() => _animeController = null;
+  void detachAnim() => _animController = null;
 
   /// Register the given [ActionController] with this controller.
   void attachAction(ActionController c) => _actionController = c;
@@ -28,19 +29,19 @@ class ScrollFabController {
     _actionController?.invoke('removeListener');
   }
 
-  /// Show the fab with [_animeController].
+  /// Show the fab with [_animController].
   void show() {
-    _animeController?.forward();
+    _animController?.forward();
   }
 
-  /// Hide the fab with [_animeController].
+  /// Hide the fab with [_animController].
   void hide() {
-    _animeController?.reverse();
+    _animController?.reverse();
   }
 
   @mustCallSuper
   void dispose() {
-    _animeController = null;
+    _animController = null;
     _actionController = null;
   }
 }

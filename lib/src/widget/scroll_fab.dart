@@ -18,14 +18,14 @@ class ScrollFloatingActionButton extends StatefulWidget {
   })  : assert(fab != null),
         super(key: key);
 
-  /// Fab controller with [ScrollFabController].
+  /// Scroll fab controller.
   final ScrollFabController fabController;
 
-  /// Scroll controller with [ScrollController].
+  /// Scroll controller.
   final ScrollController scrollController;
 
   /// Content with [FloatingActionButton].
-  final Widget fab;
+  final FloatingActionButton fab;
 
   @override
   _ScrollFloatingActionButtonState createState() => _ScrollFloatingActionButtonState();
@@ -33,25 +33,25 @@ class ScrollFloatingActionButton extends StatefulWidget {
 
 class _ScrollFloatingActionButtonState extends State<ScrollFloatingActionButton> with TickerProviderStateMixin<ScrollFloatingActionButton> {
   bool _showFab = false;
-  AnimationController _animeController;
+  AnimationController _animController;
   Animation<double> _fabAnimation;
   ActionController _actionController;
 
   @override
   void initState() {
     super.initState();
-    _animeController = AnimationController(
+    _animController = AnimationController(
       vsync: this,
       duration: _kFabAnimationDuration,
     );
     _fabAnimation = CurvedAnimation(
-      parent: _animeController,
+      parent: _animController,
       curve: Interval(0, 1, curve: Curves.easeOutBack),
     );
     _actionController = ActionController();
 
     widget.scrollController?.addListener(_scrollListener);
-    widget.fabController?.attach(_animeController);
+    widget.fabController?.attachAnim(_animController);
     widget.fabController?.attachAction(_actionController);
 
     _actionController.addAction('addListener', () => widget.scrollController?.addListener(_scrollListener));
@@ -60,7 +60,7 @@ class _ScrollFloatingActionButtonState extends State<ScrollFloatingActionButton>
 
   @override
   void dispose() {
-    _animeController.dispose();
+    _animController.dispose();
     _actionController.dispose();
     widget.scrollController?.removeListener(_scrollListener);
     super.dispose();
@@ -72,9 +72,9 @@ class _ScrollFloatingActionButtonState extends State<ScrollFloatingActionButton>
     if (scroll != _showFab) {
       _showFab = scroll;
       if (scroll) {
-        _animeController.forward();
+        _animController.forward();
       } else {
-        _animeController.reverse();
+        _animController.reverse();
       }
     }
   }

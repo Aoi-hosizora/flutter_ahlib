@@ -25,23 +25,23 @@ class LocalOrNetworkImageProvider extends ImageProvider<image_provider.LocalOrNe
   @override
   final Future<io.File> Function() file;
 
-  /// Web url of the image to load.
+  /// url of the image to load.
   @override
   final Future<String> Function() url;
 
-  /// Set headers for the image provider, for example for authentication.
+  /// Headers for the image provider from network.
   @override
   final Map<String, String> headers;
 
-  /// Scale of the image
+  /// Scale of the image.
   @override
   final double scale;
 
-  /// Callback function when file loaded.
+  /// Callback function when the image from file loaded.
   @override
   final Function() onFile;
 
-  /// Callback function when image downloaded.
+  /// Callback function when the image from network downloaded.
   @override
   final Function() onNetwork;
 
@@ -49,13 +49,13 @@ class LocalOrNetworkImageProvider extends ImageProvider<image_provider.LocalOrNe
   @override
   final DefaultCacheManager cacheManager;
 
-  /// Override the [LocalOrNetworkImageProvider] and [ImageProvider].
+  /// Override the [ImageProvider].
   @override
   Future<LocalOrNetworkImageProvider> obtainKey(ImageConfiguration configuration) {
     return SynchronousFuture<LocalOrNetworkImageProvider>(this);
   }
 
-  /// Override the [LocalOrNetworkImageProvider] and [ImageProvider].
+  /// Override the [ImageProvider].
   @override
   ImageStreamCompleter load(image_provider.LocalOrNetworkImageProvider key, DecoderCallback decode) {
     final chunkEvents = StreamController<ImageChunkEvent>();
@@ -79,14 +79,13 @@ class LocalOrNetworkImageProvider extends ImageProvider<image_provider.LocalOrNe
 
     var file = await this.file.call();
     var url = await key.url.call();
-    assert(file != null || (url != null && url.isNotEmpty));
+    assert(file == null || await file.exists());
+    assert(url == null || url.isNotEmpty);
+    assert(file != null || url != null);
 
     // use file
     if (file != null) {
       try {
-        if (!await file.exists()) {
-          throw Exception('non-null file is not existed');
-        }
         var bytes = await file.readAsBytes();
         var decoded = await decode(bytes);
         yield decoded;
@@ -101,18 +100,18 @@ class LocalOrNetworkImageProvider extends ImageProvider<image_provider.LocalOrNe
 
     // use url
     try {
-      var mngr = cacheManager ?? DefaultCacheManager();
+      var mgr = cacheManager ?? DefaultCacheManager();
       var h = (headers ?? {})..['Accept-Encoding'] = '';
-      var stream = mngr.getFileStream(url, withProgress: true, headers: h);
+      var stream = mgr.getFileStream(url, withProgress: true, headers: h);
 
       // get file size from http at the same time
       int totalSize;
       http.head(url, headers: {
         'Accept': '*/*',
-        'Accept-Encoding': '',
+        ...h,
       }).then((data) {
         totalSize = int.tryParse(data.headers['content-length']);
-      });
+      }).catchError((_) {});
 
       // await stream info
       await for (var result in stream) {

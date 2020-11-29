@@ -3,12 +3,16 @@ import 'package:flutter_ahlib/src/list/scroll_more_controller.dart';
 import 'package:flutter_ahlib/src/widget/placeholder_text.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
-/// Refreshable [StaggeredGridView] with [RefreshIndicator], [PlaceholderText], [Scrollbar].
+/// Refreshable [StaggeredGridView] with [PlaceholderText], [RefreshIndicator], [Scrollbar].
 class RefreshableStaggeredGridView<T> extends StatefulWidget {
   const RefreshableStaggeredGridView({
     Key key,
     @required this.data,
     @required this.getData,
+    this.onAppend,
+    this.onError,
+    this.clearWhenRefreshing = false,
+    this.clearWhenError = false,
     this.refreshFirst = true,
     this.onStateChanged,
     this.placeholderSetting,
@@ -23,21 +27,38 @@ class RefreshableStaggeredGridView<T> extends StatefulWidget {
     @required this.crossAxisCount,
     this.crossAxisSpacing = 0,
     this.mainAxisSpacing = 0,
+    this.mainAxisAlignment,
+    this.mainAxisSize,
+    this.crossAxisAlignment,
     this.topWidget,
     this.bottomWidget,
   })  : assert(data != null),
         assert(getData != null),
+        assert(clearWhenRefreshing != null),
+        assert(clearWhenError != null),
         assert(refreshFirst != null),
         assert(itemBuilder != null),
         assert(staggeredTileBuilder != null),
         assert(crossAxisCount != null),
         super(key: key);
 
-  /// List data, need to create this list outside [RefreshableStaggeredGridView].
+  /// List data, need to create this outside.
   final List<T> data;
 
   /// Function to get list data.
   final Future<List<T>> Function() getData;
+
+  /// Callback when data has been appended.
+  final void Function(List<T>) onAppend;
+
+  /// Callback when error invoked.
+  final void Function(dynamic) onError;
+
+  /// Clear list when refreshing data.
+  final bool clearWhenRefreshing;
+
+  /// Clear list when error aroused.
+  final bool clearWhenError;
 
   /// Do refresh when init view.
   final bool refreshFirst;
@@ -48,7 +69,7 @@ class RefreshableStaggeredGridView<T> extends StatefulWidget {
   /// Display setting for [PlaceholderText].
   final PlaceholderSetting placeholderSetting;
 
-  /// [StaggeredGridView] controller, with more helper functions.
+  /// [StaggeredGridView] controller, with [ScrollMoreController].
   final ScrollMoreController controller;
 
   /// The itemBuilder for [StaggeredGridView].
@@ -81,6 +102,15 @@ class RefreshableStaggeredGridView<T> extends StatefulWidget {
   /// The mainAxisSpacing for [StaggeredGridView].
   final double mainAxisSpacing;
 
+  /// The mainAxisAlignment for [Column].
+  final MainAxisAlignment mainAxisAlignment;
+
+  /// The mainAxisSize for [Column].
+  final MainAxisSize mainAxisSize;
+
+  /// The crossAxisAlignment for [Column].
+  final CrossAxisAlignment crossAxisAlignment;
+
   /// The widget before [StaggeredGridView].
   final Widget topWidget;
 
@@ -92,10 +122,9 @@ class RefreshableStaggeredGridView<T> extends StatefulWidget {
 }
 
 class _RefreshableStaggeredGridViewState<T> extends State<RefreshableStaggeredGridView<T>> with AutomaticKeepAliveClientMixin<RefreshableStaggeredGridView<T>> {
-  @override
-  bool get wantKeepAlive => true;
-
   GlobalKey<RefreshIndicatorState> _refreshIndicatorKey;
+  var _loading = false;
+  var _errorMessage = '';
 
   @override
   void initState() {
@@ -107,28 +136,34 @@ class _RefreshableStaggeredGridViewState<T> extends State<RefreshableStaggeredGr
     widget.controller?.attachRefresh(_refreshIndicatorKey);
   }
 
-  bool _loading = false;
-  String _errorMessage;
-
   Future<void> _getData() async {
     // start loading
-    final func = widget.getData();
     _loading = true;
+    if (widget.clearWhenRefreshing) {
+      _errorMessage = '';
+      widget.data.clear();
+    }
     if (mounted) setState(() {});
+
+    // get data
+    final func = widget.getData();
 
     // return future
     return func.then((List<T> list) async {
-      // success to get data with no error
-      _errorMessage = null;
+      // success to get data without error
+      _errorMessage = '';
       widget.data.clear();
       if (mounted) setState(() {});
-      await Future.delayed(Duration(milliseconds: 20)); // must delayed
-
-      // set to the new list
+      await Future.delayed(Duration(milliseconds: 20));
       widget.data.addAll(list);
+      widget.onAppend?.call(list);
     }).catchError((e) {
       // error aroused
       _errorMessage = e.toString();
+      if (widget.clearWhenError) {
+        widget.data.clear();
+      }
+      widget.onError?.call(e);
     }).whenComplete(() {
       // finish loading and setState
       _loading = false;
@@ -137,19 +172,25 @@ class _RefreshableStaggeredGridViewState<T> extends State<RefreshableStaggeredGr
   }
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
     super.build(context);
-    return RefreshIndicator(
-      key: _refreshIndicatorKey,
-      onRefresh: () => _getData(),
-      child: PlaceholderText.from(
-        setting: widget.placeholderSetting,
-        onRefresh: _refreshIndicatorKey.currentState?.show,
-        isLoading: _loading,
-        errorText: _errorMessage,
-        isEmpty: widget.data.isEmpty,
-        onChanged: widget.onStateChanged,
-        childBuilder: (c) => Column(
+    return PlaceholderText.from(
+      onRefresh: _refreshIndicatorKey.currentState?.show,
+      isLoading: _loading,
+      isEmpty: widget.data.isEmpty,
+      errorText: _errorMessage,
+      onChanged: widget.onStateChanged,
+      setting: widget.placeholderSetting,
+      childBuilder: (c) => RefreshIndicator(
+        key: _refreshIndicatorKey,
+        onRefresh: () => _getData(),
+        child: Column(
+          mainAxisAlignment: widget.mainAxisAlignment ?? MainAxisAlignment.start,
+          mainAxisSize: widget.mainAxisSize ?? MainAxisSize.max,
+          crossAxisAlignment: widget.crossAxisAlignment ?? CrossAxisAlignment.center,
           children: [
             if (widget.topWidget != null) widget.topWidget,
             Expanded(

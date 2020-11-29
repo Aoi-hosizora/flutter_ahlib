@@ -1,8 +1,9 @@
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_ahlib/src/list/append_indicator.dart';
 import 'package:flutter/material.dart';
 
-/// More function of [ScrollController].
-/// Including: [scrollWithAnimate], [scrollTop], [scrollBottom], [scrollDown], [scrollUp],
+/// More functions of [ScrollController],
+/// including: [scrollWithAnimate], [scrollTop], [scrollBottom], [scrollDown], [scrollUp],
 /// [append] (need [attachAppend]), [refresh] (need [attachRefresh]).
 class ScrollMoreController extends ScrollController {
   GlobalKey<AppendIndicatorState> _appendIndicatorKey;
@@ -44,11 +45,11 @@ class ScrollMoreController extends ScrollController {
   // ================================================================================
 
   /// Scroll with [Curves.easeOutCirc] with 500ms duration.
-  void scrollWithAnimate(double offset) {
+  void scrollWithAnimate(double offset, {Curve curve = Curves.easeOutCirc, Duration duration = const Duration(milliseconds: 500)}) {
     animateTo(
       offset,
-      curve: Curves.easeOutCirc,
-      duration: Duration(milliseconds: 500),
+      curve: curve,
+      duration: duration,
     );
   }
 
@@ -58,9 +59,11 @@ class ScrollMoreController extends ScrollController {
   }
 
   /// Scroll to the bottom of the list, see [scrollWithAnimate].
-  /// Bug!!!
   void scrollBottom() {
-    scrollWithAnimate(position.maxScrollExtent);
+    // See https://stackoverflow.com/questions/44141148/how-to-get-full-size-of-a-scrollcontroller.
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      scrollWithAnimate(position.maxScrollExtent);
+    });
   }
 
   /// Scroll down from the base position to [scrollOffset] offset, see [scrollWithAnimate].
