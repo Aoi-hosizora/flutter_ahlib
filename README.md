@@ -56,9 +56,3 @@ filesize: ^1.0.4
     + `PaginationListView`
     + `PaginationSliverListView`
     + `PaginationStaggeredGridView`
-
-### Dependencies
-
-+ [flutter_staggered_grid_view](https://pub.dev/packages/flutter_staggered_grid_view)
-+ [flutter_cache_manager](https://pub.dev/packages/flutter_cache_manager)
-+ [http](https://pub.dev/packages/http)
