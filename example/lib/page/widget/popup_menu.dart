@@ -24,17 +24,16 @@ class _PopupMenuPageState extends State<PopupMenuPage> {
               onPressed: () => showIconPopupMenu(
                 context: context,
                 title: Text('showIconPopupMenu'),
-                popWhenPressed: true,
                 barrierDismissible: true,
                 items: [
                   IconPopupActionItem(
                     text: Text('test1'),
-                    icon: Icon(Icons.check),
+                    icon: Icon(Icons.chevron_right),
                     action: () => print('test1'),
                   ),
                   IconPopupActionItem(
                     text: Text('test2'),
-                    icon: Icon(Icons.check),
+                    icon: Icon(Icons.chevron_right),
                     action: () => print('test2'),
                   ),
                 ],
@@ -45,7 +44,6 @@ class _PopupMenuPageState extends State<PopupMenuPage> {
               onPressed: () => showTextPopupMenu(
                 context: context,
                 title: Text('showTextPopupMenu'),
-                popWhenPressed: true,
                 barrierDismissible: true,
                 items: [
                   TextPopupActionItem(

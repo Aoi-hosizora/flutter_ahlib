@@ -1,3 +1,5 @@
+## [1.1.3+1] - Fix list widgets and add some examples
+
 ## [1.1.3] - Add more settings for widgets
 
 1. Update `IconText` and `PlaceholderText` parameters.

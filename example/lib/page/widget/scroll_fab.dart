@@ -16,6 +16,12 @@ class _ScrollFloatingActionButtonPageState extends State<ScrollFloatingActionBut
     return Scaffold(
       appBar: AppBar(
         title: Text('ScrollFloatingActionButton Example'),
+        actions:[
+          IconButton(icon: Text('Top'), onPressed: () => _controller.scrollTop()),
+          IconButton(icon: Text('Bottom'), onPressed: () => _controller.scrollBottom()),
+          IconButton(icon: Text('Up'), onPressed: () => _controller.scrollUp()),
+          IconButton(icon: Text('Down'), onPressed: () => _controller.scrollDown()),
+        ],
       ),
       body: ListView(
         controller: _controller,

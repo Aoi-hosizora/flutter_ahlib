@@ -126,11 +126,14 @@ class _MyDrawerState extends State<MyDrawer> {
             decoration: BoxDecoration(color: Theme.of(context).primaryColor),
             child: Stack(
               children: [
-                Text(
-                  'XXX - YYY',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: Theme.of(context).textTheme.subtitle2.fontSize,
+                Positioned(
+                  bottom: 0,
+                  child: Text(
+                    'XXX - YYY',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: Theme.of(context).textTheme.subtitle2.fontSize,
+                    ),
                   ),
                 ),
               ],

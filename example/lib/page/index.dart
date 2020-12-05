@@ -27,15 +27,18 @@ class _IndexPageState extends State<IndexPage> {
   }
 
   Widget _button(String title, Widget page) {
-    return OutlineButton(
-      child: Text(title),
-      onPressed: page == null
-          ? () {}
-          : () => Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (c) => page,
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 6),
+      child: OutlineButton(
+        child: Text(title),
+        onPressed: page == null
+            ? () {}
+            : () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (c) => page,
+                  ),
                 ),
-              ),
+      ),
     );
   }
 
@@ -48,19 +51,28 @@ class _IndexPageState extends State<IndexPage> {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             _text('Widgets Example'),
-            _button('PlaceholderText', PlaceholderTextPage()),
-            _button('DrawerListView', DrawerListViewPage()),
-            _button('IconText', IconTextPage()),
-            _button('PopupMenu', PopupMenuPage()),
-            _button('ScrollFloatingActionButton', ScrollFloatingActionButtonPage()),
-            _button('DummyView', DummyViewPage()),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _button('PlaceholderText', PlaceholderTextPage()),
+                _button('DrawerListView', DrawerListViewPage()),
+                _button('IconText', IconTextPage()),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _button('PopupMenu', PopupMenuPage()),
+                _button('ScrollFloatingActionButton', ScrollFloatingActionButtonPage()),
+                _button('DummyView', DummyViewPage()),
+              ],
+            ),
             _text('Lists Example'),
-            _button('......', null),
+            _button('...', null),
             _text('Image Example'),
-            _button('......', null),
+            _button('...', null),
           ],
         ),
       ),

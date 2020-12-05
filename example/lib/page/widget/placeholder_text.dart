@@ -15,17 +15,8 @@ class _PlaceholderTextPageState extends State<PlaceholderTextPage> {
       appBar: AppBar(
         title: Text('PlaceholderText Example'),
       ),
-      body: Column(
-        children: [
-          Flexible(
-            flex: 1,
-            child: Text(''),
-          ),
-          Flexible(
-            flex: 1,
-            child: Text(''),
-          ),
-        ],
+      body: Center(
+        child: Text('TODO'),
       ),
     );
   }

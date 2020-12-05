@@ -19,6 +19,7 @@ class _IconTextPageState extends State<IconTextPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Divider(),
             InkWell(
               onTap: () {},
               child: Padding(
@@ -70,6 +71,7 @@ class _IconTextPageState extends State<IconTextPage> {
                 ),
               ),
             ),
+            Divider(),
           ],
         ),
       ),

@@ -7,9 +7,14 @@ class IconPopupActionItem {
     @required this.text,
     @required this.icon,
     @required this.action,
+    this.dismissBeforeAction = true,
+    this.dismissAfterAction = false,
   })  : assert(text != null),
         assert(icon != null),
-        assert(action != null);
+        assert(action != null),
+        assert(dismissBeforeAction != null),
+        assert(dismissAfterAction != null),
+        assert(dismissBeforeAction == false || dismissAfterAction == false);
 
   /// Action text.
   final Text text;
@@ -19,6 +24,12 @@ class IconPopupActionItem {
 
   /// Action function.
   final void Function() action;
+
+  /// Dismiss the dialog before action done.
+  final bool dismissBeforeAction;
+
+  /// Dismiss the dialog after action done.
+  final bool dismissAfterAction;
 }
 
 /// Text popup menu item used in [showTextPopupMenu].
@@ -26,14 +37,25 @@ class TextPopupActionItem {
   const TextPopupActionItem({
     @required this.text,
     @required this.action,
+    this.dismissBeforeAction = true,
+    this.dismissAfterAction = false,
   })  : assert(text != null),
-        assert(action != null);
+        assert(action != null),
+        assert(dismissBeforeAction != null),
+        assert(dismissAfterAction != null),
+        assert(dismissBeforeAction == false || dismissAfterAction == false);
 
   /// Action text.
   final Text text;
 
   /// Action function.
   final void Function() action;
+
+  /// Dismiss the dialog before action done.
+  final bool dismissBeforeAction;
+
+  /// Dismiss the dialog after action done.
+  final bool dismissAfterAction;
 }
 
 /// Show icon popup menu of list of [IconPopupActionItem] with [IconText] in [SimpleDialogOption] and [SimpleDialog].
@@ -42,7 +64,6 @@ void showIconPopupMenu({
   @required Widget title,
   @required List<IconPopupActionItem> items,
   EdgeInsets optionPadding = const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
-  bool popWhenPressed = true,
   bool barrierDismissible = true,
   Color barrierColor,
   double space = 15.0,
@@ -52,7 +73,6 @@ void showIconPopupMenu({
   assert(title != null);
   assert(items != null);
   assert(optionPadding != null);
-  assert(popWhenPressed != null);
   assert(barrierDismissible != null);
   assert(space != null);
   assert(alignment != null);
@@ -73,10 +93,13 @@ void showIconPopupMenu({
                 alignment: alignment,
               ),
               onPressed: () {
-                if (popWhenPressed) {
+                if (i.dismissBeforeAction) {
                   Navigator.pop(c);
                 }
                 i.action();
+                if (i.dismissAfterAction) {
+                  Navigator.pop(c);
+                }
               },
               padding: optionPadding,
             ),
@@ -91,8 +114,7 @@ void showTextPopupMenu({
   @required BuildContext context,
   @required Widget title,
   @required List<TextPopupActionItem> items,
-  EdgeInsets optionPadding = const EdgeInsets.symmetric(vertical: 12, horizontal: 25),
-  bool popWhenPressed = true,
+  EdgeInsets optionPadding = const EdgeInsets.symmetric(vertical: 13, horizontal: 25),
   bool barrierDismissible = true,
   Color barrierColor,
 }) {
@@ -100,7 +122,6 @@ void showTextPopupMenu({
   assert(title != null);
   assert(items != null);
   assert(optionPadding != null);
-  assert(popWhenPressed != null);
   assert(barrierDismissible != null);
 
   showDialog(
@@ -114,10 +135,13 @@ void showTextPopupMenu({
             (i) => SimpleDialogOption(
               child: i.text,
               onPressed: () {
-                if (popWhenPressed) {
+                if (i.dismissBeforeAction) {
                   Navigator.pop(c);
                 }
                 i.action();
+                if (i.dismissAfterAction) {
+                  Navigator.pop(c);
+                }
               },
               padding: optionPadding,
             ),
