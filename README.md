@@ -48,7 +48,8 @@ filesize: ^1.0.4
     + `hashObjects`
     + `hash2()` ~ `hash6()`
     + `Tuple2` ~ `Tuple6`
-    + `MountedSetStateExtension`
+    + `StateExtension`
+    + `ObjectExtension`
 + List:
     + `AppendIndicator`
     + `ScrollMoreController`

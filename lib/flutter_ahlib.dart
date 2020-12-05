@@ -21,7 +21,7 @@ export 'src/image/image_load_failed_view.dart';
 export 'src/util/action_controller.dart';
 export 'src/util/hash.dart';
 export 'src/util/tuple.dart';
-export 'src/util/set_state.dart';
+export 'src/util/extensions.dart';
 
 // list
 export 'src/list/append_indicator.dart';

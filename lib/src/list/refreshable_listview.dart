@@ -31,6 +31,11 @@ class RefreshableListView<T> extends StatefulWidget {
     this.crossAxisAlignment,
     this.topWidget,
     this.bottomWidget,
+    this.outMainAxisAlignment,
+    this.outMainAxisSize,
+    this.outCrossAxisAlignment,
+    this.outTopWidget,
+    this.outBottomWidget,
   })  : assert(data != null),
         assert(getData != null),
         assert(clearWhenRefreshing != null),
@@ -90,29 +95,44 @@ class RefreshableListView<T> extends StatefulWidget {
   /// The shrinkWrap for [ListView].
   final bool shrinkWrap;
 
-  /// The physics for [ListView].
+  /// The physics for inner [ListView].
   final ScrollPhysics physics;
 
-  /// The reverse for [ListView].
+  /// The reverse for inner [ListView].
   final bool reverse;
 
-  /// The primary for [ListView].
+  /// The primary for inner [ListView].
   final bool primary;
 
-  /// The mainAxisAlignment for [Column].
+  /// The mainAxisAlignment for inner [Column].
   final MainAxisAlignment mainAxisAlignment;
 
-  /// The mainAxisSize for [Column].
+  /// The mainAxisSize for inner [Column].
   final MainAxisSize mainAxisSize;
 
-  /// The crossAxisAlignment for [Column].
+  /// The crossAxisAlignment for inner [Column].
   final CrossAxisAlignment crossAxisAlignment;
 
-  /// The widget before [ListView].
+  /// The widget before [ListView] in [PlaceholderText].
   final Widget topWidget;
 
-  /// The widget after [ListView].
+  /// The widget after [ListView] in [PlaceholderText].
   final Widget bottomWidget;
+
+  /// The mainAxisAlignment for outer [Column].
+  final MainAxisAlignment outMainAxisAlignment;
+
+  /// The mainAxisSize for outer [Column].
+  final MainAxisSize outMainAxisSize;
+
+  /// The crossAxisAlignment for outer [Column].
+  final CrossAxisAlignment outCrossAxisAlignment;
+
+  /// The widget before [ListView] out of [PlaceholderText].
+  final Widget outTopWidget;
+
+  /// The widget after [ListView] out of [PlaceholderText].
+  final Widget outBottomWidget;
 
   @override
   _RefreshableListViewState<T> createState() => _RefreshableListViewState<T>();
@@ -183,37 +203,48 @@ class _RefreshableListViewState<T> extends State<RefreshableListView<T>> with Au
     return RefreshIndicator(
       key: _refreshIndicatorKey,
       onRefresh: () => _getData(),
-      child: PlaceholderText.from(
-        onRefresh: _refreshIndicatorKey.currentState?.show,
-        forceState: _forceState,
-        isLoading: _loading,
-        isEmpty: widget.data.isEmpty,
-        errorText: _errorMessage,
-        onChanged: widget.onStateChanged,
-        setting: widget.placeholderSetting,
-        childBuilder: (c) => Column(
-          mainAxisAlignment: widget.mainAxisAlignment ?? MainAxisAlignment.start,
-          mainAxisSize: widget.mainAxisSize ?? MainAxisSize.max,
-          crossAxisAlignment: widget.crossAxisAlignment ?? CrossAxisAlignment.center,
-          children: [
-            if (widget.topWidget != null) widget.topWidget,
-            Expanded(
-              child: Scrollbar(
-                child: ListView.separated(
-                  controller: widget.controller,
-                  padding: widget.padding,
-                  shrinkWrap: widget.shrinkWrap ?? false,
-                  physics: widget.physics,
-                  reverse: widget.reverse ?? false,
-                  itemCount: widget.data.length,
-                  separatorBuilder: widget.separatorBuilder ?? (c, idx) => widget.separator ?? SizedBox(height: 0),
-                  itemBuilder: (c, idx) => widget.itemBuilder(c, widget.data[idx]),
-                ),
+      child: Column(
+        mainAxisAlignment: widget.outMainAxisAlignment ?? MainAxisAlignment.start,
+        mainAxisSize: widget.outMainAxisSize ?? MainAxisSize.max,
+        crossAxisAlignment: widget.outCrossAxisAlignment ?? CrossAxisAlignment.center,
+        children: [
+          if (widget.outTopWidget != null) widget.outTopWidget,
+          Expanded(
+            child: PlaceholderText.from(
+              onRefresh: _refreshIndicatorKey.currentState?.show,
+              forceState: _forceState,
+              isLoading: _loading,
+              isEmpty: widget.data.isEmpty,
+              errorText: _errorMessage,
+              onChanged: widget.onStateChanged,
+              setting: widget.placeholderSetting,
+              childBuilder: (c) => Column(
+                mainAxisAlignment: widget.mainAxisAlignment ?? MainAxisAlignment.start,
+                mainAxisSize: widget.mainAxisSize ?? MainAxisSize.max,
+                crossAxisAlignment: widget.crossAxisAlignment ?? CrossAxisAlignment.center,
+                children: [
+                  if (widget.topWidget != null) widget.topWidget,
+                  Expanded(
+                    child: Scrollbar(
+                      child: ListView.separated(
+                        controller: widget.controller,
+                        padding: widget.padding,
+                        shrinkWrap: widget.shrinkWrap ?? false,
+                        physics: widget.physics,
+                        reverse: widget.reverse ?? false,
+                        itemCount: widget.data.length,
+                        separatorBuilder: widget.separatorBuilder ?? (c, idx) => widget.separator ?? SizedBox(height: 0),
+                        itemBuilder: (c, idx) => widget.itemBuilder(c, widget.data[idx]),
+                      ),
+                    ),
+                  ),
+                  if (widget.bottomWidget != null) widget.bottomWidget,
+                ],
               ),
             ),
-            if (widget.bottomWidget != null) widget.bottomWidget,
-          ],
-        ),
+          ),
+          if (widget.outBottomWidget != null) widget.outBottomWidget,
+        ],
       ),
     );
   }

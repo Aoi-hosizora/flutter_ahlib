@@ -42,6 +42,11 @@ class PaginationStaggeredGridView<T> extends StatefulWidget {
     this.crossAxisAlignment,
     this.topWidget,
     this.bottomWidget,
+    this.outMainAxisAlignment,
+    this.outMainAxisSize,
+    this.outCrossAxisAlignment,
+    this.outTopWidget,
+    this.outBottomWidget,
   })  : assert(data != null),
         assert(strategy != PaginationStrategy.offsetBased || getDataByOffset != null),
         assert(strategy != PaginationStrategy.seekBased || getDataBySeek != null),
@@ -138,20 +143,35 @@ class PaginationStaggeredGridView<T> extends StatefulWidget {
   /// The mainAxisSpacing for [StaggeredGridView].
   final double mainAxisSpacing;
 
-  /// The mainAxisAlignment for [Column].
+  /// The mainAxisAlignment for inner [Column].
   final MainAxisAlignment mainAxisAlignment;
 
-  /// The mainAxisSize for [Column].
+  /// The mainAxisSize for inner [Column].
   final MainAxisSize mainAxisSize;
 
-  /// The crossAxisAlignment for [Column].
+  /// The crossAxisAlignment for inner [Column].
   final CrossAxisAlignment crossAxisAlignment;
 
-  /// The widget before [StaggeredGridView].
+  /// The widget before [StaggeredGridView] in [PlaceholderText].
   final Widget topWidget;
 
-  /// The widget after [StaggeredGridView].
+  /// The widget after [StaggeredGridView] in [PlaceholderText].
   final Widget bottomWidget;
+
+  /// The mainAxisAlignment for outer [Column].
+  final MainAxisAlignment outMainAxisAlignment;
+
+  /// The mainAxisSize for outer [Column].
+  final MainAxisSize outMainAxisSize;
+
+  /// The crossAxisAlignment for outer [Column].
+  final CrossAxisAlignment outCrossAxisAlignment;
+
+  /// The widget before [ListView] out of [PlaceholderText].
+  final Widget outTopWidget;
+
+  /// The widget after [ListView] out of [PlaceholderText].
+  final Widget outBottomWidget;
 
   @override
   _PaginationStaggeredGridViewState<T> createState() => _PaginationStaggeredGridViewState<T>();
@@ -302,41 +322,52 @@ class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGrid
       child: RefreshIndicator(
         key: _refreshIndicatorKey,
         onRefresh: () => _getData(reset: true),
-        child: PlaceholderText.from(
-          onRefresh: _refreshIndicatorKey.currentState?.show,
-          forceState: _forceState,
-          isLoading: _loading,
-          isEmpty: widget.data.isEmpty,
-          errorText: _errorMessage,
-          onChanged: widget.onStateChanged,
-          setting: widget.placeholderSetting,
-          childBuilder: (c) => Column(
-            mainAxisAlignment: widget.mainAxisAlignment ?? MainAxisAlignment.start,
-            mainAxisSize: widget.mainAxisSize ?? MainAxisSize.max,
-            crossAxisAlignment: widget.crossAxisAlignment ?? CrossAxisAlignment.center,
-            children: [
-              if (widget.topWidget != null) widget.topWidget,
-              Expanded(
-                child: Scrollbar(
-                  child: StaggeredGridView.countBuilder(
-                    controller: widget.controller,
-                    padding: widget.padding,
-                    shrinkWrap: widget.shrinkWrap ?? false,
-                    physics: widget.physics,
-                    reverse: widget.reverse ?? false,
-                    primary: widget.primary,
-                    crossAxisSpacing: widget.crossAxisSpacing,
-                    mainAxisSpacing: widget.mainAxisSpacing,
-                    crossAxisCount: widget.crossAxisCount,
-                    staggeredTileBuilder: widget.staggeredTileBuilder,
-                    itemCount: widget.data.length,
-                    itemBuilder: (c, idx) => widget.itemBuilder(c, widget.data[idx]),
-                  ),
+        child: Column(
+          mainAxisAlignment: widget.outMainAxisAlignment ?? MainAxisAlignment.start,
+          mainAxisSize: widget.outMainAxisSize ?? MainAxisSize.max,
+          crossAxisAlignment: widget.outCrossAxisAlignment ?? CrossAxisAlignment.center,
+          children: [
+            if (widget.outTopWidget != null) widget.outTopWidget,
+            Expanded(
+              child: PlaceholderText.from(
+                onRefresh: _refreshIndicatorKey.currentState?.show,
+                forceState: _forceState,
+                isLoading: _loading,
+                isEmpty: widget.data.isEmpty,
+                errorText: _errorMessage,
+                onChanged: widget.onStateChanged,
+                setting: widget.placeholderSetting,
+                childBuilder: (c) => Column(
+                  mainAxisAlignment: widget.mainAxisAlignment ?? MainAxisAlignment.start,
+                  mainAxisSize: widget.mainAxisSize ?? MainAxisSize.max,
+                  crossAxisAlignment: widget.crossAxisAlignment ?? CrossAxisAlignment.center,
+                  children: [
+                    if (widget.topWidget != null) widget.topWidget,
+                    Expanded(
+                      child: Scrollbar(
+                        child: StaggeredGridView.countBuilder(
+                          controller: widget.controller,
+                          padding: widget.padding,
+                          shrinkWrap: widget.shrinkWrap ?? false,
+                          physics: widget.physics,
+                          reverse: widget.reverse ?? false,
+                          primary: widget.primary,
+                          crossAxisSpacing: widget.crossAxisSpacing,
+                          mainAxisSpacing: widget.mainAxisSpacing,
+                          crossAxisCount: widget.crossAxisCount,
+                          staggeredTileBuilder: widget.staggeredTileBuilder,
+                          itemCount: widget.data.length,
+                          itemBuilder: (c, idx) => widget.itemBuilder(c, widget.data[idx]),
+                        ),
+                      ),
+                    ),
+                    if (widget.bottomWidget != null) widget.bottomWidget,
+                  ],
                 ),
               ),
-              if (widget.bottomWidget != null) widget.bottomWidget,
-            ],
-          ),
+            ),
+            if (widget.outBottomWidget != null) widget.outBottomWidget,
+          ],
         ),
       ),
     );
