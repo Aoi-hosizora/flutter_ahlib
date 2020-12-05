@@ -16,6 +16,8 @@ class PaginationStaggeredGridView<T> extends StatefulWidget {
     this.getDataBySeek,
     this.initialMaxId,
     this.nothingMaxId,
+    this.onStartLoading,
+    this.onStopLoading,
     this.onAppend,
     this.onError,
     this.clearWhenRefreshing = false,
@@ -72,6 +74,12 @@ class PaginationStaggeredGridView<T> extends StatefulWidget {
 
   /// Nothing maxId value when used [PaginationStrategy.seekBased], nullable.
   final dynamic nothingMaxId;
+
+  /// Callback when start loading.
+  final void Function() onStartLoading;
+
+  /// Callback when stop loading.
+  final void Function() onStopLoading;
 
   /// Callback when data has been appended.
   final void Function(List<T>) onAppend;
@@ -187,6 +195,7 @@ class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGrid
       _errorMessage = '';
       widget.data.clear();
     }
+    widget.onStartLoading?.call();
     if (mounted) setState(() {});
 
     // get data
@@ -228,6 +237,7 @@ class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGrid
         }).whenComplete(() {
           // finish loading and setState
           _loading = false;
+          widget.onStopLoading?.call();
           if (mounted) setState(() {});
         });
 
@@ -252,9 +262,11 @@ class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGrid
 
           // replace or append
           if (reset) {
-            widget.data.clear();
-            if (mounted) setState(() {});
-            await Future.delayed(Duration(milliseconds: 20));
+            if (widget.data.isNotEmpty) {
+              widget.data.clear();
+              if (mounted) setState(() {});
+              await Future.delayed(Duration(milliseconds: 20));
+            }
             widget.data.addAll(data.list);
           } else {
             widget.data.addAll(data.list);
@@ -272,6 +284,7 @@ class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGrid
         }).whenComplete(() {
           // finish loading and setState
           _loading = false;
+          widget.onStopLoading?.call();
           if (mounted) setState(() {});
         });
     }

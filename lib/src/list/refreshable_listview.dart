@@ -8,6 +8,8 @@ class RefreshableListView<T> extends StatefulWidget {
     Key key,
     @required this.data,
     @required this.getData,
+    this.onStartLoading,
+    this.onStopLoading,
     this.onAppend,
     this.onError,
     this.clearWhenRefreshing = false,
@@ -42,6 +44,12 @@ class RefreshableListView<T> extends StatefulWidget {
 
   /// Function to get list data.
   final Future<List<T>> Function() getData;
+
+  /// Callback when start loading.
+  final void Function() onStartLoading;
+
+  /// Callback when stop loading.
+  final void Function() onStopLoading;
 
   /// Callback when data has been appended.
   final void Function(List<T>) onAppend;
@@ -134,6 +142,7 @@ class _RefreshableListViewState<T> extends State<RefreshableListView<T>> with Au
       _errorMessage = '';
       widget.data.clear();
     }
+    widget.onStartLoading?.call();
     if (mounted) setState(() {});
 
     // get data
@@ -143,9 +152,11 @@ class _RefreshableListViewState<T> extends State<RefreshableListView<T>> with Au
     return func.then((List<T> list) async {
       // success to get data without error
       _errorMessage = '';
-      widget.data.clear();
-      if (mounted) setState(() {});
-      await Future.delayed(Duration(milliseconds: 20));
+      if (widget.data.isNotEmpty) {
+        widget.data.clear();
+        if (mounted) setState(() {});
+        await Future.delayed(Duration(milliseconds: 20));
+      }
       widget.data.addAll(list);
       widget.onAppend?.call(list);
     }).catchError((e) {
@@ -158,6 +169,7 @@ class _RefreshableListViewState<T> extends State<RefreshableListView<T>> with Au
     }).whenComplete(() {
       // finish loading and setState
       _loading = false;
+      widget.onStopLoading?.call();
       if (mounted) setState(() {});
     });
   }

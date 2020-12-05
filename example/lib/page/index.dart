@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_ahlib_example/page/widget/drawer_list_view.dart';
 import 'package:flutter_ahlib_example/page/widget/dummy_view.dart';
 import 'package:flutter_ahlib_example/page/widget/icon_text.dart';
+import 'package:flutter_ahlib_example/page/widget/lazy_indexed_stack.dart';
 import 'package:flutter_ahlib_example/page/widget/placeholder_text.dart';
 import 'package:flutter_ahlib_example/page/widget/popup_menu.dart';
 import 'package:flutter_ahlib_example/page/widget/scroll_fab.dart';
+import 'package:flutter_ahlib_example/page/widget/sliver_container.dart';
 
 class IndexPage extends StatefulWidget {
   IndexPage({Key key}) : super(key: key);
@@ -66,7 +68,14 @@ class _IndexPageState extends State<IndexPage> {
               children: [
                 _button('PopupMenu', PopupMenuPage()),
                 _button('ScrollFloatingActionButton', ScrollFloatingActionButtonPage()),
+                _button('SliverContainer', SliverContainerPage()),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
                 _button('DummyView', DummyViewPage()),
+                _button('LazyIndexedStack', LazyIndexedStackPage()),
               ],
             ),
             _text('Lists Example'),

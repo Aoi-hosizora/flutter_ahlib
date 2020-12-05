@@ -38,6 +38,7 @@ filesize: ^1.0.4
     + `RippleSizedView`
     + `SliverContainer`
     + `DummyView`
+    + `LazyIndexedStack`
 + Image:
     + `LocalOrNetworkImageProvider`
     + `ImageLoadingView`
@@ -47,6 +48,7 @@ filesize: ^1.0.4
     + `hashObjects`
     + `hash2()` ~ `hash6()`
     + `Tuple2` ~ `Tuple6`
+    + `MountedSetStateExtension`
 + List:
     + `AppendIndicator`
     + `ScrollMoreController`
