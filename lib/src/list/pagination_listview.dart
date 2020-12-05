@@ -141,6 +141,7 @@ class PaginationListView<T> extends StatefulWidget {
 class _PaginationListViewState<T> extends State<PaginationListView<T>> with AutomaticKeepAliveClientMixin<PaginationListView<T>> {
   GlobalKey<AppendIndicatorState> _appendIndicatorKey;
   GlobalKey<RefreshIndicatorState> _refreshIndicatorKey;
+  PlaceholderState _forceState;
   var _loading = false;
   var _errorMessage = '';
   int _nextPage;
@@ -152,6 +153,7 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
     _appendIndicatorKey = GlobalKey<AppendIndicatorState>();
     _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
     if (widget.refreshFirst) {
+      _forceState = PlaceholderState.loading;
       WidgetsBinding.instance.addPostFrameCallback((_) => _refreshIndicatorKey?.currentState?.show());
     }
     widget.controller?.attachAppend(_appendIndicatorKey);
@@ -170,6 +172,7 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
 
     // start loading
     _loading = true;
+    _forceState = null;
     if (reset && widget.clearWhenRefreshing) {
       _errorMessage = '';
       widget.data.clear();
@@ -195,9 +198,11 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
 
           // replace or append
           if (reset) {
-            widget.data.clear();
-            if (mounted) setState(() {});
-            await Future.delayed(Duration(milliseconds: 20));
+            if (widget.data.isNotEmpty) {
+              widget.data.clear();
+              if (mounted) setState(() {});
+              await Future.delayed(Duration(milliseconds: 20));
+            }
             widget.data.addAll(list);
           } else {
             widget.data.addAll(list);
@@ -270,14 +275,15 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return RefreshIndicator(
-      key: _refreshIndicatorKey,
-      onRefresh: () => _getData(reset: true),
-      child: AppendIndicator(
-        key: _appendIndicatorKey,
-        onAppend: () => _getData(reset: false),
+    return AppendIndicator(
+      key: _appendIndicatorKey,
+      onAppend: () => _getData(reset: false),
+      child: RefreshIndicator(
+        key: _refreshIndicatorKey,
+        onRefresh: () => _getData(reset: true),
         child: PlaceholderText.from(
           onRefresh: _refreshIndicatorKey.currentState?.show,
+          forceState: _forceState,
           isLoading: _loading,
           isEmpty: widget.data.isEmpty,
           errorText: _errorMessage,

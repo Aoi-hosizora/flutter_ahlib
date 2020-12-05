@@ -112,6 +112,7 @@ class RefreshableListView<T> extends StatefulWidget {
 
 class _RefreshableListViewState<T> extends State<RefreshableListView<T>> with AutomaticKeepAliveClientMixin<RefreshableListView<T>> {
   GlobalKey<RefreshIndicatorState> _refreshIndicatorKey;
+  PlaceholderState _forceState;
   var _loading = false;
   var _errorMessage = '';
 
@@ -120,6 +121,7 @@ class _RefreshableListViewState<T> extends State<RefreshableListView<T>> with Au
     super.initState();
     _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
     if (widget.refreshFirst) {
+      _forceState = PlaceholderState.loading;
       WidgetsBinding.instance.addPostFrameCallback((_) => _refreshIndicatorKey?.currentState?.show());
     }
     widget.controller?.attachRefresh(_refreshIndicatorKey);
@@ -171,6 +173,7 @@ class _RefreshableListViewState<T> extends State<RefreshableListView<T>> with Au
       onRefresh: () => _getData(),
       child: PlaceholderText.from(
         onRefresh: _refreshIndicatorKey.currentState?.show,
+        forceState: _forceState,
         isLoading: _loading,
         isEmpty: widget.data.isEmpty,
         errorText: _errorMessage,

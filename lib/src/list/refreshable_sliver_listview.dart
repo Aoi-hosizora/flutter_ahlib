@@ -100,6 +100,7 @@ class RefreshableSliverListView<T> extends StatefulWidget {
 
 class _RefreshableSliverListViewState<T> extends State<RefreshableSliverListView<T>> with AutomaticKeepAliveClientMixin<RefreshableSliverListView<T>> {
   GlobalKey<RefreshIndicatorState> _refreshIndicatorKey;
+  PlaceholderState _forceState;
   var _loading = false;
   var _errorMessage = '';
 
@@ -108,6 +109,7 @@ class _RefreshableSliverListViewState<T> extends State<RefreshableSliverListView
     super.initState();
     _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
     if (widget.refreshFirst) {
+      _forceState = PlaceholderState.loading;
       WidgetsBinding.instance.addPostFrameCallback((_) => _refreshIndicatorKey?.currentState?.show());
     }
     widget.controller?.attachRefresh(_refreshIndicatorKey);
@@ -159,6 +161,7 @@ class _RefreshableSliverListViewState<T> extends State<RefreshableSliverListView
       onRefresh: () => _getData(),
       child: PlaceholderText.from(
         onRefresh: _refreshIndicatorKey.currentState?.show,
+        forceState: _forceState,
         isLoading: _loading,
         isEmpty: widget.data.isEmpty,
         errorText: _errorMessage,

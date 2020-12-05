@@ -123,6 +123,7 @@ class RefreshableStaggeredGridView<T> extends StatefulWidget {
 
 class _RefreshableStaggeredGridViewState<T> extends State<RefreshableStaggeredGridView<T>> with AutomaticKeepAliveClientMixin<RefreshableStaggeredGridView<T>> {
   GlobalKey<RefreshIndicatorState> _refreshIndicatorKey;
+  PlaceholderState _forceState;
   var _loading = false;
   var _errorMessage = '';
 
@@ -131,6 +132,7 @@ class _RefreshableStaggeredGridViewState<T> extends State<RefreshableStaggeredGr
     super.initState();
     _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
     if (widget.refreshFirst) {
+      _forceState = PlaceholderState.loading;
       WidgetsBinding.instance.addPostFrameCallback((_) => _refreshIndicatorKey?.currentState?.show());
     }
     widget.controller?.attachRefresh(_refreshIndicatorKey);
@@ -182,6 +184,7 @@ class _RefreshableStaggeredGridViewState<T> extends State<RefreshableStaggeredGr
       onRefresh: () => _getData(),
       child: PlaceholderText.from(
         onRefresh: _refreshIndicatorKey.currentState?.show,
+        forceState: _forceState,
         isLoading: _loading,
         isEmpty: widget.data.isEmpty,
         errorText: _errorMessage,

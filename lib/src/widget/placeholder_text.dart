@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 enum PlaceholderState {
   normal, // 1. !isEmpty
   loading, // 2. isLoading (&& isEmpty)
-  nothing, // 3. errorText == null (&& isEmpty && !isLoading)
+  nothing, // 3. errorText?.isNotEmpty == true (&& isEmpty && !isLoading)
   error, // 4. else (isEmpty && !isLoading && errorText != null)
 }
 
@@ -72,27 +72,27 @@ class PlaceholderSetting {
     String unknownErrorText = '未知错误',
   }) {
     return PlaceholderSetting(
-        loadingText: loadingText,
-        nothingText: nothingText,
-        retryText: retryText,
-        unknownErrorText: unknownErrorText,
-        textPadding: this.textPadding,
-        iconPadding: this.iconPadding,
-        buttonPadding: this.buttonPadding,
-        progressPadding: this.progressPadding,
-        textStyle: this.textStyle,
-        buttonTextStyle: this.buttonTextStyle,
-        iconSize: this.iconSize,
-        iconColor: this.iconColor,
-        progressSize: this.progressSize,
-        showLoadingProgress: this.showLoadingProgress,
-        showLoadingText: this.showLoadingText,
-        showNothingIcon: this.showNothingIcon,
-        showNothingText: this.showNothingText,
-        showNothingRetry: this.showNothingRetry,
-        showErrorIcon: this.showErrorIcon,
-        showErrorText: this.showErrorText,
-        showErrorRetry: this.showErrorRetry,
+      loadingText: loadingText,
+      nothingText: nothingText,
+      retryText: retryText,
+      unknownErrorText: unknownErrorText,
+      textPadding: this.textPadding,
+      iconPadding: this.iconPadding,
+      buttonPadding: this.buttonPadding,
+      progressPadding: this.progressPadding,
+      textStyle: this.textStyle,
+      buttonTextStyle: this.buttonTextStyle,
+      iconSize: this.iconSize,
+      iconColor: this.iconColor,
+      progressSize: this.progressSize,
+      showLoadingProgress: this.showLoadingProgress,
+      showLoadingText: this.showLoadingText,
+      showNothingIcon: this.showNothingIcon,
+      showNothingText: this.showNothingText,
+      showNothingRetry: this.showNothingRetry,
+      showErrorIcon: this.showErrorIcon,
+      showErrorText: this.showErrorText,
+      showErrorRetry: this.showErrorRetry,
     );
   }
 
@@ -183,6 +183,7 @@ class PlaceholderText extends StatefulWidget {
     @required Widget Function(BuildContext) childBuilder,
     void Function() onRefresh,
     String errorText,
+    PlaceholderState forceState,
     @required bool isEmpty,
     @required bool isLoading,
     PlaceholderStateChangedCallback onChanged,
@@ -192,15 +193,17 @@ class PlaceholderText extends StatefulWidget {
           childBuilder: childBuilder,
           onRefresh: onRefresh,
           errorText: errorText,
-          state: !isEmpty // first -> check if it has data
-              ? PlaceholderState.normal // has data => normal
-              : isLoading // has no data -> check if is loading
-                  ? PlaceholderState.loading // is loading => loading
-                  : errorText != null // is not loading -> check if error message is null
-                      ? PlaceholderState.error // has error text => error
-                      : true == true // dummy
-                          ? PlaceholderState.nothing // empty, loaded, noerr => nothing
-                          : null,
+          state: forceState != null // has force to state
+              ? forceState // use forceState
+              : !isEmpty // first -> check if it has data
+                  ? PlaceholderState.normal // has data => normal
+                  : isLoading // has no data -> check if is loading
+                      ? PlaceholderState.loading // is loading => loading
+                      : errorText?.isNotEmpty == true // is not loading -> check if error message is null or empty
+                          ? PlaceholderState.error // has error text => error
+                          : true == true // dummy
+                              ? PlaceholderState.nothing // empty, loaded, noerr => nothing
+                              : null,
           onChanged: onChanged,
           setting: setting,
         );
@@ -233,8 +236,8 @@ class _PlaceholderTextState extends State<PlaceholderText> {
 
   @override
   void initState() {
-    super.initState();
     _lastState = widget.state;
+    super.initState();
   }
 
   @override
@@ -243,6 +246,7 @@ class _PlaceholderTextState extends State<PlaceholderText> {
       _lastState = widget.state;
     } else if (_lastState != widget.state) {
       widget.onChanged?.call(_lastState, widget.state);
+      _lastState = widget.state;
     }
 
     switch (widget.state) {

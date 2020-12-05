@@ -152,6 +152,7 @@ class PaginationStaggeredGridView<T> extends StatefulWidget {
 class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGridView<T>> with AutomaticKeepAliveClientMixin<PaginationStaggeredGridView<T>> {
   GlobalKey<AppendIndicatorState> _appendIndicatorKey;
   GlobalKey<RefreshIndicatorState> _refreshIndicatorKey;
+  PlaceholderState _forceState;
   var _loading = false;
   var _errorMessage = '';
   int _nextPage;
@@ -163,6 +164,7 @@ class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGrid
     _appendIndicatorKey = GlobalKey<AppendIndicatorState>();
     _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
     if (widget.refreshFirst) {
+      _forceState = PlaceholderState.loading;
       WidgetsBinding.instance.addPostFrameCallback((_) => _refreshIndicatorKey?.currentState?.show());
     }
     widget.controller?.attachRefresh(_refreshIndicatorKey);
@@ -281,14 +283,15 @@ class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGrid
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return RefreshIndicator(
-      key: _refreshIndicatorKey,
-      onRefresh: () => _getData(reset: true),
-      child: AppendIndicator(
-        key: _appendIndicatorKey,
-        onAppend: () => _getData(reset: false),
+    return AppendIndicator(
+      key: _appendIndicatorKey,
+      onAppend: () => _getData(reset: false),
+      child: RefreshIndicator(
+        key: _refreshIndicatorKey,
+        onRefresh: () => _getData(reset: true),
         child: PlaceholderText.from(
           onRefresh: _refreshIndicatorKey.currentState?.show,
+          forceState: _forceState,
           isLoading: _loading,
           isEmpty: widget.data.isEmpty,
           errorText: _errorMessage,
