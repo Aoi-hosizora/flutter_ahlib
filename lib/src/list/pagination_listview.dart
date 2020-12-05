@@ -270,20 +270,20 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return PlaceholderText.from(
-      onRefresh: _refreshIndicatorKey.currentState?.show,
-      isLoading: _loading,
-      isEmpty: widget.data.isEmpty,
-      errorText: _errorMessage,
-      onChanged: widget.onStateChanged,
-      setting: widget.placeholderSetting,
-      childBuilder: (c) => AppendIndicator(
+    return RefreshIndicator(
+      key: _refreshIndicatorKey,
+      onRefresh: () => _getData(reset: true),
+      child: AppendIndicator(
         key: _appendIndicatorKey,
         onAppend: () => _getData(reset: false),
-        child: RefreshIndicator(
-          key: _refreshIndicatorKey,
-          onRefresh: () => _getData(reset: true),
-          child: Column(
+        child: PlaceholderText.from(
+          onRefresh: _refreshIndicatorKey.currentState?.show,
+          isLoading: _loading,
+          isEmpty: widget.data.isEmpty,
+          errorText: _errorMessage,
+          onChanged: widget.onStateChanged,
+          setting: widget.placeholderSetting,
+          childBuilder: (c) => Column(
             mainAxisAlignment: widget.mainAxisAlignment ?? MainAxisAlignment.start,
             mainAxisSize: widget.mainAxisSize ?? MainAxisSize.max,
             crossAxisAlignment: widget.crossAxisAlignment ?? CrossAxisAlignment.center,

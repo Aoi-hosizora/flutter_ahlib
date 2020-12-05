@@ -15,14 +15,23 @@ class _DummyViewPageState extends State<DummyViewPage> {
       appBar: AppBar(
         title: Text('DummyView Example'),
       ),
-      body: ListView(
-        children: [
-          DummyView(),
-          DummyView(),
-          DummyView(),
-          DummyView(),
-          DummyView(),
-        ],
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Divider(height: 1, thickness: 1),
+            DummyView(),
+            Divider(height: 1, thickness: 1),
+            DummyView(),
+            Divider(height: 1, thickness: 1),
+            DummyView(),
+            Divider(height: 1, thickness: 1),
+            DummyView(),
+            Divider(height: 1, thickness: 1),
+            DummyView(),
+            Divider(height: 1, thickness: 1),
+          ],
+        ),
       ),
     );
   }

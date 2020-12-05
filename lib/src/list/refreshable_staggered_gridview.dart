@@ -177,17 +177,17 @@ class _RefreshableStaggeredGridViewState<T> extends State<RefreshableStaggeredGr
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return PlaceholderText.from(
-      onRefresh: _refreshIndicatorKey.currentState?.show,
-      isLoading: _loading,
-      isEmpty: widget.data.isEmpty,
-      errorText: _errorMessage,
-      onChanged: widget.onStateChanged,
-      setting: widget.placeholderSetting,
-      childBuilder: (c) => RefreshIndicator(
-        key: _refreshIndicatorKey,
-        onRefresh: () => _getData(),
-        child: Column(
+    return RefreshIndicator(
+      key: _refreshIndicatorKey,
+      onRefresh: () => _getData(),
+      child: PlaceholderText.from(
+        onRefresh: _refreshIndicatorKey.currentState?.show,
+        isLoading: _loading,
+        isEmpty: widget.data.isEmpty,
+        errorText: _errorMessage,
+        onChanged: widget.onStateChanged,
+        setting: widget.placeholderSetting,
+        childBuilder: (c) => Column(
           mainAxisAlignment: widget.mainAxisAlignment ?? MainAxisAlignment.start,
           mainAxisSize: widget.mainAxisSize ?? MainAxisSize.max,
           crossAxisAlignment: widget.crossAxisAlignment ?? CrossAxisAlignment.center,

@@ -259,20 +259,20 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return PlaceholderText.from(
-      onRefresh: _refreshIndicatorKey.currentState?.show,
-      isLoading: _loading,
-      isEmpty: widget.data.isEmpty,
-      errorText: _errorMessage,
-      onChanged: widget.onStateChanged,
-      setting: widget.placeholderSetting,
-      childBuilder: (c) => AppendIndicator(
+    return RefreshIndicator(
+      key: _refreshIndicatorKey,
+      onRefresh: () => _getData(reset: true),
+      child: AppendIndicator(
         key: _appendIndicatorKey,
         onAppend: () => _getData(reset: false),
-        child: RefreshIndicator(
-          key: _refreshIndicatorKey,
-          onRefresh: () => _getData(reset: true),
-          child: Scrollbar(
+        child: PlaceholderText.from(
+          onRefresh: _refreshIndicatorKey.currentState?.show,
+          isLoading: _loading,
+          isEmpty: widget.data.isEmpty,
+          errorText: _errorMessage,
+          onChanged: widget.onStateChanged,
+          setting: widget.placeholderSetting,
+          childBuilder: (c) => Scrollbar(
             child: CustomScrollView(
               controller: widget.innerController,
               shrinkWrap: widget.shrinkWrap ?? false,

@@ -154,17 +154,17 @@ class _RefreshableSliverListViewState<T> extends State<RefreshableSliverListView
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return PlaceholderText.from(
-      onRefresh: _refreshIndicatorKey.currentState?.show,
-      isLoading: _loading,
-      isEmpty: widget.data.isEmpty,
-      errorText: _errorMessage,
-      onChanged: widget.onStateChanged,
-      setting: widget.placeholderSetting,
-      childBuilder: (c) => RefreshIndicator(
-        key: _refreshIndicatorKey,
-        onRefresh: () => _getData(),
-        child: Scrollbar(
+    return RefreshIndicator(
+      key: _refreshIndicatorKey,
+      onRefresh: () => _getData(),
+      child: PlaceholderText.from(
+        onRefresh: _refreshIndicatorKey.currentState?.show,
+        isLoading: _loading,
+        isEmpty: widget.data.isEmpty,
+        errorText: _errorMessage,
+        onChanged: widget.onStateChanged,
+        setting: widget.placeholderSetting,
+        childBuilder: (c) => Scrollbar(
           child: CustomScrollView(
             controller: widget.innerController,
             shrinkWrap: widget.shrinkWrap ?? false,
