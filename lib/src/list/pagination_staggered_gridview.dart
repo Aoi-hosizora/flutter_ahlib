@@ -211,6 +211,7 @@ class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGrid
 
     // start loading
     _loading = true;
+    _forceState = null;
     if (reset && widget.clearWhenRefreshing) {
       _errorMessage = '';
       widget.data.clear();

@@ -119,7 +119,7 @@ class LocalOrNetworkImageProvider extends ImageProvider<image_provider.LocalOrNe
           // print('${result.downloaded} ${result.totalSize} $totalSize');
           chunkEvents.add(ImageChunkEvent(
             cumulativeBytesLoaded: result.downloaded,
-            expectedTotalBytes: result.totalSize ?? totalSize ?? 0,
+            expectedTotalBytes: result.totalSize ?? totalSize,
           ));
         } else if (result is FileInfo) {
           var file = result.file;

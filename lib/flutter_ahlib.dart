@@ -11,6 +11,7 @@ export 'src/widget/ripple_sized_view.dart';
 export 'src/widget/sliver_container.dart';
 export 'src/widget/dummy_view.dart';
 export 'src/widget/lazy_indexed_stack.dart';
+export 'src/widget/sliver_appbar_delegate.dart';
 
 // image
 export 'src/image/local_network_image_provider.dart';

@@ -39,6 +39,7 @@ filesize: ^1.0.4
     + `SliverContainer`
     + `DummyView`
     + `LazyIndexedStack`
+    + `SliverAppBarDelegate`
 + Image:
     + `LocalOrNetworkImageProvider`
     + `ImageLoadingView`

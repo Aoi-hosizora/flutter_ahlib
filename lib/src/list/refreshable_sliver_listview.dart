@@ -17,8 +17,9 @@ class RefreshableSliverListView<T> extends StatefulWidget {
     this.refreshFirst = true,
     this.onStateChanged,
     this.placeholderSetting,
+    this.outerController,
     this.controller,
-    this.innerController,
+    this.hasOverlapAbsorber = false,
     @required this.itemBuilder,
     this.separator,
     this.padding,
@@ -33,6 +34,7 @@ class RefreshableSliverListView<T> extends StatefulWidget {
         assert(clearWhenRefreshing != null),
         assert(clearWhenError != null),
         assert(refreshFirst != null),
+        assert(hasOverlapAbsorber != null),
         assert(itemBuilder != null),
         super(key: key);
 
@@ -69,11 +71,14 @@ class RefreshableSliverListView<T> extends StatefulWidget {
   /// Display setting for [PlaceholderText].
   final PlaceholderSetting placeholderSetting;
 
-  /// The controller for [RefreshableSliverListView], with [ScrollMoreController].
-  final ScrollMoreController controller;
+  /// The controller for outer [NestedScrollView], with [ScrollMoreController].
+  final ScrollMoreController outerController;
 
-  /// The controller for [CustomScrollView].
-  final ScrollController innerController;
+  /// The controller for inner [CustomScrollView].
+  final ScrollController controller;
+
+  /// Check if outer [NestedScrollView] use [SliverOverlapAbsorber].
+  final bool hasOverlapAbsorber;
 
   /// The itemBuilder for [SliverChildBuilderDelegate] in [SliverList].
   final Widget Function(BuildContext, T) itemBuilder;
@@ -120,12 +125,13 @@ class _RefreshableSliverListViewState<T> extends State<RefreshableSliverListView
       _forceState = PlaceholderState.loading;
       WidgetsBinding.instance.addPostFrameCallback((_) => _refreshIndicatorKey?.currentState?.show());
     }
-    widget.controller?.attachRefresh(_refreshIndicatorKey);
+    widget.outerController?.attachRefresh(_refreshIndicatorKey);
   }
 
   Future<void> _getData() async {
     // start loading
     _loading = true;
+    _forceState = null;
     if (widget.clearWhenRefreshing) {
       _errorMessage = '';
       widget.data.clear();
@@ -181,7 +187,7 @@ class _RefreshableSliverListViewState<T> extends State<RefreshableSliverListView
         setting: widget.placeholderSetting,
         childBuilder: (c) => Scrollbar(
           child: CustomScrollView(
-            controller: widget.innerController,
+            controller: widget.controller,
             shrinkWrap: widget.shrinkWrap ?? false,
             physics: widget.physics,
             reverse: widget.reverse ?? false,

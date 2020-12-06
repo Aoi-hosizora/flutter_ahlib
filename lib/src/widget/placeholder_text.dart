@@ -30,6 +30,7 @@ class PlaceholderSetting {
     this.iconSize = 50,
     this.iconColor = Colors.grey,
     this.progressSize = 40,
+    this.buttonBorderSide = const BorderSide(style: BorderStyle.solid, color: Color(0xFFD7D7D7)),
     //
     this.showLoadingProgress = true,
     this.showLoadingText = true,
@@ -55,6 +56,7 @@ class PlaceholderSetting {
         assert(iconSize != null),
         assert(iconColor != null),
         assert(progressSize != null),
+        assert(buttonBorderSide != null),
         assert(showLoadingProgress != null),
         assert(showLoadingText != null),
         assert(showNothingIcon != null),
@@ -85,6 +87,7 @@ class PlaceholderSetting {
       iconSize: this.iconSize,
       iconColor: this.iconColor,
       progressSize: this.progressSize,
+      buttonBorderSide: this.buttonBorderSide,
       showLoadingProgress: this.showLoadingProgress,
       showLoadingText: this.showLoadingText,
       showNothingIcon: this.showNothingIcon,
@@ -117,6 +120,7 @@ class PlaceholderSetting {
       iconSize: this.iconSize,
       iconColor: this.iconColor,
       progressSize: this.progressSize,
+      buttonBorderSide: this.buttonBorderSide,
       showLoadingProgress: this.showLoadingProgress,
       showLoadingText: this.showLoadingText,
       showNothingIcon: this.showNothingIcon,
@@ -146,6 +150,7 @@ class PlaceholderSetting {
   final double iconSize;
   final Color iconColor;
   final double progressSize;
+  final BorderSide buttonBorderSide;
 
   // loading
   final bool showLoadingProgress;
@@ -324,6 +329,7 @@ class _PlaceholderTextState extends State<PlaceholderText> {
                       widget.onRefresh?.call();
                       if (mounted) setState(() {});
                     },
+                    borderSide: widget.setting.buttonBorderSide,
                   ),
                 ),
             ],
@@ -368,6 +374,7 @@ class _PlaceholderTextState extends State<PlaceholderText> {
                       widget.onRefresh?.call();
                       if (mounted) setState(() {});
                     },
+                    borderSide: widget.setting.buttonBorderSide,
                   ),
                 ),
             ],

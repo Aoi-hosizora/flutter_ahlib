@@ -81,13 +81,13 @@ class _ImageLoadingViewState extends State<ImageLoadingView> {
               width: widget.progressSize,
               height: widget.progressSize,
               child: CircularProgressIndicator(
-                value: widget.event?.expectedTotalBytes == null ? null : (widget.event?.cumulativeBytesLoaded ?? 0.0) / widget.event.expectedTotalBytes,
+                value: widget.event?.expectedTotalBytes ?? 0 == 0 ? null : (widget.event?.cumulativeBytesLoaded ?? 0.0) / widget.event.expectedTotalBytes,
               ),
             ),
           ),
-          if (widget.showFileSize && widget.event?.expectedTotalBytes != null)
+          if (widget.showFileSize && widget.event?.cumulativeBytesLoaded != null)
             Text(
-              '${filesize(widget.event?.cumulativeBytesLoaded ?? 0)} / ${filesize(widget.event?.expectedTotalBytes ?? 0)}',
+              widget.event?.expectedTotalBytes == null ? '${filesize(widget.event.cumulativeBytesLoaded)}' : '${filesize(widget.event.cumulativeBytesLoaded)} / ${filesize(widget.event.expectedTotalBytes)}',
               style: widget.fileSizeTextStyle,
             ),
         ],

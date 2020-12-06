@@ -28,7 +28,7 @@ class ScrollMoreController extends ScrollController {
   /// Unbind the given [ScrollController] with this controller.
   void unbind() => _bindControllerFunc = null;
 
-  /// Get the bound [ScrollController].
+  /// Get the bind [ScrollController].
   ScrollController get _scrollController => _bindControllerFunc?.call();
 
   @mustCallSuper

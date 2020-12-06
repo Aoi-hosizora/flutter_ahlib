@@ -15,17 +15,17 @@ int hash4(a, b, c, d) => _finish(_combine(_combine(_combine(_combine(0, a.hashCo
 /// Generates a hash code for five objects.
 int hash5(a, b, c, d, e) => _finish(_combine(_combine(_combine(_combine(_combine(0, a.hashCode), b.hashCode), c.hashCode), d.hashCode), e.hashCode));
 
-/// Generates a hash code for siz objects.
+/// Generates a hash code for six objects.
 int hash6(a, b, c, d, e, f) => _finish(_combine(_combine(_combine(_combine(_combine(_combine(0, a.hashCode), b.hashCode), c.hashCode), d.hashCode), e.hashCode), f.hashCode));
 
-// Jenkins hash functions
-
+// Jenkins hash function
 int _combine(int hash, int value) {
   hash = 0x1fffffff & (hash + value);
   hash = 0x1fffffff & (hash + ((0x0007ffff & hash) << 10));
   return hash ^ (hash >> 6);
 }
 
+// Jenkins hash function
 int _finish(int hash) {
   hash = 0x1fffffff & (hash + ((0x03ffffff & hash) << 3));
   hash = hash ^ (hash >> 11);

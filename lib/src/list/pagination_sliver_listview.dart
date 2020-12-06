@@ -25,8 +25,9 @@ class PaginationSliverListView<T> extends StatefulWidget {
     this.refreshFirst = true,
     this.onStateChanged,
     this.placeholderSetting,
+    this.outerController,
     this.controller,
-    this.innerController,
+    this.hasOverlapAbsorber = false,
     @required this.itemBuilder,
     this.separator,
     this.padding,
@@ -43,7 +44,7 @@ class PaginationSliverListView<T> extends StatefulWidget {
         assert(clearWhenError != null),
         assert(updateOnlyIfNotEmpty != null),
         assert(refreshFirst != null),
-        assert(controller == null || innerController != null),
+        assert(hasOverlapAbsorber != null),
         assert(itemBuilder != null),
         super(key: key);
 
@@ -98,11 +99,14 @@ class PaginationSliverListView<T> extends StatefulWidget {
   /// Display setting for [PlaceholderText].
   final PlaceholderSetting placeholderSetting;
 
-  /// The controller for [PaginationSliverListView], with [ScrollMoreController].
-  final ScrollMoreController controller;
+  /// The controller for outer [NestedScrollView], with [ScrollMoreController].
+  final ScrollMoreController outerController;
 
-  /// The controller for [CustomScrollView].
-  final ScrollController innerController;
+  /// The controller for inner [CustomScrollView].
+  final ScrollController controller;
+
+  /// Check if outer [NestedScrollView] use [SliverOverlapAbsorber].
+  final bool hasOverlapAbsorber;
 
   /// The itemBuilder for [SliverChildBuilderDelegate] in [SliverList].
   final Widget Function(BuildContext, T) itemBuilder;
@@ -153,8 +157,8 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
       _forceState = PlaceholderState.loading;
       WidgetsBinding.instance.addPostFrameCallback((_) => _refreshIndicatorKey?.currentState?.show());
     }
-    widget.controller?.attachAppend(_appendIndicatorKey);
-    widget.controller?.attachRefresh(_refreshIndicatorKey);
+    widget.outerController?.attachAppend(_appendIndicatorKey);
+    widget.outerController?.attachRefresh(_refreshIndicatorKey);
 
     _nextPage = widget.initialPage;
     _nextMaxId = widget.initialMaxId;
@@ -169,6 +173,7 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
 
     // start loading
     _loading = true;
+    _forceState = null;
     if (reset && widget.clearWhenRefreshing) {
       _errorMessage = '';
       widget.data.clear();
@@ -201,7 +206,7 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
             widget.data.addAll(list);
           } else {
             widget.data.addAll(list);
-            widget.controller?.scrollDown();
+            _scrollDown(widget.controller); // ???
           }
           _nextPage++;
           widget.onAppend?.call(list);
@@ -248,7 +253,7 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
             widget.data.addAll(data.list);
           } else {
             widget.data.addAll(data.list);
-            widget.controller?.scrollDown();
+            _scrollDown(widget.controller); // ???
           }
           _nextMaxId = data.nextMaxId;
           widget.onAppend?.call(data.list);
@@ -290,11 +295,15 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
           setting: widget.placeholderSetting,
           childBuilder: (c) => Scrollbar(
             child: CustomScrollView(
-              controller: widget.innerController,
+              controller: widget.controller,
               shrinkWrap: widget.shrinkWrap ?? false,
               physics: widget.physics,
               reverse: widget.reverse ?? false,
               slivers: [
+                if (widget.hasOverlapAbsorber)
+                  SliverOverlapInjector(
+                    handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
+                  ),
                 if (widget.topSliver != null) widget.topSliver,
                 SliverPadding(
                   padding: widget.padding,
@@ -321,6 +330,16 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
           ),
         ),
       ),
+    );
+  }
+}
+
+void _scrollDown(ScrollController controller, {int scrollOffset = 50}) {
+  if (controller != null) {
+    controller.animateTo(
+      controller.offset + scrollOffset,
+      curve: Curves.easeOutCirc,
+      duration: Duration(milliseconds: 500),
     );
   }
 }

@@ -15,7 +15,7 @@ class SliverContainer extends StatelessWidget {
     this.alignment,
     this.foregroundDecoration,
     this.transform,
-    this.clipBehavior,
+    this.clipBehavior = Clip.none,
   }) : super(key: key);
 
   /// The child contained by the container.
