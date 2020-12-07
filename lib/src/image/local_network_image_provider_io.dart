@@ -1,11 +1,13 @@
-import 'dart:async' show Future, StreamController;
+import 'dart:async' show Future, StreamController, scheduleMicrotask;
 import 'dart:io' as io show File;
 import 'dart:ui' as ui show Codec;
 
-import 'package:http/http.dart' as http show head;
+import 'package:flutter_ahlib/src/image/multi_image_stream_completer.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:http/http.dart' as http show head;
+
 import 'local_network_image_provider.dart' as image_provider;
 
 /// Default implementation of [image_provider.LocalOrNetworkImageProvider].
@@ -13,8 +15,8 @@ class LocalOrNetworkImageProvider extends ImageProvider<image_provider.LocalOrNe
   const LocalOrNetworkImageProvider({
     @required this.file,
     @required this.url,
-    this.headers,
     this.scale = 1.0,
+    this.headers,
     this.onFile,
     this.onNetwork,
     this.cacheManager,
@@ -25,17 +27,21 @@ class LocalOrNetworkImageProvider extends ImageProvider<image_provider.LocalOrNe
   @override
   final Future<io.File> Function() file;
 
-  /// url of the image to load.
+  /// Web url of the image to load.
   @override
   final Future<String> Function() url;
-
-  /// Headers for the image provider from network.
-  @override
-  final Map<String, String> headers;
 
   /// Scale of the image.
   @override
   final double scale;
+
+  /// Headers for the image provided by network.
+  @override
+  final Map<String, String> headers;
+
+  /// Cache manager.
+  @override
+  final BaseCacheManager cacheManager;
 
   /// Callback function when the image from file loaded.
   @override
@@ -44,10 +50,6 @@ class LocalOrNetworkImageProvider extends ImageProvider<image_provider.LocalOrNe
   /// Callback function when the image from network downloaded.
   @override
   final Function() onNetwork;
-
-  /// Cache manager.
-  @override
-  final DefaultCacheManager cacheManager;
 
   /// Override the [ImageProvider].
   @override
@@ -59,8 +61,8 @@ class LocalOrNetworkImageProvider extends ImageProvider<image_provider.LocalOrNe
   @override
   ImageStreamCompleter load(image_provider.LocalOrNetworkImageProvider key, DecoderCallback decode) {
     final chunkEvents = StreamController<ImageChunkEvent>();
-    return MultiFrameImageStreamCompleter(
-      codec: _loadAsync(key, chunkEvents, decode).first,
+    return MultiImageStreamCompleter(
+      codec: _loadAsync(key, chunkEvents, decode),
       chunkEvents: chunkEvents.stream,
       scale: key.scale,
       informationCollector: () sync* {
@@ -73,11 +75,11 @@ class LocalOrNetworkImageProvider extends ImageProvider<image_provider.LocalOrNe
     );
   }
 
-  /// Used in [MultiFrameImageStreamCompleter] for [load].
+  /// Used in [MultiImageStreamCompleter] for [load].
   Stream<ui.Codec> _loadAsync(LocalOrNetworkImageProvider key, StreamController<ImageChunkEvent> chunkEvents, DecoderCallback decode) async* {
     assert(key == this);
 
-    var file = await this.file.call();
+    var file = await key.file.call();
     var url = await key.url.call();
     assert(file == null || await file.exists());
     assert(url == null || url.isNotEmpty);
@@ -129,6 +131,9 @@ class LocalOrNetworkImageProvider extends ImageProvider<image_provider.LocalOrNe
         }
       }
     } catch (e) {
+      scheduleMicrotask(() {
+        PaintingBinding.instance.imageCache.evict(key);
+      });
       chunkEvents.addError(e);
     } finally {
       onNetwork?.call();
@@ -139,11 +144,12 @@ class LocalOrNetworkImageProvider extends ImageProvider<image_provider.LocalOrNe
   @override
   bool operator ==(dynamic other) {
     if (other is LocalOrNetworkImageProvider) {
-      return url == other.url && file == other.file;
+      // ATTENTION: url and file are all functions, so you must save the functions before using the ImageProvider.
+      return url == other.url && file == other.file && scale == other.scale;
     }
     return false;
   }
 
   @override
-  int get hashCode => hashValues(url, file);
+  int get hashCode => hashValues(url, file, scale);
 }

@@ -44,6 +44,7 @@ filesize: ^1.0.4
     + `LocalOrNetworkImageProvider`
     + `ImageLoadingView`
     + `ImageLoadFailedView`
+    + `MultiImageStreamCompleter`
 + Util:
     + `ActionController`
     + `hashObjects`
