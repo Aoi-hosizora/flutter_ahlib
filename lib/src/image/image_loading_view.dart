@@ -85,9 +85,14 @@ class _ImageLoadingViewState extends State<ImageLoadingView> {
               ),
             ),
           ),
-          if (widget.showFileSize && widget.event?.cumulativeBytesLoaded != null)
+          if (widget.showFileSize && widget.event?.cumulativeBytesLoaded != null && widget.event?.expectedTotalBytes == null)
             Text(
-              widget.event?.expectedTotalBytes == null ? '${filesize(widget.event.cumulativeBytesLoaded)}' : '${filesize(widget.event.cumulativeBytesLoaded)} / ${filesize(widget.event.expectedTotalBytes)}',
+              '${filesize(widget.event.cumulativeBytesLoaded)}',
+              style: widget.fileSizeTextStyle,
+            ),
+          if (widget.showFileSize && widget.event?.cumulativeBytesLoaded != null && widget.event?.expectedTotalBytes != null)
+            Text(
+              '${filesize(widget.event.cumulativeBytesLoaded)} / ${filesize(widget.event.expectedTotalBytes)}',
               style: widget.fileSizeTextStyle,
             ),
         ],

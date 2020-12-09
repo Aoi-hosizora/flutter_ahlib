@@ -13,6 +13,14 @@ class ScrollFabController {
   /// Unregister the given [AnimationController] with this controller.
   void detachAnim() => _animController = null;
 
+  /// Register the given [AnimationController] with this controller.
+  @deprecated
+  void attachAnime(AnimationController c) => _animController = c;
+
+  /// Unregister the given [AnimationController] with this controller.
+  @deprecated
+  void detachAnime() => _animController = null;
+
   /// Register the given [ActionController] with this controller.
   void attachAction(ActionController c) => _actionController = c;
 

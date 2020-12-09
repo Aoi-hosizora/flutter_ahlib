@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 /// More functions of [ScrollController],
 /// including: [scrollWithAnimate], [scrollTop], [scrollBottom], [scrollDown], [scrollUp],
 /// [append] (need [attachAppend]), [refresh] (need [attachRefresh]).
+@deprecated
 class ScrollMoreController extends ScrollController {
   GlobalKey<AppendIndicatorState> _appendIndicatorKey;
   GlobalKey<RefreshIndicatorState> _refreshIndicatorKey;
