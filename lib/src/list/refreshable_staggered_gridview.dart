@@ -1,21 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_ahlib/src/list/updatable_list_func.dart';
-import 'package:flutter_ahlib/src/list/updatable_list_controller.dart';
-import 'package:flutter_ahlib/src/list/updatable_list_setting.dart';
+import 'package:flutter_ahlib/src/list/updatable_dataview.dart';
 import 'package:flutter_ahlib/src/widget/placeholder_text.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
-/// Refreshable [StaggeredGridView] is a kind of updatable list, with
+/// Refreshable [StaggeredGridView] is an implementation of [RefreshableDataView], with
 /// [PlaceholderText], [RefreshIndicator], [Scrollbar] and [StaggeredGridView].
-class RefreshableStaggeredGridView<T> extends StatefulWidget {
+class RefreshableStaggeredGridView<T> extends RefreshableDataView<T> {
   const RefreshableStaggeredGridView({
     Key key,
-    // parameter for updatable list
     @required this.data,
     @required this.getData,
-    this.setting = const UpdatableListSetting(),
+    this.setting = const UpdatableDataViewSetting(),
     this.controller,
-    // parameter for list view
     this.scrollController,
     @required this.itemBuilder,
     this.padding,
@@ -24,54 +20,58 @@ class RefreshableStaggeredGridView<T> extends StatefulWidget {
     this.shrinkWrap,
     @required this.staggeredTileBuilder,
     @required this.crossAxisCount,
-    this.crossAxisSpacing,
     this.mainAxisSpacing,
-    // parameter for extra columns
+    this.crossAxisSpacing,
     this.innerCrossAxisAlignment,
     this.innerTopWidget,
     this.innerBottomWidget,
     this.outerCrossAxisAlignment,
     this.outerTopWidget,
     this.outerBottomWidget,
-    // end of parameter
   })  : assert(data != null && getData != null),
         assert(setting != null),
         assert(itemBuilder != null),
         assert(staggeredTileBuilder != null && crossAxisCount != null),
         super(key: key);
 
-  // parameter for updatable list
-
   /// List data, need to create this outside.
+  @override
   final List<T> data;
 
   /// Function to get list data.
+  @override
   final Future<List<T>> Function() getData;
 
-  /// Setting of updatable list.
-  final UpdatableListSetting setting;
+  /// The setting for [UpdatableDataView].
+  @override
+  final UpdatableDataViewSetting setting;
 
-  /// Updatable list controller, with [UpdatableListController].
-  final UpdatableListController controller;
-
-  // parameter for list view
+  /// The controller for [UpdatableDataView].
+  @override
+  final UpdatableDataViewController controller;
 
   /// The controller for [StaggeredGridView].
+  @override
   final ScrollController scrollController;
 
   /// The itemBuilder for [StaggeredGridView].
+  @override
   final Widget Function(BuildContext, T) itemBuilder;
 
   /// The padding for [StaggeredGridView].
+  @override
   final EdgeInsetsGeometry padding;
 
   /// The physics for [StaggeredGridView].
+  @override
   final ScrollPhysics physics;
 
   /// The reverse for [StaggeredGridView].
+  @override
   final bool reverse;
 
   /// The shrinkWrap for [StaggeredGridView].
+  @override
   final bool shrinkWrap;
 
   /// The staggeredTileBuilder for [StaggeredGridView].
@@ -80,13 +80,11 @@ class RefreshableStaggeredGridView<T> extends StatefulWidget {
   /// The crossAxisCount for [StaggeredGridView].
   final int crossAxisCount;
 
-  /// The crossAxisSpacing for [StaggeredGridView]
-  final double crossAxisSpacing;
-
   /// The mainAxisSpacing for [StaggeredGridView].
   final double mainAxisSpacing;
 
-  // parameter for extra columns
+  /// The crossAxisSpacing for [StaggeredGridView]
+  final double crossAxisSpacing;
 
   /// The crossAxisAlignment for [Column] in [PlaceholderText].
   final CrossAxisAlignment innerCrossAxisAlignment;
@@ -127,14 +125,17 @@ class _RefreshableStaggeredGridViewState<T> extends State<RefreshableStaggeredGr
     widget.controller?.attachRefresh(_refreshIndicatorKey);
   }
 
+  @override
+  void dispose() {
+    widget.controller?.detachRefresh();
+    super.dispose();
+  }
+
   Future<void> _getData() async {
     _forceState = null;
-    return getRefreshableDataFunc(
+    return widget.getDataCore(
       setLoading: (l) => _loading = l,
       setErrorMessage: (e) => _errorMessage = e,
-      setting: widget.setting,
-      data: widget.data,
-      getData: widget.getData,
       setState: () {
         if (mounted) setState(() {});
       },
@@ -173,10 +174,9 @@ class _RefreshableStaggeredGridViewState<T> extends State<RefreshableStaggeredGr
                         // ===================================
                         controller: widget.scrollController,
                         padding: widget.padding,
-                        // ===================================
                         physics: widget.physics,
-                        shrinkWrap: widget.shrinkWrap ?? false,
                         reverse: widget.reverse ?? false,
+                        shrinkWrap: widget.shrinkWrap ?? false,
                         // ===================================
                         staggeredTileBuilder: widget.staggeredTileBuilder,
                         crossAxisCount: widget.crossAxisCount,

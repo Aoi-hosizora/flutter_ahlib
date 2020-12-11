@@ -28,9 +28,7 @@ export 'src/util/extensions.dart';
 
 // list
 export 'src/list/append_indicator.dart';
-export 'src/list/scroll_controller_extension.dart';
-export 'src/list/updatable_list_controller.dart';
-export 'src/list/updatable_list_setting.dart';
+export 'src/list/updatable_dataview.dart';
 export 'src/list/refreshable_listview.dart';
 export 'src/list/refreshable_sliver_listview.dart';
 export 'src/list/refreshable_staggered_gridview.dart';

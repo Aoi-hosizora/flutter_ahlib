@@ -1,120 +1,93 @@
-import 'package:flutter_ahlib/src/list/append_indicator.dart';
-import 'package:flutter_ahlib/src/list/scroll_controller_extension.dart';
-import 'package:flutter_ahlib/src/list/updatable_list_setting.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_ahlib/src/list/updatable_list_controller.dart';
+import 'package:flutter_ahlib/src/list/append_indicator.dart';
+import 'package:flutter_ahlib/src/list/updatable_dataview.dart';
 import 'package:flutter_ahlib/src/widget/placeholder_text.dart';
 
-/// Pagination [ListView] with [PlaceholderText], [AppendIndicator], [RefreshIndicator], [Scrollbar].
-class PaginationListView<T> extends StatefulWidget {
+/// Pagination [ListView] is an implementation of [PaginationDataView], with
+/// [PlaceholderText], [AppendIndicator], [RefreshIndicator], [Scrollbar] and [ListView].
+class PaginationListView<T> extends PaginationDataView<T> {
   const PaginationListView({
     Key key,
     @required this.data,
     @required this.strategy,
     this.getDataByOffset,
-    this.initialPage,
     this.getDataBySeek,
-    this.initialMaxId,
-    this.nothingMaxId,
-    this.onStartLoading,
-    this.onStopLoading,
-    this.onAppend,
-    this.onError,
-    this.clearWhenRefreshing = false,
-    this.clearWhenError = false,
-    this.updateOnlyIfNotEmpty = false,
-    this.refreshFirst = true,
-    this.onStateChanged,
-    this.placeholderSetting,
+    this.setting = const UpdatableDataViewSetting(),
+    this.paginationSetting = const PaginationDataViewSetting(),
     this.controller,
     this.scrollController,
     @required this.itemBuilder,
-    this.separator,
-    this.separatorBuilder,
     this.padding,
-    this.shrinkWrap,
     this.physics,
     this.reverse,
-    this.primary,
-    this.mainAxisAlignment,
-    this.mainAxisSize,
-    this.crossAxisAlignment,
-    this.topWidget,
-    this.bottomWidget,
-    this.outMainAxisAlignment,
-    this.outMainAxisSize,
-    this.outCrossAxisAlignment,
-    this.outTopWidget,
-    this.outBottomWidget,
-  })  : assert(data != null),
+    this.shrinkWrap,
+    this.separator,
+    this.separatorBuilder,
+    this.innerCrossAxisAlignment,
+    this.innerTopWidget,
+    this.innerBottomWidget,
+    this.outerCrossAxisAlignment,
+    this.outerTopWidget,
+    this.outerBottomWidget,
+  })  : assert(data != null && strategy != null && (getDataByOffset == null || getDataBySeek == null)),
         assert(strategy != PaginationStrategy.offsetBased || getDataByOffset != null),
         assert(strategy != PaginationStrategy.seekBased || getDataBySeek != null),
-        assert(clearWhenRefreshing != null),
-        assert(clearWhenError != null),
-        assert(updateOnlyIfNotEmpty != null),
-        assert(refreshFirst != null),
+        assert(setting != null && paginationSetting != null),
         assert(itemBuilder != null),
+        assert(separator == null || separatorBuilder == null),
         super(key: key);
 
   /// List data, need to create this outside.
+  @override
   final List<T> data;
 
-  /// The pagination strategy.
+  /// The pagination strategy for [PaginationDataView].
+  @override
   final PaginationStrategy strategy;
 
   /// Function to get list data when used [PaginationStrategy.offsetBased].
+  @override
   final Future<List<T>> Function({int page}) getDataByOffset;
 
-  /// The initial page value when used [PaginationStrategy.offsetBased].
-  final int initialPage;
-
   /// Function to get list data when used [PaginationStrategy.seekBased].
+  @override
   final Future<SeekList<T>> Function({dynamic maxId}) getDataBySeek;
 
-  /// The initial maxId value when used [PaginationStrategy.seekBased], nullable.
-  final dynamic initialMaxId;
+  /// The setting for [UpdatableDataView].
+  @override
+  final UpdatableDataViewSetting setting;
 
-  /// Nothing maxId value when used [PaginationStrategy.seekBased], nullable.
-  final dynamic nothingMaxId;
+  /// The pagination setting for [PaginationDataView].
+  @override
+  final PaginationDataViewSetting paginationSetting;
 
-  /// Callback when start loading.
-  final void Function() onStartLoading;
-
-  /// Callback when stop loading.
-  final void Function() onStopLoading;
-
-  /// Callback when data has been appended.
-  final void Function(List<T>) onAppend;
-
-  /// Callback when error invoked.
-  final void Function(dynamic) onError;
-
-  /// Clear list when refreshing data.
-  final bool clearWhenRefreshing;
-
-  /// Clear list when error aroused.
-  final bool clearWhenError;
-
-  /// If return data is empty, then do nothing, else update list and parameter.
-  final bool updateOnlyIfNotEmpty;
-
-  /// Do refresh when init view.
-  final bool refreshFirst;
-
-  /// Callback when [PlaceholderText] state changed.
-  final PlaceholderStateChangedCallback onStateChanged;
-
-  /// Display setting for [PlaceholderText].
-  final PlaceholderSetting placeholderSetting;
-
-  /// Updatable list controller, with [UpdatableListController].
-  final UpdatableListController controller;
+  /// The controller for [UpdatableDataView].
+  @override
+  final UpdatableDataViewController controller;
 
   /// The controller for [ListView].
+  @override
   final ScrollController scrollController;
 
   /// The itemBuilder for [ListView].
+  @override
   final Widget Function(BuildContext, T) itemBuilder;
+
+  /// The padding for [ListView].
+  @override
+  final EdgeInsetsGeometry padding;
+
+  /// The physics for [ListView].
+  @override
+  final ScrollPhysics physics;
+
+  /// The reverse for [ListView].
+  @override
+  final bool reverse;
+
+  /// The shrinkWrap for [ListView].
+  @override
+  final bool shrinkWrap;
 
   /// The separator between items in [ListView].
   final Widget separator;
@@ -122,50 +95,23 @@ class PaginationListView<T> extends StatefulWidget {
   /// The separatorBuilder for [ListView].
   final Widget Function(BuildContext, int) separatorBuilder;
 
-  /// The padding for [ListView].
-  final EdgeInsetsGeometry padding;
-
-  /// The shrinkWrap for [ListView].
-  final bool shrinkWrap;
-
-  /// The physics for [ListView].
-  final ScrollPhysics physics;
-
-  /// The reverse for [ListView].
-  final bool reverse;
-
-  /// The primary for [ListView].
-  final bool primary;
-
-  /// The mainAxisAlignment for inner [Column].
-  final MainAxisAlignment mainAxisAlignment;
-
-  /// The mainAxisSize for inner [Column].
-  final MainAxisSize mainAxisSize;
-
   /// The crossAxisAlignment for inner [Column].
-  final CrossAxisAlignment crossAxisAlignment;
+  final CrossAxisAlignment innerCrossAxisAlignment;
 
   /// The widget before [ListView] in [PlaceholderText].
-  final Widget topWidget;
+  final Widget innerTopWidget;
 
   /// The widget after [ListView] in [PlaceholderText].
-  final Widget bottomWidget;
-
-  /// The mainAxisAlignment for outer [Column].
-  final MainAxisAlignment outMainAxisAlignment;
-
-  /// The mainAxisSize for outer [Column].
-  final MainAxisSize outMainAxisSize;
+  final Widget innerBottomWidget;
 
   /// The crossAxisAlignment for outer [Column].
-  final CrossAxisAlignment outCrossAxisAlignment;
+  final CrossAxisAlignment outerCrossAxisAlignment;
 
   /// The widget before [ListView] out of [PlaceholderText].
-  final Widget outTopWidget;
+  final Widget outerTopWidget;
 
   /// The widget after [ListView] out of [PlaceholderText].
-  final Widget outBottomWidget;
+  final Widget outerBottomWidget;
 
   @override
   _PaginationListViewState<T> createState() => _PaginationListViewState<T>();
@@ -185,126 +131,37 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
     super.initState();
     _appendIndicatorKey = GlobalKey<AppendIndicatorState>();
     _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
-    if (widget.refreshFirst) {
+    if (widget.setting.refreshFirst) {
       _forceState = PlaceholderState.loading;
       WidgetsBinding.instance.addPostFrameCallback((_) => _refreshIndicatorKey?.currentState?.show());
     }
-    widget.controller?.attachRefresh(_refreshIndicatorKey);
     widget.controller?.attachAppend(_appendIndicatorKey);
+    widget.controller?.attachRefresh(_refreshIndicatorKey);
+    _nextPage = widget.paginationSetting.initialPage;
+    _nextMaxId = widget.paginationSetting.initialMaxId;
+  }
 
-    _nextPage = widget.initialPage;
-    _nextMaxId = widget.initialMaxId;
+  @override
+  void dispose() {
+    widget.controller?.detachAppend();
+    widget.controller?.detachRefresh();
+    super.dispose();
   }
 
   Future<void> _getData({@required bool reset}) async {
-    // reset page
-    if (reset) {
-      _nextPage = widget.initialPage;
-      _nextMaxId = widget.initialMaxId;
-    }
-
-    // start loading
-    _loading = true;
     _forceState = null;
-    if (reset && widget.clearWhenRefreshing) {
-      _errorMessage = '';
-      widget.data.clear();
-    }
-    widget.onStartLoading?.call();
-    if (mounted) setState(() {});
-
-    // get data
-    switch (widget.strategy) {
-      case PaginationStrategy.offsetBased:
-        //////////////////////////////////
-        // offsetBased, use _nextPage
-        //////////////////////////////////
-        final func = widget.getDataByOffset(page: _nextPage);
-
-        // return future
-        return func.then((List<T> list) async {
-          // success to get data without error
-          _errorMessage = '';
-          // check list size for update
-          if (widget.updateOnlyIfNotEmpty && list.isEmpty) {
-            return;
-          }
-
-          // replace or append
-          if (reset) {
-            if (widget.data.isNotEmpty) {
-              widget.data.clear();
-              if (mounted) setState(() {});
-              await Future.delayed(Duration(milliseconds: 20));
-            }
-            widget.data.addAll(list);
-          } else {
-            widget.data.addAll(list);
-            widget.scrollController?.scrollDown();
-          }
-          _nextPage++;
-          widget.onAppend?.call(list);
-        }).catchError((e) {
-          // error aroused
-          _errorMessage = e.toString();
-          if (widget.clearWhenError) {
-            widget.data.clear();
-          }
-          widget.onError?.call(e);
-        }).whenComplete(() {
-          // finish loading and setState
-          _loading = false;
-          widget.onStopLoading?.call();
-          if (mounted) setState(() {});
-        });
-
-      case PaginationStrategy.seekBased:
-        ////////////////////////////////
-        // seekBased, use _nextMaxId
-        ////////////////////////////////
-        if (_nextMaxId == widget.nothingMaxId) {
-          await Future.delayed(Duration(milliseconds: 100));
-          return Future.value();
-        }
-        final func = widget.getDataBySeek(maxId: _nextMaxId);
-
-        // return future
-        return func.then((SeekList<T> data) async {
-          // success to get data without error
-          _errorMessage = '';
-          // check list size for update
-          if (widget.updateOnlyIfNotEmpty && data.list.isEmpty) {
-            return;
-          }
-
-          // replace or append
-          if (reset) {
-            if (widget.data.isNotEmpty) {
-              widget.data.clear();
-              if (mounted) setState(() {});
-              await Future.delayed(Duration(milliseconds: 20));
-            }
-            widget.data.addAll(data.list);
-          } else {
-            widget.data.addAll(data.list);
-            widget.scrollController?.scrollDown();
-          }
-          _nextMaxId = data.nextMaxId;
-          widget.onAppend?.call(data.list);
-        }).catchError((e) {
-          // error aroused
-          _errorMessage = e.toString();
-          if (widget.clearWhenError) {
-            widget.data.clear();
-          }
-          widget.onError?.call(e);
-        }).whenComplete(() {
-          // finish loading and setState
-          _loading = false;
-          widget.onStopLoading?.call();
-          if (mounted) setState(() {});
-        });
-    }
+    return widget.getDataCore(
+      reset: reset,
+      setLoading: (l) => _loading = l,
+      setErrorMessage: (e) => _errorMessage = e,
+      setNextPage: (p) => _nextPage = p,
+      setNextMaxId: (m) => _nextMaxId = m,
+      getNextPage: () => _nextPage,
+      getNextMaxId: () => _nextMaxId,
+      setState: () {
+        if (mounted) setState(() {});
+      },
+    );
   }
 
   @override
@@ -320,11 +177,9 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
         key: _refreshIndicatorKey,
         onRefresh: () => _getData(reset: true),
         child: Column(
-          mainAxisAlignment: widget.outMainAxisAlignment ?? MainAxisAlignment.start,
-          mainAxisSize: widget.outMainAxisSize ?? MainAxisSize.max,
-          crossAxisAlignment: widget.outCrossAxisAlignment ?? CrossAxisAlignment.center,
+          crossAxisAlignment: widget.outerCrossAxisAlignment ?? CrossAxisAlignment.center,
           children: [
-            if (widget.outTopWidget != null) widget.outTopWidget,
+            if (widget.outerTopWidget != null) widget.outerTopWidget,
             Expanded(
               child: PlaceholderText.from(
                 onRefresh: _refreshIndicatorKey.currentState?.show,
@@ -332,34 +187,36 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
                 isLoading: _loading,
                 isEmpty: widget.data.isEmpty,
                 errorText: _errorMessage,
-                onChanged: widget.onStateChanged,
-                setting: widget.placeholderSetting,
+                onChanged: widget.setting.onStateChanged,
+                setting: widget.setting.placeholderSetting,
                 childBuilder: (c) => Column(
-                  mainAxisAlignment: widget.mainAxisAlignment ?? MainAxisAlignment.start,
-                  mainAxisSize: widget.mainAxisSize ?? MainAxisSize.max,
-                  crossAxisAlignment: widget.crossAxisAlignment ?? CrossAxisAlignment.center,
+                  crossAxisAlignment: widget.innerCrossAxisAlignment ?? CrossAxisAlignment.center,
                   children: [
-                    if (widget.topWidget != null) widget.topWidget,
+                    if (widget.innerTopWidget != null) widget.innerTopWidget,
                     Expanded(
                       child: Scrollbar(
                         child: ListView.separated(
+                          // ===================================
                           controller: widget.scrollController,
                           padding: widget.padding,
-                          shrinkWrap: widget.shrinkWrap ?? false,
                           physics: widget.physics,
                           reverse: widget.reverse ?? false,
-                          itemCount: widget.data.length,
+                          shrinkWrap: widget.shrinkWrap ?? false,
+                          // ===================================
                           separatorBuilder: widget.separatorBuilder ?? (c, idx) => widget.separator ?? SizedBox(height: 0),
+                          // ===================================
+                          itemCount: widget.data.length,
                           itemBuilder: (c, idx) => widget.itemBuilder(c, widget.data[idx]),
+                          // ===================================
                         ),
                       ),
                     ),
-                    if (widget.bottomWidget != null) widget.bottomWidget,
+                    if (widget.innerBottomWidget != null) widget.innerBottomWidget,
                   ],
                 ),
               ),
             ),
-            if (widget.outBottomWidget != null) widget.outBottomWidget,
+            if (widget.outerBottomWidget != null) widget.outerBottomWidget,
           ],
         ),
       ),

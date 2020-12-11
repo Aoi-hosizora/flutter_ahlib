@@ -1,21 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_ahlib/src/list/updatable_list_func.dart';
-import 'package:flutter_ahlib/src/list/updatable_list_controller.dart';
-import 'package:flutter_ahlib/src/list/updatable_list_setting.dart';
+import 'package:flutter_ahlib/src/list/updatable_dataview.dart';
 import 'package:flutter_ahlib/src/widget/placeholder_text.dart';
 import 'package:flutter_ahlib/src/widget/sliver_separated_delegate.dart';
 
-/// Refreshable [SliverList] is a kind of updatable list, with
+/// Refreshable [SliverList] is an implementation of [RefreshableDataView], with
 /// [PlaceholderText], [RefreshIndicator], [Scrollbar] and [SliverList].
-class RefreshableSliverListView<T> extends StatefulWidget {
+class RefreshableSliverListView<T> extends RefreshableDataView<T> {
   const RefreshableSliverListView({
     Key key,
-    // parameter for updatable list
     @required this.data,
     @required this.getData,
-    this.setting = const UpdatableListSetting(),
+    this.setting = const UpdatableDataViewSetting(),
     this.controller,
-    // parameter for list view
     this.scrollController,
     @required this.itemBuilder,
     this.padding,
@@ -24,48 +20,52 @@ class RefreshableSliverListView<T> extends StatefulWidget {
     this.shrinkWrap,
     this.hasOverlapAbsorber = false,
     this.separator,
-    // parameter for extra columns
     this.innerTopSliver,
     this.innerBottomSliver,
-    // end of parameter
   })  : assert(data != null && getData != null),
         assert(setting != null),
         assert(itemBuilder != null),
         assert(hasOverlapAbsorber != null),
         super(key: key);
 
-  // parameter for updatable list
-
   /// List data, need to create this outside.
+  @override
   final List<T> data;
 
   /// Function to get list data.
+  @override
   final Future<List<T>> Function() getData;
 
-  /// Setting of updatable list.
-  final UpdatableListSetting setting;
+  /// The setting for [UpdatableDataView].
+  @override
+  final UpdatableDataViewSetting setting;
 
-  /// Updatable list controller, with [UpdatableListController].
-  final UpdatableListController controller;
+  /// The controller for [UpdatableDataView].
+  @override
+  final UpdatableDataViewController controller;
 
-  // parameter for list view
-
-  /// The controller for inner [CustomScrollView].
+  /// The controller for [CustomScrollView].
+  @override
   final ScrollController scrollController;
 
   /// The itemBuilder for [SliverList].
+  @override
   final Widget Function(BuildContext, T) itemBuilder;
 
   /// The padding for [SliverList].
+  @override
   final EdgeInsetsGeometry padding;
 
   /// The physics for [CustomScrollView].
+  @override
   final ScrollPhysics physics;
 
   /// The reverse for [CustomScrollView].
+  @override
   final bool reverse;
 
   /// The shrinkWrap for [CustomScrollView].
+  @override
   final bool shrinkWrap;
 
   /// Check if outer [NestedScrollView] use [SliverOverlapAbsorber].
@@ -73,8 +73,6 @@ class RefreshableSliverListView<T> extends StatefulWidget {
 
   /// The separator between items in [ListView].
   final Widget separator;
-
-  // parameter for extra columns
 
   /// The widget before [SliverList] in [PlaceholderText].
   final Widget innerTopSliver;
@@ -103,14 +101,17 @@ class _RefreshableSliverListViewState<T> extends State<RefreshableSliverListView
     widget.controller?.attachRefresh(_refreshIndicatorKey);
   }
 
+  @override
+  void dispose() {
+    widget.controller?.detachRefresh();
+    super.dispose();
+  }
+
   Future<void> _getData() async {
     _forceState = null;
-    return getRefreshableDataFunc(
+    return widget.getDataCore(
       setLoading: (l) => _loading = l,
       setErrorMessage: (e) => _errorMessage = e,
-      setting: widget.setting,
-      data: widget.data,
-      getData: widget.getData,
       setState: () {
         if (mounted) setState(() {});
       },
@@ -138,7 +139,6 @@ class _RefreshableSliverListViewState<T> extends State<RefreshableSliverListView
           child: CustomScrollView(
             // ===================================
             controller: widget.scrollController,
-            // ===================================
             physics: widget.physics,
             reverse: widget.reverse ?? false,
             shrinkWrap: widget.shrinkWrap ?? false,

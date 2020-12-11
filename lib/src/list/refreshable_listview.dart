@@ -1,20 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_ahlib/src/list/updatable_list_func.dart';
-import 'package:flutter_ahlib/src/list/updatable_list_controller.dart';
-import 'package:flutter_ahlib/src/list/updatable_list_setting.dart';
+import 'package:flutter_ahlib/src/list/updatable_dataview.dart';
 import 'package:flutter_ahlib/src/widget/placeholder_text.dart';
 
-/// Refreshable [ListView] is a kind of updatable list, with
+/// Refreshable [ListView] is an implementation of [RefreshableDataView], with
 /// [PlaceholderText], [RefreshIndicator], [Scrollbar] and [ListView].
-class RefreshableListView<T> extends StatefulWidget {
+class RefreshableListView<T> extends RefreshableDataView<T> {
   const RefreshableListView({
     Key key,
-    // parameter for updatable list
     @required this.data,
     @required this.getData,
-    this.setting = const UpdatableListSetting(),
+    this.setting = const UpdatableDataViewSetting(),
     this.controller,
-    // parameter for list view
     this.scrollController,
     @required this.itemBuilder,
     this.padding,
@@ -23,52 +19,56 @@ class RefreshableListView<T> extends StatefulWidget {
     this.shrinkWrap,
     this.separator,
     this.separatorBuilder,
-    // parameter for extra columns
     this.innerCrossAxisAlignment,
     this.innerTopWidget,
     this.innerBottomWidget,
     this.outerCrossAxisAlignment,
     this.outerTopWidget,
     this.outerBottomWidget,
-    // end of parameter
   })  : assert(data != null && getData != null),
         assert(setting != null),
         assert(itemBuilder != null),
         assert(separator == null || separatorBuilder == null),
         super(key: key);
 
-  // parameter for updatable list
-
   /// List data, need to create this outside.
+  @override
   final List<T> data;
 
   /// Function to get list data.
+  @override
   final Future<List<T>> Function() getData;
 
-  /// Setting of updatable list.
-  final UpdatableListSetting setting;
+  /// The setting for [UpdatableDataView].
+  @override
+  final UpdatableDataViewSetting setting;
 
-  /// Updatable list controller, with [UpdatableListController].
-  final UpdatableListController controller;
-
-  // parameter for list view
+  /// The controller for [UpdatableDataView].
+  @override
+  final UpdatableDataViewController controller;
 
   /// The controller for [ListView].
+  @override
   final ScrollController scrollController;
 
   /// The itemBuilder for [ListView].
+  @override
   final Widget Function(BuildContext, T) itemBuilder;
 
   /// The padding for [ListView].
+  @override
   final EdgeInsetsGeometry padding;
 
   /// The physics for inner [ListView].
+  @override
   final ScrollPhysics physics;
 
   /// The reverse for inner [ListView].
+  @override
   final bool reverse;
 
   /// The shrinkWrap for [ListView].
+  @override
   final bool shrinkWrap;
 
   /// The separator between items in [ListView].
@@ -76,8 +76,6 @@ class RefreshableListView<T> extends StatefulWidget {
 
   /// The separatorBuilder for [ListView].
   final Widget Function(BuildContext, int) separatorBuilder;
-
-  // parameter for extra columns
 
   /// The crossAxisAlignment for inner [Column].
   final CrossAxisAlignment innerCrossAxisAlignment;
@@ -118,14 +116,17 @@ class _RefreshableListViewState<T> extends State<RefreshableListView<T>> with Au
     widget.controller?.attachRefresh(_refreshIndicatorKey);
   }
 
+  @override
+  void dispose() {
+    widget.controller?.detachRefresh();
+    super.dispose();
+  }
+
   Future<void> _getData() async {
     _forceState = null;
-    return getRefreshableDataFunc(
+    return widget.getDataCore(
       setLoading: (l) => _loading = l,
       setErrorMessage: (e) => _errorMessage = e,
-      setting: widget.setting,
-      data: widget.data,
-      getData: widget.getData,
       setState: () {
         if (mounted) setState(() {});
       },
@@ -164,7 +165,6 @@ class _RefreshableListViewState<T> extends State<RefreshableListView<T>> with Au
                         // ===================================
                         controller: widget.scrollController,
                         padding: widget.padding,
-                        // ===================================
                         physics: widget.physics,
                         reverse: widget.reverse ?? false,
                         shrinkWrap: widget.shrinkWrap ?? false,
