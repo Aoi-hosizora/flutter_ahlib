@@ -36,6 +36,12 @@ abstract class UpdatableDataView<T> extends StatefulWidget {
   bool get shrinkWrap;
 }
 
+/// A duration of a flashing after clear list, used in [RefreshableDataView.getDataCore] and [PaginationDataView.getDataCore].
+final _kFlashListDuration = Duration(milliseconds: 20);
+
+/// A duration of a fake refresh, used in [PaginationDataView.getDataCore].
+final _kFakeRefreshDuration = Duration(milliseconds: 100);
+
 /// An abstract [UpdatableDataView] for refreshable data view, including
 /// [RefreshableListView], [RefreshableSliverListView], [RefreshableStaggeredGridView].
 abstract class RefreshableDataView<T> extends UpdatableDataView<T> {
@@ -78,7 +84,7 @@ abstract class RefreshableDataView<T> extends UpdatableDataView<T> {
       if (data.isNotEmpty) {
         data.clear();
         setState();
-        await Future.delayed(Duration(milliseconds: 20));
+        await Future.delayed(_kFlashListDuration);
       }
       data.addAll(list);
       setting.onAppend?.call(list);
@@ -126,7 +132,6 @@ abstract class PaginationDataView<T> extends UpdatableDataView<T> {
     @required dynamic getNextMaxId,
     @required Function() setState,
   }) async {
-
     // TODO need to test this function in the inherited class.
 
     assert(reset != null);
@@ -156,9 +161,9 @@ abstract class PaginationDataView<T> extends UpdatableDataView<T> {
     // get data
     switch (strategy) {
       case PaginationStrategy.offsetBased:
-      //////////////////////////////////
-      // offsetBased, use _nextPage
-      //////////////////////////////////
+        //////////////////////////////////
+        // offsetBased, use _nextPage
+        //////////////////////////////////
         final func = getDataByOffset(page: getNextPage());
 
         // return future
@@ -173,7 +178,7 @@ abstract class PaginationDataView<T> extends UpdatableDataView<T> {
             if (data.isNotEmpty) {
               data.clear();
               setState();
-              await Future.delayed(Duration(milliseconds: 20));
+              await Future.delayed(_kFlashListDuration);
             }
             data.addAll(list);
           } else {
@@ -197,11 +202,11 @@ abstract class PaginationDataView<T> extends UpdatableDataView<T> {
         });
 
       case PaginationStrategy.seekBased:
-      ////////////////////////////////
-      // seekBased, use _nextMaxId
-      ////////////////////////////////
+        ////////////////////////////////
+        // seekBased, use _nextMaxId
+        ////////////////////////////////
         if (getNextMaxId() == paginationSetting.nothingMaxId) {
-          await Future.delayed(Duration(milliseconds: 100));
+          await Future.delayed(_kFakeRefreshDuration);
           return Future.value();
         }
         final func = getDataBySeek(maxId: getNextMaxId());
@@ -218,7 +223,7 @@ abstract class PaginationDataView<T> extends UpdatableDataView<T> {
             if (sl.list.isNotEmpty) {
               data.clear();
               setState();
-              await Future.delayed(Duration(milliseconds: 20));
+              await Future.delayed(_kFlashListDuration);
             }
             data.addAll(sl.list);
           } else {
@@ -303,13 +308,13 @@ class PaginationDataViewSetting {
     this.nothingMaxId,
   }) : assert(initialPage != null);
 
-  /// The initial page when used [PaginationStrategy.offsetBased], default is 1.
+  /// The initial page when using [PaginationStrategy.offsetBased], default is 1.
   final int initialPage;
 
-  /// The initial maxId when used [PaginationStrategy.seekBased], nullable.
+  /// The initial maxId when using [PaginationStrategy.seekBased], nullable.
   final dynamic initialMaxId;
 
-  /// The nothing maxId when used [PaginationStrategy.seekBased], nullable.
+  /// The nothing maxId when using [PaginationStrategy.seekBased], nullable.
   final dynamic nothingMaxId;
 }
 
@@ -356,23 +361,26 @@ class UpdatableDataViewController {
   }
 }
 
-/// The pagination strategy used in [PaginationListView],
-/// [PaginationSliverListView] and [PaginationStaggeredGridView].
+/// Pagination strategy for [PaginationDataView], including
+/// [offsetBased] and [seekBased].
 enum PaginationStrategy {
-  /// Use `page` and  `limit` as parameter to query list data.
+  /// Use `page` and  `limit` as parameters to query list data.
   offsetBased,
 
-  /// Use `maxId` and `limit` as parameter to query list data.
+  /// Use `maxId` and `limit` as parameters to query list data.
   seekBased,
 }
 
-/// Data model for seekBased pagination strategy.
+/// Data model for [PaginationDataView], used when using [PaginationStrategy.seekBased] pagination strategy.
 class SeekList<T> {
   const SeekList({
     @required this.list,
     @required this.nextMaxId,
   });
 
+  /// Represents the return list.
   final List<T> list;
+
+  /// Represents the next `maxId`, [PaginationDataViewSetting.nothingMaxId] if this is the last page.
   final dynamic nextMaxId;
 }

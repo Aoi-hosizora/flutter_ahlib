@@ -31,17 +31,14 @@ filesize: ^1.0.4
     + `PlaceholderText`
     + `DrawerListView`
     + `IconText`
-    + `showIconPopupMenu()`
-    + `showTextPopupMenu()`
-    + `ScrollFloatingActionButton`
-    + `ScrollFabController`
+    + `showIconPopupMenu()` `showTextPopupMenu()`
+    + `ScrollFloatingActionButton` `ScrollFabController`
     + `RippleSizedView` (deprecated)
     + `SliverContainer`
     + `DummyView`
     + `LazyIndexedStack`
     + `SliverAppBarDelegate`
-    + `SliverSeparatedBuilderDelegate`
-    + `SliverSeparatedListDelegate`
+    + `SliverSeparatedBuilderDelegate` `SliverSeparatedListDelegate`
 + Image:
     + `LocalOrNetworkImageProvider`
     + `ImageLoadingView` (deprecated)
@@ -57,10 +54,7 @@ filesize: ^1.0.4
     + `ListExtension`
 + List:
     + `AppendIndicator`
-    + `ScrollMoreController` (deprecated)
-    + `ScrollControllerExtension`
-    + `UpdatableListController`
-    + `UpdatableListSetting`
+    + `UpdatableDataView` `RefreshableDataView` `PaginationDataView` `UpdatableDataViewController`
     + `RefreshableListView`
     + `RefreshableSliverListView`
     + `RefreshableStaggeredGridView`

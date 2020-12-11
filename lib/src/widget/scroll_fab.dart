@@ -1,21 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_ahlib/src/util/action_controller.dart';
-import 'package:flutter_ahlib/src/widget/scroll_fab_controller.dart';
 
-/// Used in [_scrollListener] to check if invoked animation.
-final _kFabAnimationOffset = 50;
-
-/// Used for [AnimationController] to invoke an animation.
-final _kFabAnimationDuration = Duration(milliseconds: 250);
-
-/// A fab that wraps [FloatingActionButton] and includes [ScrollController] and [ScrollFabController].
+/// A [FloatingActionButton] that will do animation when scrolling.
 class ScrollFloatingActionButton extends StatefulWidget {
   const ScrollFloatingActionButton({
     Key key,
     this.fabController,
     this.scrollController,
+    this.offset = 50,
+    this.duration = const Duration(milliseconds: 250),
+    this.curve = const Interval(0, 1, curve: Curves.easeOutBack),
     @required this.fab,
   })  : assert(fab != null),
+        assert(offset != null && offset >= 0),
+        assert(duration != null),
+        assert(curve != null),
         super(key: key);
 
   /// Scroll fab controller.
@@ -23,6 +21,15 @@ class ScrollFloatingActionButton extends StatefulWidget {
 
   /// Scroll controller.
   final ScrollController scrollController;
+
+  /// Offset that invoke fab shown.
+  final double offset;
+
+  /// The duration for [AnimationController].
+  final Duration duration;
+
+  /// The curve for [CurvedAnimation].
+  final Curve curve;
 
   /// Content with [FloatingActionButton].
   final FloatingActionButton fab;
@@ -32,46 +39,38 @@ class ScrollFloatingActionButton extends StatefulWidget {
 }
 
 class _ScrollFloatingActionButtonState extends State<ScrollFloatingActionButton> with TickerProviderStateMixin<ScrollFloatingActionButton> {
-  bool _showFab = false;
+  bool _lastShowFab = false;
   AnimationController _animController;
   Animation<double> _fabAnimation;
-  ActionController _actionController;
 
   @override
   void initState() {
     super.initState();
     _animController = AnimationController(
       vsync: this,
-      duration: _kFabAnimationDuration,
+      duration: widget.duration,
     );
     _fabAnimation = CurvedAnimation(
       parent: _animController,
-      curve: Interval(0, 1, curve: Curves.easeOutBack),
+      curve: widget.curve,
     );
-    _actionController = ActionController();
-
     widget.scrollController?.addListener(_scrollListener);
     widget.fabController?.attachAnim(_animController);
-    widget.fabController?.attachAction(_actionController);
-
-    _actionController.addAction('addListener', () => widget.scrollController?.addListener(_scrollListener));
-    _actionController.addAction('removeListener', () => widget.scrollController?.removeListener(_scrollListener));
   }
 
   @override
   void dispose() {
     _animController.dispose();
-    _actionController.dispose();
     widget.scrollController?.removeListener(_scrollListener);
     super.dispose();
   }
 
-  /// Listener used in [scrollController].
+  /// Listener used in [ScrollFloatingActionButton.scrollController].
   void _scrollListener() {
-    bool scroll = widget.scrollController.offset >= _kFabAnimationOffset;
-    if (scroll != _showFab) {
-      _showFab = scroll;
-      if (scroll) {
+    bool scrolled = widget.scrollController?.offset ?? 0 >= widget.offset;
+    if (scrolled != _lastShowFab) {
+      _lastShowFab = scrolled;
+      if (scrolled) {
         _animController.forward();
       } else {
         _animController.reverse();
@@ -86,5 +85,31 @@ class _ScrollFloatingActionButtonState extends State<ScrollFloatingActionButton>
       alignment: FractionalOffset.center,
       child: widget.fab,
     );
+  }
+}
+
+/// Controller for [ScrollFloatingActionButton], includes [show] and [hide] function.
+class ScrollFabController {
+  AnimationController _animController;
+
+  /// Register the given [AnimationController] to this controller.
+  void attachAnim(AnimationController a) => _animController = a;
+
+  /// Unregister the given [AnimationController] from this controller.
+  void detachAnim() => _animController = null;
+
+  @mustCallSuper
+  void dispose() {
+    _animController = null;
+  }
+
+  /// Show the fab in animation.
+  void show() {
+    _animController?.forward();
+  }
+
+  /// Hide the fab in animation.
+  void hide() {
+    _animController?.reverse();
   }
 }
