@@ -11,4 +11,4 @@ export 'src/widget/sliver_container.dart';
 export 'src/widget/dummy_view.dart';
 export 'src/widget/lazy_indexed_stack.dart';
 export 'src/widget/sliver_appbar_delegate.dart';
-export 'src/widget/sliver_separator_builder_delegate.dart';
+export 'src/widget/sliver_separated_delegate.dart';

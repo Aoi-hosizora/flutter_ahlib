@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_ahlib/src/list/updatable_list_func.dart';
 import 'package:flutter_ahlib/src/list/updatable_list_controller.dart';
 import 'package:flutter_ahlib/src/list/updatable_list_setting.dart';
 import 'package:flutter_ahlib/src/widget/placeholder_text.dart';
 
-/// Refreshable [ListView] with [PlaceholderText], [RefreshIndicator], [Scrollbar].
+/// Refreshable [ListView] is a kind of updatable list, with
+/// [PlaceholderText], [RefreshIndicator], [Scrollbar] and [ListView].
 class RefreshableListView<T> extends StatefulWidget {
   const RefreshableListView({
     Key key,
+    // parameter for updatable list
     @required this.data,
     @required this.getData,
     this.setting = const UpdatableListSetting(),
     this.controller,
-    //
+    // parameter for list view
     this.scrollController,
     @required this.itemBuilder,
     this.padding,
@@ -20,22 +23,21 @@ class RefreshableListView<T> extends StatefulWidget {
     this.shrinkWrap,
     this.separator,
     this.separatorBuilder,
-    //
-    this.innerMainAxisAlignment,
-    this.innerMainAxisSize,
+    // parameter for extra columns
     this.innerCrossAxisAlignment,
     this.innerTopWidget,
     this.innerBottomWidget,
-    this.outMainAxisAlignment,
-    this.outMainAxisSize,
-    this.outCrossAxisAlignment,
-    this.outTopWidget,
-    this.outBottomWidget,
+    this.outerCrossAxisAlignment,
+    this.outerTopWidget,
+    this.outerBottomWidget,
+    // end of parameter
   })  : assert(data != null && getData != null),
         assert(setting != null),
         assert(itemBuilder != null),
         assert(separator == null || separatorBuilder == null),
         super(key: key);
+
+  // parameter for updatable list
 
   /// List data, need to create this outside.
   final List<T> data;
@@ -49,7 +51,7 @@ class RefreshableListView<T> extends StatefulWidget {
   /// Updatable list controller, with [UpdatableListController].
   final UpdatableListController controller;
 
-  //
+  // parameter for list view
 
   /// The controller for [ListView].
   final ScrollController scrollController;
@@ -75,13 +77,7 @@ class RefreshableListView<T> extends StatefulWidget {
   /// The separatorBuilder for [ListView].
   final Widget Function(BuildContext, int) separatorBuilder;
 
-  //
-
-  /// The mainAxisAlignment for inner [Column].
-  final MainAxisAlignment innerMainAxisAlignment;
-
-  /// The mainAxisSize for inner [Column].
-  final MainAxisSize innerMainAxisSize;
+  // parameter for extra columns
 
   /// The crossAxisAlignment for inner [Column].
   final CrossAxisAlignment innerCrossAxisAlignment;
@@ -92,20 +88,14 @@ class RefreshableListView<T> extends StatefulWidget {
   /// The widget after [ListView] in [PlaceholderText].
   final Widget innerBottomWidget;
 
-  /// The mainAxisAlignment for outer [Column].
-  final MainAxisAlignment outMainAxisAlignment;
-
-  /// The mainAxisSize for outer [Column].
-  final MainAxisSize outMainAxisSize;
-
   /// The crossAxisAlignment for outer [Column].
-  final CrossAxisAlignment outCrossAxisAlignment;
+  final CrossAxisAlignment outerCrossAxisAlignment;
 
   /// The widget before [ListView] out of [PlaceholderText].
-  final Widget outTopWidget;
+  final Widget outerTopWidget;
 
   /// The widget after [ListView] out of [PlaceholderText].
-  final Widget outBottomWidget;
+  final Widget outerBottomWidget;
 
   @override
   _RefreshableListViewState<T> createState() => _RefreshableListViewState<T>();
@@ -129,46 +119,17 @@ class _RefreshableListViewState<T> extends State<RefreshableListView<T>> with Au
   }
 
   Future<void> _getData() async {
-    // start loading
-    _loading = true;
     _forceState = null;
-    if (widget.setting.clearWhenRefresh) {
-      _errorMessage = '';
-      widget.data.clear();
-    }
-    widget.setting.onStartLoading?.call();
-    if (mounted) setState(() {});
-
-    // get data
-    final func = widget.getData();
-
-    // return future
-    return func.then((List<T> list) async {
-      // success to get data without error
-      _errorMessage = '';
-      if (widget.setting.updateOnlyIfNotEmpty && list.isEmpty) {
-        return; // get an empty list
-      }
-      if (widget.data.isNotEmpty) {
-        widget.data.clear();
+    return getRefreshableDataFunc(
+      setLoading: (l) => _loading = l,
+      setErrorMessage: (e) => _errorMessage = e,
+      setting: widget.setting,
+      data: widget.data,
+      getData: widget.getData,
+      setState: () {
         if (mounted) setState(() {});
-        await Future.delayed(Duration(milliseconds: 20));
-      }
-      widget.data.addAll(list);
-      widget.setting.onAppend?.call(list);
-    }).catchError((e) {
-      // error aroused
-      _errorMessage = e.toString();
-      if (widget.setting.clearWhenError) {
-        widget.data.clear();
-      }
-      widget.setting.onError?.call(e);
-    }).whenComplete(() {
-      // finish loading and setState
-      _loading = false;
-      widget.setting.onStopLoading?.call();
-      if (mounted) setState(() {});
-    });
+      },
+    );
   }
 
   @override
@@ -181,11 +142,9 @@ class _RefreshableListViewState<T> extends State<RefreshableListView<T>> with Au
       key: _refreshIndicatorKey,
       onRefresh: () => _getData(),
       child: Column(
-        mainAxisAlignment: widget.outMainAxisAlignment ?? MainAxisAlignment.start,
-        mainAxisSize: widget.outMainAxisSize ?? MainAxisSize.max,
-        crossAxisAlignment: widget.outCrossAxisAlignment ?? CrossAxisAlignment.center,
+        crossAxisAlignment: widget.outerCrossAxisAlignment ?? CrossAxisAlignment.center,
         children: [
-          if (widget.outTopWidget != null) widget.outTopWidget,
+          if (widget.outerTopWidget != null) widget.outerTopWidget,
           Expanded(
             child: PlaceholderText.from(
               onRefresh: _refreshIndicatorKey.currentState?.show,
@@ -196,8 +155,6 @@ class _RefreshableListViewState<T> extends State<RefreshableListView<T>> with Au
               onChanged: widget.setting.onStateChanged,
               setting: widget.setting.placeholderSetting,
               childBuilder: (c) => Column(
-                mainAxisAlignment: widget.innerMainAxisAlignment ?? MainAxisAlignment.start,
-                mainAxisSize: widget.innerMainAxisSize ?? MainAxisSize.max,
                 crossAxisAlignment: widget.innerCrossAxisAlignment ?? CrossAxisAlignment.center,
                 children: [
                   if (widget.innerTopWidget != null) widget.innerTopWidget,
@@ -225,7 +182,7 @@ class _RefreshableListViewState<T> extends State<RefreshableListView<T>> with Au
               ),
             ),
           ),
-          if (widget.outBottomWidget != null) widget.outBottomWidget,
+          if (widget.outerBottomWidget != null) widget.outerBottomWidget,
         ],
       ),
     );

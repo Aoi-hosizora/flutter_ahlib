@@ -12,7 +12,7 @@ export 'src/widget/sliver_container.dart';
 export 'src/widget/dummy_view.dart';
 export 'src/widget/lazy_indexed_stack.dart';
 export 'src/widget/sliver_appbar_delegate.dart';
-export 'src/widget/sliver_separator_builder_delegate.dart';
+export 'src/widget/sliver_separated_delegate.dart';
 
 // image
 export 'src/image/local_network_image_provider.dart';
@@ -28,13 +28,12 @@ export 'src/util/extensions.dart';
 
 // list
 export 'src/list/append_indicator.dart';
-export 'src/list/scroll_more_controller.dart'; // deprecated
 export 'src/list/scroll_controller_extension.dart';
 export 'src/list/updatable_list_controller.dart';
+export 'src/list/updatable_list_setting.dart';
 export 'src/list/refreshable_listview.dart';
 export 'src/list/refreshable_sliver_listview.dart';
 export 'src/list/refreshable_staggered_gridview.dart';
-export 'src/list/pagination_type.dart';
 export 'src/list/pagination_listview.dart';
 export 'src/list/pagination_sliver_listview.dart';
 export 'src/list/pagination_staggered_gridview.dart';

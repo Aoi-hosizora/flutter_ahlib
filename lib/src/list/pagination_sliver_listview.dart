@@ -1,7 +1,8 @@
 import 'package:flutter_ahlib/src/list/append_indicator.dart';
-import 'package:flutter_ahlib/src/list/pagination_type.dart';
-import 'package:flutter_ahlib/src/list/scroll_more_controller.dart';
+import 'package:flutter_ahlib/src/list/scroll_controller_extension.dart';
+import 'package:flutter_ahlib/src/list/updatable_list_setting.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_ahlib/src/list/updatable_list_controller.dart';
 import 'package:flutter_ahlib/src/widget/placeholder_text.dart';
 
 /// Pagination [SliverList] with [PlaceholderText], [AppendIndicator], [RefreshIndicator], [Scrollbar].
@@ -25,8 +26,8 @@ class PaginationSliverListView<T> extends StatefulWidget {
     this.refreshFirst = true,
     this.onStateChanged,
     this.placeholderSetting,
-    this.outerController,
     this.controller,
+    this.scrollController,
     this.hasOverlapAbsorber = false,
     @required this.itemBuilder,
     this.separator,
@@ -99,11 +100,11 @@ class PaginationSliverListView<T> extends StatefulWidget {
   /// Display setting for [PlaceholderText].
   final PlaceholderSetting placeholderSetting;
 
-  /// The controller for outer [NestedScrollView], with [ScrollMoreController].
-  final ScrollMoreController outerController;
+  /// Updatable list controller, with [UpdatableListController].
+  final UpdatableListController controller;
 
   /// The controller for inner [CustomScrollView].
-  final ScrollController controller;
+  final ScrollController scrollController;
 
   /// Check if outer [NestedScrollView] use [SliverOverlapAbsorber].
   final bool hasOverlapAbsorber;
@@ -157,8 +158,8 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
       _forceState = PlaceholderState.loading;
       WidgetsBinding.instance.addPostFrameCallback((_) => _refreshIndicatorKey?.currentState?.show());
     }
-    widget.outerController?.attachAppend(_appendIndicatorKey);
-    widget.outerController?.attachRefresh(_refreshIndicatorKey);
+    widget.controller?.attachRefresh(_refreshIndicatorKey);
+    widget.controller?.attachAppend(_appendIndicatorKey);
 
     _nextPage = widget.initialPage;
     _nextMaxId = widget.initialMaxId;
@@ -206,7 +207,7 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
             widget.data.addAll(list);
           } else {
             widget.data.addAll(list);
-            _scrollDown(widget.controller); // ???
+            widget.scrollController?.scrollDown();
           }
           _nextPage++;
           widget.onAppend?.call(list);
@@ -253,7 +254,7 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
             widget.data.addAll(data.list);
           } else {
             widget.data.addAll(data.list);
-            _scrollDown(widget.controller); // ???
+            widget.scrollController?.scrollDown();
           }
           _nextMaxId = data.nextMaxId;
           widget.onAppend?.call(data.list);
@@ -295,7 +296,7 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
           setting: widget.placeholderSetting,
           childBuilder: (c) => Scrollbar(
             child: CustomScrollView(
-              controller: widget.controller,
+              controller: widget.scrollController,
               shrinkWrap: widget.shrinkWrap ?? false,
               physics: widget.physics,
               reverse: widget.reverse ?? false,
@@ -330,16 +331,6 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
           ),
         ),
       ),
-    );
-  }
-}
-
-void _scrollDown(ScrollController controller, {int scrollOffset = 50}) {
-  if (controller != null) {
-    controller.animateTo(
-      controller.offset + scrollOffset,
-      curve: Curves.easeOutCirc,
-      duration: Duration(milliseconds: 500),
     );
   }
 }

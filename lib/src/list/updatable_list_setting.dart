@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_ahlib/src/widget/placeholder_text.dart';
 
 /// A setting for updatable list view. Including `RefreshableXXX` and `PaginationXXX`, including
@@ -50,4 +51,25 @@ class UpdatableListSetting<T> {
 
   /// Callback when [PlaceholderText] state changed.
   final PlaceholderStateChangedCallback onStateChanged;
+}
+
+/// The pagination strategy used in [PaginationListView],
+/// [PaginationSliverListView] and [PaginationStaggeredGridView].
+enum PaginationStrategy {
+  /// Use `page` and  `limit` as parameter to query list data.
+  offsetBased,
+
+  /// Use `maxId` and `limit` as parameter to query list data.
+  seekBased,
+}
+
+/// Data model for seekBased pagination strategy.
+class SeekList<T> {
+  const SeekList({
+    @required this.list,
+    @required this.nextMaxId,
+  });
+
+  final List<T> list;
+  final dynamic nextMaxId;
 }

@@ -59,3 +59,17 @@ extension BoolExtension on bool {
     }
   }
 }
+
+/// [ListExtension] is a helper extension for [List].
+extension ListExtension<T> on List<T> {
+  /// Returns a new list with separator between items.
+  List<T> separate(T separator) {
+    return [
+      if (this.length > 0) this[0],
+      for (var idx = 1; idx < this.length; idx++) ...[
+        separator,
+        this[idx],
+      ],
+    ];
+  }
+}

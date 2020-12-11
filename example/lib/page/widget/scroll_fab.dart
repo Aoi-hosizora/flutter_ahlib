@@ -9,14 +9,14 @@ class ScrollFloatingActionButtonPage extends StatefulWidget {
 }
 
 class _ScrollFloatingActionButtonPageState extends State<ScrollFloatingActionButtonPage> {
-  var _controller = ScrollMoreController();
+  var _controller = ScrollController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('ScrollFloatingActionButton Example'),
-        actions:[
+        actions: [
           IconButton(icon: Text('Top'), onPressed: () => _controller.scrollTop()),
           IconButton(icon: Text('Bottom'), onPressed: () => _controller.scrollBottom()),
           IconButton(icon: Text('Up'), onPressed: () => _controller.scrollUp()),

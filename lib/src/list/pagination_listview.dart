@@ -1,7 +1,8 @@
 import 'package:flutter_ahlib/src/list/append_indicator.dart';
-import 'package:flutter_ahlib/src/list/pagination_type.dart';
-import 'package:flutter_ahlib/src/list/scroll_more_controller.dart';
+import 'package:flutter_ahlib/src/list/scroll_controller_extension.dart';
+import 'package:flutter_ahlib/src/list/updatable_list_setting.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_ahlib/src/list/updatable_list_controller.dart';
 import 'package:flutter_ahlib/src/widget/placeholder_text.dart';
 
 /// Pagination [ListView] with [PlaceholderText], [AppendIndicator], [RefreshIndicator], [Scrollbar].
@@ -26,6 +27,7 @@ class PaginationListView<T> extends StatefulWidget {
     this.onStateChanged,
     this.placeholderSetting,
     this.controller,
+    this.scrollController,
     @required this.itemBuilder,
     this.separator,
     this.separatorBuilder,
@@ -105,8 +107,11 @@ class PaginationListView<T> extends StatefulWidget {
   /// Display setting for [PlaceholderText].
   final PlaceholderSetting placeholderSetting;
 
-  /// [ListView] controller, with [ScrollMoreController].
-  final ScrollMoreController controller;
+  /// Updatable list controller, with [UpdatableListController].
+  final UpdatableListController controller;
+
+  /// The controller for [ListView].
+  final ScrollController scrollController;
 
   /// The itemBuilder for [ListView].
   final Widget Function(BuildContext, T) itemBuilder;
@@ -184,8 +189,8 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
       _forceState = PlaceholderState.loading;
       WidgetsBinding.instance.addPostFrameCallback((_) => _refreshIndicatorKey?.currentState?.show());
     }
-    widget.controller?.attachAppend(_appendIndicatorKey);
     widget.controller?.attachRefresh(_refreshIndicatorKey);
+    widget.controller?.attachAppend(_appendIndicatorKey);
 
     _nextPage = widget.initialPage;
     _nextMaxId = widget.initialMaxId;
@@ -235,7 +240,7 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
             widget.data.addAll(list);
           } else {
             widget.data.addAll(list);
-            widget.controller?.scrollDown();
+            widget.scrollController?.scrollDown();
           }
           _nextPage++;
           widget.onAppend?.call(list);
@@ -282,7 +287,7 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
             widget.data.addAll(data.list);
           } else {
             widget.data.addAll(data.list);
-            widget.controller?.scrollDown();
+            widget.scrollController?.scrollDown();
           }
           _nextMaxId = data.nextMaxId;
           widget.onAppend?.call(data.list);
@@ -338,7 +343,7 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
                     Expanded(
                       child: Scrollbar(
                         child: ListView.separated(
-                          controller: widget.controller,
+                          controller: widget.scrollController,
                           padding: widget.padding,
                           shrinkWrap: widget.shrinkWrap ?? false,
                           physics: widget.physics,

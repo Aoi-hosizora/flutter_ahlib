@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/src/list/append_indicator.dart';
-import 'package:flutter_ahlib/src/list/pagination_type.dart';
-import 'package:flutter_ahlib/src/list/scroll_more_controller.dart';
+import 'package:flutter_ahlib/src/list/scroll_controller_extension.dart';
+import 'package:flutter_ahlib/src/list/updatable_list_controller.dart';
+import 'package:flutter_ahlib/src/list/updatable_list_setting.dart';
 import 'package:flutter_ahlib/src/widget/placeholder_text.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
@@ -27,6 +28,7 @@ class PaginationStaggeredGridView<T> extends StatefulWidget {
     this.onStateChanged,
     this.placeholderSetting,
     this.controller,
+    this.scrollController,
     @required this.itemBuilder,
     @required this.staggeredTileBuilder,
     this.padding,
@@ -110,8 +112,11 @@ class PaginationStaggeredGridView<T> extends StatefulWidget {
   /// Display setting for [PlaceholderText].
   final PlaceholderSetting placeholderSetting;
 
-  /// [StaggeredGridView] controller, with [ScrollMoreController].
-  final ScrollMoreController controller;
+  /// Updatable list controller, with [UpdatableListController].
+  final UpdatableListController controller;
+
+  /// The controller for [StaggeredGridView].
+  final ScrollController scrollController;
 
   /// The itemBuilder for [StaggeredGridView].
   final Widget Function(BuildContext, T) itemBuilder;
@@ -244,7 +249,7 @@ class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGrid
             widget.data.addAll(list);
           } else {
             widget.data.addAll(list);
-            widget.controller?.scrollDown();
+            widget.scrollController?.scrollDown();
           }
           _nextPage++;
           widget.onAppend?.call(list);
@@ -291,7 +296,7 @@ class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGrid
             widget.data.addAll(data.list);
           } else {
             widget.data.addAll(data.list);
-            widget.controller?.scrollDown();
+            widget.scrollController?.scrollDown();
           }
           _nextMaxId = data.nextMaxId;
           widget.onAppend?.call(data.list);
@@ -347,7 +352,7 @@ class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGrid
                     Expanded(
                       child: Scrollbar(
                         child: StaggeredGridView.countBuilder(
-                          controller: widget.controller,
+                          controller: widget.scrollController,
                           padding: widget.padding,
                           shrinkWrap: widget.shrinkWrap ?? false,
                           physics: widget.physics,

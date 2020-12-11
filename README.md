@@ -40,7 +40,8 @@ filesize: ^1.0.4
     + `DummyView`
     + `LazyIndexedStack`
     + `SliverAppBarDelegate`
-    + `SliverSeparatorBuilderDelegate`
+    + `SliverSeparatedBuilderDelegate`
+    + `SliverSeparatedListDelegate`
 + Image:
     + `LocalOrNetworkImageProvider`
     + `ImageLoadingView` (deprecated)
@@ -53,11 +54,13 @@ filesize: ^1.0.4
     + `StateExtension`
     + `ObjectExtension`
     + `BoolExtension`
+    + `ListExtension`
 + List:
     + `AppendIndicator`
     + `ScrollMoreController` (deprecated)
     + `ScrollControllerExtension`
     + `UpdatableListController`
+    + `UpdatableListSetting`
     + `RefreshableListView`
     + `RefreshableSliverListView`
     + `RefreshableStaggeredGridView`
