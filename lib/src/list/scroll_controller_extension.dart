@@ -21,12 +21,12 @@ extension ScrollControllerExtension on ScrollController {
     });
   }
 
-  /// Scroll down from the current position with [scrollOffset] offset, see [scrollWithAnimate].
+  /// Scroll down from the current position with offset, see [scrollWithAnimate].
   void scrollDown({int scrollOffset = 50}) {
     scrollWithAnimate(offset + scrollOffset);
   }
 
-  /// Scroll up from the current position with [scrollOffset] offset, see [scrollWithAnimate].
+  /// Scroll up from the current position with offset, see [scrollWithAnimate].
   void scrollUp({int scrollOffset = 50}) {
     scrollWithAnimate(offset - scrollOffset);
   }

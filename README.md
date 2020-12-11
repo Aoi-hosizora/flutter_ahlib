@@ -35,23 +35,23 @@ filesize: ^1.0.4
     + `showTextPopupMenu()`
     + `ScrollFloatingActionButton`
     + `ScrollFabController`
-    + `RippleSizedView`
+    + `RippleSizedView` (deprecated)
     + `SliverContainer`
+    + `SliverAppBarDelegate`
     + `DummyView`
     + `LazyIndexedStack`
-    + `SliverAppBarDelegate`
 + Image:
     + `LocalOrNetworkImageProvider`
-    + `ImageLoadingView`
-    + `ImageLoadFailedView`
+    + `ImageLoadingView` (deprecated)
+    + `ImageLoadFailedView` (deprecated)
     + `MultiImageStreamCompleter`
 + Util:
     + `ActionController`
-    + `hashObjects`
-    + `hash2()` ~ `hash6()`
     + `Tuple2` ~ `Tuple6`
+    + `hashObjects()`, `hash2()` ~ `hash6()`
     + `StateExtension`
     + `ObjectExtension`
+    + `BoolExtension`
 + List:
     + `AppendIndicator`
     + `ScrollMoreController`

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// A view used for [CachedNetworkImage.loadFailedChild].
+@deprecated
 class ImageLoadFailedView extends StatefulWidget {
   ImageLoadFailedView({
     Key key,

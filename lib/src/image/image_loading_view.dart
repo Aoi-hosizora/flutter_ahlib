@@ -2,6 +2,7 @@ import 'package:filesize/filesize.dart';
 import 'package:flutter/material.dart';
 
 /// A view used for [CachedNetworkImage.loadingBuilder].
+@deprecated
 class ImageLoadingView extends StatefulWidget {
   const ImageLoadingView({
     Key key,

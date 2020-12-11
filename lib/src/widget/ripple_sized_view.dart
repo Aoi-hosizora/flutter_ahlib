@@ -9,6 +9,7 @@ enum RippleSizedViewPosition {
 }
 
 /// A replacement of simplified [ListTile], using [InkWell] and [Material].
+@deprecated
 class RippleSizedView extends StatefulWidget {
   const RippleSizedView({
     Key key,
