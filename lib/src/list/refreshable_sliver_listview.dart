@@ -1,6 +1,8 @@
-import 'package:flutter_ahlib/src/list/scroll_more_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_ahlib/src/list/updatable_list_controller.dart';
+import 'package:flutter_ahlib/src/list/updatable_list_setting.dart';
 import 'package:flutter_ahlib/src/widget/placeholder_text.dart';
+import 'package:flutter_ahlib/src/widget/sliver_separator_builder_delegate.dart';
 
 /// Refreshable [SliverList] with [PlaceholderText], [RefreshIndicator], [Scrollbar].
 class RefreshableSliverListView<T> extends StatefulWidget {
@@ -8,34 +10,25 @@ class RefreshableSliverListView<T> extends StatefulWidget {
     Key key,
     @required this.data,
     @required this.getData,
-    this.onStartLoading,
-    this.onStopLoading,
-    this.onAppend,
-    this.onError,
-    this.clearWhenRefreshing = false,
-    this.clearWhenError = false,
-    this.refreshFirst = true,
-    this.onStateChanged,
-    this.placeholderSetting,
-    this.outerController,
+    this.setting = const UpdatableListSetting(),
     this.controller,
-    this.hasOverlapAbsorber = false,
+    //
+    this.scrollController,
+    this.outScrollController,
     @required this.itemBuilder,
-    this.separator,
     this.padding,
-    this.shrinkWrap,
     this.physics,
     this.reverse,
-    this.primary,
+    this.shrinkWrap,
+    this.hasOverlapAbsorber = false,
+    this.separator,
+    //
     this.topSliver,
     this.bottomSliver,
-  })  : assert(data != null),
-        assert(getData != null),
-        assert(clearWhenRefreshing != null),
-        assert(clearWhenError != null),
-        assert(refreshFirst != null),
-        assert(hasOverlapAbsorber != null),
+  })  : assert(data != null && getData != null),
+        assert(setting != null),
         assert(itemBuilder != null),
+        assert(hasOverlapAbsorber != null),
         super(key: key);
 
   /// List data, need to create this outside.
@@ -44,53 +37,25 @@ class RefreshableSliverListView<T> extends StatefulWidget {
   /// Function to get list data.
   final Future<List<T>> Function() getData;
 
-  /// Callback when start loading.
-  final void Function() onStartLoading;
+  /// Setting of updatable list.
+  final UpdatableListSetting setting;
 
-  /// Callback when stop loading.
-  final void Function() onStopLoading;
+  /// Updatable list controller, with [UpdatableListController].
+  final UpdatableListController controller;
 
-  /// Callback when data has been appended.
-  final void Function(List<T>) onAppend;
-
-  /// Callback when error invoked.
-  final void Function(dynamic) onError;
-
-  /// Clear list when refreshing data.
-  final bool clearWhenRefreshing;
-
-  /// Clear list when error aroused.
-  final bool clearWhenError;
-
-  /// Do refresh when init view.
-  final bool refreshFirst;
-
-  /// Callback when [PlaceholderText] state changed.
-  final PlaceholderStateChangedCallback onStateChanged;
-
-  /// Display setting for [PlaceholderText].
-  final PlaceholderSetting placeholderSetting;
-
-  /// The controller for outer [NestedScrollView], with [ScrollMoreController].
-  final ScrollMoreController outerController;
+  //
 
   /// The controller for inner [CustomScrollView].
-  final ScrollController controller;
+  final ScrollController scrollController;
 
-  /// Check if outer [NestedScrollView] use [SliverOverlapAbsorber].
-  final bool hasOverlapAbsorber;
+  /// The controller for outer [NestedScrollView].
+  final ScrollController outScrollController;
 
-  /// The itemBuilder for [SliverChildBuilderDelegate] in [SliverList].
+  /// The itemBuilder for [SliverList].
   final Widget Function(BuildContext, T) itemBuilder;
-
-  /// The separator between items in [ListView].
-  final Widget separator;
 
   /// The padding for [SliverList].
   final EdgeInsetsGeometry padding;
-
-  /// The shrinkWrap for [CustomScrollView].
-  final bool shrinkWrap;
 
   /// The physics for [CustomScrollView].
   final ScrollPhysics physics;
@@ -98,8 +63,16 @@ class RefreshableSliverListView<T> extends StatefulWidget {
   /// The reverse for [CustomScrollView].
   final bool reverse;
 
-  /// The primary for [CustomScrollView].
-  final bool primary;
+  /// The shrinkWrap for [CustomScrollView].
+  final bool shrinkWrap;
+
+  /// Check if outer [NestedScrollView] use [SliverOverlapAbsorber].
+  final bool hasOverlapAbsorber;
+
+  /// The separator between items in [ListView].
+  final Widget separator;
+
+  //
 
   /// The widget before [SliverList].
   final Widget topSliver;
@@ -121,22 +94,22 @@ class _RefreshableSliverListViewState<T> extends State<RefreshableSliverListView
   void initState() {
     super.initState();
     _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
-    if (widget.refreshFirst) {
+    if (widget.setting.refreshFirst) {
       _forceState = PlaceholderState.loading;
       WidgetsBinding.instance.addPostFrameCallback((_) => _refreshIndicatorKey?.currentState?.show());
     }
-    widget.outerController?.attachRefresh(_refreshIndicatorKey);
+    widget.controller?.attachRefresh(_refreshIndicatorKey);
   }
 
   Future<void> _getData() async {
     // start loading
     _loading = true;
     _forceState = null;
-    if (widget.clearWhenRefreshing) {
+    if (widget.setting.clearWhenRefresh) {
       _errorMessage = '';
       widget.data.clear();
     }
-    widget.onStartLoading?.call();
+    widget.setting.onStartLoading?.call();
     if (mounted) setState(() {});
 
     // get data
@@ -146,24 +119,27 @@ class _RefreshableSliverListViewState<T> extends State<RefreshableSliverListView
     return func.then((List<T> list) async {
       // success to get data without error
       _errorMessage = '';
+      if (widget.setting.updateOnlyIfNotEmpty && list.isEmpty) {
+        return; // get an empty list
+      }
       if (widget.data.isNotEmpty) {
         widget.data.clear();
         if (mounted) setState(() {});
         await Future.delayed(Duration(milliseconds: 20));
       }
       widget.data.addAll(list);
-      widget.onAppend?.call(list);
+      widget.setting.onAppend?.call(list);
     }).catchError((e) {
       // error aroused
       _errorMessage = e.toString();
-      if (widget.clearWhenError) {
+      if (widget.setting.clearWhenError) {
         widget.data.clear();
       }
-      widget.onError?.call(e);
+      widget.setting.onError?.call(e);
     }).whenComplete(() {
       // finish loading and setState
       _loading = false;
-      widget.onStopLoading?.call();
+      widget.setting.onStopLoading?.call();
       if (mounted) setState(() {});
     });
   }
@@ -183,37 +159,41 @@ class _RefreshableSliverListViewState<T> extends State<RefreshableSliverListView
         isLoading: _loading,
         isEmpty: widget.data.isEmpty,
         errorText: _errorMessage,
-        onChanged: widget.onStateChanged,
-        setting: widget.placeholderSetting,
+        onChanged: widget.setting.onStateChanged,
+        setting: widget.setting.placeholderSetting,
         childBuilder: (c) => Scrollbar(
           child: CustomScrollView(
-            controller: widget.controller,
-            shrinkWrap: widget.shrinkWrap ?? false,
+            // ===================================
+            controller: widget.scrollController,
+            // ===================================
             physics: widget.physics,
             reverse: widget.reverse ?? false,
+            shrinkWrap: widget.shrinkWrap ?? false,
+            // ===================================
             slivers: [
+              if (widget.hasOverlapAbsorber)
+                SliverOverlapInjector(
+                  handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
+                ),
               if (widget.topSliver != null) widget.topSliver,
               SliverPadding(
-                padding: widget.padding,
+                padding: widget.padding ?? EdgeInsets.zero,
                 sliver: SliverList(
                   delegate: widget.separator == null
                       ? SliverChildBuilderDelegate(
                           (c, idx) => widget.itemBuilder(c, widget.data[idx]),
                           childCount: widget.data.length,
                         )
-                      : SliverChildBuilderDelegate(
-                          (c, idx) => idx % 2 == 0
-                              ? widget.itemBuilder(
-                                  c,
-                                  widget.data[idx ~/ 2],
-                                )
-                              : widget.separator,
-                          childCount: widget.data.length * 2 - 1,
+                      : SliverSeparatorBuilderDelegate(
+                          (c, idx) => widget.itemBuilder(c, widget.data[idx]),
+                          childCount: widget.data.length,
+                          separator: widget.separator,
                         ),
                 ),
               ),
               if (widget.bottomSliver != null) widget.bottomSliver,
             ],
+            // ===================================
           ),
         ),
       ),

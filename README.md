@@ -37,9 +37,10 @@ filesize: ^1.0.4
     + `ScrollFabController`
     + `RippleSizedView` (deprecated)
     + `SliverContainer`
-    + `SliverAppBarDelegate`
     + `DummyView`
     + `LazyIndexedStack`
+    + `SliverAppBarDelegate`
+    + `SliverSeparatorBuilderDelegate`
 + Image:
     + `LocalOrNetworkImageProvider`
     + `ImageLoadingView` (deprecated)
@@ -54,7 +55,9 @@ filesize: ^1.0.4
     + `BoolExtension`
 + List:
     + `AppendIndicator`
-    + `ScrollMoreController`
+    + `ScrollMoreController` (deprecated)
+    + `ScrollControllerExtension`
+    + `UpdatableListController`
     + `RefreshableListView`
     + `RefreshableSliverListView`
     + `RefreshableStaggeredGridView`

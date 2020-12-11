@@ -129,7 +129,7 @@ class AppendIndicatorState extends State<AppendIndicator> {
               opacity: _mode == _AppendIndicatorMode.none ? 0 : 1,
               duration: _kAnimatedDuration,
               child: SizedBox(
-                width: MediaQuery.of(context).size.width,
+                width: MediaQuery.of(context).size.width - MediaQuery.of(context).padding.horizontal,
                 child: LinearProgressIndicator(
                   backgroundColor: widget.backgroundColor,
                   valueColor: widget.valueColor,

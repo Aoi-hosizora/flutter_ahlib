@@ -1,5 +1,6 @@
 import 'dart:io' as io show File;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'local_network_image_provider_io.dart' as image_provider;
@@ -11,8 +12,8 @@ import 'local_network_image_provider_io.dart' as image_provider;
 /// before using this provider in order to reuse the ImageProvider from imageCache.
 abstract class LocalOrNetworkImageProvider extends ImageProvider<LocalOrNetworkImageProvider> {
   const factory LocalOrNetworkImageProvider({
-    Future<io.File> Function() file,
-    Future<String> Function() url,
+    @required Future<io.File> Function() file,
+    @required Future<String> Function() url,
     double scale,
     Map<String, String> headers,
     BaseCacheManager cacheManager,

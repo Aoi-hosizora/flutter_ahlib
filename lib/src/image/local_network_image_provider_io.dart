@@ -103,6 +103,7 @@ class LocalOrNetworkImageProvider extends ImageProvider<image_provider.LocalOrNe
           var bytes = await file.readAsBytes();
           var decoded = await decode(bytes);
           yield decoded;
+          key.onFileLoaded?.call();
         } catch (e) {
           // Depending on where the exception was thrown, the image cache may not
           // have had a chance to track the key in the cache at all.
@@ -110,10 +111,8 @@ class LocalOrNetworkImageProvider extends ImageProvider<image_provider.LocalOrNe
           scheduleMicrotask(() {
             PaintingBinding.instance.imageCache.evict(key);
           });
-          // chunkEvents.addError(e);
-          rethrow;
+          chunkEvents.addError(e);
         } finally {
-          key.onFileLoaded?.call();
           await chunkEvents.close();
         }
         return;
@@ -153,14 +152,13 @@ class LocalOrNetworkImageProvider extends ImageProvider<image_provider.LocalOrNe
               yield decoded;
             }
           }
+          key.onUrlDownloaded?.call();
         } catch (e) {
           scheduleMicrotask(() {
             PaintingBinding.instance.imageCache.evict(key);
           });
-          // chunkEvents.addError(e);
-          rethrow;
+          chunkEvents.addError(e);
         } finally {
-          key.onUrlDownloaded?.call();
           await chunkEvents.close();
         }
       }

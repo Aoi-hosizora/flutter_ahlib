@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/src/list/append_indicator.dart';
 
-/// [ScrollListController] is a controller used for controlling of the
-/// [RefreshIndicator] and [AppendIndicator], including [refresh] and [append].
-class ScrollListController {
+/// [UpdatableListController] is a controller used for updatable list to control
+/// the [RefreshIndicator] and [AppendIndicator], including [refresh] and [append].
+class UpdatableListController {
   GlobalKey<RefreshIndicatorState> _refreshIndicatorKey;
   GlobalKey<AppendIndicatorState> _appendIndicatorKey;
 
