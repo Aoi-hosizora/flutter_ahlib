@@ -33,7 +33,6 @@ filesize: ^1.0.4
     + `IconText`
     + `showIconPopupMenu()` `showTextPopupMenu()`
     + `ScrollFloatingActionButton` `ScrollFabController`
-    + `RippleSizedView` (deprecated)
     + `SliverContainer`
     + `DummyView`
     + `LazyIndexedStack`
@@ -41,8 +40,6 @@ filesize: ^1.0.4
     + `SliverSeparatedBuilderDelegate` `SliverSeparatedListDelegate`
 + Image:
     + `LocalOrNetworkImageProvider`
-    + `ImageLoadingView` (deprecated)
-    + `ImageLoadFailedView` (deprecated)
     + `MultiImageStreamCompleter`
 + Util:
     + `ActionController`
