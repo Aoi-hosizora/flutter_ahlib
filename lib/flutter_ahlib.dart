@@ -15,8 +15,6 @@ export 'src/widget/sliver_appbar_delegate.dart';
 
 // image
 export 'src/image/local_network_image_provider.dart';
-export 'src/image/image_loading_view.dart';
-export 'src/image/image_load_failed_view.dart';
 
 // util
 export 'src/util/action_controller.dart';

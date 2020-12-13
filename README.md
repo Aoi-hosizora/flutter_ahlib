@@ -42,8 +42,6 @@ filesize: ^1.0.4
     + `SliverAppBarDelegate`
 + Image:
     + `LocalOrNetworkImageProvider`
-    + `ImageLoadingView`
-    + `ImageLoadFailedView`
     + `MultiImageStreamCompleter`
 + Util:
     + `ActionController`
