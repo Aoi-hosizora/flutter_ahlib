@@ -1,4 +1,4 @@
-library widget;
+library flutter_ahlib_widget;
 
 export 'src/widget/placeholder_text.dart';
 export 'src/widget/drawer_list_view.dart';

@@ -1,4 +1,4 @@
-library list;
+library flutter_ahlib_list;
 
 export 'src/list/append_indicator.dart';
 export 'src/list/updatable_dataview.dart';
