@@ -38,6 +38,7 @@ filesize: ^1.0.4
     + `LazyIndexedStack`
     + `SliverAppBarDelegate`
     + `SliverSeparatedBuilderDelegate` `SliverSeparatedListDelegate`
+    + `TextGroup`
 + Image:
     + `LocalOrNetworkImageProvider`
     + `MultiImageStreamCompleter`
@@ -46,9 +47,8 @@ filesize: ^1.0.4
     + `Tuple2` ~ `Tuple6`
     + `hashObjects()`, `hash2()` ~ `hash6()`
     + `StateExtension`
-    + `ObjectExtension`
-    + `BoolExtension`
-    + `ListExtension`
+    + `ObjectExtension` `BoolExtension` `ListExtension`
+    + `StateExtension` `ScrollControllerExtension` `TextStyleExtension`
 + List:
     + `AppendIndicator`
     + `UpdatableDataView` `RefreshableDataView` `PaginationDataView` `UpdatableDataViewController`

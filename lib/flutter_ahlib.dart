@@ -11,6 +11,7 @@ export 'src/widget/dummy_view.dart';
 export 'src/widget/lazy_indexed_stack.dart';
 export 'src/widget/sliver_appbar_delegate.dart';
 export 'src/widget/sliver_separated_delegate.dart';
+export 'src/widget/text_group.dart';
 
 // image
 export 'src/image/local_network_image_provider.dart';
@@ -20,7 +21,8 @@ export 'src/image/multi_image_stream_completer.dart';
 export 'src/util/action_controller.dart';
 export 'src/util/tuple.dart';
 export 'src/util/hash.dart';
-export 'src/util/extensions.dart';
+export 'src/util/dart_extensions.dart';
+export 'src/util/flutter_extensions.dart';
 export 'src/util/filesize.dart';
 
 // list

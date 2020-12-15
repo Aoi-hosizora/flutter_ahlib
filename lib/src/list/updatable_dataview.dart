@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/src/list/append_indicator.dart';
 import 'package:flutter_ahlib/src/widget/placeholder_text.dart';
-import 'package:flutter_ahlib/src/util/extensions.dart';
+import 'package:flutter_ahlib/src/util/flutter_extensions.dart';
 
 /// An abstract widget for updatable data view, including
 /// [RefreshableDataView] and [PaginationDataView].

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_ahlib/src/util/extensions.dart';
+import 'package:flutter_ahlib/src/util/dart_extensions.dart';
 
 /// This is a custom [SliverChildBuilderDelegate] with separator,
 /// notice that this class has not a const constructor.

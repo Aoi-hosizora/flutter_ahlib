@@ -10,3 +10,4 @@ export 'src/widget/dummy_view.dart';
 export 'src/widget/lazy_indexed_stack.dart';
 export 'src/widget/sliver_appbar_delegate.dart';
 export 'src/widget/sliver_separated_delegate.dart';
+export 'src/widget/text_group.dart';
