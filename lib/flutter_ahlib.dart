@@ -24,6 +24,7 @@ export 'src/util/hash.dart';
 export 'src/util/dart_extensions.dart';
 export 'src/util/flutter_extensions.dart';
 export 'src/util/filesize.dart';
+export 'src/util/notifier_data.dart';
 
 // list
 export 'src/list/append_indicator.dart';

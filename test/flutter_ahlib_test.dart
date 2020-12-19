@@ -1,4 +1,4 @@
-import 'package:flutter_ahlib/flutter_ahlib.dart';
+import 'package:flutter_ahlib/util.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -127,4 +127,32 @@ void main() {
       expect(filesize(2048, 4), "2 KB");
     });
   });
+
+  group(NotifiableData, () {
+    test('AuthState', () {
+      var indicator = 0;
+      var testReceiver = SimpleNotifyReceiver('test');
+      AuthState.instance.registerListener(() => indicator++, testReceiver);
+      expect(indicator, 0);
+
+      AuthState.instance.token = '###';
+      AuthState.instance.notifyAll();
+      expect(indicator, 1);
+
+      AuthState.instance.notifyAll();
+      expect(indicator, 2);
+    });
+  });
+}
+
+class AuthState extends NotifiableData {
+  AuthState._();
+
+  static AuthState _instance;
+
+  static AuthState get instance {
+    return _instance ??= AuthState._();
+  }
+
+  String token = ''; // data field
 }

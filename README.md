@@ -49,6 +49,7 @@ filesize: ^1.0.4
     + `StateExtension`
     + `ObjectExtension` `BoolExtension` `ListExtension`
     + `StateExtension` `ScrollControllerExtension` `TextStyleExtension`
+    + `NotifiableData`
 + List:
     + `AppendIndicator`
     + `UpdatableDataView` `RefreshableDataView` `PaginationDataView` `UpdatableDataViewController`
