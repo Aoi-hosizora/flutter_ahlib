@@ -15,7 +15,7 @@ enum IconTextAlignment {
   b2t,
 }
 
-/// Wrap [Icon] and [Text] with a [Row] and [Column] and [Wrap].
+/// Wrap [Icon] and [Text] with a [Row] and [Column].
 class IconText extends StatelessWidget {
   const IconText({
     Key key,
@@ -38,6 +38,9 @@ class IconText extends StatelessWidget {
         assert(mainAxisSize != null),
         assert(crossAxisAlignment != null),
         super(key: key);
+
+  /// A simple non-const constructor for [IconText].
+  IconText.simple(IconData icon, String text) : this(icon: Icon(icon), text: Text(text));
 
   /// The icon of the item.
   final Icon icon;
@@ -121,7 +124,7 @@ class IconText extends StatelessWidget {
           ],
         );
       default:
-        return SizedBox(height: 0);
+        return Container();
     }
   }
 }

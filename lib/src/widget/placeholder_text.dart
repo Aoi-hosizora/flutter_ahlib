@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 
 /// A state used to describe the current state of [PlaceholderText].
 enum PlaceholderState {
-  normal, // 1. !isEmpty
-  loading, // 2. isLoading (&& isEmpty)
-  nothing, // 3. errorText?.isNotEmpty == true (&& isEmpty && !isLoading)
-  error, // 4. else (isEmpty && !isLoading && errorText != null)
+  normal, // 1. not empty
+  loading, // 2. empty && loading
+  nothing, // 3. empty && !loading && error
+  error, // 4. empty && !loading && !error
 }
 
 /// [PlaceholderState] changed callback function, used in [PlaceholderText].
 typedef PlaceholderStateChangedCallback = void Function(PlaceholderState oldState, PlaceholderState newState);
 
-/// Setting for displaying [PlaceholderText].
+/// Display setting for [PlaceholderText].
 class PlaceholderSetting {
   const PlaceholderSetting({
     //
@@ -19,6 +19,9 @@ class PlaceholderSetting {
     this.nothingText = 'Nothing',
     this.retryText = 'Retry',
     this.unknownErrorText = 'Unknown error',
+    //
+    this.nothingIcon = Icons.clear_all,
+    this.errorIcon = Icons.error,
     //
     this.textPadding = const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
     this.iconPadding = const EdgeInsets.all(5),
@@ -47,6 +50,8 @@ class PlaceholderSetting {
         assert(nothingText != null),
         assert(retryText != null),
         assert(unknownErrorText != null),
+        assert(nothingIcon != null),
+        assert(errorIcon != null),
         assert(textPadding != null),
         assert(iconPadding != null),
         assert(buttonPadding != null),
@@ -78,6 +83,8 @@ class PlaceholderSetting {
       nothingText: nothingText,
       retryText: retryText,
       unknownErrorText: unknownErrorText,
+      nothingIcon: this.nothingIcon,
+      errorIcon: this.errorIcon,
       textPadding: this.textPadding,
       iconPadding: this.iconPadding,
       buttonPadding: this.buttonPadding,
@@ -111,6 +118,8 @@ class PlaceholderSetting {
       nothingText: nothingText,
       retryText: retryText,
       unknownErrorText: unknownErrorText,
+      nothingIcon: this.nothingIcon,
+      errorIcon: this.errorIcon,
       textPadding: this.textPadding,
       iconPadding: this.iconPadding,
       buttonPadding: this.buttonPadding,
@@ -137,6 +146,10 @@ class PlaceholderSetting {
   final String nothingText;
   final String retryText;
   final String unknownErrorText;
+
+  // icon
+  final IconData nothingIcon;
+  final IconData errorIcon;
 
   // padding
   final EdgeInsets textPadding;
@@ -183,10 +196,10 @@ class PlaceholderText extends StatefulWidget {
         assert(setting != null),
         super(key: key);
 
-  PlaceholderText.from({
+  const PlaceholderText.from({
     Key key,
     @required Widget Function(BuildContext) childBuilder,
-    void Function() onRefresh,
+    Function onRefresh,
     String errorText,
     PlaceholderState forceState,
     @required bool isEmpty,
@@ -198,16 +211,16 @@ class PlaceholderText extends StatefulWidget {
           childBuilder: childBuilder,
           onRefresh: onRefresh,
           errorText: errorText,
-          state: forceState != null // has force to state
-              ? forceState // use forceState
-              : !isEmpty // first -> check if it has data
-                  ? PlaceholderState.normal // has data => normal
-                  : isLoading // has no data -> check if is loading
-                      ? PlaceholderState.loading // is loading => loading
-                      : errorText?.isNotEmpty == true // is not loading -> check if error message is null or empty
-                          ? PlaceholderState.error // has error text => error
-                          : true == true // dummy
-                              ? PlaceholderState.nothing // empty, loaded, noerr => nothing
+          state: forceState != null
+              ? forceState // force
+              : isEmpty == false
+                  ? PlaceholderState.normal // not empty
+                  : isLoading == true
+                      ? PlaceholderState.loading // empty && loading
+                      : errorText != null && errorText != ''
+                          ? PlaceholderState.error // empty && !loading && error
+                          : true == true
+                              ? PlaceholderState.nothing // empty && !loading && !error
                               : null,
           onChanged: onChanged,
           setting: setting,
@@ -217,7 +230,7 @@ class PlaceholderText extends StatefulWidget {
   final Widget Function(BuildContext) childBuilder;
 
   /// Refresh handler for retry.
-  final void Function() onRefresh;
+  final Function onRefresh;
 
   /// Error message (if null, will invoke error state).
   final String errorText;
@@ -303,7 +316,7 @@ class _PlaceholderTextState extends State<PlaceholderText> {
                 Padding(
                   padding: widget.setting.iconPadding,
                   child: Icon(
-                    Icons.clear_all,
+                    widget.setting.nothingIcon,
                     size: widget.setting.iconSize,
                     color: widget.setting.iconColor,
                   ),
@@ -348,7 +361,7 @@ class _PlaceholderTextState extends State<PlaceholderText> {
                 Padding(
                   padding: widget.setting.iconPadding,
                   child: Icon(
-                    Icons.error,
+                    widget.setting.errorIcon,
                     size: widget.setting.iconSize,
                     color: widget.setting.iconColor,
                   ),
@@ -384,7 +397,7 @@ class _PlaceholderTextState extends State<PlaceholderText> {
       // unreachable
       ////////////////////////////////////////////////////////////////
       default:
-        return SizedBox(height: 0);
+        return Container();
     }
   }
 }

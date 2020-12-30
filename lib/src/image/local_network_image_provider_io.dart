@@ -17,12 +17,11 @@ class LocalOrNetworkImageProvider extends ImageProvider<image_provider.LocalOrNe
     @required this.url,
     this.scale = 1.0,
     this.headers,
+    this.onFile,
+    this.onNetwork,
     this.cacheManager,
-    this.onStartLoadingFile,
-    this.onStartDownloadUrl,
-    this.onFileLoaded,
-    this.onUrlDownloaded,
-  }) : assert(file != null || url != null, 'file and url must have one non-null');
+  })  : assert(file != null),
+        assert(url != null);
 
   /// File of the image to load.
   @override
@@ -44,21 +43,13 @@ class LocalOrNetworkImageProvider extends ImageProvider<image_provider.LocalOrNe
   @override
   final BaseCacheManager cacheManager;
 
-  /// The callback function when file start loading.
-  @override
-  final Function() onStartLoadingFile;
-
-  /// The callback function when image start downloading.
-  @override
-  final Function() onStartDownloadUrl;
-
   /// Callback function when the image from file loaded.
   @override
-  final Function() onFileLoaded;
+  final Function() onFile;
 
   /// Callback function when the image from network downloaded.
   @override
-  final Function() onUrlDownloaded;
+  final Function() onNetwork;
 
   /// Override the [ImageProvider].
   @override
@@ -88,91 +79,72 @@ class LocalOrNetworkImageProvider extends ImageProvider<image_provider.LocalOrNe
   Stream<ui.Codec> _loadAsync(LocalOrNetworkImageProvider key, StreamController<ImageChunkEvent> chunkEvents, DecoderCallback decode) async* {
     assert(key == this);
 
-    var fileFunc = key.file;
-    var urlFunc = key.url;
+    var file = await key.file.call();
+    var url = await key.url.call();
+    assert(file == null || await file.exists());
+    assert(url == null || url.isNotEmpty);
+    assert(file != null || url != null);
 
-    if (fileFunc != null) {
-      var file = await fileFunc.call();
-      assert(file == null || await file.exists());
+    // use file
+    if (file != null) {
+      try {
+        var bytes = await file.readAsBytes();
+        var decoded = await decode(bytes);
+        yield decoded;
+      } catch (e) {
+        chunkEvents.addError(e);
+      } finally {
+        onFile?.call();
+        await chunkEvents.close();
+      }
+      return;
+    }
 
-      // use file
-      if (file != null) {
-        key.onStartLoadingFile?.call();
-        try {
-          // read the file from storage
+    // use url
+    try {
+      var mgr = cacheManager ?? DefaultCacheManager();
+      var h = (headers ?? {})..['Accept-Encoding'] = '';
+      var stream = mgr.getFileStream(url, withProgress: true, headers: h);
+
+      // get file size from http at the same time
+      int totalSize;
+      http.head(url, headers: {
+        'Accept': '*/*',
+        ...h,
+      }).then((data) {
+        totalSize = int.tryParse(data.headers['content-length']);
+      }).catchError((_) {});
+
+      // await stream info
+      await for (var result in stream) {
+        if (result is DownloadProgress) {
+          // print('${result.downloaded} ${result.totalSize} $totalSize');
+          chunkEvents.add(ImageChunkEvent(
+            cumulativeBytesLoaded: result.downloaded,
+            expectedTotalBytes: result.totalSize ?? totalSize,
+          ));
+        } else if (result is FileInfo) {
+          var file = result.file;
           var bytes = await file.readAsBytes();
           var decoded = await decode(bytes);
           yield decoded;
-          key.onFileLoaded?.call();
-        } catch (e) {
-          // Depending on where the exception was thrown, the image cache may not
-          // have had a chance to track the key in the cache at all.
-          // Schedule a microtask to give the cache a chance to add the key.
-          scheduleMicrotask(() {
-            PaintingBinding.instance.imageCache.evict(key);
-          });
-          chunkEvents.addError(e);
-        } finally {
-          await chunkEvents.close();
-        }
-        return;
-      }
-    }
-
-    if (urlFunc != null) {
-      var url = await urlFunc.call();
-      assert(url == null || url.isNotEmpty);
-
-      // use url
-      if (url != null) {
-        key.onStartDownloadUrl?.call();
-        try {
-          var mgr = key.cacheManager ?? DefaultCacheManager();
-          var h = (key.headers ?? {})..['Accept-Encoding'] = '';
-          var stream = mgr.getFileStream(url, withProgress: true, headers: h);
-
-          // use head to get content length at the same time
-          int contentLength;
-          http.head(url, headers: {'Accept': '*/*', ...h}).then((data) {
-            contentLength = int.tryParse(data.headers['content-length']);
-          }).catchError((_) {});
-
-          // await stream info
-          await for (var result in stream) {
-            if (result is DownloadProgress) {
-              // print('${result.downloaded} ${result.totalSize} contentLength');
-              chunkEvents.add(ImageChunkEvent(
-                cumulativeBytesLoaded: result.downloaded,
-                expectedTotalBytes: result.totalSize ?? contentLength,
-              ));
-            } else if (result is FileInfo) {
-              // read the cache from storage
-              var bytes = await result.file.readAsBytes();
-              var decoded = await decode(bytes);
-              yield decoded;
-            }
-          }
-          key.onUrlDownloaded?.call();
-        } catch (e) {
-          scheduleMicrotask(() {
-            PaintingBinding.instance.imageCache.evict(key);
-          });
-          chunkEvents.addError(e);
-        } finally {
-          await chunkEvents.close();
         }
       }
+    } catch (e) {
+      scheduleMicrotask(() {
+        PaintingBinding.instance.imageCache.evict(key);
+      });
+      chunkEvents.addError(e);
+    } finally {
+      onNetwork?.call();
+      await chunkEvents.close();
     }
-
-    // (file is null or not found) && (url is null or empty)
-    throw ArgumentError('items must have length 6');
   }
 
   @override
   bool operator ==(dynamic other) {
     if (other is LocalOrNetworkImageProvider) {
-      // ATTENTION: url and file are all functions, so you must save the functions
-      // before using this provider in order to reuse the ImageProvider from imageCache.
+      // ATTENTION: url and file are all functions, so you must save the functions before using the ImageProvider.
       return url == other.url && file == other.file && scale == other.scale;
     }
     return false;
@@ -180,7 +152,4 @@ class LocalOrNetworkImageProvider extends ImageProvider<image_provider.LocalOrNe
 
   @override
   int get hashCode => hashValues(url, file, scale);
-
-  @override
-  String toString() => '$runtimeType(url: "$url", file: "$file", scale: $scale)';
 }

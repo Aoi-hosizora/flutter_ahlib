@@ -226,7 +226,7 @@ class _TextGroupState extends State<TextGroup> {
     var textSpan = TextSpan(
       text: '',
       style: widget.style,
-      children: spans..insert(0, TextSpan(text: ' ')), // insert an empty TextSpan.
+      children: spans..add(TextSpan(text: ' ')), // insert an empty TextSpan.
     );
 
     if (!widget.selectable) {

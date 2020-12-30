@@ -1,152 +1,114 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/src/widget/icon_text.dart';
 
-/// Icon popup menu item used in [showIconPopupMenu].
-class IconPopupActionItem {
-  const IconPopupActionItem({
-    @required this.text,
-    @required this.icon,
+/// [MenuItem] is a replacement of [SimpleDialogOption] used in [showPopupListMenu]. This is not a [Widget],
+/// but a data class to store option and used as a [SimpleDialogOption].
+class MenuItem {
+  const MenuItem({
+    @required Widget child,
     @required this.action,
-    this.dismissBeforeAction = true,
-    this.dismissAfterAction = false,
-  })  : assert(text != null),
-        assert(icon != null),
+    this.padding,
+    this.dismissBefore = true,
+    this.dismissAfter = false,
+  })  : assert(child != null),
         assert(action != null),
-        assert(dismissBeforeAction != null),
-        assert(dismissAfterAction != null),
-        assert(dismissBeforeAction == false || dismissAfterAction == false);
+        assert(dismissBefore != null),
+        assert(dismissAfter != null),
+        assert(dismissBefore == false || dismissAfter == false, 'dismissBefore and dismissAfter could only have one is true'),
+        _child = child;
 
-  /// Action text.
-  final Text text;
+  /// A child needs to rendered, see [child].
+  final Widget _child;
 
-  /// Action icon.
-  final Icon icon;
+  /// A function will be invoked when this item is tapped.
+  final Function action;
 
-  /// Action function.
-  final void Function() action;
+  /// Padding for menu item.
+  final EdgeInsets padding;
 
-  /// Dismiss the dialog before action done.
-  final bool dismissBeforeAction;
+  /// A dialog option for dismiss before the action invoked.
+  final bool dismissBefore;
 
-  /// Dismiss the dialog after action done.
-  final bool dismissAfterAction;
+  /// A dialog option for dismiss after the action invoked.
+  final bool dismissAfter;
+
+  /// A rendered child for menu item.
+  Widget get child => _child;
 }
 
-/// Text popup menu item used in [showTextPopupMenu].
-class TextPopupActionItem {
-  const TextPopupActionItem({
-    @required this.text,
-    @required this.action,
-    this.dismissBeforeAction = true,
-    this.dismissAfterAction = false,
-  })  : assert(text != null),
-        assert(action != null),
-        assert(dismissBeforeAction != null),
-        assert(dismissAfterAction != null),
-        assert(dismissBeforeAction == false || dismissAfterAction == false);
-
-  /// Action text.
-  final Text text;
-
-  /// Action function.
-  final void Function() action;
-
-  /// Dismiss the dialog before action done.
-  final bool dismissBeforeAction;
-
-  /// Dismiss the dialog after action done.
-  final bool dismissAfterAction;
+/// A [MenuItem] with only a [Text], and has a default [padding].
+class TextMenuItem extends MenuItem {
+  const TextMenuItem({
+    @required Text text,
+    Function action,
+    EdgeInsets padding = const EdgeInsets.symmetric(vertical: 13, horizontal: 25),
+    bool dismissBefore,
+    bool dismissAfter,
+  }) : super(
+          child: text,
+          action: action,
+          padding: padding,
+          dismissBefore: dismissBefore,
+          dismissAfter: dismissAfter,
+        );
 }
 
-/// Show icon popup menu of list of [IconPopupActionItem] with [IconText] in [SimpleDialogOption] and [SimpleDialog].
-void showIconPopupMenu({
+/// A [MenuItem] with only a [IconText], and has a default [padding].
+class IconTextMenuItem extends MenuItem {
+  const IconTextMenuItem({
+    @required IconText iconText,
+    Function action,
+    EdgeInsets padding = const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
+    bool dismissBefore,
+    bool dismissAfter,
+  }) : super(
+          child: iconText,
+          action: action,
+          padding: padding,
+          dismissBefore: dismissBefore,
+          dismissAfter: dismissAfter,
+        );
+}
+
+/// Show [SimpleDialog] with a list of items, the items can be [MenuItem], [TextMenuItem], [IconTextMenuItem]
+/// or your own defined [MenuItem].
+Future<void> showPopupListMenu({
   @required BuildContext context,
   @required Widget title,
-  @required List<IconPopupActionItem> items,
-  EdgeInsets optionPadding = const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
+  @required List<MenuItem> items,
   bool barrierDismissible = true,
   Color barrierColor,
-  double space = 15.0,
-  IconTextAlignment alignment = IconTextAlignment.l2r,
+  bool useSafeArea = true,
 }) {
   assert(context != null);
   assert(title != null);
-  assert(items != null);
-  assert(optionPadding != null);
+  assert(items != null && items.length > 0);
   assert(barrierDismissible != null);
-  assert(space != null);
-  assert(alignment != null);
+  assert(useSafeArea != null);
 
-  showDialog(
+  return showDialog(
     context: context,
     barrierDismissible: barrierDismissible,
     barrierColor: barrierColor,
+    useSafeArea: useSafeArea,
     builder: (c) => SimpleDialog(
       title: title,
-      children: items
-          .map(
-            (i) => SimpleDialogOption(
-              child: IconText(
-                icon: i.icon,
-                text: i.text,
-                space: space,
-                alignment: alignment,
-              ),
-              onPressed: () {
-                if (i.dismissBeforeAction) {
-                  Navigator.pop(c);
-                }
-                i.action();
-                if (i.dismissAfterAction) {
-                  Navigator.pop(c);
-                }
-              },
-              padding: optionPadding,
-            ),
-          )
-          .toList(),
-    ),
-  );
-}
-
-/// Show text popup menu of list of [TextPopupActionItem] with [Text] in [SimpleDialogOption] and [SimpleDialog].
-void showTextPopupMenu({
-  @required BuildContext context,
-  @required Widget title,
-  @required List<TextPopupActionItem> items,
-  EdgeInsets optionPadding = const EdgeInsets.symmetric(vertical: 13, horizontal: 25),
-  bool barrierDismissible = true,
-  Color barrierColor,
-}) {
-  assert(context != null);
-  assert(title != null);
-  assert(items != null);
-  assert(optionPadding != null);
-  assert(barrierDismissible != null);
-
-  showDialog(
-    context: context,
-    barrierDismissible: barrierDismissible,
-    barrierColor: barrierColor,
-    builder: (c) => SimpleDialog(
-      title: title,
-      children: items
-          .map(
-            (i) => SimpleDialogOption(
-              child: i.text,
-              onPressed: () {
-                if (i.dismissBeforeAction) {
-                  Navigator.pop(c);
-                }
-                i.action();
-                if (i.dismissAfterAction) {
-                  Navigator.pop(c);
-                }
-              },
-              padding: optionPadding,
-            ),
-          )
-          .toList(),
+      children: [
+        for (var item in items)
+          SimpleDialogOption(
+            child: item.child,
+            padding: item.padding,
+            onPressed: () {
+              if (item.dismissBefore) {
+                Navigator.of(c).pop();
+              }
+              item.action();
+              if (item.dismissAfter) {
+                Navigator.of(c).pop();
+              }
+            },
+          ),
+      ],
     ),
   );
 }

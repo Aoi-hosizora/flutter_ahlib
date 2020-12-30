@@ -32,8 +32,6 @@ http: ^0.12.2
     + `IconText`
     + `showIconPopupMenu()` `showTextPopupMenu()`
     + `ScrollFloatingActionButton` `ScrollFabController`
-    + `SliverContainer`
-    + `DummyView`
     + `LazyIndexedStack`
     + `SliverAppBarDelegate`
     + `SliverSeparatedBuilderDelegate` `SliverSeparatedListDelegate`

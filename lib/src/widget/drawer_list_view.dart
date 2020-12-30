@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// A type that describes the kind of [DrawerItem].
-enum DrawerItemType {
+enum _DrawerItemType {
   /// Type for [DrawerPage].
   page,
 
@@ -17,10 +17,10 @@ enum DrawerItemType {
 abstract class DrawerItem {
   const DrawerItem({this.type});
 
-  final DrawerItemType type;
+  final _DrawerItemType type;
 }
 
-/// A [DrawerItem] used to navigate to a page.
+/// A [DrawerItem] is used to navigate to a page, where [T] can be an enum type for pages.
 class DrawerPage<T> extends DrawerItem {
   const DrawerPage({
     @required this.title,
@@ -30,15 +30,24 @@ class DrawerPage<T> extends DrawerItem {
   })  : assert(title != null),
         assert(icon != null),
         assert(view != null),
-        super(type: DrawerItemType.page);
+        super(type: _DrawerItemType.page);
 
-  final String title;
-  final IconData icon;
+  /// A simple constructor to create a default [DrawerPage].
+  DrawerPage.simple(String title, IconData icon, Widget view, T selection)
+      : this(
+          title: Text(title),
+          icon: Icon(icon),
+          view: view,
+          selection: selection,
+        );
+
+  final Widget title;
+  final Widget icon;
   final Widget view;
   final T selection;
 }
 
-/// A [DrawerItem] used to invoke an action.
+/// A [DrawerItem] is used to invoke an action.
 class DrawerAction extends DrawerItem {
   const DrawerAction({
     @required this.title,
@@ -47,19 +56,26 @@ class DrawerAction extends DrawerItem {
   })  : assert(title != null),
         assert(icon != null),
         assert(action != null),
-        super(type: DrawerItemType.action);
+        super(type: _DrawerItemType.action);
 
-  final String title;
-  final IconData icon;
-  final void Function() action;
+  /// A simple constructor to create a default [DrawerAction].
+  DrawerAction.simple(String title, IconData icon, Function action)
+      : this(
+          title: Text(title),
+          icon: Icon(icon),
+          action: action,
+        );
+
+  final Widget title;
+  final Widget icon;
+  final Function action;
 }
 
-/// A [DrawerItem] used to show a divider.
+/// A [DrawerItem] is used to show a divider.
 class DrawerDivider extends DrawerItem {
-  const DrawerDivider({
-    @required this.divider,
-  })  : assert(divider != null),
-        super(type: DrawerItemType.divider);
+  const DrawerDivider(this.divider)
+      : assert(divider != null),
+        super(type: _DrawerItemType.divider);
 
   final Divider divider;
 }
@@ -74,7 +90,7 @@ class DrawerDivider extends DrawerItem {
 ///     children: [
 ///       DrawerHeader(),
 ///       DrawerListView<DrawerSelection>(
-///         items: [xxx],
+///         items: [ xxx ],
 ///         highlightColor: Colors.grey[200],
 ///         currentDrawerSelection: widget.currentDrawerSelection,
 ///         rootSelection: DrawerSelection.home,
@@ -87,10 +103,11 @@ class DrawerListView<T> extends StatefulWidget {
   const DrawerListView({
     Key key,
     @required this.items,
-    this.highlightColor,
+    this.highlightColor = const Color(0xFFEEEEEE),
     this.currentDrawerSelection,
     this.rootSelection,
   })  : assert(items != null),
+        assert(highlightColor != null),
         super(key: key);
 
   /// A list of [DrawerItem].
@@ -134,28 +151,29 @@ class _DrawerListViewState<T> extends State<DrawerListView<T>> {
       children: widget.items.map(
         (item) {
           switch (item.type) {
-            case DrawerItemType.page:
+            case _DrawerItemType.page:
               DrawerPage<T> page = item;
               return Container(
-                color: widget.currentDrawerSelection != page.selection ? Colors.transparent : widget.highlightColor ?? Colors.grey[200],
+                color: widget.currentDrawerSelection != page.selection ? Colors.transparent : widget.highlightColor,
                 child: ListTile(
-                  leading: Icon(page.icon),
-                  title: Text(page.title),
+                  leading: page.icon,
+                  title: page.title,
                   selected: widget.currentDrawerSelection == page.selection,
                   onTap: () => _goto(page),
                 ),
               );
-            case DrawerItemType.action:
+            case _DrawerItemType.action:
               DrawerAction action = item;
               return ListTile(
-                leading: Icon(action.icon),
-                title: Text(action.title),
+                leading: action.icon,
+                title: action.title,
                 onTap: () => action.action(),
               );
-            case DrawerItemType.divider:
-              return (item as DrawerDivider).divider;
+            case _DrawerItemType.divider:
+              DrawerDivider divider = item;
+              return divider.divider;
             default:
-              return SizedBox(height: 0);
+              return Container();
           }
         },
       ).toList(),

@@ -4,17 +4,20 @@ import 'package:flutter/material.dart';
 class ScrollFloatingActionButton extends StatefulWidget {
   const ScrollFloatingActionButton({
     Key key,
+    @required this.fab,
     this.fabController,
     this.scrollController,
     this.offset = 50,
     this.duration = const Duration(milliseconds: 250),
     this.curve = const Interval(0, 1, curve: Curves.easeOutBack),
-    @required this.fab,
   })  : assert(fab != null),
         assert(offset != null && offset >= 0),
         assert(duration != null),
         assert(curve != null),
         super(key: key);
+
+  /// Content with [FloatingActionButton].
+  final FloatingActionButton fab;
 
   /// Scroll fab controller.
   final ScrollFabController fabController;
@@ -31,9 +34,6 @@ class ScrollFloatingActionButton extends StatefulWidget {
   /// The curve for [CurvedAnimation].
   final Curve curve;
 
-  /// Content with [FloatingActionButton].
-  final FloatingActionButton fab;
-
   @override
   _ScrollFloatingActionButtonState createState() => _ScrollFloatingActionButtonState();
 }
@@ -46,16 +46,10 @@ class _ScrollFloatingActionButtonState extends State<ScrollFloatingActionButton>
   @override
   void initState() {
     super.initState();
-    _animController = AnimationController(
-      vsync: this,
-      duration: widget.duration,
-    );
-    _fabAnimation = CurvedAnimation(
-      parent: _animController,
-      curve: widget.curve,
-    );
-    widget.scrollController?.addListener(_scrollListener);
+    _animController = AnimationController(vsync: this, duration: widget.duration);
+    _fabAnimation = CurvedAnimation(parent: _animController, curve: widget.curve);
     widget.fabController?.attachAnim(_animController);
+    widget.scrollController?.addListener(_scrollListener);
   }
 
   @override

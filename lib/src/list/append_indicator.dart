@@ -5,12 +5,15 @@ import 'package:flutter/material.dart';
 /// Used in [AnimatedOpacity] and [onAppend.whenComplete].
 const _kAnimatedDuration = Duration(milliseconds: 500);
 
+/// Used in [AppendIndicatorState._onPointerMove].
+const _kPointerMovingThreshold = 30.0;
+
 /// Represents indicator's state.
 enum _AppendIndicatorMode {
-  /// Indicator is now positioned animating.
+  /// Indicate is now positioned animating.
   none,
 
-  /// Indicator is now showing and refreshing.
+  /// Indicate is now showing and refreshing.
   appending,
 }
 
@@ -53,27 +56,31 @@ class AppendIndicatorState extends State<AppendIndicator> {
   double _extent = -1;
   double _pointerDownPosition = 0;
 
-  bool _onScroll(ScrollNotification s, void Function() action) {
+  bool _onScroll(ScrollNotification s) {
     _extent = s.metrics.maxScrollExtent;
     bool short = _extent == 0;
     bool bottom = s.metrics.pixels >= s.metrics.maxScrollExtent && !s.metrics.outOfRange;
     if (!short && bottom) {
-      action();
+      _show(); // 1
     }
-    return true;
+    return false;
   }
 
   void _onPointerDown(PointerDownEvent e) {
     _pointerDownPosition = e.position?.dy ?? 0;
   }
 
-  void _onPointerMove(PointerMoveEvent e, void Function() action) {
-    if (e.down) {
+  void _onPointerMove(PointerMoveEvent e) {
+    if (e.down && _pointerDownPosition != null) {
       bool short = _extent == 0;
-      if (short && _pointerDownPosition > e.position?.dy ?? 0) {
-        action();
+      if (short && _pointerDownPosition - (e.position?.dy ?? 0) > _kPointerMovingThreshold) {
+        _show(); // 2
       }
     }
+  }
+
+  void _onPointerUp(PointerUpEvent e) {
+    _pointerDownPosition = null;
   }
 
   /// Inner implementation of [show], used in [show], [_onScroll] and [_onPointerMove].
@@ -92,9 +99,9 @@ class AppendIndicatorState extends State<AppendIndicator> {
       if (mounted && _mode == _AppendIndicatorMode.appending) {
         completer.complete();
         _mode = _AppendIndicatorMode.none;
+        await Future.delayed(_kAnimatedDuration);
         if (mounted) setState(() {});
 
-        await Future.delayed(_kAnimatedDuration);
         _mode = null;
         if (mounted) setState(() {});
       }
@@ -115,10 +122,11 @@ class AppendIndicatorState extends State<AppendIndicator> {
     return Stack(
       children: [
         NotificationListener<ScrollNotification>(
-          onNotification: (s) => _onScroll(s, _show),
+          onNotification: (s) => _onScroll(s),
           child: Listener(
             onPointerDown: (m) => _onPointerDown(m),
-            onPointerMove: (m) => _onPointerMove(m, _show),
+            onPointerMove: (m) => _onPointerMove(m),
+            onPointerUp: (m) => _onPointerUp(m),
             child: widget.child,
           ),
         ),
@@ -129,7 +137,7 @@ class AppendIndicatorState extends State<AppendIndicator> {
               opacity: _mode == _AppendIndicatorMode.none ? 0 : 1,
               duration: _kAnimatedDuration,
               child: SizedBox(
-                width: MediaQuery.of(context).size.width - MediaQuery.of(context).padding.horizontal,
+                width: MediaQuery.of(context).size.width,
                 child: LinearProgressIndicator(
                   backgroundColor: widget.backgroundColor,
                   valueColor: widget.valueColor,

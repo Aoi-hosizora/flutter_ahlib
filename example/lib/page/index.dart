@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib_example/page/widget/drawer_list_view.dart';
-import 'package:flutter_ahlib_example/page/widget/dummy_view.dart';
 import 'package:flutter_ahlib_example/page/widget/icon_text.dart';
 import 'package:flutter_ahlib_example/page/widget/lazy_indexed_stack.dart';
 import 'package:flutter_ahlib_example/page/widget/placeholder_text.dart';
@@ -74,7 +73,6 @@ class _IndexPageState extends State<IndexPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _button('DummyView', DummyViewPage()),
                 _button('LazyIndexedStack', LazyIndexedStackPage()),
               ],
             ),

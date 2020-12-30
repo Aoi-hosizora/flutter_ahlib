@@ -21,19 +21,17 @@ class _PopupMenuPageState extends State<PopupMenuPage> {
           children: [
             OutlineButton(
               child: Text('showIconPopupMenu'),
-              onPressed: () => showIconPopupMenu(
+              onPressed: () => showPopupListMenu(
                 context: context,
                 title: Text('showIconPopupMenu'),
                 barrierDismissible: true,
                 items: [
-                  IconPopupActionItem(
-                    text: Text('test1'),
-                    icon: Icon(Icons.chevron_right),
+                  IconTextMenuItem(
+                    iconText: IconText.simple(Icons.chevron_right, 'test1'),
                     action: () => print('test1'),
                   ),
-                  IconPopupActionItem(
-                    text: Text('test2'),
-                    icon: Icon(Icons.chevron_right),
+                  IconTextMenuItem(
+                    iconText: IconText.simple(Icons.chevron_right, 'test2'),
                     action: () => print('test2'),
                   ),
                 ],
@@ -41,16 +39,16 @@ class _PopupMenuPageState extends State<PopupMenuPage> {
             ),
             OutlineButton(
               child: Text('showTextPopupMenu'),
-              onPressed: () => showTextPopupMenu(
+              onPressed: () => showPopupListMenu(
                 context: context,
                 title: Text('showTextPopupMenu'),
                 barrierDismissible: true,
                 items: [
-                  TextPopupActionItem(
+                  TextMenuItem(
                     text: Text('test3'),
                     action: () => print('test3'),
                   ),
-                  TextPopupActionItem(
+                  TextMenuItem(
                     text: Text('test4'),
                     action: () => print('test4'),
                   ),

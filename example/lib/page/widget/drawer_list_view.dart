@@ -105,14 +105,14 @@ class _MyDrawerState extends State<MyDrawer> {
   void initState() {
     super.initState();
     _items = [
-      DrawerPage(title: 'DrawerListViewPage', icon: Icons.home, view: DrawerListViewPage(), selection: DrawerSelection.indexPage),
-      DrawerPage(title: '_PageA', icon: Icons.favorite, view: _PageA(), selection: DrawerSelection.pageA),
-      DrawerPage(title: '_PageB', icon: Icons.history, view: _PageB(), selection: DrawerSelection.pageB),
-      DrawerPage(title: '_PageC', icon: Icons.file_download, view: _PageC(), selection: DrawerSelection.pageC),
-      DrawerDivider(divider: Divider(thickness: 1, height: 1)),
-      DrawerAction(title: 'ActionA', icon: Icons.cached, action: () => print('ActionA')),
-      DrawerAction(title: 'ActionB', icon: Icons.feedback, action: () => print('ActionB')),
-      DrawerAction(title: 'ActionC', icon: Icons.info, action: () => print('ActionC')),
+      DrawerPage.simple('DrawerListViewPage', Icons.home, DrawerListViewPage(), DrawerSelection.indexPage),
+      DrawerPage.simple('_PageA', Icons.favorite, _PageA(), DrawerSelection.pageA),
+      DrawerPage.simple('_PageB', Icons.history, _PageB(), DrawerSelection.pageB),
+      DrawerPage.simple('_PageC', Icons.file_download, _PageC(), DrawerSelection.pageC),
+      DrawerDivider(Divider(thickness: 1, height: 1)),
+      DrawerAction.simple('ActionA', Icons.cached, () => print('ActionA')),
+      DrawerAction.simple('ActionB', Icons.feedback, () => print('ActionB')),
+      DrawerAction.simple('ActionC', Icons.info, () => print('ActionC')),
     ];
   }
 

@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 
 /// [SliverAppBarDelegate] is an implementation of [SliverPersistentHeaderDelegate] with a [PreferredSize] child.
@@ -27,15 +25,16 @@ class SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   }
 }
 
-/// [SliverAppBarSizedDelegate] is an implementation of [SliverPersistentHeaderDelegate] with size setting and a child.
+/// [SliverAppBarSizedDelegate] is an implementation of [SliverPersistentHeaderDelegate] with size setting and a [Widget] child.
 class SliverAppBarSizedDelegate extends SliverPersistentHeaderDelegate {
   const SliverAppBarSizedDelegate({
     @required this.minHeight,
     @required this.maxHeight,
     @required this.child,
-  }) : assert(minHeight != null),
-       assert(maxHeight != null),
-       assert(child != null);
+  })  : assert(minHeight != null),
+        assert(maxHeight != null),
+        assert(minHeight <= maxHeight),
+        assert(child != null);
 
   final double minHeight;
   final double maxHeight;
@@ -45,7 +44,7 @@ class SliverAppBarSizedDelegate extends SliverPersistentHeaderDelegate {
   double get minExtent => minHeight;
 
   @override
-  double get maxExtent => math.max(maxHeight, minHeight);
+  double get maxExtent => maxHeight;
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
@@ -57,4 +56,3 @@ class SliverAppBarSizedDelegate extends SliverPersistentHeaderDelegate {
     return maxHeight != oldDelegate.maxHeight || minHeight != oldDelegate.minHeight || child != oldDelegate.child;
   }
 }
-
