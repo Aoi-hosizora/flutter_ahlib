@@ -45,7 +45,7 @@ class ScrollMoreController extends ScrollController {
   // ================================================================================
 
   /// Scroll with [Curves.easeOutCirc] with 500ms duration.
-  void scrollWithAnimate(double offset, {Curve curve = Curves.easeOutCirc, Duration duration = const Duration(milliseconds: 500)}) {
+  void scrollWithAnimate(double offset, {Curve curve = Curves.easeInOutCubic, Duration duration = const Duration(milliseconds: 500)}) {
     animateTo(
       offset,
       curve: curve,

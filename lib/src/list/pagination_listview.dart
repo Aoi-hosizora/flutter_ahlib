@@ -24,7 +24,7 @@ class PaginationListView<T> extends StatefulWidget {
     this.updateOnlyIfNotEmpty = false,
     this.refreshFirst = true,
     this.onStateChanged,
-    this.placeholderSetting,
+    this.placeholderSetting = const PlaceholderSetting(),
     this.controller,
     @required this.itemBuilder,
     this.separator,
@@ -169,6 +169,7 @@ class PaginationListView<T> extends StatefulWidget {
 class _PaginationListViewState<T> extends State<PaginationListView<T>> with AutomaticKeepAliveClientMixin<PaginationListView<T>> {
   GlobalKey<AppendIndicatorState> _appendIndicatorKey;
   GlobalKey<RefreshIndicatorState> _refreshIndicatorKey;
+  var notShortAndBottom = false;
   PlaceholderState _forceState;
   var _loading = false;
   var _errorMessage = '';
@@ -189,6 +190,13 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
 
     _nextPage = widget.initialPage;
     _nextMaxId = widget.initialMaxId;
+  }
+
+  bool _onScroll(ScrollNotification s) {
+    bool short = s.metrics.maxScrollExtent == 0;
+    bool bottom = s.metrics.pixels >= s.metrics.maxScrollExtent && !s.metrics.outOfRange;
+    notShortAndBottom = !short && bottom;
+    return false;
   }
 
   Future<void> _getData({@required bool reset}) async {
@@ -235,7 +243,9 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
             widget.data.addAll(list);
           } else {
             widget.data.addAll(list);
-            widget.controller?.scrollDown();
+            if (notShortAndBottom) {
+              widget.controller?.scrollDown(); // <<<
+            }
           }
           _nextPage++;
           widget.onAppend?.call(list);
@@ -336,16 +346,19 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
                   children: [
                     if (widget.topWidget != null) widget.topWidget,
                     Expanded(
-                      child: Scrollbar(
-                        child: ListView.separated(
-                          controller: widget.controller,
-                          padding: widget.padding,
-                          shrinkWrap: widget.shrinkWrap ?? false,
-                          physics: widget.physics,
-                          reverse: widget.reverse ?? false,
-                          itemCount: widget.data.length,
-                          separatorBuilder: widget.separatorBuilder ?? (c, idx) => widget.separator ?? SizedBox(height: 0),
-                          itemBuilder: (c, idx) => widget.itemBuilder(c, widget.data[idx]),
+                      child: NotificationListener<ScrollNotification>(
+                        onNotification: (s) => _onScroll(s),
+                        child: Scrollbar(
+                          child: ListView.separated(
+                            controller: widget.controller,
+                            padding: widget.padding,
+                            shrinkWrap: widget.shrinkWrap ?? false,
+                            physics: widget.physics,
+                            reverse: widget.reverse ?? false,
+                            itemCount: widget.data.length,
+                            separatorBuilder: widget.separatorBuilder ?? (c, idx) => widget.separator ?? SizedBox(height: 0),
+                            itemBuilder: (c, idx) => widget.itemBuilder(c, widget.data[idx]),
+                          ),
                         ),
                       ),
                     ),

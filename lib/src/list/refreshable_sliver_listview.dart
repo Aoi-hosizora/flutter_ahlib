@@ -16,7 +16,7 @@ class RefreshableSliverListView<T> extends StatefulWidget {
     this.clearWhenError = false,
     this.refreshFirst = true,
     this.onStateChanged,
-    this.placeholderSetting,
+    this.placeholderSetting = const PlaceholderSetting(),
     this.outerController,
     this.controller,
     this.hasOverlapAbsorber = false,

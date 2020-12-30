@@ -24,7 +24,7 @@ class PaginationSliverListView<T> extends StatefulWidget {
     this.updateOnlyIfNotEmpty = false,
     this.refreshFirst = true,
     this.onStateChanged,
-    this.placeholderSetting,
+    this.placeholderSetting = const PlaceholderSetting(),
     this.outerController,
     this.controller,
     this.hasOverlapAbsorber = false,
@@ -206,7 +206,7 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
             widget.data.addAll(list);
           } else {
             widget.data.addAll(list);
-            _scrollDown(widget.controller); // ???
+            _scrollDown(widget.controller); // <<<
           }
           _nextPage++;
           widget.onAppend?.call(list);
