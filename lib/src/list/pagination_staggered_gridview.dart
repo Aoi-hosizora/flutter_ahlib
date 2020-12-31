@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/src/list/append_indicator.dart';
 import 'package:flutter_ahlib/src/list/updatable_dataview.dart';
 import 'package:flutter_ahlib/src/widget/placeholder_text.dart';
+import 'package:flutter_ahlib/src/util/flutter_extensions.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 /// Pagination [StaggeredGridView] is an implementation of [PaginationDataView], with
@@ -19,17 +20,18 @@ class PaginationStaggeredGridView<T> extends PaginationDataView<T> {
     this.scrollController,
     @required this.itemBuilder,
     this.padding,
-    this.physics,
-    this.reverse,
-    this.shrinkWrap,
+    this.physics = const AlwaysScrollableScrollPhysics(),
+    this.reverse = false,
+    this.shrinkWrap = false,
+    // ===================================
     @required this.staggeredTileBuilder,
     @required this.crossAxisCount,
-    this.mainAxisSpacing,
-    this.crossAxisSpacing,
-    this.innerCrossAxisAlignment,
+    this.mainAxisSpacing = 0.0,
+    this.crossAxisSpacing = 0.0,
+    this.innerCrossAxisAlignment = CrossAxisAlignment.center,
+    this.outerCrossAxisAlignment = CrossAxisAlignment.center,
     this.innerTopWidget,
     this.innerBottomWidget,
-    this.outerCrossAxisAlignment,
     this.outerTopWidget,
     this.outerBottomWidget,
   })  : assert(data != null && strategy != null && (getDataByOffset == null || getDataBySeek == null)),
@@ -40,11 +42,11 @@ class PaginationStaggeredGridView<T> extends PaginationDataView<T> {
         assert(staggeredTileBuilder != null && crossAxisCount != null),
         super(key: key);
 
-  /// List data, need to create this outside.
+  /// The list of scored data, need to be created out of widget.
   @override
   final List<T> data;
 
-  /// The pagination strategy for [PaginationDataView].
+  /// The pagination strategy.
   @override
   final PaginationStrategy strategy;
 
@@ -56,15 +58,15 @@ class PaginationStaggeredGridView<T> extends PaginationDataView<T> {
   @override
   final Future<SeekList<T>> Function({dynamic maxId}) getDataBySeek;
 
-  /// The setting for [UpdatableDataView].
+  /// Some behavior and display settings.
   @override
   final UpdatableDataViewSetting setting;
 
-  /// The pagination setting for [PaginationDataView].
+  /// Some pagination settings.
   @override
   final PaginationDataViewSetting paginationSetting;
 
-  /// The controller for [UpdatableDataView].
+  /// The controller of the behavior.
   @override
   final UpdatableDataViewController controller;
 
@@ -104,17 +106,17 @@ class PaginationStaggeredGridView<T> extends PaginationDataView<T> {
   /// The crossAxisSpacing for [StaggeredGridView]
   final double crossAxisSpacing;
 
-  /// The crossAxisAlignment for inner [Column].
+  /// The crossAxisAlignment for inner [Column] in [PlaceholderText].
   final CrossAxisAlignment innerCrossAxisAlignment;
+
+  /// The crossAxisAlignment for outer [Column] out of [PlaceholderText].
+  final CrossAxisAlignment outerCrossAxisAlignment;
 
   /// The widget before [StaggeredGridView] in [PlaceholderText].
   final Widget innerTopWidget;
 
   /// The widget after [StaggeredGridView] in [PlaceholderText].
   final Widget innerBottomWidget;
-
-  /// The crossAxisAlignment for outer [Column].
-  final CrossAxisAlignment outerCrossAxisAlignment;
 
   /// The widget before [StaggeredGridView] out of [PlaceholderText].
   final Widget outerTopWidget;
@@ -127,8 +129,9 @@ class PaginationStaggeredGridView<T> extends PaginationDataView<T> {
 }
 
 class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGridView<T>> with AutomaticKeepAliveClientMixin<PaginationStaggeredGridView<T>> {
-  GlobalKey<AppendIndicatorState> _appendIndicatorKey;
-  GlobalKey<RefreshIndicatorState> _refreshIndicatorKey;
+  final _appendIndicatorKey = GlobalKey<AppendIndicatorState>();
+  final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
+  var _downScrollable = false;
   PlaceholderState _forceState;
   var _loading = false;
   var _errorMessage = '';
@@ -138,8 +141,6 @@ class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGrid
   @override
   void initState() {
     super.initState();
-    _appendIndicatorKey = GlobalKey<AppendIndicatorState>();
-    _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
     if (widget.setting.refreshFirst) {
       _forceState = PlaceholderState.loading;
       WidgetsBinding.instance.addPostFrameCallback((_) => _refreshIndicatorKey?.currentState?.show());
@@ -157,10 +158,16 @@ class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGrid
     super.dispose();
   }
 
+  bool _onScroll(ScrollNotification s) {
+    _downScrollable = !s.isShortScroll() && s.isInBottom();
+    return false;
+  }
+
   Future<void> _getData({@required bool reset}) async {
     _forceState = null;
     return widget.getDataCore(
       reset: reset,
+      downScrollable: _downScrollable,
       setLoading: (l) => _loading = l,
       setErrorMessage: (e) => _errorMessage = e,
       setNextPage: (p) => _nextPage = p,
@@ -179,6 +186,22 @@ class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGrid
   @override
   Widget build(BuildContext context) {
     super.build(context);
+
+    var view = StaggeredGridView.countBuilder(
+      controller: widget.scrollController,
+      padding: widget.padding,
+      physics: widget.physics,
+      reverse: widget.reverse ?? false,
+      shrinkWrap: widget.shrinkWrap ?? false,
+      // ===================================
+      staggeredTileBuilder: widget.staggeredTileBuilder,
+      crossAxisCount: widget.crossAxisCount,
+      mainAxisSpacing: widget.mainAxisSpacing ?? 0,
+      crossAxisSpacing: widget.crossAxisSpacing ?? 0,
+      itemCount: widget.data.length,
+      itemBuilder: (c, idx) => widget.itemBuilder(c, widget.data[idx]),
+    );
+
     return AppendIndicator(
       key: _appendIndicatorKey,
       onAppend: () => _getData(reset: false),
@@ -203,23 +226,15 @@ class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGrid
                   children: [
                     if (widget.innerTopWidget != null) widget.innerTopWidget,
                     Expanded(
-                      child: Scrollbar(
-                        child: StaggeredGridView.countBuilder(
-                          // ===================================
-                          controller: widget.scrollController,
-                          padding: widget.padding,
-                          physics: widget.physics,
-                          reverse: widget.reverse ?? false,
-                          shrinkWrap: widget.shrinkWrap ?? false,
-                          // ===================================
-                          staggeredTileBuilder: widget.staggeredTileBuilder,
-                          crossAxisCount: widget.crossAxisCount,
-                          mainAxisSpacing: widget.mainAxisSpacing ?? 0,
-                          crossAxisSpacing: widget.crossAxisSpacing ?? 0,
-                          // ===================================
-                          itemCount: widget.data.length,
-                          itemBuilder: (c, idx) => widget.itemBuilder(c, widget.data[idx]),
-                        ),
+                      child: NotificationListener<ScrollNotification>(
+                        onNotification: (s) => _onScroll(s),
+                        child: widget.setting.showScrollbar
+                            ? Scrollbar(
+                                thickness: widget.setting.scrollbarThickness,
+                                radius: widget.setting.scrollbarRadius,
+                                child: view,
+                              )
+                            : view,
                       ),
                     ),
                     if (widget.innerBottomWidget != null) widget.innerBottomWidget,

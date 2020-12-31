@@ -14,24 +14,24 @@ class RefreshableListView<T> extends RefreshableDataView<T> {
     this.scrollController,
     @required this.itemBuilder,
     this.padding,
-    this.physics,
-    this.reverse,
-    this.shrinkWrap,
+    this.physics = const AlwaysScrollableScrollPhysics(),
+    this.reverse = false,
+    this.shrinkWrap = false,
+    // ===================================
     this.separator,
-    this.separatorBuilder,
-    this.innerCrossAxisAlignment,
+    this.innerCrossAxisAlignment = CrossAxisAlignment.center,
+    this.outerCrossAxisAlignment = CrossAxisAlignment.center,
     this.innerTopWidget,
     this.innerBottomWidget,
-    this.outerCrossAxisAlignment,
     this.outerTopWidget,
     this.outerBottomWidget,
   })  : assert(data != null && getData != null),
         assert(setting != null),
         assert(itemBuilder != null),
-        assert(separator == null || separatorBuilder == null),
+        assert(separator == null),
         super(key: key);
 
-  /// List data, need to create this outside.
+  /// The list of scored data, need to be created out of widget.
   @override
   final List<T> data;
 
@@ -39,11 +39,11 @@ class RefreshableListView<T> extends RefreshableDataView<T> {
   @override
   final Future<List<T>> Function() getData;
 
-  /// The setting for [UpdatableDataView].
+  /// Some behavior and display settings.
   @override
   final UpdatableDataViewSetting setting;
 
-  /// The controller for [UpdatableDataView].
+  /// The controller of the behavior.
   @override
   final UpdatableDataViewController controller;
 
@@ -59,11 +59,11 @@ class RefreshableListView<T> extends RefreshableDataView<T> {
   @override
   final EdgeInsetsGeometry padding;
 
-  /// The physics for inner [ListView].
+  /// The physics for [ListView].
   @override
   final ScrollPhysics physics;
 
-  /// The reverse for inner [ListView].
+  /// The reverse for [ListView].
   @override
   final bool reverse;
 
@@ -74,20 +74,17 @@ class RefreshableListView<T> extends RefreshableDataView<T> {
   /// The separator between items in [ListView].
   final Widget separator;
 
-  /// The separatorBuilder for [ListView].
-  final Widget Function(BuildContext, int) separatorBuilder;
-
-  /// The crossAxisAlignment for inner [Column].
+  /// The crossAxisAlignment for inner [Column] in [PlaceholderText].
   final CrossAxisAlignment innerCrossAxisAlignment;
+
+  /// The crossAxisAlignment for outer [Column] out of [PlaceholderText].
+  final CrossAxisAlignment outerCrossAxisAlignment;
 
   /// The widget before [ListView] in [PlaceholderText].
   final Widget innerTopWidget;
 
   /// The widget after [ListView] in [PlaceholderText].
   final Widget innerBottomWidget;
-
-  /// The crossAxisAlignment for outer [Column].
-  final CrossAxisAlignment outerCrossAxisAlignment;
 
   /// The widget before [ListView] out of [PlaceholderText].
   final Widget outerTopWidget;
@@ -100,7 +97,7 @@ class RefreshableListView<T> extends RefreshableDataView<T> {
 }
 
 class _RefreshableListViewState<T> extends State<RefreshableListView<T>> with AutomaticKeepAliveClientMixin<RefreshableListView<T>> {
-  GlobalKey<RefreshIndicatorState> _refreshIndicatorKey;
+  final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
   PlaceholderState _forceState;
   var _loading = false;
   var _errorMessage = '';
@@ -108,7 +105,6 @@ class _RefreshableListViewState<T> extends State<RefreshableListView<T>> with Au
   @override
   void initState() {
     super.initState();
-    _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
     if (widget.setting.refreshFirst) {
       _forceState = PlaceholderState.loading;
       WidgetsBinding.instance.addPostFrameCallback((_) => _refreshIndicatorKey?.currentState?.show());
@@ -139,6 +135,19 @@ class _RefreshableListViewState<T> extends State<RefreshableListView<T>> with Au
   @override
   Widget build(BuildContext context) {
     super.build(context);
+
+    var view = ListView.separated(
+      controller: widget.scrollController,
+      padding: widget.padding,
+      physics: widget.physics,
+      reverse: widget.reverse ?? false,
+      shrinkWrap: widget.shrinkWrap ?? false,
+      // ===================================
+      separatorBuilder: (c, idx) => widget.separator ?? SizedBox(height: 0),
+      itemCount: widget.data.length,
+      itemBuilder: (c, idx) => widget.itemBuilder(c, widget.data[idx]),
+    );
+
     return RefreshIndicator(
       key: _refreshIndicatorKey,
       onRefresh: () => _getData(),
@@ -160,22 +169,13 @@ class _RefreshableListViewState<T> extends State<RefreshableListView<T>> with Au
                 children: [
                   if (widget.innerTopWidget != null) widget.innerTopWidget,
                   Expanded(
-                    child: Scrollbar(
-                      child: ListView.separated(
-                        // ===================================
-                        controller: widget.scrollController,
-                        padding: widget.padding,
-                        physics: widget.physics,
-                        reverse: widget.reverse ?? false,
-                        shrinkWrap: widget.shrinkWrap ?? false,
-                        // ===================================
-                        separatorBuilder: widget.separatorBuilder ?? (c, idx) => widget.separator ?? SizedBox(height: 0),
-                        // ===================================
-                        itemCount: widget.data.length,
-                        itemBuilder: (c, idx) => widget.itemBuilder(c, widget.data[idx]),
-                        // ===================================
-                      ),
-                    ),
+                    child: widget.setting.showScrollbar
+                        ? Scrollbar(
+                            thickness: widget.setting.scrollbarThickness,
+                            radius: widget.setting.scrollbarRadius,
+                            child: view,
+                          )
+                        : view,
                   ),
                   if (widget.innerBottomWidget != null) widget.innerBottomWidget,
                 ],

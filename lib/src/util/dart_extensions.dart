@@ -1,4 +1,4 @@
-/// [BoolExtension] is a helper extension for [bool].
+/// A helper extension for [bool].
 extension BoolExtension on bool {
   /// Returns value if condition is true.
   T ifTrue<T>(T Function() func, [T Function() fallbackFunc]) {
@@ -26,7 +26,7 @@ extension BoolExtension on bool {
   }
 }
 
-/// [ListExtension] is a helper extension for [List].
+/// A helper extension for [List].
 extension ListExtension<T> on List<T> {
   /// Returns a new list with separator between items.
   List<T> separate(T separator) {

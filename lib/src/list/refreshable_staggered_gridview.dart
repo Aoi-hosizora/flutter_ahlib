@@ -15,17 +15,18 @@ class RefreshableStaggeredGridView<T> extends RefreshableDataView<T> {
     this.scrollController,
     @required this.itemBuilder,
     this.padding,
-    this.physics,
-    this.reverse,
-    this.shrinkWrap,
+    this.physics = const AlwaysScrollableScrollPhysics(),
+    this.reverse = false,
+    this.shrinkWrap = false,
+    // ===================================
     @required this.staggeredTileBuilder,
     @required this.crossAxisCount,
-    this.mainAxisSpacing,
-    this.crossAxisSpacing,
-    this.innerCrossAxisAlignment,
+    this.mainAxisSpacing = 0.0,
+    this.crossAxisSpacing = 0.0,
+    this.innerCrossAxisAlignment = CrossAxisAlignment.center,
+    this.outerCrossAxisAlignment = CrossAxisAlignment.center,
     this.innerTopWidget,
     this.innerBottomWidget,
-    this.outerCrossAxisAlignment,
     this.outerTopWidget,
     this.outerBottomWidget,
   })  : assert(data != null && getData != null),
@@ -34,7 +35,7 @@ class RefreshableStaggeredGridView<T> extends RefreshableDataView<T> {
         assert(staggeredTileBuilder != null && crossAxisCount != null),
         super(key: key);
 
-  /// List data, need to create this outside.
+  /// The list of scored data, need to be created out of widget.
   @override
   final List<T> data;
 
@@ -42,11 +43,11 @@ class RefreshableStaggeredGridView<T> extends RefreshableDataView<T> {
   @override
   final Future<List<T>> Function() getData;
 
-  /// The setting for [UpdatableDataView].
+  /// Some behavior and display settings.
   @override
   final UpdatableDataViewSetting setting;
 
-  /// The controller for [UpdatableDataView].
+  /// The controller of the behavior.
   @override
   final UpdatableDataViewController controller;
 
@@ -86,22 +87,22 @@ class RefreshableStaggeredGridView<T> extends RefreshableDataView<T> {
   /// The crossAxisSpacing for [StaggeredGridView]
   final double crossAxisSpacing;
 
-  /// The crossAxisAlignment for [Column] in [PlaceholderText].
+  /// The crossAxisAlignment for inner [Column] in [PlaceholderText].
   final CrossAxisAlignment innerCrossAxisAlignment;
 
-  /// The widget before inner [StaggeredGridView].
-  final Widget innerTopWidget;
-
-  /// The widget after inner [StaggeredGridView].
-  final Widget innerBottomWidget;
-
-  /// The crossAxisAlignment for outer [Column].
+  /// The crossAxisAlignment for outer [Column] out of [PlaceholderText].
   final CrossAxisAlignment outerCrossAxisAlignment;
 
-  /// The widget before [ListView] out of [PlaceholderText].
+  /// The widget before [StaggeredGridView] in [PlaceholderText].
+  final Widget innerTopWidget;
+
+  /// The widget after [StaggeredGridView] in [PlaceholderText].
+  final Widget innerBottomWidget;
+
+  /// The widget before [StaggeredGridView] out of [PlaceholderText].
   final Widget outerTopWidget;
 
-  /// The widget after [ListView] out of [PlaceholderText].
+  /// The widget after [StaggeredGridView] out of [PlaceholderText].
   final Widget outerBottomWidget;
 
   @override
@@ -109,7 +110,7 @@ class RefreshableStaggeredGridView<T> extends RefreshableDataView<T> {
 }
 
 class _RefreshableStaggeredGridViewState<T> extends State<RefreshableStaggeredGridView<T>> with AutomaticKeepAliveClientMixin<RefreshableStaggeredGridView<T>> {
-  GlobalKey<RefreshIndicatorState> _refreshIndicatorKey;
+  final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
   PlaceholderState _forceState;
   var _loading = false;
   var _errorMessage = '';
@@ -117,7 +118,6 @@ class _RefreshableStaggeredGridViewState<T> extends State<RefreshableStaggeredGr
   @override
   void initState() {
     super.initState();
-    _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
     if (widget.setting.refreshFirst) {
       _forceState = PlaceholderState.loading;
       WidgetsBinding.instance.addPostFrameCallback((_) => _refreshIndicatorKey?.currentState?.show());
@@ -148,6 +148,22 @@ class _RefreshableStaggeredGridViewState<T> extends State<RefreshableStaggeredGr
   @override
   Widget build(BuildContext context) {
     super.build(context);
+
+    var view = StaggeredGridView.countBuilder(
+      controller: widget.scrollController,
+      padding: widget.padding,
+      physics: widget.physics,
+      reverse: widget.reverse ?? false,
+      shrinkWrap: widget.shrinkWrap ?? false,
+      // ===================================
+      staggeredTileBuilder: widget.staggeredTileBuilder,
+      crossAxisCount: widget.crossAxisCount,
+      mainAxisSpacing: widget.mainAxisSpacing ?? 0,
+      crossAxisSpacing: widget.crossAxisSpacing ?? 0,
+      itemCount: widget.data.length,
+      itemBuilder: (c, idx) => widget.itemBuilder(c, widget.data[idx]),
+    );
+
     return RefreshIndicator(
       key: _refreshIndicatorKey,
       onRefresh: () => _getData(),
@@ -169,25 +185,13 @@ class _RefreshableStaggeredGridViewState<T> extends State<RefreshableStaggeredGr
                 children: [
                   if (widget.innerTopWidget != null) widget.innerTopWidget,
                   Expanded(
-                    child: Scrollbar(
-                      child: StaggeredGridView.countBuilder(
-                        // ===================================
-                        controller: widget.scrollController,
-                        padding: widget.padding,
-                        physics: widget.physics,
-                        reverse: widget.reverse ?? false,
-                        shrinkWrap: widget.shrinkWrap ?? false,
-                        // ===================================
-                        staggeredTileBuilder: widget.staggeredTileBuilder,
-                        crossAxisCount: widget.crossAxisCount,
-                        mainAxisSpacing: widget.mainAxisSpacing ?? 0,
-                        crossAxisSpacing: widget.crossAxisSpacing ?? 0,
-                        // ===================================
-                        itemCount: widget.data.length,
-                        itemBuilder: (c, idx) => widget.itemBuilder(c, widget.data[idx]),
-                        // ===================================
-                      ),
-                    ),
+                    child: widget.setting.showScrollbar
+                        ? Scrollbar(
+                            thickness: widget.setting.scrollbarThickness,
+                            radius: widget.setting.scrollbarRadius,
+                            child: view,
+                          )
+                        : view,
                   ),
                   if (widget.innerBottomWidget != null) widget.innerBottomWidget,
                 ],

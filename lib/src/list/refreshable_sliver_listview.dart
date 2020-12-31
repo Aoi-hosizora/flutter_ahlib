@@ -15,9 +15,10 @@ class RefreshableSliverListView<T> extends RefreshableDataView<T> {
     this.scrollController,
     @required this.itemBuilder,
     this.padding,
-    this.physics,
-    this.reverse,
-    this.shrinkWrap,
+    this.physics = const AlwaysScrollableScrollPhysics(),
+    this.reverse = false,
+    this.shrinkWrap = false,
+    // ===================================
     this.hasOverlapAbsorber = false,
     this.separator,
     this.innerTopSliver,
@@ -28,7 +29,7 @@ class RefreshableSliverListView<T> extends RefreshableDataView<T> {
         assert(hasOverlapAbsorber != null),
         super(key: key);
 
-  /// List data, need to create this outside.
+  /// The list of scored data, need to be created out of widget.
   @override
   final List<T> data;
 
@@ -36,11 +37,11 @@ class RefreshableSliverListView<T> extends RefreshableDataView<T> {
   @override
   final Future<List<T>> Function() getData;
 
-  /// The setting for [UpdatableDataView].
+  /// Some behavior and display settings.
   @override
   final UpdatableDataViewSetting setting;
 
-  /// The controller for [UpdatableDataView].
+  /// The controller of the behavior.
   @override
   final UpdatableDataViewController controller;
 
@@ -71,7 +72,7 @@ class RefreshableSliverListView<T> extends RefreshableDataView<T> {
   /// Check if outer [NestedScrollView] use [SliverOverlapAbsorber].
   final bool hasOverlapAbsorber;
 
-  /// The separator between items in [ListView].
+  /// The separator between items in [SliverList].
   final Widget separator;
 
   /// The widget before [SliverList] in [PlaceholderText].
@@ -85,7 +86,7 @@ class RefreshableSliverListView<T> extends RefreshableDataView<T> {
 }
 
 class _RefreshableSliverListViewState<T> extends State<RefreshableSliverListView<T>> with AutomaticKeepAliveClientMixin<RefreshableSliverListView<T>> {
-  GlobalKey<RefreshIndicatorState> _refreshIndicatorKey;
+  final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
   PlaceholderState _forceState;
   var _loading = false;
   var _errorMessage = '';
@@ -93,7 +94,6 @@ class _RefreshableSliverListViewState<T> extends State<RefreshableSliverListView
   @override
   void initState() {
     super.initState();
-    _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
     if (widget.setting.refreshFirst) {
       _forceState = PlaceholderState.loading;
       WidgetsBinding.instance.addPostFrameCallback((_) => _refreshIndicatorKey?.currentState?.show());
@@ -124,6 +124,38 @@ class _RefreshableSliverListViewState<T> extends State<RefreshableSliverListView
   @override
   Widget build(BuildContext context) {
     super.build(context);
+
+    var view = CustomScrollView(
+      controller: widget.scrollController,
+      physics: widget.physics,
+      reverse: widget.reverse ?? false,
+      shrinkWrap: widget.shrinkWrap ?? false,
+      // ===================================
+      slivers: [
+        if (widget.hasOverlapAbsorber)
+          SliverOverlapInjector(
+            handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
+          ),
+        if (widget.innerTopSliver != null) widget.innerTopSliver,
+        SliverPadding(
+          padding: widget.padding ?? EdgeInsets.zero,
+          sliver: SliverList(
+            delegate: widget.separator == null
+                ? SliverChildBuilderDelegate(
+                    (c, idx) => widget.itemBuilder(c, widget.data[idx]),
+                    childCount: widget.data.length,
+                  )
+                : SliverSeparatedBuilderDelegate(
+                    (c, idx) => widget.itemBuilder(c, widget.data[idx]),
+                    childCount: widget.data.length,
+                    separator: widget.separator,
+                  ),
+          ),
+        ),
+        if (widget.innerBottomSliver != null) widget.innerBottomSliver,
+      ],
+    );
+
     return RefreshIndicator(
       key: _refreshIndicatorKey,
       onRefresh: () => _getData(),
@@ -135,40 +167,13 @@ class _RefreshableSliverListViewState<T> extends State<RefreshableSliverListView
         errorText: _errorMessage,
         onChanged: widget.setting.onStateChanged,
         setting: widget.setting.placeholderSetting,
-        childBuilder: (c) => Scrollbar(
-          child: CustomScrollView(
-            // ===================================
-            controller: widget.scrollController,
-            physics: widget.physics,
-            reverse: widget.reverse ?? false,
-            shrinkWrap: widget.shrinkWrap ?? false,
-            // ===================================
-            slivers: [
-              if (widget.hasOverlapAbsorber)
-                SliverOverlapInjector(
-                  handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
-                ),
-              if (widget.innerTopSliver != null) widget.innerTopSliver,
-              SliverPadding(
-                padding: widget.padding ?? EdgeInsets.zero,
-                sliver: SliverList(
-                  delegate: widget.separator == null
-                      ? SliverChildBuilderDelegate(
-                          (c, idx) => widget.itemBuilder(c, widget.data[idx]),
-                          childCount: widget.data.length,
-                        )
-                      : SliverSeparatedBuilderDelegate(
-                          (c, idx) => widget.itemBuilder(c, widget.data[idx]),
-                          childCount: widget.data.length,
-                          separator: widget.separator,
-                        ),
-                ),
-              ),
-              if (widget.innerBottomSliver != null) widget.innerBottomSliver,
-            ],
-            // ===================================
-          ),
-        ),
+        childBuilder: (c) => widget.setting.showScrollbar
+            ? Scrollbar(
+                thickness: widget.setting.scrollbarThickness,
+                radius: widget.setting.scrollbarRadius,
+                child: view,
+              )
+            : view,
       ),
     );
   }

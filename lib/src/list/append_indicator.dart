@@ -10,10 +10,7 @@ const _kPointerMovingThreshold = 30.0;
 
 /// Represents indicator's state.
 enum _AppendIndicatorMode {
-  /// Indicate is now positioned animating.
   none,
-
-  /// Indicate is now showing and refreshing.
   appending,
 }
 

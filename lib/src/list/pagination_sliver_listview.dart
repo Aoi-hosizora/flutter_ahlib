@@ -3,6 +3,7 @@ import 'package:flutter_ahlib/src/list/append_indicator.dart';
 import 'package:flutter_ahlib/src/list/updatable_dataview.dart';
 import 'package:flutter_ahlib/src/widget/placeholder_text.dart';
 import 'package:flutter_ahlib/src/widget/sliver_separated_delegate.dart';
+import 'package:flutter_ahlib/src/util/flutter_extensions.dart';
 
 /// Pagination [SliverList] is an implementation of [PaginationDataView], with
 /// [PlaceholderText], [AppendIndicator], [RefreshIndicator], [Scrollbar].
@@ -19,9 +20,10 @@ class PaginationSliverListView<T> extends PaginationDataView<T> {
     this.scrollController,
     @required this.itemBuilder,
     this.padding,
-    this.physics,
-    this.reverse,
-    this.shrinkWrap,
+    this.physics = const AlwaysScrollableScrollPhysics(),
+    this.reverse = false,
+    this.shrinkWrap = false,
+    // ===================================
     this.hasOverlapAbsorber = false,
     this.separator,
     this.innerTopSliver,
@@ -34,11 +36,11 @@ class PaginationSliverListView<T> extends PaginationDataView<T> {
         assert(hasOverlapAbsorber != null),
         super(key: key);
 
-  /// List data, need to create this outside.
+  /// The list of scored data, need to be created out of widget.
   @override
   final List<T> data;
 
-  /// The pagination strategy for [PaginationDataView].
+  /// The pagination strategy.
   @override
   final PaginationStrategy strategy;
 
@@ -50,11 +52,11 @@ class PaginationSliverListView<T> extends PaginationDataView<T> {
   @override
   final Future<SeekList<T>> Function({dynamic maxId}) getDataBySeek;
 
-  /// The setting for [UpdatableDataView].
+  /// Some behavior and display settings.
   @override
   final UpdatableDataViewSetting setting;
 
-  /// The pagination setting for [PaginationDataView].
+  /// Some pagination settings.
   @override
   final PaginationDataViewSetting paginationSetting;
 
@@ -89,7 +91,7 @@ class PaginationSliverListView<T> extends PaginationDataView<T> {
   /// Check if outer [NestedScrollView] use [SliverOverlapAbsorber].
   final bool hasOverlapAbsorber;
 
-  /// The separator between items in [ListView].
+  /// The separator between items in [SliverList].
   final Widget separator;
 
   /// The widget before [SliverList] in [PlaceholderText].
@@ -103,8 +105,9 @@ class PaginationSliverListView<T> extends PaginationDataView<T> {
 }
 
 class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T>> with AutomaticKeepAliveClientMixin<PaginationSliverListView<T>> {
-  GlobalKey<AppendIndicatorState> _appendIndicatorKey;
-  GlobalKey<RefreshIndicatorState> _refreshIndicatorKey;
+  final _appendIndicatorKey = GlobalKey<AppendIndicatorState>();
+  final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
+  var _downScrollable = false;
   PlaceholderState _forceState;
   var _loading = false;
   var _errorMessage = '';
@@ -114,8 +117,6 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
   @override
   void initState() {
     super.initState();
-    _appendIndicatorKey = GlobalKey<AppendIndicatorState>();
-    _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
     if (widget.setting.refreshFirst) {
       _forceState = PlaceholderState.loading;
       WidgetsBinding.instance.addPostFrameCallback((_) => _refreshIndicatorKey?.currentState?.show());
@@ -133,10 +134,16 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
     super.dispose();
   }
 
+  bool _onScroll(ScrollNotification s) {
+    _downScrollable = !s.isShortScroll() && s.isInBottom();
+    return false;
+  }
+
   Future<void> _getData({@required bool reset}) async {
     _forceState = null;
     return widget.getDataCore(
       reset: reset,
+      downScrollable: _downScrollable,
       setLoading: (l) => _loading = l,
       setErrorMessage: (e) => _errorMessage = e,
       setNextPage: (p) => _nextPage = p,
@@ -155,6 +162,38 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
   @override
   Widget build(BuildContext context) {
     super.build(context);
+
+    var view = CustomScrollView(
+      controller: widget.scrollController,
+      physics: widget.physics,
+      reverse: widget.reverse ?? false,
+      shrinkWrap: widget.shrinkWrap ?? false,
+      // ===================================
+      slivers: [
+        if (widget.hasOverlapAbsorber)
+          SliverOverlapInjector(
+            handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
+          ),
+        if (widget.innerTopSliver != null) widget.innerTopSliver,
+        SliverPadding(
+          padding: widget.padding ?? EdgeInsets.zero,
+          sliver: SliverList(
+            delegate: widget.separator == null
+                ? SliverChildBuilderDelegate(
+                    (c, idx) => widget.itemBuilder(c, widget.data[idx]),
+                    childCount: widget.data.length,
+                  )
+                : SliverSeparatedBuilderDelegate(
+                    (c, idx) => widget.itemBuilder(c, widget.data[idx]),
+                    childCount: widget.data.length,
+                    separator: widget.separator,
+                  ),
+          ),
+        ),
+        if (widget.innerBottomSliver != null) widget.innerBottomSliver,
+      ],
+    );
+
     return AppendIndicator(
       key: _appendIndicatorKey,
       onAppend: () => _getData(reset: false),
@@ -169,39 +208,15 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
           errorText: _errorMessage,
           onChanged: widget.setting.onStateChanged,
           setting: widget.setting.placeholderSetting,
-          childBuilder: (c) => Scrollbar(
-            child: CustomScrollView(
-              // ===================================
-              controller: widget.scrollController,
-              physics: widget.physics,
-              reverse: widget.reverse ?? false,
-              shrinkWrap: widget.shrinkWrap ?? false,
-              // ===================================
-              slivers: [
-                if (widget.hasOverlapAbsorber)
-                  SliverOverlapInjector(
-                    handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
-                  ),
-                if (widget.innerTopSliver != null) widget.innerTopSliver,
-                SliverPadding(
-                  padding: widget.padding ?? EdgeInsets.zero,
-                  sliver: SliverList(
-                    delegate: widget.separator == null
-                        ? SliverChildBuilderDelegate(
-                            (c, idx) => widget.itemBuilder(c, widget.data[idx]),
-                            childCount: widget.data.length,
-                          )
-                        : SliverSeparatedBuilderDelegate(
-                            (c, idx) => widget.itemBuilder(c, widget.data[idx]),
-                            childCount: widget.data.length,
-                            separator: widget.separator,
-                          ),
-                  ),
-                ),
-                if (widget.innerBottomSliver != null) widget.innerBottomSliver,
-              ],
-              // ===================================
-            ),
+          childBuilder: (c) => NotificationListener<ScrollNotification>(
+            onNotification: (s) => _onScroll(s),
+            child: widget.setting.showScrollbar
+                ? Scrollbar(
+                    thickness: widget.setting.scrollbarThickness,
+                    radius: widget.setting.scrollbarRadius,
+                    child: view,
+                  )
+                : view,
           ),
         ),
       ),

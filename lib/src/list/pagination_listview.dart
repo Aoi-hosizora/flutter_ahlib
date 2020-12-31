@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/src/list/append_indicator.dart';
 import 'package:flutter_ahlib/src/list/updatable_dataview.dart';
 import 'package:flutter_ahlib/src/widget/placeholder_text.dart';
+import 'package:flutter_ahlib/src/util/flutter_extensions.dart';
 
 /// Pagination [ListView] is an implementation of [PaginationDataView], with
 /// [PlaceholderText], [AppendIndicator], [RefreshIndicator], [Scrollbar] and [ListView].
@@ -18,15 +19,15 @@ class PaginationListView<T> extends PaginationDataView<T> {
     this.scrollController,
     @required this.itemBuilder,
     this.padding,
-    this.physics,
-    this.reverse,
-    this.shrinkWrap,
+    this.physics = const AlwaysScrollableScrollPhysics(),
+    this.reverse = false,
+    this.shrinkWrap = false,
+    // ===================================
     this.separator,
-    this.separatorBuilder,
-    this.innerCrossAxisAlignment,
+    this.innerCrossAxisAlignment = CrossAxisAlignment.center,
+    this.outerCrossAxisAlignment = CrossAxisAlignment.center,
     this.innerTopWidget,
     this.innerBottomWidget,
-    this.outerCrossAxisAlignment,
     this.outerTopWidget,
     this.outerBottomWidget,
   })  : assert(data != null && strategy != null && (getDataByOffset == null || getDataBySeek == null)),
@@ -34,14 +35,14 @@ class PaginationListView<T> extends PaginationDataView<T> {
         assert(strategy != PaginationStrategy.seekBased || getDataBySeek != null),
         assert(setting != null && paginationSetting != null),
         assert(itemBuilder != null),
-        assert(separator == null || separatorBuilder == null),
+        assert(separator == null),
         super(key: key);
 
-  /// List data, need to create this outside.
+  /// The list of scored data, need to be created out of widget.
   @override
   final List<T> data;
 
-  /// The pagination strategy for [PaginationDataView].
+  /// The pagination strategy.
   @override
   final PaginationStrategy strategy;
 
@@ -53,15 +54,15 @@ class PaginationListView<T> extends PaginationDataView<T> {
   @override
   final Future<SeekList<T>> Function({dynamic maxId}) getDataBySeek;
 
-  /// The setting for [UpdatableDataView].
+  /// Some behavior and display settings.
   @override
   final UpdatableDataViewSetting setting;
 
-  /// The pagination setting for [PaginationDataView].
+  /// Some pagination settings.
   @override
   final PaginationDataViewSetting paginationSetting;
 
-  /// The controller for [UpdatableDataView].
+  /// The controller of the behavior.
   @override
   final UpdatableDataViewController controller;
 
@@ -92,20 +93,17 @@ class PaginationListView<T> extends PaginationDataView<T> {
   /// The separator between items in [ListView].
   final Widget separator;
 
-  /// The separatorBuilder for [ListView].
-  final Widget Function(BuildContext, int) separatorBuilder;
-
-  /// The crossAxisAlignment for inner [Column].
+  /// The crossAxisAlignment for inner [Column] in [PlaceholderText].
   final CrossAxisAlignment innerCrossAxisAlignment;
+
+  /// The crossAxisAlignment for outer [Column] out of [PlaceholderText].
+  final CrossAxisAlignment outerCrossAxisAlignment;
 
   /// The widget before [ListView] in [PlaceholderText].
   final Widget innerTopWidget;
 
   /// The widget after [ListView] in [PlaceholderText].
   final Widget innerBottomWidget;
-
-  /// The crossAxisAlignment for outer [Column].
-  final CrossAxisAlignment outerCrossAxisAlignment;
 
   /// The widget before [ListView] out of [PlaceholderText].
   final Widget outerTopWidget;
@@ -118,8 +116,9 @@ class PaginationListView<T> extends PaginationDataView<T> {
 }
 
 class _PaginationListViewState<T> extends State<PaginationListView<T>> with AutomaticKeepAliveClientMixin<PaginationListView<T>> {
-  GlobalKey<AppendIndicatorState> _appendIndicatorKey;
-  GlobalKey<RefreshIndicatorState> _refreshIndicatorKey;
+  final _appendIndicatorKey = GlobalKey<AppendIndicatorState>();
+  final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
+  var _downScrollable = false;
   PlaceholderState _forceState;
   var _loading = false;
   var _errorMessage = '';
@@ -129,8 +128,6 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
   @override
   void initState() {
     super.initState();
-    _appendIndicatorKey = GlobalKey<AppendIndicatorState>();
-    _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
     if (widget.setting.refreshFirst) {
       _forceState = PlaceholderState.loading;
       WidgetsBinding.instance.addPostFrameCallback((_) => _refreshIndicatorKey?.currentState?.show());
@@ -148,10 +145,16 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
     super.dispose();
   }
 
+  bool _onScroll(ScrollNotification s) {
+    _downScrollable = !s.isShortScroll() && s.isInBottom();
+    return false;
+  }
+
   Future<void> _getData({@required bool reset}) async {
     _forceState = null;
     return widget.getDataCore(
       reset: reset,
+      downScrollable: _downScrollable,
       setLoading: (l) => _loading = l,
       setErrorMessage: (e) => _errorMessage = e,
       setNextPage: (p) => _nextPage = p,
@@ -170,6 +173,19 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
   @override
   Widget build(BuildContext context) {
     super.build(context);
+
+    var view = ListView.separated(
+      controller: widget.scrollController,
+      padding: widget.padding,
+      physics: widget.physics,
+      reverse: widget.reverse ?? false,
+      shrinkWrap: widget.shrinkWrap ?? false,
+      // ===================================
+      separatorBuilder: (c, idx) => widget.separator ?? SizedBox(height: 0),
+      itemCount: widget.data.length,
+      itemBuilder: (c, idx) => widget.itemBuilder(c, widget.data[idx]),
+    );
+
     return AppendIndicator(
       key: _appendIndicatorKey,
       onAppend: () => _getData(reset: false),
@@ -194,21 +210,15 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
                   children: [
                     if (widget.innerTopWidget != null) widget.innerTopWidget,
                     Expanded(
-                      child: Scrollbar(
-                        child: ListView.separated(
-                          // ===================================
-                          controller: widget.scrollController,
-                          padding: widget.padding,
-                          physics: widget.physics,
-                          reverse: widget.reverse ?? false,
-                          shrinkWrap: widget.shrinkWrap ?? false,
-                          // ===================================
-                          separatorBuilder: widget.separatorBuilder ?? (c, idx) => widget.separator ?? SizedBox(height: 0),
-                          // ===================================
-                          itemCount: widget.data.length,
-                          itemBuilder: (c, idx) => widget.itemBuilder(c, widget.data[idx]),
-                          // ===================================
-                        ),
+                      child: NotificationListener<ScrollNotification>(
+                        onNotification: (s) => _onScroll(s),
+                        child: widget.setting.showScrollbar
+                            ? Scrollbar(
+                                thickness: widget.setting.scrollbarThickness,
+                                radius: widget.setting.scrollbarRadius,
+                                child: view,
+                              )
+                            : view,
                       ),
                     ),
                     if (widget.innerBottomWidget != null) widget.innerBottomWidget,

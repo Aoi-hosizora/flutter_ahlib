@@ -30,12 +30,13 @@ http: ^0.12.2
     + `PlaceholderText`
     + `DrawerListView`
     + `IconText`
-    + `showIconPopupMenu()` `showTextPopupMenu()`
+    + `showPopupListMenu` `MenuItem` `TextMenuItem` `IconTextMenuItem` 
     + `ScrollFloatingActionButton` `ScrollFabController`
     + `LazyIndexedStack`
     + `SliverAppBarDelegate`
     + `SliverSeparatedBuilderDelegate` `SliverSeparatedListDelegate`
-    + `TextGroup`
+    + `TextGroup` `NormalGroupText` `LinkGroupText`
+    + `TabInPageNotification`
 + Image:
     + `LocalOrNetworkImageProvider`
     + `MultiImageStreamCompleter`
@@ -44,9 +45,9 @@ http: ^0.12.2
     + `Tuple2` ~ `Tuple6`
     + `hashObjects()`, `hash2()` ~ `hash6()`
     + `StateExtension`
-    + `ObjectExtension` `BoolExtension` `ListExtension`
-    + `StateExtension` `ScrollControllerExtension` `TextStyleExtension`
-    + `NotifiableData`
+    + `BoolExtension` `ListExtension`
+    + `StateExtension` `ScrollControllerExtension` `PageControllerExtension` `ScrollNotificationExtension`
+    + `NotifiableData` `NotifyReceiverMixin` `SimpleNotifyReceiver`
 + List:
     + `AppendIndicator`
     + `UpdatableDataView` `RefreshableDataView` `PaginationDataView` `UpdatableDataViewController`
