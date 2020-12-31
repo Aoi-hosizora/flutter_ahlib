@@ -31,7 +31,7 @@ http: ^0.12.2
     + `DrawerListView`
     + `IconText`
     + `showPopupListMenu` `MenuItem` `TextMenuItem` `IconTextMenuItem` 
-    + `ScrollAnimatedFab` `ScrollAnimatedFabController`
+    + `AnimatedFab` `ScrollAnimatedFab` `AnimatedFabController`
     + `LazyIndexedStack`
     + `SliverAppBarDelegate` `SliverAppBarSizedDelegate` `SliverSeparatedBuilderDelegate` `SliverSeparatedListDelegate`
     + `TextGroup` `NormalGroupText` `LinkGroupText`

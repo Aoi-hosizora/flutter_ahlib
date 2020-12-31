@@ -12,8 +12,8 @@ class _PlaceholderTextPageState extends State<PlaceholderTextPage> {
   var _state = PlaceholderState.loading;
 
   var _empty = false;
-  var _error = false;
   var _loading = false;
+  var _error = false;
 
   @override
   Widget build(BuildContext context) {
@@ -64,10 +64,10 @@ class _PlaceholderTextPageState extends State<PlaceholderTextPage> {
                 children: [
                   Text('empty'),
                   Switch(value: _empty, onChanged: (b) => mountedSetState(() => _empty = b)),
-                  Text('error'),
-                  Switch(value: _error, onChanged: (b) => mountedSetState(() => _error = b)),
                   Text('loading'),
                   Switch(value: _loading, onChanged: (b) => mountedSetState(() => _loading = b)),
+                  Text('error'),
+                  Switch(value: _error, onChanged: (b) => mountedSetState(() => _error = b)),
                 ],
               ),
             ),

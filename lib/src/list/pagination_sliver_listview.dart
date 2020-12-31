@@ -88,7 +88,7 @@ class PaginationSliverListView<T> extends PaginationDataView<T> {
   @override
   final bool shrinkWrap;
 
-  /// Check if outer [NestedScrollView] use [SliverOverlapAbsorber].
+  /// Check if outer [NestedScrollView] use [SliverOverlapAbsorber], if the value is true, you may need to wrap with [Builder].
   final bool hasOverlapAbsorber;
 
   /// The separator between items in [SliverList].
