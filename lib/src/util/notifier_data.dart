@@ -1,10 +1,6 @@
-import 'package:flutter/foundation.dart';
-import 'package:flutter_ahlib/src/util/tuple.dart';
-
-/// A mixin used for [NotifiableData] to represent receiver type with a String key.
-/// You can implement this mixin in a class or use [SimpleNotifyReceiver].
+/// A mixin used for [NotifiableData] to represent receiver type with a [String] key.
 mixin NotifyReceiverMixin {
-  /// Represents the receiver key scored in the listener list.
+  /// Represents the receiver key stored in the listener list.
   String get receiverKey;
 }
 
@@ -17,7 +13,18 @@ class SimpleNotifyReceiver with NotifyReceiverMixin {
   final String receiverKey;
 }
 
-/// [NotifiableData] is a data class with listeners list, which can notify the subscriber when [notify] invoked.
+/// Represents the list key in [NotifiableData._listeners].
+class _ListenerKey {
+  const _ListenerKey(this.action, this.receiver, this.dataKey);
+
+  final Function() action;
+  final NotifyReceiverMixin receiver;
+  final String dataKey;
+}
+
+/// [NotifiableData] is an abstract data class with listeners list, which can notify the subscribers when [notify] invoked.
+/// Here both subscriber (receiver) and data fields can have separator fields. And this class has three types of methods:
+/// [notify], [notifyDefault] and [notifyAll].
 /// Example:
 /// ```
 /// class AuthState extends NotifiableData {
@@ -31,88 +38,96 @@ class SimpleNotifyReceiver with NotifyReceiverMixin {
 /// }
 ///
 /// var testReceiver = SimpleNotifyReceiver('test');
-/// AuthState.instance.registerListener(() => doSomething(), testReceiver);
-///
+/// AuthState.instance.registerDefault(() => doSomething(), testReceiver); // register
 /// AuthState.instance.token = 'new token';
-/// AuthState.instance.notifyAll();
+/// AuthState.instance.notifyDefault(); // notify
 /// ```
 abstract class NotifiableData {
-  /// A immutable list of (listener, [NotifyReceiverMixin], dataKey).
-  final _listeners = <Tuple3<Function(), NotifyReceiverMixin, String>>[];
+  final _listeners = <_ListenerKey>[];
 
-  /// Represents the default [dataKey] (an empty string) used for [registerListener], [unregisterListener] and [containsListener],
-  /// you can override this getter to use your data key.
-  String get defaultDataKey => '';
+  // ==
+  // x
+  // ==
 
-  /// Registers [listener] with [NotifyReceiverMixin] and [dataKey] to listeners list, both [receiver] and [dataKey] are non-nullable.
-  /// When [force] is true, [register] will check the list and throw an exception when find the listener has been existed in the list.
-  @protected
-  void register(Function() listener, NotifyReceiverMixin receiver, String dataKey, {bool force = false}) {
+  /// Register a listener using non-nullable [receiver] and [dataKey], and return true is success, or return false if duplicate entry exists.
+  bool register(Function() listener, NotifyReceiverMixin receiver, String dataKey, {bool force = false}) {
     assert(force != null);
+    assert(listener != null);
     assert(receiver != null && dataKey != null);
 
     if (force) {
       unregister(receiver, dataKey);
-    } else {
-      assert(
-        !contains(receiver, dataKey),
-        'Duplicate key in NotifiableData listeners: (${receiver.receiverKey}, $dataKey)',
-      );
     }
-    _listeners.add(Tuple3(listener, receiver, dataKey));
-  }
-
-  /// Unregisters the all listeners by given [NotifyReceiverMixin] and [dataKey], when the [dataKey] is null, it will remove
-  /// all listeners only by given [NotifyReceiverMixin].
-  @protected
-  void unregister(NotifyReceiverMixin receiver, [String dataKey]) {
-    assert(receiver != null);
-    if (dataKey == null) {
-      _listeners.removeWhere((tuple) => tuple.item2.receiverKey == receiver.receiverKey);
-    } else {
-      _listeners.removeWhere((tuple) => tuple.item2.receiverKey == receiver.receiverKey && tuple.item3 == dataKey);
+    if (!contains(receiver, dataKey)) {
+      _listeners.add(_ListenerKey(listener, receiver, dataKey));
+      return true;
     }
+    return false;
   }
 
-  /// Checks the listener exists by given [NotifyReceiverMixin] and [dataKey], when the [dataKey] is null, it will check only
-  /// by given [NotifyReceiverMixin].
-  @protected
-  bool contains(NotifyReceiverMixin receiver, [String dataKey]) {
-    assert(receiver != null);
-    if (dataKey == null) {
-      return _listeners.any((tuple) => tuple.item2.receiverKey == receiver.receiverKey);
-    } else {
-      return _listeners.any((tuple) => tuple.item2.receiverKey == receiver.receiverKey && tuple.item3 == dataKey);
-    }
+  /// Unregister a listener using non-nullable [receiver] and [dataKey].
+  void unregister(NotifyReceiverMixin receiver, String dataKey) {
+    assert(receiver != null && dataKey != null);
+    _listeners.removeWhere((tuple) => tuple.receiver.receiverKey == receiver.receiverKey && tuple.dataKey == dataKey);
   }
 
-  /// Notifies all listeners by given [dataKey], when the [dataKey] is null, it will notify all listeners.
-  @protected
-  void notify([String dataKey]) {
-    var listeners = _listeners;
-    if (dataKey != null) {
-      listeners = _listeners.where((tuple) => tuple.item3 == dataKey).toList();
-    }
-    listeners.forEach((tuple) => tuple.item1?.call());
+  /// Check existence of listener using non-nullable [receiver] and [dataKey].
+  bool contains(NotifyReceiverMixin receiver, String dataKey) {
+    assert(receiver != null && dataKey != null);
+    return _listeners.any((tuple) => tuple.receiver.receiverKey == receiver.receiverKey && tuple.dataKey == dataKey);
   }
 
-  /// This is a helper function for [register] when ignored [dataKey] and will use the [defaultDataKey].
-  void registerListener(Function() listener, NotifyReceiverMixin receiver, {bool force = false}) {
-    register(listener, receiver, defaultDataKey, force: force);
+  /// Notify all listeners using non-nullable [dataKey].
+  void notify(String dataKey) {
+    assert(dataKey != null);
+    _listeners.where((tuple) => tuple.dataKey == dataKey).forEach((tuple) => tuple.action?.call());
   }
 
-  /// This is a helper function for [unregister] when ignored [dataKey] and will use the [defaultDataKey].
-  void unregisterListener(NotifyReceiverMixin receiver) {
+  // =======
+  // default
+  // =======
+
+  /// Represents a default data key, used in [registerDefault], [unregisterDefault], [containsDefault] and [notifyDefault].
+  String get defaultDataKey => '';
+
+  /// Register a listener using non-nullable [receiver] and [defaultDataKey], see [register].
+  bool registerDefault(Function() listener, NotifyReceiverMixin receiver, {bool force = false}) {
+    return register(listener, receiver, defaultDataKey, force: force);
+  }
+
+  /// Unregister a listener using non-nullable [receiver] and [defaultDataKey], see [unregister].
+  void unregisterDefault(NotifyReceiverMixin receiver) {
     unregister(receiver, defaultDataKey);
   }
 
-  /// This is a helper function for [contains] when ignored [dataKey] and will use the [defaultDataKey].
-  void containsListener(NotifyReceiverMixin receiver) {
+  /// Check existence of listener using non-nullable [receiver] and [defaultDataKey], see [contains].
+  void containsDefault(NotifyReceiverMixin receiver) {
     contains(receiver, defaultDataKey);
   }
 
-  /// This is a helper function for [notifyAll], it will notify all listeners.
+  /// Notify all listeners using [defaultDataKey], see [notify].
+  void notifyDefault() {
+    return notify(defaultDataKey);
+  }
+
+  // ===
+  // all
+  // ===
+
+  /// Unregister some listeners using non-nullable [receiver].
+  void unregisterAll(NotifyReceiverMixin receiver) {
+    assert(receiver != null);
+    _listeners.removeWhere((tuple) => tuple.receiver.receiverKey == receiver.receiverKey);
+  }
+
+  /// Check existence of listener using non-nullable [receiver].
+  bool containsAny(NotifyReceiverMixin receiver) {
+    assert(receiver != null);
+    return _listeners.any((tuple) => tuple.receiver.receiverKey == receiver.receiverKey);
+  }
+
+  /// Notify all listeners.
   void notifyAll() {
-    return notify();
+    _listeners.forEach((tuple) => tuple.action?.call());
   }
 }

@@ -105,14 +105,14 @@ class _MyDrawerState extends State<MyDrawer> {
   void initState() {
     super.initState();
     _items = [
-      DrawerPage.simple('DrawerListViewPage', Icons.home, DrawerListViewPage(), DrawerSelection.indexPage),
-      DrawerPage.simple('_PageA', Icons.favorite, _PageA(), DrawerSelection.pageA),
-      DrawerPage.simple('_PageB', Icons.history, _PageB(), DrawerSelection.pageB),
-      DrawerPage.simple('_PageC', Icons.file_download, _PageC(), DrawerSelection.pageC),
-      DrawerDivider(Divider(thickness: 1, height: 1)),
-      DrawerAction.simple('ActionA', Icons.cached, () => print('ActionA')),
-      DrawerAction.simple('ActionB', Icons.feedback, () => print('ActionB')),
-      DrawerAction.simple('ActionC', Icons.info, () => print('ActionC')),
+      DrawerPageItem.simple('DrawerListViewPage', Icons.home, DrawerListViewPage(), DrawerSelection.indexPage),
+      DrawerPageItem.simple('_PageA', Icons.favorite, _PageA(), DrawerSelection.pageA),
+      DrawerPageItem.simple('_PageB', Icons.history, _PageB(), DrawerSelection.pageB),
+      DrawerPageItem.simple('_PageC', Icons.file_download, _PageC(), DrawerSelection.pageC),
+      DrawerWidgetItem.simple(Divider(thickness: 1, height: 1)),
+      DrawerActionItem.simple('ActionA', Icons.cached, () => print('ActionA')),
+      DrawerActionItem.simple('ActionB', Icons.feedback, () => print('ActionB')),
+      DrawerActionItem.simple('ActionC', Icons.info, () => print('ActionC')),
     ];
   }
 
@@ -124,26 +124,27 @@ class _MyDrawerState extends State<MyDrawer> {
         children: [
           DrawerHeader(
             decoration: BoxDecoration(color: Theme.of(context).primaryColor),
-            child: Stack(
-              children: [
-                Positioned(
-                  bottom: 0,
-                  child: Text(
-                    'XXX - YYY',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: Theme.of(context).textTheme.subtitle2.fontSize,
-                    ),
-                  ),
+            child: Align(
+              alignment: Alignment.bottomLeft,
+              child: Text(
+                'XXX - YYY',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: Theme.of(context).textTheme.subtitle2.fontSize,
                 ),
-              ],
+              ),
             ),
           ),
           DrawerListView<DrawerSelection>(
             items: _items,
-            highlightColor: Colors.grey[200],
-            currentDrawerSelection: widget.currentDrawerSelection,
-            rootSelection: DrawerSelection.indexPage,
+            currentSelection: widget.currentDrawerSelection,
+            onGoto: (t, v) {
+              if (t == DrawerSelection.indexPage) {
+                Navigator.of(context).popUntil((route) => route.settings.name == '.');
+              } else {
+                Navigator.of(context).push(MaterialPageRoute(builder: (c) => v));
+              }
+            },
           ),
         ],
       ),

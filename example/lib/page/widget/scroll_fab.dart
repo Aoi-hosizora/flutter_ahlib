@@ -17,8 +17,8 @@ class _ScrollFloatingActionButtonPageState extends State<ScrollFloatingActionBut
       appBar: AppBar(
         title: Text('ScrollFloatingActionButton Example'),
         actions: [
-          IconButton(icon: Text('Top'), onPressed: () => _controller.scrollTop()),
-          IconButton(icon: Text('Bottom'), onPressed: () => _controller.scrollBottom()),
+          IconButton(icon: Text('Top'), onPressed: () => _controller.scrollToTop()),
+          IconButton(icon: Text('Bottom'), onPressed: () => _controller.scrollToBottom()),
           IconButton(icon: Text('Up'), onPressed: () => _controller.scrollUp()),
           IconButton(icon: Text('Down'), onPressed: () => _controller.scrollDown()),
         ],
@@ -37,7 +37,7 @@ class _ScrollFloatingActionButtonPageState extends State<ScrollFloatingActionBut
         scrollController: _controller,
         fab: FloatingActionButton(
           child: Icon(Icons.vertical_align_top),
-          onPressed: () => _controller.scrollTop(),
+          onPressed: () => _controller.scrollToTop(),
         ),
       ),
     );

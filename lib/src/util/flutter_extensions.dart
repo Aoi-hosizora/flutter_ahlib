@@ -5,57 +5,51 @@ import 'package:flutter/scheduler.dart';
 extension StateExtension<T extends StatefulWidget> on State<T> {
   /// Equals to call `if (mounted) setState(() {});`
   void mountedSetState(void Function() func) {
-    if (mounted) {
+    if (this != null && mounted) {
       // ignore: invalid_use_of_protected_member
-      setState(() {
-        func?.call();
-      });
+      setState(() => func?.call());
     }
   }
 }
 
+/// Default [Curve] value for [scrollWithAnimate], [scrollTop] and [scrollBottom].
+const _kScrollAnimatedCurve = Curves.easeInOutQuad;
+
+/// Default [Curve] value for [scrollDown], [scrollUp].
+const _kScrollAnimatedCurve2 = Curves.easeOutCirc;
+
+/// Default offset value for [scrollDown] and [scrollUp].
+const _kScrollOffset = 50.0;
+
+/// Default [Duration] value for [scrollWithAnimate], [scrollTop], [scrollBottom], [scrollDown] and [scrollUp].
+const _kScrollAnimatedDuration = const Duration(milliseconds: 500);
+
 /// [ScrollControllerExtension] is a helper extension for [ScrollController].
 extension ScrollControllerExtension on ScrollController {
-  /// Scroll with [Curves.easeOutCirc] and 500ms duration.
-  void scrollWithAnimate(double offset, {Curve curve = Curves.easeOutCirc, Duration duration = const Duration(milliseconds: 500)}) {
+  /// Scroll to offset with default [Curve] and [Duration].
+  void scrollWithAnimate(double offset, {Curve curve = _kScrollAnimatedCurve, Duration duration = _kScrollAnimatedDuration}) {
     animateTo(offset, curve: curve, duration: duration);
   }
 
   /// Scroll to the top of the scroll view, see [scrollWithAnimate].
-  void scrollTop() {
-    scrollWithAnimate(0.0);
+  void scrollToTop({Curve curve = _kScrollAnimatedCurve, Duration duration = _kScrollAnimatedDuration}) {
+    scrollWithAnimate(0.0, curve: curve, duration: duration);
   }
 
   /// Scroll to the bottom of the scroll view, see [scrollWithAnimate].
-  void scrollBottom() {
-    // See https://stackoverflow.com/questions/44141148/how-to-get-full-size-of-a-scrollcontroller.
+  void scrollToBottom({Curve curve = _kScrollAnimatedCurve, Duration duration = _kScrollAnimatedDuration}) {
     SchedulerBinding.instance.addPostFrameCallback((_) {
-      scrollWithAnimate(position.maxScrollExtent);
+      scrollWithAnimate(position.maxScrollExtent, curve: curve, duration: duration);
     });
   }
 
-  /// Scroll down from the current position with offset, see [scrollWithAnimate].
-  void scrollDown({int scrollOffset = 50}) {
-    scrollWithAnimate(offset + scrollOffset);
+  /// Scroll down (Swipe up) from the current position with offset, see [scrollWithAnimate].
+  void scrollDown({double scrollOffset = _kScrollOffset, Curve curve = _kScrollAnimatedCurve2, Duration duration = _kScrollAnimatedDuration}) {
+    scrollWithAnimate(offset + scrollOffset, curve: curve, duration: duration);
   }
 
-  /// Scroll up from the current position with offset, see [scrollWithAnimate].
-  void scrollUp({int scrollOffset = 50}) {
-    scrollWithAnimate(offset - scrollOffset);
-  }
-}
-
-/// [TextStyleExtension] is a helper extension for [TextSpan].
-extension TextStyleExtension on TextStyle {
-  TextStyle underlineOffset(double dx, double dy) {
-    return this.copyWith(
-      color: Colors.transparent,
-      shadows: [
-        Shadow(
-          color: this.color,
-          offset: Offset(dx, dy),
-        ),
-      ],
-    );
+  /// Scroll up (Swipe down) from the current position with offset, see [scrollWithAnimate].
+  void scrollUp({double scrollOffset = _kScrollOffset, Curve curve = _kScrollAnimatedCurve2, Duration duration = _kScrollAnimatedDuration}) {
+    scrollWithAnimate(offset - scrollOffset, curve: curve, duration: duration);
   }
 }

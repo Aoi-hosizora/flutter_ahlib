@@ -7,7 +7,7 @@ void main() {
       var controller = ActionController();
 
       expect(controller.getAction(''), null);
-      expect(controller.containAction(''), false);
+      expect(controller.containsAction(''), false);
       expect(controller.invoke(''), null);
     });
 
@@ -18,22 +18,22 @@ void main() {
       controller.addAction(null, null);
 
       expect(controller.getAction('1'), null);
-      expect(controller.containAction('1'), true);
+      expect(controller.containsAction('1'), true);
       expect(controller.invoke('1'), null);
 
       expect(controller.getAction(null), null);
-      expect(controller.containAction(null), true);
+      expect(controller.containsAction(null), true);
       expect(controller.invoke(null), null);
 
       controller.removeAction('1');
       controller.removeAction(null);
 
       expect(controller.getAction('1'), null);
-      expect(controller.containAction('1'), false);
+      expect(controller.containsAction('1'), false);
       expect(controller.invoke('1'), null);
 
       expect(controller.getAction(null), null);
-      expect(controller.containAction(null), false);
+      expect(controller.containsAction(null), false);
       expect(controller.invoke(null), null);
     });
 
@@ -44,16 +44,18 @@ void main() {
       controller.addAction('3', () => () => 3);
 
       // expect(controller.getAction('1'), () => null);
-      expect(controller.containAction('1'), true);
+      expect(controller.containsAction('1'), true);
       expect(controller.invoke('1'), null);
 
       // expect(controller.getAction('2'), () => 2);
-      expect(controller.containAction('2'), true);
+      expect(controller.containsAction('2'), true);
       expect(controller.invoke<int>('2'), 2);
 
       // expect(controller.getAction('3'), () => () => 3);
-      expect(controller.containAction('3'), true);
+      expect(controller.containsAction('3'), true);
       expect(controller.invoke<int Function()>('3')(), 3);
+
+      expect(controller.invokeWhere((k) => k == '1' || k == '2'), [null, 2]);
     });
   });
 
@@ -126,21 +128,79 @@ void main() {
       expect(filesize(1536, 4), "1.5000 KB");
       expect(filesize(2048, 4), "2 KB");
     });
+
+    test('space', () {
+      expect(filesize(1023, 0, true), "1023 B");
+      expect(filesize(1023, 1, true), "1023 B");
+      expect(filesize(1023, 0, false), "1023B");
+      expect(filesize(1023, 1, false), "1023B");
+    });
   });
 
   group(NotifiableData, () {
-    test('AuthState', () {
-      var indicator = 0;
+    test('one data key', () {
       var testReceiver = SimpleNotifyReceiver('test');
-      AuthState.instance.registerListener(() => indicator++, testReceiver);
+      var indicator = 0;
+      var f = () => indicator++;
+
+      expect(AuthState.instance.registerDefault(f, testReceiver), true);
+      expect(AuthState.instance.registerDefault(f, testReceiver), false);
+      expect(AuthState.instance.registerDefault(f, testReceiver, force: true), true);
+
       expect(indicator, 0);
-
-      AuthState.instance.token = '###';
-      AuthState.instance.notifyAll();
+      AuthState.instance.notify('');
       expect(indicator, 1);
-
-      AuthState.instance.notifyAll();
+      AuthState.instance.notify('.');
+      expect(indicator, 1);
+      AuthState.instance.notifyDefault();
       expect(indicator, 2);
+      AuthState.instance.notifyAll();
+      expect(indicator, 3);
+      AuthState.instance.unregisterDefault(testReceiver);
+
+      expect(indicator, 3);
+      AuthState.instance.notify('');
+      expect(indicator, 3);
+      AuthState.instance.notify('.');
+      expect(indicator, 3);
+      AuthState.instance.notifyDefault();
+      expect(indicator, 3);
+      AuthState.instance.notifyAll();
+      expect(indicator, 3);
+    });
+    test('multiple data key', () {
+      var testReceiver = SimpleNotifyReceiver('test');
+      var indicator = 0;
+      var f = () => indicator++;
+
+      expect(AuthState.instance.register(f, testReceiver, '1'), true);
+      expect(AuthState.instance.register(f, testReceiver, '2'), true);
+
+      expect(indicator, 0);
+      AuthState.instance.notify('');
+      expect(indicator, 0);
+      AuthState.instance.notifyDefault();
+      expect(indicator, 0);
+      AuthState.instance.notify('1');
+      expect(indicator, 1);
+      AuthState.instance.notify('2');
+      expect(indicator, 2);
+      AuthState.instance.notifyAll();
+      expect(indicator, 4);
+      AuthState.instance.notify('.');
+      expect(indicator, 4);
+
+      AuthState.instance.unregister(testReceiver, '1');
+      AuthState.instance.notify('1');
+      expect(indicator, 4);
+      AuthState.instance.notify('2');
+      expect(indicator, 5);
+      AuthState.instance.notifyAll();
+      expect(indicator, 6);
+
+      AuthState.instance.unregisterAll(testReceiver);
+      AuthState.instance.notifyAll();
+      expect(indicator, 6);
     });
   });
 }
@@ -154,5 +214,6 @@ class AuthState extends NotifiableData {
     return _instance ??= AuthState._();
   }
 
-  String token = ''; // data field
+  String token = ''; // data field 1
+  String username = ''; // data field 2
 }
