@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_ahlib/src/util/dart_extensions.dart';
 
-/// [SliverAppBarDelegate] is an implementation of [SliverPersistentHeaderDelegate] with a [PreferredSize] child.
+/// An implementation of [SliverPersistentHeaderDelegate] with a [PreferredSize] child.
 class SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   const SliverAppBarDelegate({
     @required this.child,
@@ -25,7 +26,7 @@ class SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   }
 }
 
-/// [SliverAppBarSizedDelegate] is an implementation of [SliverPersistentHeaderDelegate] with size setting and a [Widget] child.
+/// An implementation of [SliverPersistentHeaderDelegate] with size setting and a [Widget] child.
 class SliverAppBarSizedDelegate extends SliverPersistentHeaderDelegate {
   const SliverAppBarSizedDelegate({
     @required this.minHeight,
@@ -55,4 +56,30 @@ class SliverAppBarSizedDelegate extends SliverPersistentHeaderDelegate {
   bool shouldRebuild(SliverAppBarSizedDelegate oldDelegate) {
     return maxHeight != oldDelegate.maxHeight || minHeight != oldDelegate.minHeight || child != oldDelegate.child;
   }
+}
+
+/// A custom [SliverChildBuilderDelegate] with separator, notice that this class has not a const constructor.
+class SliverSeparatedBuilderDelegate extends SliverChildBuilderDelegate {
+  SliverSeparatedBuilderDelegate(
+    NullableIndexedWidgetBuilder builder, {
+    @required Widget separator,
+    int childCount,
+  })  : assert(builder != null),
+        assert(separator != null),
+        super(
+          (c, idx) => idx % 2 != 0 ? separator : builder.call(c, idx ~/ 2),
+          childCount: childCount * 2 - 1,
+        );
+}
+
+/// A custom [SliverChildListDelegate] with separator, notice that this class has not a const constructor.
+class SliverSeparatedListDelegate extends SliverChildListDelegate {
+  SliverSeparatedListDelegate(
+    List<Widget> children, {
+    @required Widget separator,
+  })  : assert(children != null),
+        assert(separator != null),
+        super(
+          children.separate(separator),
+        );
 }

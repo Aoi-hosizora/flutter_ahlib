@@ -42,8 +42,8 @@ class TextMenuItem extends MenuItem {
     @required Text text,
     Function action,
     EdgeInsets padding = const EdgeInsets.symmetric(vertical: 13, horizontal: 25),
-    bool dismissBefore,
-    bool dismissAfter,
+    bool dismissBefore = true,
+    bool dismissAfter = false,
   }) : super(
           child: text,
           action: action,
@@ -59,8 +59,8 @@ class IconTextMenuItem extends MenuItem {
     @required IconText iconText,
     Function action,
     EdgeInsets padding = const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
-    bool dismissBefore,
-    bool dismissAfter,
+    bool dismissBefore = true,
+    bool dismissAfter = false,
   }) : super(
           child: iconText,
           action: action,

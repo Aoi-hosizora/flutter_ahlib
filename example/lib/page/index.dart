@@ -4,7 +4,10 @@ import 'package:flutter_ahlib_example/page/widget/icon_text.dart';
 import 'package:flutter_ahlib_example/page/widget/lazy_indexed_stack.dart';
 import 'package:flutter_ahlib_example/page/widget/placeholder_text.dart';
 import 'package:flutter_ahlib_example/page/widget/popup_menu.dart';
-import 'package:flutter_ahlib_example/page/widget/scroll_fab.dart';
+import 'package:flutter_ahlib_example/page/widget/scroll_animated_fab.dart';
+import 'package:flutter_ahlib_example/page/widget/sliver_delegate.dart';
+import 'package:flutter_ahlib_example/page/widget/tab_in_page_notification.dart';
+import 'package:flutter_ahlib_example/page/widget/text_group.dart';
 
 class IndexPage extends StatefulWidget {
   IndexPage({Key key}) : super(key: key);
@@ -26,7 +29,7 @@ class _IndexPageState extends State<IndexPage> {
     );
   }
 
-  Widget _button(String title, Widget page, {RouteSettings settings}) {
+  Widget _button(String title, Widget page, [RouteSettings settings]) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 6),
       child: OutlineButton(
@@ -60,7 +63,7 @@ class _IndexPageState extends State<IndexPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 _button('PlaceholderText', PlaceholderTextPage()),
-                _button('DrawerListView', DrawerListViewPage(), settings: RouteSettings(name: '.')),
+                _button('DrawerListView', DrawerListViewPage(), RouteSettings(name: '.')),
                 _button('IconText', IconTextPage()),
               ],
             ),
@@ -68,8 +71,16 @@ class _IndexPageState extends State<IndexPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 _button('PopupMenu', PopupMenuPage()),
-                _button('ScrollFloatingActionButton', ScrollFloatingActionButtonPage()),
+                _button('ScrollAnimatedFab', ScrollAnimatedFabPage()),
                 _button('LazyIndexedStack', LazyIndexedStackPage()),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _button('SliverDelegate', SliverDelegatePage()),
+                _button('TextGroup', TextGroupPage()),
+                _button('TabInPageNotification', TabInPageNotificationPage()),
               ],
             ),
             _text('Lists Example'),

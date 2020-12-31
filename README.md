@@ -31,10 +31,9 @@ http: ^0.12.2
     + `DrawerListView`
     + `IconText`
     + `showPopupListMenu` `MenuItem` `TextMenuItem` `IconTextMenuItem` 
-    + `ScrollFloatingActionButton` `ScrollFabController`
+    + `ScrollAnimatedFab` `ScrollAnimatedFabController`
     + `LazyIndexedStack`
-    + `SliverAppBarDelegate`
-    + `SliverSeparatedBuilderDelegate` `SliverSeparatedListDelegate`
+    + `SliverAppBarDelegate` `SliverAppBarSizedDelegate` `SliverSeparatedBuilderDelegate` `SliverSeparatedListDelegate`
     + `TextGroup` `NormalGroupText` `LinkGroupText`
     + `TabInPageNotification`
 + Image:
@@ -46,7 +45,7 @@ http: ^0.12.2
     + `hashObjects()`, `hash2()` ~ `hash6()`
     + `StateExtension`
     + `BoolExtension` `ListExtension`
-    + `StateExtension` `ScrollControllerExtension` `PageControllerExtension` `ScrollNotificationExtension`
+    + `StateExtension` `ScrollControllerExtension` `PageControllerExtension` `ScrollMetricsExtension`
     + `NotifiableData` `NotifyReceiverMixin` `SimpleNotifyReceiver`
 + List:
     + `AppendIndicator`

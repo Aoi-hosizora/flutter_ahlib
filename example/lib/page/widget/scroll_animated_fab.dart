@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/flutter_ahlib.dart';
 
-class ScrollFloatingActionButtonPage extends StatefulWidget {
-  const ScrollFloatingActionButtonPage({Key key}) : super(key: key);
+class ScrollAnimatedFabPage extends StatefulWidget {
+  const ScrollAnimatedFabPage({Key key}) : super(key: key);
 
   @override
-  _ScrollFloatingActionButtonPageState createState() => _ScrollFloatingActionButtonPageState();
+  _ScrollAnimatedFabPageState createState() => _ScrollAnimatedFabPageState();
 }
 
-class _ScrollFloatingActionButtonPageState extends State<ScrollFloatingActionButtonPage> {
+class _ScrollAnimatedFabPageState extends State<ScrollAnimatedFabPage> {
   var _controller = ScrollController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('ScrollFloatingActionButton Example'),
+        title: Text('ScrollAnimatedFab Example'),
         actions: [
-          IconButton(icon: Text('Top'), onPressed: () => _controller.scrollToTop()),
-          IconButton(icon: Text('Bottom'), onPressed: () => _controller.scrollToBottom()),
+          IconButton(icon: Icon(Icons.vertical_align_top), onPressed: () => _controller.scrollToTop()),
+          IconButton(icon: Icon(Icons.vertical_align_bottom), onPressed: () => _controller.scrollToBottom()),
           IconButton(icon: Text('Up'), onPressed: () => _controller.scrollUp()),
           IconButton(icon: Text('Down'), onPressed: () => _controller.scrollDown()),
         ],
@@ -33,7 +33,7 @@ class _ScrollFloatingActionButtonPageState extends State<ScrollFloatingActionBut
           ),
         ),
       ),
-      floatingActionButton: ScrollFloatingActionButton(
+      floatingActionButton: ScrollAnimatedFab(
         scrollController: _controller,
         fab: FloatingActionButton(
           child: Icon(Icons.vertical_align_top),

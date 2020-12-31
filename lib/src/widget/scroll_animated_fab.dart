@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
 /// A [FloatingActionButton] that will do animation when scrolling.
-class ScrollFloatingActionButton extends StatefulWidget {
-  const ScrollFloatingActionButton({
+class ScrollAnimatedFab extends StatefulWidget {
+  const ScrollAnimatedFab({
     Key key,
     @required this.fab,
-    this.fabController,
+    this.controller,
     this.scrollController,
     this.offset = 50,
     this.duration = const Duration(milliseconds: 250),
-    this.curve = const Interval(0, 1, curve: Curves.easeOutBack),
+    this.curve = Curves.easeOutBack,
   })  : assert(fab != null),
         assert(offset != null && offset >= 0),
         assert(duration != null),
@@ -20,7 +20,7 @@ class ScrollFloatingActionButton extends StatefulWidget {
   final FloatingActionButton fab;
 
   /// Scroll fab controller.
-  final ScrollFabController fabController;
+  final ScrollAnimatedFabController controller;
 
   /// Scroll controller.
   final ScrollController scrollController;
@@ -35,10 +35,10 @@ class ScrollFloatingActionButton extends StatefulWidget {
   final Curve curve;
 
   @override
-  _ScrollFloatingActionButtonState createState() => _ScrollFloatingActionButtonState();
+  _ScrollAnimatedFabState createState() => _ScrollAnimatedFabState();
 }
 
-class _ScrollFloatingActionButtonState extends State<ScrollFloatingActionButton> with TickerProviderStateMixin<ScrollFloatingActionButton> {
+class _ScrollAnimatedFabState extends State<ScrollAnimatedFab> with TickerProviderStateMixin<ScrollAnimatedFab> {
   bool _lastShowFab = false;
   AnimationController _animController;
   Animation<double> _fabAnimation;
@@ -48,7 +48,7 @@ class _ScrollFloatingActionButtonState extends State<ScrollFloatingActionButton>
     super.initState();
     _animController = AnimationController(vsync: this, duration: widget.duration);
     _fabAnimation = CurvedAnimation(parent: _animController, curve: widget.curve);
-    widget.fabController?.attachAnim(_animController);
+    widget.controller?.attachAnim(_animController);
     widget.scrollController?.addListener(_scrollListener);
   }
 
@@ -59,9 +59,9 @@ class _ScrollFloatingActionButtonState extends State<ScrollFloatingActionButton>
     super.dispose();
   }
 
-  /// Listener used in [ScrollFloatingActionButton.scrollController].
+  /// Listener used in [ScrollAnimatedFab.scrollController].
   void _scrollListener() {
-    bool scrolled = widget.scrollController?.offset ?? 0 >= widget.offset;
+    bool scrolled = (widget.scrollController?.offset ?? 0) >= widget.offset;
     if (scrolled != _lastShowFab) {
       _lastShowFab = scrolled;
       if (scrolled) {
@@ -82,8 +82,8 @@ class _ScrollFloatingActionButtonState extends State<ScrollFloatingActionButton>
   }
 }
 
-/// Controller for [ScrollFloatingActionButton], includes [show] and [hide] function.
-class ScrollFabController {
+/// Controller for [ScrollAnimatedFab], includes [show] and [hide] function.
+class ScrollAnimatedFabController {
   AnimationController _animController;
 
   /// Register the given [AnimationController] to this controller.

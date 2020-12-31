@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/src/list/updatable_dataview.dart';
 import 'package:flutter_ahlib/src/widget/placeholder_text.dart';
-import 'package:flutter_ahlib/src/widget/sliver_separated_delegate.dart';
+import 'package:flutter_ahlib/src/widget/sliver_delegate.dart';
 
 /// Refreshable [SliverList] is an implementation of [RefreshableDataView], with
 /// [PlaceholderText], [RefreshIndicator], [Scrollbar] and [SliverList].

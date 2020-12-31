@@ -13,7 +13,7 @@ extension StateExtension<T extends StatefulWidget> on State<T> {
 }
 
 /// Default [Curve] value for [scrollWithAnimate], [scrollTop] and [scrollBottom].
-const _kAnimatedScrollCurve = Curves.easeInOutQuad;
+const _kAnimatedScrollCurve = Curves.easeInOutQuint;
 
 /// Default [Duration] value for [scrollWithAnimate], [scrollTop] and [scrollBottom].
 const _kAnimatedScrollDuration = const Duration(milliseconds: 500);
@@ -60,20 +60,20 @@ extension ScrollControllerExtension on ScrollController {
 /// A helper extension for [PageController].
 extension PageControllerExtension on PageController {
   /// A optional parameter version of [animateToPage].
-  Future<void> animateTo(int page, {Curve curve = Curves.easeOutQuad, Duration duration = kTabScrollDuration}) {
+  Future<void> animateToPageDefault(int page, {Curve curve = Curves.easeOutQuad, Duration duration = kTabScrollDuration}) {
     return animateToPage(page, curve: curve, duration: duration);
   }
 }
 
-/// A helper extension for [ScrollNotification].
-extension ScrollNotificationExtension on ScrollNotification {
+/// A helper extension for [ScrollMetrics].
+extension ScrollMetricsExtension on ScrollMetrics {
   /// Check the scrollable area is short.
   bool isShortScroll() {
-    return metrics.maxScrollExtent == 0;
+    return maxScrollExtent == 0;
   }
 
   /// Check the current scroll position is in the bottom.
   bool isInBottom() {
-    return metrics.pixels >= metrics.maxScrollExtent && !metrics.outOfRange;
+    return pixels >= maxScrollExtent && !outOfRange;
   }
 }

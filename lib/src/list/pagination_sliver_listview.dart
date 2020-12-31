@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/src/list/append_indicator.dart';
 import 'package:flutter_ahlib/src/list/updatable_dataview.dart';
 import 'package:flutter_ahlib/src/widget/placeholder_text.dart';
-import 'package:flutter_ahlib/src/widget/sliver_separated_delegate.dart';
+import 'package:flutter_ahlib/src/widget/sliver_delegate.dart';
 import 'package:flutter_ahlib/src/util/flutter_extensions.dart';
 
 /// Pagination [SliverList] is an implementation of [PaginationDataView], with
@@ -135,7 +135,7 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
   }
 
   bool _onScroll(ScrollNotification s) {
-    _downScrollable = !s.isShortScroll() && s.isInBottom();
+    _downScrollable = !s.metrics.isShortScroll() && s.metrics.isInBottom();
     return false;
   }
 

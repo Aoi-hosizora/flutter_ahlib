@@ -30,12 +30,14 @@ class DrawerPageItem<T> extends DrawerItem {
     this.selection,
     this.backgroundColor = Colors.transparent,
     this.highlightColor = const Color(0xFFE0E0E0),
+    this.autoCloseWhenTapped = true,
+    this.autoCloseWhenAlreadySelected = false,
   })  : assert(title != null),
-        assert(leading != null),
-        assert(trailing != null),
         assert(page != null),
         assert(backgroundColor != null),
         assert(highlightColor != null),
+        assert(autoCloseWhenTapped != null),
+        assert(autoCloseWhenAlreadySelected != null),
         super(type: _DrawerItemType.page);
 
   /// A simple constructor to create a default [DrawerPageItem].
@@ -67,6 +69,12 @@ class DrawerPageItem<T> extends DrawerItem {
 
   /// Highlight color for current selected item.
   final Color highlightColor;
+
+  /// Auto close the drawer when page is shown.
+  final bool autoCloseWhenTapped;
+
+  /// Auto close the drawer when current item is already selected.
+  final bool autoCloseWhenAlreadySelected;
 }
 
 /// A [DrawerItem] which is used to invoke an action, will be wrapped by [ListTile].
@@ -78,12 +86,13 @@ class DrawerActionItem extends DrawerItem {
     @required this.action,
     this.longPressAction,
     this.backgroundColor = Colors.transparent,
+    this.autoCloseWhenTapped = true,
+    this.autoCloseWhenLongPressed = false,
   })  : assert(title != null),
-        assert(leading != null),
-        assert(trailing != null),
         assert(action != null),
-        assert(longPressAction != null),
         assert(backgroundColor != null),
+        assert(autoCloseWhenTapped != null),
+        assert(autoCloseWhenLongPressed != null),
         super(type: _DrawerItemType.action);
 
   /// A simple constructor to create a default [DrawerActionItem].
@@ -111,6 +120,12 @@ class DrawerActionItem extends DrawerItem {
 
   /// Background color for this item.
   final Color backgroundColor;
+
+  /// Auto close the drawer when item is tapped.
+  final bool autoCloseWhenTapped;
+
+  /// Auto close the drawer when item is long pressed.
+  final bool autoCloseWhenLongPressed;
 }
 
 /// A [DrawerItem] which is used to show a widget.
@@ -157,15 +172,9 @@ class DrawerListView<T> extends StatefulWidget {
     @required this.onGoto,
     this.currentSelection,
     this.enableHighlight = true,
-    this.autoCloseWhenTap = true,
-    this.autoCloseWhenLongPressed = true,
-    this.autoCloseWhenSelected = false,
   })  : assert(items != null && items.length > 0),
         assert(onGoto != null),
         assert(enableHighlight != null),
-        assert(autoCloseWhenTap != null),
-        assert(autoCloseWhenLongPressed != null),
-        assert(autoCloseWhenSelected != null),
         super(key: key);
 
   /// A list of [DrawerItem] to show..
@@ -179,15 +188,6 @@ class DrawerListView<T> extends StatefulWidget {
 
   /// Need to highlight the item when selected, for [DrawerPageItem].
   final bool enableHighlight;
-
-  /// Auto close the drawer when any action is invoked, for [DrawerPageItem] and [DrawerActionItem].
-  final bool autoCloseWhenTap;
-
-  /// Auto close the drawer when the item is long pressed, for [DrawerActionItem].
-  final bool autoCloseWhenLongPressed;
-
-  /// Auto close the drawer when the current item is also selected, for [DrawerActionItem].
-  final bool autoCloseWhenSelected;
 
   @override
   _DrawerListViewState<T> createState() => _DrawerListViewState<T>();
@@ -204,44 +204,53 @@ class _DrawerListViewState<T> extends State<DrawerListView<T>> {
               DrawerPageItem<T> page = item;
               return Container(
                 color: widget.currentSelection == page.selection && widget.enableHighlight ? page.highlightColor : page.backgroundColor,
-                child: ListTile(
-                  title: page.title,
-                  leading: page.leading,
-                  trailing: page.trailing,
-                  selected: widget.currentSelection == page.selection && widget.enableHighlight,
-                  onTap: () {
-                    if (widget.autoCloseWhenSelected) {
-                      Navigator.pop(context);
-                    }
-                    if (page.selection != widget.currentSelection) {
-                      if (!widget.autoCloseWhenSelected && widget.autoCloseWhenTap) {
+                child: Material(
+                  color: Colors.transparent,
+                  child: ListTile(
+                    title: page.title,
+                    leading: page.leading,
+                    trailing: page.trailing,
+                    selected: widget.currentSelection == page.selection && widget.enableHighlight,
+                    onTap: () {
+                      if (page.selection != widget.currentSelection) {
+                        if (page.autoCloseWhenTapped) {
+                          Navigator.pop(context);
+                        }
+                        widget.onGoto?.call(page.selection, page.page);
+                      } else if (page.autoCloseWhenAlreadySelected) {
                         Navigator.pop(context);
                       }
-                      widget.onGoto?.call(page.selection, page.page);
-                    }
-                  },
+                    },
+                  ),
                 ),
               );
             case _DrawerItemType.action:
               DrawerActionItem action = item;
               return Container(
                 color: action.backgroundColor,
-                child: ListTile(
-                  title: action.title,
-                  leading: action.leading,
-                  trailing: action.trailing,
-                  onTap: () {
-                    if (widget.autoCloseWhenTap) {
-                      Navigator.pop(context);
-                    }
-                    action.action();
-                  },
-                  onLongPress: () {
-                    if (widget.autoCloseWhenLongPressed) {
-                      Navigator.pop(context);
-                    }
-                    action.longPressAction?.call();
-                  },
+                child: Material(
+                  color: Colors.transparent,
+                  child: ListTile(
+                    title: action.title,
+                    leading: action.leading,
+                    trailing: action.trailing,
+                    onTap: action.action == null
+                        ? null
+                        : () {
+                            if (action.autoCloseWhenTapped) {
+                              Navigator.pop(context);
+                            }
+                            action.action();
+                          },
+                    onLongPress: action.longPressAction == null
+                        ? null
+                        : () {
+                            if (action.autoCloseWhenLongPressed) {
+                              Navigator.pop(context);
+                            }
+                            action.longPressAction?.call();
+                          },
+                  ),
                 ),
               );
             case _DrawerItemType.widget:

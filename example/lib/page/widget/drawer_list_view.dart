@@ -22,6 +22,13 @@ class _DrawerListViewPageState extends State<DrawerListViewPage> {
   }
 }
 
+enum DrawerSelection {
+  indexPage,
+  pageA,
+  pageB,
+  pageC,
+}
+
 class _PageA extends StatefulWidget {
   @override
   __PageAState createState() => __PageAState();
@@ -79,13 +86,6 @@ class __PageCState extends State<_PageC> {
   }
 }
 
-enum DrawerSelection {
-  indexPage,
-  pageA,
-  pageB,
-  pageC,
-}
-
 class MyDrawer extends StatefulWidget {
   const MyDrawer({
     Key key,
@@ -105,14 +105,67 @@ class _MyDrawerState extends State<MyDrawer> {
   void initState() {
     super.initState();
     _items = [
-      DrawerPageItem.simple('DrawerListViewPage', Icons.home, DrawerListViewPage(), DrawerSelection.indexPage),
-      DrawerPageItem.simple('_PageA', Icons.favorite, _PageA(), DrawerSelection.pageA),
-      DrawerPageItem.simple('_PageB', Icons.history, _PageB(), DrawerSelection.pageB),
-      DrawerPageItem.simple('_PageC', Icons.file_download, _PageC(), DrawerSelection.pageC),
-      DrawerWidgetItem.simple(Divider(thickness: 1, height: 1)),
-      DrawerActionItem.simple('ActionA', Icons.cached, () => print('ActionA')),
-      DrawerActionItem.simple('ActionB', Icons.feedback, () => print('ActionB')),
-      DrawerActionItem.simple('ActionC', Icons.info, () => print('ActionC')),
+      // DrawerPageItem.simple('DrawerListViewPage', Icons.home, DrawerListViewPage(), DrawerSelection.indexPage),
+      // DrawerWidgetItem.simple(Divider(thickness: 1)),
+      // DrawerPageItem.simple('_PageA', Icons.favorite, _PageA(), DrawerSelection.pageA),
+      // DrawerPageItem.simple('_PageB', Icons.history, _PageB(), DrawerSelection.pageB),
+      // DrawerPageItem.simple('_PageC', Icons.file_download, _PageC(), DrawerSelection.pageC),
+      // DrawerWidgetItem.simple(Divider(thickness: 1)),
+      // DrawerActionItem.simple('ActionA', Icons.cached, () => print('ActionA')),
+      // DrawerActionItem.simple('ActionB', Icons.feedback, () => print('ActionB')),
+      // DrawerActionItem.simple('ActionC', Icons.info, () => print('ActionC')),
+      DrawerPageItem(
+        title: Text('DrawerListViewPage'),
+        leading: Icon(Icons.home),
+        trailing: Icon(Icons.check),
+        page: DrawerListViewPage(),
+        selection: DrawerSelection.indexPage,
+      ),
+      DrawerWidgetItem.simple(Divider(thickness: 1)),
+      DrawerPageItem(
+        title: Text('_PageA'),
+        leading: Icon(Icons.favorite),
+        page: _PageA(),
+        selection: DrawerSelection.pageA,
+        autoCloseWhenTapped: true,
+        autoCloseWhenAlreadySelected: false,
+      ),
+      DrawerPageItem(
+        title: Text('_PageB'),
+        leading: Icon(Icons.history),
+        page: _PageB(),
+        selection: DrawerSelection.pageB,
+        autoCloseWhenTapped: false,
+        autoCloseWhenAlreadySelected: true,
+      ),
+      DrawerPageItem(
+        title: Text('_PageC'),
+        leading: Icon(Icons.file_download),
+        page: _PageC(),
+        selection: DrawerSelection.pageC,
+      ),
+      DrawerWidgetItem.simple(Divider(thickness: 1)),
+      DrawerActionItem(
+        title: Text('ActionA'),
+        leading: Icon(Icons.cached),
+        action: () => print('ActionA'),
+        longPressAction: () => print('ActionA2'),
+        autoCloseWhenTapped: true,
+        autoCloseWhenLongPressed: false,
+      ),
+      DrawerActionItem(
+        title: Text('ActionB'),
+        leading: Icon(Icons.feedback),
+        action: () => print('ActionB'),
+      ),
+      DrawerActionItem(
+        title: Text('ActionC'),
+        leading: Icon(Icons.info),
+        action: () => print('ActionC'),
+        longPressAction: () => print('ActionC2'),
+        autoCloseWhenTapped: false,
+        autoCloseWhenLongPressed: true,
+      ),
     ];
   }
 

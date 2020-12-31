@@ -20,7 +20,7 @@ class _PopupMenuPageState extends State<PopupMenuPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             OutlineButton(
-              child: Text('showIconPopupMenu'),
+              child: Text('showPopupListMenu - IconTextMenuItem'),
               onPressed: () => showPopupListMenu(
                 context: context,
                 title: Text('showIconPopupMenu'),
@@ -38,7 +38,7 @@ class _PopupMenuPageState extends State<PopupMenuPage> {
               ),
             ),
             OutlineButton(
-              child: Text('showTextPopupMenu'),
+              child: Text('showPopupListMenu - TextMenuItem'),
               onPressed: () => showPopupListMenu(
                 context: context,
                 title: Text('showTextPopupMenu'),
@@ -51,6 +51,34 @@ class _PopupMenuPageState extends State<PopupMenuPage> {
                   TextMenuItem(
                     text: Text('test4'),
                     action: () => print('test4'),
+                  ),
+                ],
+              ),
+            ),
+            OutlineButton(
+              child: Text('showPopupListMenu - XXX'),
+              onPressed: () => showPopupListMenu(
+                context: context,
+                title: Text('showTextPopupMenu'),
+                barrierDismissible: true,
+                items: [
+                  TextMenuItem(
+                    text: Text('test5'),
+                    action: () => print('test5'),
+                    dismissBefore: true,
+                    dismissAfter: false,
+                  ),
+                  IconTextMenuItem(
+                    iconText: IconText.simple(Icons.chevron_right, 'test6'),
+                    action: () => print('test6'),
+                    dismissBefore: false,
+                    dismissAfter: true,
+                  ),
+                  MenuItem(
+                    child: Text('test7'),
+                    action: () => print('test7'),
+                    dismissBefore: false,
+                    dismissAfter: false,
                   ),
                 ],
               ),

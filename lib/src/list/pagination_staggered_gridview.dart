@@ -159,7 +159,7 @@ class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGrid
   }
 
   bool _onScroll(ScrollNotification s) {
-    _downScrollable = !s.isShortScroll() && s.isInBottom();
+    _downScrollable = !s.metrics.isShortScroll() && s.metrics.isInBottom();
     return false;
   }
 
