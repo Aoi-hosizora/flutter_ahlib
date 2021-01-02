@@ -62,7 +62,7 @@ class BannedIcon extends StatelessWidget {
   /// Line width, default is 3.0.
   final double lineWidth;
 
-  /// Blink link width, default is 2.0, set to the half of [lineWidth] is recommend.
+  /// Blink link width, default is 2.0, recommend to set a value that close to [lineWidth].
   final double blinkLineWidth;
 
   /// Icon size, default is [Size.zero] which depends on the child or parent.

@@ -152,6 +152,9 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
 
   Future<void> _getData({@required bool reset}) async {
     _forceState = null;
+    if (reset) {
+      widget.setting.onRefresh?.call();
+    }
     return widget.getDataCore(
       reset: reset,
       setLoading: (l) => _loading = l,

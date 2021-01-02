@@ -165,6 +165,9 @@ class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGrid
 
   Future<void> _getData({@required bool reset}) async {
     _forceState = null;
+    if (reset) {
+      widget.setting.onRefresh?.call();
+    }
     return widget.getDataCore(
       reset: reset,
       setLoading: (l) => _loading = l,

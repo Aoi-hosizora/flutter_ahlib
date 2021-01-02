@@ -50,16 +50,11 @@ class AppendIndicator extends StatefulWidget {
 class AppendIndicatorState extends State<AppendIndicator> {
   _AppendIndicatorMode _mode;
   Future<void> _pendingAppendFuture;
-  double _extent = -1;
+  ScrollMetrics _scrollMetrics;
   double _pointerDownPosition = 0;
 
   bool _onScroll(ScrollNotification s) {
-    _extent = s.metrics.maxScrollExtent;
-    bool short = _extent == 0;
-    bool bottom = s.metrics.pixels >= s.metrics.maxScrollExtent && !s.metrics.outOfRange;
-    if (!short && bottom) {
-      _show(); // 1
-    }
+    _scrollMetrics = s.metrics;
     return false;
   }
 
@@ -69,9 +64,16 @@ class AppendIndicatorState extends State<AppendIndicator> {
 
   void _onPointerMove(PointerMoveEvent e) {
     if (e.down && _pointerDownPosition != null) {
-      bool short = _extent == 0;
-      if (short && _pointerDownPosition - (e.position?.dy ?? 0) > _kPointerMovingThreshold) {
-        _show(); // 2
+      bool short = _scrollMetrics.maxScrollExtent == 0;
+      if (!short) {
+        bool bottom = _scrollMetrics.pixels >= _scrollMetrics.maxScrollExtent && !_scrollMetrics.outOfRange;
+        if (bottom && _pointerDownPosition > (e.position?.dy ?? 0)) {
+          _show(); // 1
+        }
+      } else {
+        if (_pointerDownPosition - (e.position?.dy ?? 0) > _kPointerMovingThreshold) {
+          _show(); // 2
+        }
       }
     }
   }

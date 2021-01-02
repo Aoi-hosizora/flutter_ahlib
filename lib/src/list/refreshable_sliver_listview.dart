@@ -23,6 +23,12 @@ class RefreshableSliverListView<T> extends RefreshableDataView<T> {
     this.separator,
     this.innerTopSliver,
     this.innerBottomSliver,
+    this.innerCrossAxisAlignment = CrossAxisAlignment.center,
+    this.outerCrossAxisAlignment = CrossAxisAlignment.center,
+    this.innerTopWidget,
+    this.innerBottomWidget,
+    this.outerTopWidget,
+    this.outerBottomWidget,
   })  : assert(data != null && getData != null),
         assert(setting != null),
         assert(itemBuilder != null),
@@ -81,6 +87,24 @@ class RefreshableSliverListView<T> extends RefreshableDataView<T> {
   /// The widget after [SliverList] in [PlaceholderText].
   final Widget innerBottomSliver;
 
+  /// The crossAxisAlignment for inner [Column] in [PlaceholderText].
+  final CrossAxisAlignment innerCrossAxisAlignment;
+
+  /// The crossAxisAlignment for outer [Column] out of [PlaceholderText].
+  final CrossAxisAlignment outerCrossAxisAlignment;
+
+  /// The widget before [CustomScrollView] in [PlaceholderText].
+  final Widget innerTopWidget;
+
+  /// The widget after [CustomScrollView] in [PlaceholderText].
+  final Widget innerBottomWidget;
+
+  /// The widget before [CustomScrollView] out of [PlaceholderText].
+  final Widget outerTopWidget;
+
+  /// The widget after [CustomScrollView] out of [PlaceholderText].
+  final Widget outerBottomWidget;
+
   @override
   _RefreshableSliverListViewState<T> createState() => _RefreshableSliverListViewState<T>();
 }
@@ -109,6 +133,7 @@ class _RefreshableSliverListViewState<T> extends State<RefreshableSliverListView
 
   Future<void> _getData() async {
     _forceState = null;
+    widget.setting.onRefresh?.call();
     return widget.getDataCore(
       setLoading: (l) => _loading = l,
       setErrorMessage: (e) => _errorMessage = e,
@@ -159,21 +184,39 @@ class _RefreshableSliverListViewState<T> extends State<RefreshableSliverListView
     return RefreshIndicator(
       key: _refreshIndicatorKey,
       onRefresh: () => _getData(),
-      child: PlaceholderText.from(
-        onRefresh: () => _refreshIndicatorKey.currentState?.show(),
-        forceState: _forceState,
-        isLoading: _loading,
-        isEmpty: widget.data.isEmpty,
-        errorText: _errorMessage,
-        onChanged: widget.setting.onStateChanged,
-        setting: widget.setting.placeholderSetting,
-        childBuilder: (c) => widget.setting.showScrollbar
-            ? Scrollbar(
-                thickness: widget.setting.scrollbarThickness,
-                radius: widget.setting.scrollbarRadius,
-                child: view,
-              )
-            : view,
+      child: Column(
+        crossAxisAlignment: widget.outerCrossAxisAlignment ?? CrossAxisAlignment.center,
+        children: [
+          if (widget.outerTopWidget != null) widget.outerTopWidget,
+          Expanded(
+            child: PlaceholderText.from(
+              onRefresh: () => _refreshIndicatorKey.currentState?.show(),
+              forceState: _forceState,
+              isLoading: _loading,
+              isEmpty: widget.data.isEmpty,
+              errorText: _errorMessage,
+              onChanged: widget.setting.onStateChanged,
+              setting: widget.setting.placeholderSetting,
+              childBuilder: (c) => Column(
+                crossAxisAlignment: widget.innerCrossAxisAlignment ?? CrossAxisAlignment.center,
+                children: [
+                  if (widget.innerTopWidget != null) widget.innerTopWidget,
+                  Expanded(
+                    child: widget.setting.showScrollbar
+                        ? Scrollbar(
+                            thickness: widget.setting.scrollbarThickness,
+                            radius: widget.setting.scrollbarRadius,
+                            child: view,
+                          )
+                        : view,
+                  ),
+                  if (widget.innerBottomWidget != null) widget.innerBottomWidget,
+                ],
+              ),
+            ),
+          ),
+          if (widget.outerBottomWidget != null) widget.outerBottomWidget,
+        ],
       ),
     );
   }

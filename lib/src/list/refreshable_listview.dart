@@ -120,6 +120,7 @@ class _RefreshableListViewState<T> extends State<RefreshableListView<T>> with Au
 
   Future<void> _getData() async {
     _forceState = null;
+    widget.setting.onRefresh?.call();
     return widget.getDataCore(
       setLoading: (l) => _loading = l,
       setErrorMessage: (e) => _errorMessage = e,

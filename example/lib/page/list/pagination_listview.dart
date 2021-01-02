@@ -11,6 +11,7 @@ class _PaginationListViewPageState extends State<PaginationListViewPage> {
   final _scrollController = ScrollController();
   final _fabController = AnimatedFabController();
   var _isError = false;
+  var _useSeek = false;
   var _data = <String>[];
 
   Future<List<String>> _getData({int page}) async {
@@ -23,6 +24,27 @@ class _PaginationListViewPageState extends State<PaginationListViewPage> {
       return [];
     }
     return List.generate(10, (i) => 'Item $page - ${i + 1}');
+  }
+
+  Future<SeekList<String>> _getData2({dynamic maxId}) async {
+    print('_getData2: $maxId');
+    await Future.delayed(Duration(seconds: 2));
+    if (_isError) {
+      return Future.error('something wrong');
+    }
+    if (maxId == 40) {
+      return SeekList(list: List.generate(10, (i) => 'Item $maxId - ${maxId - i}').toList(), nextMaxId: 30);
+    }
+    if (maxId == 30) {
+      return SeekList(list: List.generate(10, (i) => 'Item $maxId - ${maxId - i}').toList(), nextMaxId: 20);
+    }
+    if (maxId == 20) {
+      return SeekList(list: List.generate(10, (i) => 'Item $maxId - ${maxId - i}').toList(), nextMaxId: 10);
+    }
+    if (maxId == 10) {
+      return SeekList(list: List.generate(10, (i) => 'Item $maxId - ${maxId - i}').toList(), nextMaxId: 0);
+    }
+    return SeekList(list: [], nextMaxId: 0);
   }
 
   @override
@@ -48,13 +70,32 @@ class _PaginationListViewPageState extends State<PaginationListViewPage> {
               if (mounted) setState(() {});
             },
           ),
+          IconButton(
+            icon: BannedIcon(
+              banned: !_useSeek,
+              icon: Icon(Icons.place),
+              color: Colors.white,
+              backgroundColor: Theme.of(context).primaryColor,
+              offset: 1.5,
+            ),
+            onPressed: () {
+              _useSeek = !_useSeek;
+              if (mounted) setState(() {});
+              _controller.refresh();
+            },
+          ),
         ],
       ),
       body: PaginationListView<String>(
         data: _data,
-        strategy: PaginationStrategy.offsetBased,
-        paginationSetting: PaginationSetting(initialPage: 1),
-        getDataByOffset: ({int page}) => _getData(page: page),
+        strategy: !_useSeek ? PaginationStrategy.offsetBased : PaginationStrategy.seekBased,
+        paginationSetting: PaginationSetting(
+          initialPage: 1,
+          initialMaxId: 40,
+          nothingMaxId: 0,
+        ),
+        getDataByOffset: !_useSeek ? ({int page}) => _getData(page: page) : null,
+        getDataBySeek: _useSeek ? ({dynamic maxId}) => _getData2(maxId: maxId) : null,
         controller: _controller,
         scrollController: _scrollController,
         setting: UpdatableDataViewSetting(
@@ -65,6 +106,7 @@ class _PaginationListViewPageState extends State<PaginationListViewPage> {
           onStateChanged: (_, __) => _fabController.hide(),
           onStartLoading: () => print('onStartLoading'),
           onStopLoading: () => print('onStopLoading'),
+          onRefresh: () => print('onRefresh'),
           onAppend: (l) => print('onAppend: ${l.length}'),
           onError: (e) => print('onError: $e'),
           showScrollbar: true,
@@ -72,46 +114,6 @@ class _PaginationListViewPageState extends State<PaginationListViewPage> {
         itemBuilder: (_, item) => ListTile(
           title: Text(item),
           onTap: () {},
-        ),
-        innerTopWidget: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: EdgeInsets.fromLTRB(10, 8, 0, 8),
-              child: Text('inner top widget'),
-            ),
-            Divider(height: 1, thickness: 1),
-          ],
-        ),
-        innerBottomWidget: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Divider(height: 1, thickness: 1),
-            Padding(
-              padding: EdgeInsets.fromLTRB(10, 8, 0, 8),
-              child: Text('inner bottom widget'),
-            ),
-          ],
-        ),
-        outerTopWidget: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Padding(
-              padding: EdgeInsets.fromLTRB(0, 8, 10, 8),
-              child: Text('outer top widget'),
-            ),
-            Divider(height: 1, thickness: 1),
-          ],
-        ),
-        outerBottomWidget: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Divider(height: 1, thickness: 1),
-            Padding(
-              padding: EdgeInsets.fromLTRB(0, 8, 10, 8),
-              child: Text('outer bottom widget'),
-            ),
-          ],
         ),
       ),
       floatingActionButton: ScrollAnimatedFab(

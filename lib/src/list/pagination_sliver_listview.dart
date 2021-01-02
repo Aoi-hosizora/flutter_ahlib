@@ -28,6 +28,12 @@ class PaginationSliverListView<T> extends PaginationDataView<T> {
     this.separator,
     this.innerTopSliver,
     this.innerBottomSliver,
+    this.innerCrossAxisAlignment = CrossAxisAlignment.center,
+    this.outerCrossAxisAlignment = CrossAxisAlignment.center,
+    this.innerTopWidget,
+    this.innerBottomWidget,
+    this.outerTopWidget,
+    this.outerBottomWidget,
   })  : assert(data != null && strategy != null && (getDataByOffset == null || getDataBySeek == null)),
         assert(strategy != PaginationStrategy.offsetBased || getDataByOffset != null),
         assert(strategy != PaginationStrategy.seekBased || getDataBySeek != null),
@@ -100,6 +106,24 @@ class PaginationSliverListView<T> extends PaginationDataView<T> {
   /// The widget after [SliverList] in [PlaceholderText].
   final Widget innerBottomSliver;
 
+  /// The crossAxisAlignment for inner [Column] in [PlaceholderText].
+  final CrossAxisAlignment innerCrossAxisAlignment;
+
+  /// The crossAxisAlignment for outer [Column] out of [PlaceholderText].
+  final CrossAxisAlignment outerCrossAxisAlignment;
+
+  /// The widget before [CustomScrollView] in [PlaceholderText].
+  final Widget innerTopWidget;
+
+  /// The widget after [CustomScrollView] in [PlaceholderText].
+  final Widget innerBottomWidget;
+
+  /// The widget before [CustomScrollView] out of [PlaceholderText].
+  final Widget outerTopWidget;
+
+  /// The widget after [CustomScrollView] out of [PlaceholderText].
+  final Widget outerBottomWidget;
+
   @override
   _PaginationSliverListViewState<T> createState() => _PaginationSliverListViewState<T>();
 }
@@ -141,6 +165,9 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
 
   Future<void> _getData({@required bool reset}) async {
     _forceState = null;
+    if (reset) {
+      widget.setting.onRefresh?.call();
+    }
     return widget.getDataCore(
       reset: reset,
       setLoading: (l) => _loading = l,
@@ -200,24 +227,42 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
       child: RefreshIndicator(
         key: _refreshIndicatorKey,
         onRefresh: () => _getData(reset: true),
-        child: PlaceholderText.from(
-          onRefresh: () => _refreshIndicatorKey.currentState?.show(),
-          forceState: _forceState,
-          isLoading: _loading,
-          isEmpty: widget.data.isEmpty,
-          errorText: _errorMessage,
-          onChanged: widget.setting.onStateChanged,
-          setting: widget.setting.placeholderSetting,
-          childBuilder: (c) => NotificationListener<ScrollNotification>(
-            onNotification: (s) => _onScroll(s),
-            child: widget.setting.showScrollbar
-                ? Scrollbar(
-                    thickness: widget.setting.scrollbarThickness,
-                    radius: widget.setting.scrollbarRadius,
-                    child: view,
-                  )
-                : view,
-          ),
+        child: Column(
+          crossAxisAlignment: widget.outerCrossAxisAlignment ?? CrossAxisAlignment.center,
+          children: [
+            if (widget.outerTopWidget != null) widget.outerTopWidget,
+            Expanded(
+              child: PlaceholderText.from(
+                onRefresh: () => _refreshIndicatorKey.currentState?.show(),
+                forceState: _forceState,
+                isLoading: _loading,
+                isEmpty: widget.data.isEmpty,
+                errorText: _errorMessage,
+                onChanged: widget.setting.onStateChanged,
+                setting: widget.setting.placeholderSetting,
+                childBuilder: (c) => Column(
+                  crossAxisAlignment: widget.innerCrossAxisAlignment ?? CrossAxisAlignment.center,
+                  children: [
+                    if (widget.innerTopWidget != null) widget.innerTopWidget,
+                    Expanded(
+                      child: NotificationListener<ScrollNotification>(
+                        onNotification: (s) => _onScroll(s),
+                        child: widget.setting.showScrollbar
+                            ? Scrollbar(
+                                thickness: widget.setting.scrollbarThickness,
+                                radius: widget.setting.scrollbarRadius,
+                                child: view,
+                              )
+                            : view,
+                      ),
+                    ),
+                    if (widget.innerBottomWidget != null) widget.innerBottomWidget,
+                  ],
+                ),
+              ),
+            ),
+            if (widget.outerBottomWidget != null) widget.outerBottomWidget,
+          ],
         ),
       ),
     );

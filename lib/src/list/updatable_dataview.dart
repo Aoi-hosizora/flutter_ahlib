@@ -39,7 +39,7 @@ abstract class UpdatableDataView<T> extends StatefulWidget {
 final _kFlashListDuration = Duration(milliseconds: 50);
 
 /// A duration of a fake refresh, used in [PaginationDataView.getDataCore].
-final _kFakeRefreshDuration = Duration(milliseconds: 100);
+final _kFakeRefreshDuration = Duration(milliseconds: 200);
 
 /// An abstract [UpdatableDataView] for refreshable data view, including
 /// [RefreshableListView], [RefreshableSliverListView], [RefreshableStaggeredGridView].
@@ -208,6 +208,8 @@ abstract class PaginationDataView<T> extends UpdatableDataView<T> {
         // =========================
         if (getNextMaxId() == paginationSetting.nothingMaxId) {
           await Future.delayed(_kFakeRefreshDuration);
+          setting.onAppend?.call([]);
+          setting.onStopLoading?.call();
           return Future.value();
         }
         final func = getDataBySeek(maxId: getNextMaxId());
@@ -261,6 +263,7 @@ class UpdatableDataViewSetting<T> {
     this.updateOnlyIfNotEmpty = false,
     this.onStartLoading,
     this.onStopLoading,
+    this.onRefresh,
     this.onAppend,
     this.onError,
     this.placeholderSetting = const PlaceholderSetting(),
@@ -292,6 +295,9 @@ class UpdatableDataViewSetting<T> {
 
   /// Callback when stop loading.
   final void Function() onStopLoading;
+
+  /// Callback when refresh invoked.
+  final void Function() onRefresh;
 
   /// Callback when data has been appended.
   final void Function(List<T>) onAppend;

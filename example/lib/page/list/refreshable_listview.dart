@@ -58,6 +58,7 @@ class _RefreshableListViewPageState extends State<RefreshableListViewPage> {
           onStateChanged: (_, __) => _fabController.hide(),
           onStartLoading: () => print('onStartLoading'),
           onStopLoading: () => print('onStopLoading'),
+          onRefresh: () => print('onRefresh'),
           onAppend: (l) => print('onAppend: ${l.length}'),
           onError: (e) => print('onError: $e'),
           showScrollbar: true,

@@ -133,6 +133,7 @@ class _RefreshableStaggeredGridViewState<T> extends State<RefreshableStaggeredGr
 
   Future<void> _getData() async {
     _forceState = null;
+    widget.setting.onRefresh?.call();
     return widget.getDataCore(
       setLoading: (l) => _loading = l,
       setErrorMessage: (e) => _errorMessage = e,
