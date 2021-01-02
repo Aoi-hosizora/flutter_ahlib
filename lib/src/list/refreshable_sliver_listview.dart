@@ -39,7 +39,7 @@ class RefreshableSliverListView<T> extends RefreshableDataView<T> {
 
   /// Some behavior and display settings.
   @override
-  final UpdatableDataViewSetting setting;
+  final UpdatableDataViewSetting<T> setting;
 
   /// The controller of the behavior.
   @override
@@ -160,7 +160,7 @@ class _RefreshableSliverListViewState<T> extends State<RefreshableSliverListView
       key: _refreshIndicatorKey,
       onRefresh: () => _getData(),
       child: PlaceholderText.from(
-        onRefresh: _refreshIndicatorKey.currentState?.show,
+        onRefresh: () => _refreshIndicatorKey.currentState?.show(),
         forceState: _forceState,
         isLoading: _loading,
         isEmpty: widget.data.isEmpty,

@@ -57,7 +57,7 @@ class _AnimatedFabState extends State<AnimatedFab> with TickerProviderStateMixin
   Widget build(BuildContext context) {
     if (_lastShowFab == null || widget.show != _lastShowFab) {
       _lastShowFab = widget.show;
-      if (_lastShowFab) {
+      if (widget.show) {
         _animController.forward();
       } else {
         _animController.reverse();
@@ -80,11 +80,12 @@ class ScrollAnimatedFab extends StatefulWidget {
     this.controller,
     this.duration = const Duration(milliseconds: 250),
     this.curve = Curves.easeOutBack,
-    this.scrollController,
+    @required this.scrollController,
     this.offset = 50,
   })  : assert(fab != null),
         assert(duration != null),
         assert(curve != null),
+        assert(scrollController != null),
         assert(offset != null && offset >= 0),
         super(key: key);
 
@@ -121,13 +122,13 @@ class _ScrollAnimatedFabState extends State<ScrollAnimatedFab> with TickerProvid
     _animController = AnimationController(vsync: this, duration: widget.duration);
     _fabAnimation = CurvedAnimation(parent: _animController, curve: widget.curve);
     widget.controller?.attachAnim(_animController);
-    widget.scrollController?.addListener(_scrollListener);
+    widget.scrollController.addListener(_scrollListener);
   }
 
   @override
   void dispose() {
     _animController.dispose();
-    widget.scrollController?.removeListener(_scrollListener);
+    widget.scrollController.removeListener(_scrollListener);
     super.dispose();
   }
 
@@ -154,7 +155,7 @@ class _ScrollAnimatedFabState extends State<ScrollAnimatedFab> with TickerProvid
   }
 }
 
-/// Controller for [ScrollAnimatedFab], includes [show] and [hide] function.
+/// Controller for [AnimatedFab] and [ScrollAnimatedFab], includes [show] and [hide] methods.
 class AnimatedFabController {
   AnimationController _animController;
 

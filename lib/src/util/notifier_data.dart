@@ -22,9 +22,8 @@ class _ListenerKey {
   final String dataKey;
 }
 
-/// [NotifiableData] is an abstract data class with listeners list, which can notify the subscribers when [notify] invoked.
-/// Here both subscriber (receiver) and data fields can have separator fields. And this class has three types of methods:
-/// [notify], [notifyDefault] and [notifyAll].
+/// [NotifiableData] is an abstract data class with listeners list, which can notify the subscribers when [notify] invoked. Here both
+/// subscribers (receivers) and data fields can have separate fields. There are three types of method: [notify], [notifyDefault] and [notifyAll].
 /// Example:
 /// ```
 /// class AuthState extends NotifiableData {
@@ -46,7 +45,7 @@ abstract class NotifiableData {
   final _listeners = <_ListenerKey>[];
 
   // ==
-  // x
+  // xx
   // ==
 
   /// Register a listener using non-nullable [receiver] and [dataKey], and return true is success, or return false if duplicate entry exists.
@@ -114,13 +113,13 @@ abstract class NotifiableData {
   // all
   // ===
 
-  /// Unregister some listeners using non-nullable [receiver].
+  /// Unregister all the listeners using non-nullable [receiver].
   void unregisterAll(NotifyReceiverMixin receiver) {
     assert(receiver != null);
     _listeners.removeWhere((tuple) => tuple.receiver.receiverKey == receiver.receiverKey);
   }
 
-  /// Check existence of listener using non-nullable [receiver].
+  /// Check existence of listeners using non-nullable [receiver].
   bool containsAny(NotifyReceiverMixin receiver) {
     assert(receiver != null);
     return _listeners.any((tuple) => tuple.receiver.receiverKey == receiver.receiverKey);

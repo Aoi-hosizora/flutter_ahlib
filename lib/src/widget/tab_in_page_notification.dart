@@ -1,8 +1,8 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-/// This widget can used to enable scrolling for [TabBarView] inside [PageView]. It will need
-/// the [PageController] or [ScrollController.position] to update [Drag].
+/// This widget can be used to enable scrolling for [TabBarView] inside [PageView]. It needs the
+/// [PageController] and uses [ScrollController.position] to update [Drag] in [NotificationListener].
 class TabInPageNotification extends StatelessWidget {
   const TabInPageNotification({
     Key key,
@@ -29,7 +29,7 @@ class TabInPageNotification extends StatelessWidget {
         }
         if (n is OverscrollNotification && n.dragDetails.delta.dy == 0) {
           drag = pageController.position.drag(dragStartDetails, () {});
-          drag.update(n.dragDetails);
+          drag.update(n.dragDetails); // <<<
         }
         if (n is ScrollEndNotification) {
           drag?.cancel();

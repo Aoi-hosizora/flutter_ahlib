@@ -6,6 +6,7 @@ import 'package:flutter_ahlib_example/page/list/refreshable_listview.dart';
 import 'package:flutter_ahlib_example/page/list/refreshable_sliver_listview.dart';
 import 'package:flutter_ahlib_example/page/list/refreshable_staggered_gridview.dart';
 import 'package:flutter_ahlib_example/page/widget/drawer_list_view.dart';
+import 'package:flutter_ahlib_example/page/widget/function_painter.dart';
 import 'package:flutter_ahlib_example/page/widget/icon_text.dart';
 import 'package:flutter_ahlib_example/page/widget/lazy_indexed_stack.dart';
 import 'package:flutter_ahlib_example/page/widget/placeholder_text.dart';
@@ -25,7 +26,7 @@ class IndexPage extends StatefulWidget {
 class _IndexPageState extends State<IndexPage> {
   Widget _text(String text) {
     return Padding(
-      padding: EdgeInsets.all(6),
+      padding: EdgeInsets.all(10),
       child: Text(
         text,
         style: TextStyle(
@@ -36,21 +37,18 @@ class _IndexPageState extends State<IndexPage> {
   }
 
   Widget _button(String title, Widget page, [RouteSettings settings]) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 6),
-      child: OutlineButton(
-        child: Text(title),
-        onPressed: () {
-          if (page != null) {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (c) => page,
-                settings: settings,
-              ),
-            );
-          }
-        },
-      ),
+    return OutlineButton(
+      child: Text(title),
+      onPressed: () {
+        if (page != null) {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (c) => page,
+              settings: settings,
+            ),
+          );
+        }
+      },
     );
   }
 
@@ -65,42 +63,30 @@ class _IndexPageState extends State<IndexPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             _text('Widgets Example'),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+            Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 8,
               children: [
                 _button('PlaceholderText', PlaceholderTextPage()),
                 _button('DrawerListView', DrawerListViewPage(), RouteSettings(name: '.')),
                 _button('IconText', IconTextPage()),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
                 _button('PopupMenu', PopupMenuPage()),
                 _button('AnimatedFab', AnimatedFabPage()),
                 _button('LazyIndexedStack', LazyIndexedStackPage()),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
                 _button('SliverDelegate', SliverDelegatePage()),
                 _button('TextGroup', TextGroupPage()),
                 _button('TabInPageNotification', TabInPageNotificationPage()),
+                _button('FunctionPainter', FunctionPainterPage()),
               ],
             ),
             _text('Lists Example'),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+            Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 8,
               children: [
                 _button('RefreshableListView', RefreshableListViewPage()),
                 _button('RefreshableSliverListView', RefreshableSliverListViewPage()),
                 _button('RefreshableStaggeredGridView', RefreshableStaggeredGridViewPage()),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
                 _button('PaginationListView', PaginationListViewPage()),
                 _button('PaginationSliverListView', PaginationSliverListViewPage()),
                 _button('PaginationStaggeredGridView', PaginationStaggeredGridViewPage()),

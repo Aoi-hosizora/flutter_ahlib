@@ -11,7 +11,13 @@
 ### Usage
 
 ```dart
-import 'package:flutter_ahlib/flutter_ahlib.dart';
+import 'package:flutter_ahlib/widget.dart'; // for widgets
+import 'package:flutter_ahlib/list.dart'; // for list widgets
+import 'package:flutter_ahlib/util.dart'; // for some utils
+import 'package:flutter_ahlib/image.dart'; // for image related
+
+// Or import all packages directly.
+import 'package:flutter_ahlib/flutter_ahlib.dart'; // the whole library
 ```
 
 ### Dependencies
@@ -30,12 +36,13 @@ http: ^0.12.2
     + `PlaceholderText`
     + `DrawerListView`
     + `IconText`
-    + `showPopupListMenu` `MenuItem` `TextMenuItem` `IconTextMenuItem` 
+    + `showPopupListMenu`
     + `AnimatedFab` `ScrollAnimatedFab` `AnimatedFabController`
     + `LazyIndexedStack`
     + `SliverAppBarDelegate` `SliverAppBarSizedDelegate` `SliverSeparatedBuilderDelegate` `SliverSeparatedListDelegate`
-    + `TextGroup` `NormalGroupText` `LinkGroupText`
+    + `TextGroup`
     + `TabInPageNotification`
+    + `FunctionPainter` `BannedIcon`
 + Image:
     + `LocalOrNetworkImageProvider`
     + `MultiImageStreamCompleter`
@@ -43,13 +50,13 @@ http: ^0.12.2
     + `ActionController`
     + `Tuple2` ~ `Tuple6`
     + `hashObjects()`, `hash2()` ~ `hash6()`
-    + `StateExtension`
     + `BoolExtension` `ListExtension`
     + `StateExtension` `ScrollControllerExtension` `PageControllerExtension` `ScrollMetricsExtension`
-    + `NotifiableData` `NotifyReceiverMixin` `SimpleNotifyReceiver`
+    + `filesize`
+    + `NotifiableData`
 + List:
     + `AppendIndicator`
-    + `UpdatableDataView` `RefreshableDataView` `PaginationDataView` `UpdatableDataViewController`
+    + `UpdatableDataView` `UpdatableDataViewController`
     + `RefreshableListView`
     + `RefreshableSliverListView`
     + `RefreshableStaggeredGridView`

@@ -7,7 +7,7 @@ class MenuItem {
   const MenuItem({
     @required Widget child,
     @required this.action,
-    this.padding,
+    this.padding = const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
     this.dismissBefore = true,
     this.dismissAfter = false,
   })  : assert(child != null),
@@ -41,7 +41,7 @@ class TextMenuItem extends MenuItem {
   const TextMenuItem({
     @required Text text,
     Function action,
-    EdgeInsets padding = const EdgeInsets.symmetric(vertical: 13, horizontal: 25),
+    EdgeInsets padding = const EdgeInsets.symmetric(horizontal: 24, vertical: 13),
     bool dismissBefore = true,
     bool dismissAfter = false,
   }) : super(
@@ -58,7 +58,7 @@ class IconTextMenuItem extends MenuItem {
   const IconTextMenuItem({
     @required IconText iconText,
     Function action,
-    EdgeInsets padding = const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
+    EdgeInsets padding = const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
     bool dismissBefore = true,
     bool dismissAfter = false,
   }) : super(
@@ -74,14 +74,13 @@ class IconTextMenuItem extends MenuItem {
 /// or your own defined [MenuItem].
 Future<void> showPopupListMenu({
   @required BuildContext context,
-  @required Widget title,
+  Widget title,
   @required List<MenuItem> items,
   bool barrierDismissible = true,
   Color barrierColor,
   bool useSafeArea = true,
 }) {
   assert(context != null);
-  assert(title != null);
   assert(items != null && items.length > 0);
   assert(barrierDismissible != null);
   assert(useSafeArea != null);

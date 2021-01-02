@@ -203,14 +203,14 @@ class _DrawerListViewState<T> extends State<DrawerListView<T>> {
             case _DrawerItemType.page:
               DrawerPageItem<T> page = item;
               return Container(
-                color: widget.currentSelection == page.selection && widget.enableHighlight ? page.highlightColor : page.backgroundColor,
+                color: widget.enableHighlight && widget.currentSelection == page.selection ? page.highlightColor : page.backgroundColor,
                 child: Material(
                   color: Colors.transparent,
                   child: ListTile(
                     title: page.title,
                     leading: page.leading,
                     trailing: page.trailing,
-                    selected: widget.currentSelection == page.selection && widget.enableHighlight,
+                    selected: widget.enableHighlight && widget.currentSelection == page.selection,
                     onTap: () {
                       if (page.selection != widget.currentSelection) {
                         if (page.autoCloseWhenTapped) {

@@ -59,8 +59,8 @@ extension ScrollControllerExtension on ScrollController {
 
 /// A helper extension for [PageController].
 extension PageControllerExtension on PageController {
-  /// A optional parameter version of [animateToPage].
-  Future<void> animateToPageDefault(int page, {Curve curve = Curves.easeOutQuad, Duration duration = kTabScrollDuration}) {
+  /// An optional parameters version of [animateToPage], is like as [ScrollController.animateTo]. Both of [animateTo] and [animateToPage]'s parameters are all required.
+  Future<void> defaultAnimateToPage(int page, {Curve curve = Curves.easeOutQuad, Duration duration = kTabScrollDuration}) {
     return animateToPage(page, curve: curve, duration: duration);
   }
 }

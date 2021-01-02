@@ -26,7 +26,7 @@ class _TabInPageNotificationPageState extends State<TabInPageNotificationPage> {
         items: ['A', 'B', 'C'].map((t) => BottomNavigationBarItem(icon: Icon(Icons.chevron_right), label: t)).toList(),
         onTap: (index) {
           _currentIndex = index;
-          _controller.animateToPageDefault(index);
+          _controller.defaultAnimateToPage(index);
           if (mounted) setState(() {});
         },
       ),

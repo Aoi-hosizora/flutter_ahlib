@@ -7,6 +7,7 @@ class SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
     @required this.child,
   }) : assert(child != null);
 
+  /// [PreferredSize] child.
   final PreferredSize child;
 
   @override
@@ -37,8 +38,13 @@ class SliverAppBarSizedDelegate extends SliverPersistentHeaderDelegate {
         assert(minHeight <= maxHeight),
         assert(child != null);
 
+  /// The minimum height.
   final double minHeight;
+
+  /// The maximum height.
   final double maxHeight;
+
+  /// [Widget] child.
   final Widget child;
 
   @override

@@ -41,7 +41,7 @@ class RefreshableListView<T> extends RefreshableDataView<T> {
 
   /// Some behavior and display settings.
   @override
-  final UpdatableDataViewSetting setting;
+  final UpdatableDataViewSetting<T> setting;
 
   /// The controller of the behavior.
   @override
@@ -157,7 +157,7 @@ class _RefreshableListViewState<T> extends State<RefreshableListView<T>> with Au
           if (widget.outerTopWidget != null) widget.outerTopWidget,
           Expanded(
             child: PlaceholderText.from(
-              onRefresh: _refreshIndicatorKey.currentState?.show,
+              onRefresh: () => _refreshIndicatorKey.currentState?.show(),
               forceState: _forceState,
               isLoading: _loading,
               isEmpty: widget.data.isEmpty,

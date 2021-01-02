@@ -3,8 +3,7 @@ import 'package:flutter_ahlib/src/list/append_indicator.dart';
 import 'package:flutter_ahlib/src/widget/placeholder_text.dart';
 import 'package:flutter_ahlib/src/util/flutter_extensions.dart';
 
-/// An abstract widget for updatable data view, including
-/// [RefreshableDataView] and [PaginationDataView].
+/// An abstract widget for updatable data view, including [RefreshableDataView] and [PaginationDataView].
 abstract class UpdatableDataView<T> extends StatefulWidget {
   const UpdatableDataView({Key key}) : super(key: key);
 
@@ -12,7 +11,7 @@ abstract class UpdatableDataView<T> extends StatefulWidget {
   List<T> get data;
 
   /// Some behavior and display settings.
-  UpdatableDataViewSetting get setting;
+  UpdatableDataViewSetting<T> get setting;
 
   /// The controller of the behavior.
   UpdatableDataViewController get controller;
@@ -37,7 +36,7 @@ abstract class UpdatableDataView<T> extends StatefulWidget {
 }
 
 /// A duration of a flashing after clear list, used in [RefreshableDataView.getDataCore] and [PaginationDataView.getDataCore].
-final _kFlashListDuration = Duration(milliseconds: 20);
+final _kFlashListDuration = Duration(milliseconds: 50);
 
 /// A duration of a fake refresh, used in [PaginationDataView.getDataCore].
 final _kFakeRefreshDuration = Duration(milliseconds: 100);
@@ -118,29 +117,29 @@ abstract class PaginationDataView<T> extends UpdatableDataView<T> {
   Future<SeekList<T>> Function({dynamic maxId}) get getDataBySeek;
 
   /// Some pagination settings.
-  PaginationDataViewSetting get paginationSetting;
+  PaginationSetting get paginationSetting;
 
   /// The getData implementation.
   Future<void> getDataCore({
     @required bool reset,
-    @required bool downScrollable,
     @required void Function(bool) setLoading,
     @required void Function(String) setErrorMessage,
     @required void Function(int) setNextPage,
     @required void Function(dynamic) setNextMaxId,
     @required int Function() getNextPage,
     @required dynamic getNextMaxId,
+    @required bool Function() getDownScrollable,
     @required Function() setState,
   }) async {
     // TODO need to test this function in the inherited class.
     assert(reset != null);
-    assert(downScrollable != null);
     assert(setLoading != null);
     assert(setErrorMessage != null);
     assert(setNextPage != null);
     assert(setNextMaxId != null);
     assert(getNextPage != null);
     assert(getNextMaxId != null);
+    assert(getDownScrollable != null);
     assert(setState != null);
 
     // reset page
@@ -183,7 +182,9 @@ abstract class PaginationDataView<T> extends UpdatableDataView<T> {
             data.addAll(list);
           } else {
             data.addAll(list);
-            scrollController?.scrollDown();
+            if (getDownScrollable()) {
+              scrollController?.scrollDown();
+            }
           }
           setNextPage(getNextPage() + 1);
           setting.onAppend?.call(list);
@@ -228,7 +229,7 @@ abstract class PaginationDataView<T> extends UpdatableDataView<T> {
             data.addAll(sl.list);
           } else {
             data.addAll(sl.list);
-            if (downScrollable) {
+            if (getDownScrollable()) {
               scrollController?.scrollDown();
             }
           }
@@ -251,7 +252,7 @@ abstract class PaginationDataView<T> extends UpdatableDataView<T> {
   }
 }
 
-/// A list of behavior settings for [UpdatableDataView].
+/// A list of behavior and display settings for [UpdatableDataView].
 class UpdatableDataViewSetting<T> {
   const UpdatableDataViewSetting({
     this.refreshFirst = true,
@@ -314,9 +315,19 @@ class UpdatableDataViewSetting<T> {
   final Radius scrollbarRadius;
 }
 
+/// Pagination strategy for [PaginationDataView], including
+/// [offsetBased] and [seekBased].
+enum PaginationStrategy {
+  /// Use `page` and  `limit` as parameters to query list data.
+  offsetBased,
+
+  /// Use `maxId` and `limit` as parameters to query list data.
+  seekBased,
+}
+
 /// A list of pagination settings for [PaginationDataView].
-class PaginationDataViewSetting {
-  const PaginationDataViewSetting({
+class PaginationSetting {
+  const PaginationSetting({
     this.initialPage = 1,
     this.initialMaxId,
     this.nothingMaxId,
@@ -375,16 +386,6 @@ class UpdatableDataViewController {
   }
 }
 
-/// Pagination strategy for [PaginationDataView], including
-/// [offsetBased] and [seekBased].
-enum PaginationStrategy {
-  /// Use `page` and  `limit` as parameters to query list data.
-  offsetBased,
-
-  /// Use `maxId` and `limit` as parameters to query list data.
-  seekBased,
-}
-
 /// Data model for [PaginationDataView], used when using [PaginationStrategy.seekBased] pagination strategy.
 class SeekList<T> {
   const SeekList({
@@ -395,6 +396,6 @@ class SeekList<T> {
   /// Represents the return list.
   final List<T> list;
 
-  /// Represents the next `maxId`, [PaginationDataViewSetting.nothingMaxId] if this is the last page.
+  /// Represents the next `maxId`, [PaginationSetting.nothingMaxId] if this is the last page.
   final dynamic nextMaxId;
 }

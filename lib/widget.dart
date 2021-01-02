@@ -9,3 +9,4 @@ export 'src/widget/lazy_indexed_stack.dart';
 export 'src/widget/sliver_delegate.dart';
 export 'src/widget/text_group.dart';
 export 'src/widget/tab_in_page_notification.dart';
+export 'src/widget/function_painter.dart';

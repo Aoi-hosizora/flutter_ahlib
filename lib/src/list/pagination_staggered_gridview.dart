@@ -15,7 +15,7 @@ class PaginationStaggeredGridView<T> extends PaginationDataView<T> {
     this.getDataByOffset,
     this.getDataBySeek,
     this.setting = const UpdatableDataViewSetting(),
-    this.paginationSetting = const PaginationDataViewSetting(),
+    this.paginationSetting = const PaginationSetting(),
     this.controller,
     this.scrollController,
     @required this.itemBuilder,
@@ -60,11 +60,11 @@ class PaginationStaggeredGridView<T> extends PaginationDataView<T> {
 
   /// Some behavior and display settings.
   @override
-  final UpdatableDataViewSetting setting;
+  final UpdatableDataViewSetting<T> setting;
 
   /// Some pagination settings.
   @override
-  final PaginationDataViewSetting paginationSetting;
+  final PaginationSetting paginationSetting;
 
   /// The controller of the behavior.
   @override
@@ -167,13 +167,13 @@ class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGrid
     _forceState = null;
     return widget.getDataCore(
       reset: reset,
-      downScrollable: _downScrollable,
       setLoading: (l) => _loading = l,
       setErrorMessage: (e) => _errorMessage = e,
       setNextPage: (p) => _nextPage = p,
       setNextMaxId: (m) => _nextMaxId = m,
       getNextPage: () => _nextPage,
       getNextMaxId: () => _nextMaxId,
+      getDownScrollable: () => _downScrollable,
       setState: () {
         if (mounted) setState(() {});
       },
@@ -214,7 +214,7 @@ class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGrid
             if (widget.outerTopWidget != null) widget.outerTopWidget,
             Expanded(
               child: PlaceholderText.from(
-                onRefresh: _refreshIndicatorKey.currentState?.show,
+                onRefresh: () => _refreshIndicatorKey.currentState?.show(),
                 forceState: _forceState,
                 isLoading: _loading,
                 isEmpty: widget.data.isEmpty,
