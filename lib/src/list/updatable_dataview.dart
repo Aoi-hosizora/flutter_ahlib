@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/src/list/append_indicator.dart';
 import 'package:flutter_ahlib/src/widget/placeholder_text.dart';
-import 'package:flutter_ahlib/src/util/flutter_extensions.dart';
 
 /// An abstract widget for updatable data view, including [RefreshableDataView] and [PaginationDataView].
 abstract class UpdatableDataView<T> extends StatefulWidget {
   const UpdatableDataView({Key key}) : super(key: key);
 
-  /// The list of scored data, need to be created out of widget.
+  /// The list of data.
   List<T> get data;
 
-  /// Some behavior and display settings.
+  /// The display and behavior setting.
   UpdatableDataViewSetting<T> get setting;
 
-  /// The controller of the behavior.
+  /// The controller for the behavior.
   UpdatableDataViewController get controller;
 
   /// The controller for [ScrollView].
@@ -21,262 +20,76 @@ abstract class UpdatableDataView<T> extends StatefulWidget {
 
   /// The itemBuilder for [ScrollView].
   Widget Function(BuildContext, T) get itemBuilder;
-
-  /// The padding for [ScrollView].
-  EdgeInsetsGeometry get padding;
-
-  /// The physics for [ScrollView].
-  ScrollPhysics get physics => AlwaysScrollableScrollPhysics();
-
-  /// The reverse for [ScrollView].
-  bool get reverse => false;
-
-  /// The shrinkWrap for [ScrollView].
-  bool get shrinkWrap => false;
-}
-
-/// A duration of a flashing after clear list, used in [RefreshableDataView.getDataCore] and [PaginationDataView.getDataCore].
-final _kFlashListDuration = Duration(milliseconds: 50);
-
-/// A duration of a fake refresh, used in [PaginationDataView.getDataCore].
-final _kFakeRefreshDuration = Duration(milliseconds: 200);
-
-/// An abstract [UpdatableDataView] for refreshable data view, including
-/// [RefreshableListView], [RefreshableSliverListView], [RefreshableStaggeredGridView].
-abstract class RefreshableDataView<T> extends UpdatableDataView<T> {
-  const RefreshableDataView({Key key}) : super(key: key);
-
-  /// Function to get list data.
-  Future<List<T>> Function() get getData;
-
-  /// The getData implementation.
-  Future<void> getDataCore({
-    @required void Function(bool) setLoading,
-    @required void Function(String) setErrorMessage,
-    @required Function() setState,
-  }) async {
-    // TODO need to test this function in the inherited class.
-    assert(setLoading != null);
-    assert(setErrorMessage != null);
-    assert(setState != null);
-
-    // start loading
-    setLoading(true);
-    if (setting.clearWhenRefresh) {
-      setErrorMessage('');
-      data.clear();
-    }
-    setting.onStartLoading?.call();
-    setState();
-
-    // get data
-    final func = getData();
-
-    // return future
-    return func.then((List<T> list) async {
-      // success to get data without error
-      setErrorMessage('');
-      if (setting.updateOnlyIfNotEmpty && list.isEmpty) {
-        return; // get an empty list
-      }
-      if (data.isNotEmpty) {
-        data.clear();
-        setState();
-        await Future.delayed(_kFlashListDuration);
-      }
-      data.addAll(list);
-      setting.onAppend?.call(list);
-    }).catchError((e) {
-      // error aroused
-      setErrorMessage(e.toString());
-      if (setting.clearWhenError) {
-        data.clear();
-      }
-      setting.onError?.call(e);
-    }).whenComplete(() {
-      // finish loading and setState
-      setLoading(false);
-      setting.onStopLoading?.call();
-      setState();
-    });
-  }
-}
-
-/// A abstract [UpdatableDataView] for appendable data view, including
-/// [PaginationListView], [PaginationSliverListView], [PaginationStaggeredGridView].
-abstract class PaginationDataView<T> extends UpdatableDataView<T> {
-  const PaginationDataView({Key key}) : super(key: key);
-
-  /// The pagination strategy.
-  PaginationStrategy get strategy;
-
-  /// Function to get list data when used [PaginationStrategy.offsetBased].
-  Future<List<T>> Function({int page}) get getDataByOffset;
-
-  /// Function to get list data when used [PaginationStrategy.seekBased].
-  Future<SeekList<T>> Function({dynamic maxId}) get getDataBySeek;
-
-  /// Some pagination settings.
-  PaginationSetting get paginationSetting;
-
-  /// The getData implementation.
-  Future<void> getDataCore({
-    @required bool reset,
-    @required void Function(bool) setLoading,
-    @required void Function(String) setErrorMessage,
-    @required void Function(int) setNextPage,
-    @required void Function(dynamic) setNextMaxId,
-    @required int Function() getNextPage,
-    @required dynamic getNextMaxId,
-    @required bool Function() getDownScrollable,
-    @required Function() setState,
-  }) async {
-    // TODO need to test this function in the inherited class.
-    assert(reset != null);
-    assert(setLoading != null);
-    assert(setErrorMessage != null);
-    assert(setNextPage != null);
-    assert(setNextMaxId != null);
-    assert(getNextPage != null);
-    assert(getNextMaxId != null);
-    assert(getDownScrollable != null);
-    assert(setState != null);
-
-    // reset page
-    if (reset) {
-      setNextPage(paginationSetting.initialPage);
-      setNextMaxId(paginationSetting.initialMaxId);
-    }
-
-    // start loading
-    setLoading(true);
-    if (reset && setting.clearWhenRefresh) {
-      setErrorMessage('');
-      data.clear();
-    }
-    setting.onStartLoading?.call();
-    setState();
-
-    // get data
-    switch (strategy) {
-      case PaginationStrategy.offsetBased:
-        // ==========================
-        // offsetBased, use _nextPage
-        // ==========================
-        final func = getDataByOffset(page: getNextPage());
-
-        // return future
-        return func.then((List<T> list) async {
-          // success to get data without error
-          setErrorMessage('');
-          if (setting.updateOnlyIfNotEmpty && list.isEmpty) {
-            return; // get an empty list
-          }
-          // replace or append
-          if (reset) {
-            if (data.isNotEmpty) {
-              data.clear();
-              setState();
-              await Future.delayed(_kFlashListDuration);
-            }
-            data.addAll(list);
-          } else {
-            data.addAll(list);
-            if (getDownScrollable()) {
-              scrollController?.scrollDown();
-            }
-          }
-          setNextPage(getNextPage() + 1);
-          setting.onAppend?.call(list);
-        }).catchError((e) {
-          // error aroused
-          setErrorMessage(e.toString());
-          if (setting.clearWhenError) {
-            data.clear();
-          }
-          setting.onError?.call(e);
-        }).whenComplete(() {
-          // finish loading and setState
-          setLoading(false);
-          setting.onStopLoading?.call();
-          setState();
-        });
-
-      case PaginationStrategy.seekBased:
-        // =========================
-        // seekBased, use _nextMaxId
-        // =========================
-        if (getNextMaxId() == paginationSetting.nothingMaxId) {
-          await Future.delayed(_kFakeRefreshDuration);
-          setting.onAppend?.call([]);
-          setting.onStopLoading?.call();
-          return Future.value();
-        }
-        final func = getDataBySeek(maxId: getNextMaxId());
-
-        // return future
-        return func.then((SeekList<T> sl) async {
-          // success to get data without error
-          setErrorMessage('');
-          if (setting.updateOnlyIfNotEmpty && sl.list.isEmpty) {
-            return; // get an empty list
-          }
-          // replace or append
-          if (reset) {
-            if (sl.list.isNotEmpty) {
-              data.clear();
-              setState();
-              await Future.delayed(_kFlashListDuration);
-            }
-            data.addAll(sl.list);
-          } else {
-            data.addAll(sl.list);
-            if (getDownScrollable()) {
-              scrollController?.scrollDown();
-            }
-          }
-          setNextMaxId(sl.nextMaxId);
-          setting.onAppend?.call(sl.list);
-        }).catchError((e) {
-          // error aroused
-          setErrorMessage(e.toString());
-          if (setting.clearWhenError) {
-            data.clear();
-          }
-          setting.onError?.call(e);
-        }).whenComplete(() {
-          // finish loading and setState
-          setLoading(false);
-          setting.onStopLoading?.call();
-          setState();
-        });
-    }
-  }
 }
 
 /// A list of behavior and display settings for [UpdatableDataView].
 class UpdatableDataViewSetting<T> {
   const UpdatableDataViewSetting({
+    this.padding,
+    this.physics = const AlwaysScrollableScrollPhysics(),
+    this.reverse = false,
+    this.shrinkWrap = false,
+    this.showScrollbar = true,
+    this.scrollbarThickness,
+    this.scrollbarRadius,
+    this.placeholderSetting = const PlaceholderSetting(),
+    this.onStateChanged,
+    this.wantKeepAlive = true,
+    // ===================================
     this.refreshFirst = true,
     this.clearWhenRefresh = false,
     this.clearWhenError = false,
     this.updateOnlyIfNotEmpty = false,
     this.onStartLoading,
     this.onStopLoading,
-    this.onRefresh,
+    this.onStartRefreshing,
+    this.onStopRefreshing,
     this.onAppend,
     this.onError,
-    this.placeholderSetting = const PlaceholderSetting(),
-    this.onStateChanged,
-    this.showScrollbar = true,
-    this.scrollbarThickness,
-    this.scrollbarRadius,
-  })  : assert(refreshFirst != null),
+    this.onNothing,
+  })  : assert(reverse != null),
+        assert(shrinkWrap != null),
+        assert(showScrollbar != null),
+        assert(placeholderSetting != null),
+        assert(wantKeepAlive != null),
+        assert(refreshFirst != null),
         assert(clearWhenRefresh != null),
         assert(clearWhenError != null),
-        assert(updateOnlyIfNotEmpty != null),
-        assert(placeholderSetting != null),
-        assert(showScrollbar != null);
+        assert(updateOnlyIfNotEmpty != null);
+
+  /* Display setting */
+
+  /// The padding for [ScrollView].
+  final EdgeInsetsGeometry padding;
+
+  /// The physics for [ScrollView].
+  final ScrollPhysics physics;
+
+  /// The reverse for [ScrollView].
+  final bool reverse;
+
+  /// The shrinkWrap for [ScrollView].
+  final bool shrinkWrap;
+
+  /// The visibility for [Scrollbar].
+  final bool showScrollbar;
+
+  /// The thickness for [Scrollbar].
+  final double scrollbarThickness;
+
+  /// The radius for [Scrollbar].
+  final Radius scrollbarRadius;
+
+  /// The setting for [PlaceholderText].
+  final PlaceholderSetting placeholderSetting;
+
+  /// The callback when [PlaceholderText] state changed.
+  final PlaceholderStateChangedCallback onStateChanged;
+
+  /// The wantKeepAlive for [AutomaticKeepAliveClientMixin].
+  final bool wantKeepAlive;
+
+  /* Behavior setting */
 
   /// Do refresh when init view.
   final bool refreshFirst;
@@ -287,7 +100,7 @@ class UpdatableDataViewSetting<T> {
   /// Clear list when error aroused.
   final bool clearWhenError;
 
-  /// Update list only when return data is not empty.
+  /// Update list only when return data is not empty, used for pagination.
   final bool updateOnlyIfNotEmpty;
 
   /// Callback when start loading.
@@ -296,8 +109,11 @@ class UpdatableDataViewSetting<T> {
   /// Callback when stop loading.
   final void Function() onStopLoading;
 
-  /// Callback when refresh invoked.
-  final void Function() onRefresh;
+  /// Callback when start refreshing.
+  final void Function() onStartRefreshing;
+
+  /// Callback when stop refreshing.
+  final void Function() onStopRefreshing;
 
   /// Callback when data has been appended.
   final void Function(List<T>) onAppend;
@@ -305,48 +121,39 @@ class UpdatableDataViewSetting<T> {
   /// Callback when error invoked.
   final void Function(dynamic) onError;
 
-  /// Display setting for [PlaceholderText].
-  final PlaceholderSetting placeholderSetting;
-
-  /// Callback when [PlaceholderText] state changed.
-  final PlaceholderStateChangedCallback onStateChanged;
-
-  /// The visibility for [Scrollbar].
-  final bool showScrollbar;
-
-  /// The thickness for [Scrollbar].
-  final double scrollbarThickness;
-
-  /// The radius for [Scrollbar].
-  final Radius scrollbarRadius;
+  /// Callback when get nothing, used for pagination.
+  final void Function() onNothing;
 }
 
-/// Pagination strategy for [PaginationDataView], including
-/// [offsetBased] and [seekBased].
-enum PaginationStrategy {
-  /// Use `page` and  `limit` as parameters to query list data.
-  offsetBased,
+/// Some extra widgets for [UpdatableDataView], these widgets are inside or outside [PlaceholderText],
+/// and lies before or after [ScrollView].
+class UpdatableDataViewExtraWidgets {
+  const UpdatableDataViewExtraWidgets({
+    this.innerCrossAxisAlignment = CrossAxisAlignment.center,
+    this.outerCrossAxisAlignment = CrossAxisAlignment.center,
+    this.innerTopWidget,
+    this.innerBottomWidget,
+    this.outerTopWidget,
+    this.outerBottomWidget,
+  });
 
-  /// Use `maxId` and `limit` as parameters to query list data.
-  seekBased,
-}
+  /// The crossAxisAlignment for inner [Column] inside [PlaceholderText].
+  final CrossAxisAlignment innerCrossAxisAlignment;
 
-/// A list of pagination settings for [PaginationDataView].
-class PaginationSetting {
-  const PaginationSetting({
-    this.initialPage = 1,
-    this.initialMaxId,
-    this.nothingMaxId,
-  }) : assert(initialPage != null);
+  /// The crossAxisAlignment for outer [Column] outside [PlaceholderText].
+  final CrossAxisAlignment outerCrossAxisAlignment;
 
-  /// The initial page when using [PaginationStrategy.offsetBased], default is 1.
-  final int initialPage;
+  /// The widget before [ListView] inside [PlaceholderText].
+  final Widget innerTopWidget;
 
-  /// The initial maxId when using [PaginationStrategy.seekBased], nullable.
-  final dynamic initialMaxId;
+  /// The widget after [ListView] inside [PlaceholderText].
+  final Widget innerBottomWidget;
 
-  /// The nothing maxId when using [PaginationStrategy.seekBased], nullable.
-  final dynamic nothingMaxId;
+  /// The widget before [ListView] outside [PlaceholderText].
+  final Widget outerTopWidget;
+
+  /// The widget after [ListView] outside [PlaceholderText].
+  final Widget outerBottomWidget;
 }
 
 /// A controller for [UpdatableDataView], it uses two [GlobalKey] to control
@@ -390,18 +197,4 @@ class UpdatableDataViewController {
     }
     return _appendIndicatorKey.currentState?.show();
   }
-}
-
-/// Data model for [PaginationDataView], used when using [PaginationStrategy.seekBased] pagination strategy.
-class SeekList<T> {
-  const SeekList({
-    @required this.list,
-    @required this.nextMaxId,
-  });
-
-  /// Represents the return list.
-  final List<T> list;
-
-  /// Represents the next `maxId`, [PaginationSetting.nothingMaxId] if this is the last page.
-  final dynamic nextMaxId;
 }

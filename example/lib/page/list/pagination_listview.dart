@@ -7,6 +7,7 @@ class PaginationListViewPage extends StatefulWidget {
 }
 
 class _PaginationListViewPageState extends State<PaginationListViewPage> {
+  /*
   final _controller = UpdatableDataViewController();
   final _scrollController = ScrollController();
   final _fabController = AnimatedFabController();
@@ -46,12 +47,14 @@ class _PaginationListViewPageState extends State<PaginationListViewPage> {
     }
     return SeekList(list: [], nextMaxId: 0);
   }
+   */
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('RefreshableListView Example'),
+        /*
         actions: [
           IconButton(
             icon: Icon(Icons.refresh),
@@ -85,7 +88,9 @@ class _PaginationListViewPageState extends State<PaginationListViewPage> {
             },
           ),
         ],
+         */
       ),
+      /*
       body: PaginationListView<String>(
         data: _data,
         strategy: !_useSeek ? PaginationStrategy.offsetBased : PaginationStrategy.seekBased,
@@ -125,6 +130,7 @@ class _PaginationListViewPageState extends State<PaginationListViewPage> {
           heroTag: 'RefreshableListViewPage',
         ),
       ),
+       */
     );
   }
 }

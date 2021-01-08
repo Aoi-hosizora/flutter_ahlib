@@ -8,6 +8,7 @@ class RefreshableStaggeredGridViewPage extends StatefulWidget {
 }
 
 class _RefreshableStaggeredGridViewPageState extends State<RefreshableStaggeredGridViewPage> {
+  /*
   final _controller = UpdatableDataViewController();
   final _scrollController = ScrollController();
   final _fabController = AnimatedFabController();
@@ -21,12 +22,14 @@ class _RefreshableStaggeredGridViewPageState extends State<RefreshableStaggeredG
     }
     return List.generate(50, (i) => 'Item ${i + 1}');
   }
+   */
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('RefreshableStaggeredGridView Example'),
+        /*
         actions: [
           IconButton(
             icon: Icon(Icons.refresh),
@@ -46,7 +49,9 @@ class _RefreshableStaggeredGridViewPageState extends State<RefreshableStaggeredG
             },
           ),
         ],
+         */
       ),
+      /*
       body: RefreshableStaggeredGridView<String>(
         data: _data,
         getData: () => _getData(),
@@ -120,6 +125,7 @@ class _RefreshableStaggeredGridViewPageState extends State<RefreshableStaggeredG
           heroTag: 'RefreshableSliverListViewPage',
         ),
       ),
+       */
     );
   }
 }

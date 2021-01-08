@@ -8,6 +8,7 @@ class PaginationStaggeredGridViewPage extends StatefulWidget {
 }
 
 class _PaginationStaggeredGridViewPageState extends State<PaginationStaggeredGridViewPage> {
+  /*
   final _controller = UpdatableDataViewController();
   final _scrollController = ScrollController();
   final _fabController = AnimatedFabController();
@@ -25,12 +26,14 @@ class _PaginationStaggeredGridViewPageState extends State<PaginationStaggeredGri
     }
     return List.generate(10, (i) => 'Item $page - ${i + 1}');
   }
+   */
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('PaginationStaggeredGrid Example'),
+        /*
         actions: [
           IconButton(
             icon: Icon(Icons.refresh),
@@ -50,7 +53,9 @@ class _PaginationStaggeredGridViewPageState extends State<PaginationStaggeredGri
             },
           ),
         ],
+         */
       ),
+      /*
       body: PaginationStaggeredGridView<String>(
         data: _data,
         strategy: PaginationStrategy.offsetBased,
@@ -86,6 +91,7 @@ class _PaginationStaggeredGridViewPageState extends State<PaginationStaggeredGri
           heroTag: 'RefreshableListViewPage',
         ),
       ),
+       */
     );
   }
 }

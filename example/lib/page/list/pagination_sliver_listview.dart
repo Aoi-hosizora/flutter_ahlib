@@ -7,6 +7,7 @@ class PaginationSliverListViewPage extends StatefulWidget {
 }
 
 class _PaginationSliverListViewPageState extends State<PaginationSliverListViewPage> {
+  /*
   final _controller = UpdatableDataViewController();
   final _scrollController = ScrollController();
   final _fabController = AnimatedFabController();
@@ -24,12 +25,14 @@ class _PaginationSliverListViewPageState extends State<PaginationSliverListViewP
     }
     return List.generate(10, (i) => 'Item $page - ${i + 1}');
   }
+   */
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('PaginationSliverListView Example'),
+        /*
         actions: [
           IconButton(
             icon: Icon(Icons.refresh),
@@ -49,7 +52,9 @@ class _PaginationSliverListViewPageState extends State<PaginationSliverListViewP
             },
           ),
         ],
+         */
       ),
+      /*
       body: NestedScrollView(
         headerSliverBuilder: (c, _) => [
           SliverToBoxAdapter(
@@ -94,6 +99,7 @@ class _PaginationSliverListViewPageState extends State<PaginationSliverListViewP
           heroTag: 'RefreshableListViewPage',
         ),
       ),
+       */
     );
   }
 }

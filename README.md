@@ -43,6 +43,11 @@ http: ^0.12.2
     + `TextGroup`
     + `TabInPageNotification`
     + `FunctionPainter` `BannedIcon`
++ List:
+  + `AppendIndicator`
+  + `UpdatableDataView` `UpdatableDataViewController`
+  + `RefreshableDataView` `RefreshableListView` `RefreshableSliverListView` `RefreshableStaggeredGridView`
+  + `PaginationDataView` `PaginationListView` `PaginationSliverListView` `PaginationStaggeredGridView`
 + Image:
     + `LocalOrNetworkImageProvider`
     + `MultiImageStreamCompleter`
@@ -54,12 +59,3 @@ http: ^0.12.2
     + `StateExtension` `ScrollControllerExtension` `PageControllerExtension` `ScrollMetricsExtension`
     + `filesize`
     + `NotifiableData`
-+ List:
-    + `AppendIndicator`
-    + `UpdatableDataView` `UpdatableDataViewController`
-    + `RefreshableListView`
-    + `RefreshableSliverListView`
-    + `RefreshableStaggeredGridView`
-    + `PaginationListView`
-    + `PaginationSliverListView`
-    + `PaginationStaggeredGridView`

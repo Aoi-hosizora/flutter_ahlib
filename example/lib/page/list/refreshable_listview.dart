@@ -7,6 +7,7 @@ class RefreshableListViewPage extends StatefulWidget {
 }
 
 class _RefreshableListViewPageState extends State<RefreshableListViewPage> {
+  /*
   final _controller = UpdatableDataViewController();
   final _scrollController = ScrollController();
   final _fabController = AnimatedFabController();
@@ -20,12 +21,14 @@ class _RefreshableListViewPageState extends State<RefreshableListViewPage> {
     }
     return List.generate(50, (i) => 'Item ${i + 1}');
   }
+   */
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('RefreshableListView Example'),
+        /*
         actions: [
           IconButton(
             icon: Icon(Icons.refresh),
@@ -45,7 +48,9 @@ class _RefreshableListViewPageState extends State<RefreshableListViewPage> {
             },
           ),
         ],
+         */
       ),
+      /*
       body: RefreshableListView<String>(
         data: _data,
         getData: () => _getData(),
@@ -117,6 +122,7 @@ class _RefreshableListViewPageState extends State<RefreshableListViewPage> {
           heroTag: 'RefreshableListViewPage',
         ),
       ),
+       */
     );
   }
 }

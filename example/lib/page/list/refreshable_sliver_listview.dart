@@ -7,6 +7,7 @@ class RefreshableSliverListViewPage extends StatefulWidget {
 }
 
 class _RefreshableSliverListViewPageState extends State<RefreshableSliverListViewPage> {
+  /*
   final _controller = UpdatableDataViewController();
   final _scrollController = ScrollController();
   final _fabController = AnimatedFabController();
@@ -20,12 +21,14 @@ class _RefreshableSliverListViewPageState extends State<RefreshableSliverListVie
     }
     return List.generate(50, (i) => 'Item ${i + 1}');
   }
+   */
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('RefreshableSliverListView Example'),
+        /*
         actions: [
           IconButton(
             icon: Icon(Icons.refresh),
@@ -45,7 +48,9 @@ class _RefreshableSliverListViewPageState extends State<RefreshableSliverListVie
             },
           ),
         ],
+         */
       ),
+      /*
       body: NestedScrollView(
         headerSliverBuilder: (c, _) => [
           SliverToBoxAdapter(
@@ -150,6 +155,7 @@ class _RefreshableSliverListViewPageState extends State<RefreshableSliverListVie
           heroTag: 'RefreshableSliverListViewPage',
         ),
       ),
+       */
     );
   }
 }
