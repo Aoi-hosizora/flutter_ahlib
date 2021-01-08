@@ -22,10 +22,10 @@ const _kAnimatedScrollDuration = const Duration(milliseconds: 500);
 const _kAnimatedScrollOffset = 65.0;
 
 /// Default [Curve] value for [scrollDown], [scrollUp].
-const _kAnimatedScrollCurve2 = Curves.easeOutCirc;
+const _kAnimatedLocalScrollCurve = Curves.easeOutCirc;
 
 /// Default [Duration] value for [scrollDown] and [scrollUp].
-const _kAnimatedScrollDuration2 = const Duration(milliseconds: 300);
+const _kAnimatedLocalScrollDuration = const Duration(milliseconds: 300);
 
 /// A helper extension for [ScrollController].
 extension ScrollControllerExtension on ScrollController {
@@ -47,20 +47,27 @@ extension ScrollControllerExtension on ScrollController {
   }
 
   /// Scroll down (Swipe up) from the current position with offset, see [scrollWithAnimate].
-  Future<void> scrollDown({double scrollOffset = _kAnimatedScrollOffset, Curve curve = _kAnimatedScrollCurve2, Duration duration = _kAnimatedScrollDuration2}) {
+  Future<void> scrollDown({double scrollOffset = _kAnimatedScrollOffset, Curve curve = _kAnimatedLocalScrollCurve, Duration duration = _kAnimatedLocalScrollDuration}) {
     return scrollWithAnimate(offset + scrollOffset, curve: curve, duration: duration);
   }
 
   /// Scroll up (Swipe down) from the current position with offset, see [scrollWithAnimate].
-  Future<void> scrollUp({double scrollOffset = _kAnimatedScrollOffset, Curve curve = _kAnimatedScrollCurve2, Duration duration = _kAnimatedScrollDuration2}) {
+  Future<void> scrollUp({double scrollOffset = _kAnimatedScrollOffset, Curve curve = _kAnimatedLocalScrollCurve, Duration duration = _kAnimatedLocalScrollDuration}) {
     return scrollWithAnimate(offset - scrollOffset, curve: curve, duration: duration);
   }
 }
 
+/// Default [Curve] value for [defaultAnimateToPage].
+const _kPageScrollCurve = Curves.easeOutQuad;
+
+/// Default [Duration] value for [defaultAnimateToPage].
+const _kPageScrollDuration = kTabScrollDuration;
+
 /// A helper extension for [PageController].
 extension PageControllerExtension on PageController {
-  /// An optional parameters version of [animateToPage], is like as [ScrollController.animateTo]. Both of [animateTo] and [animateToPage]'s parameters are all required.
-  Future<void> defaultAnimateToPage(int page, {Curve curve = Curves.easeOutQuad, Duration duration = kTabScrollDuration}) {
+  /// An optional parameters version of [animateToPage], is like as [ScrollController.animateTo], note that
+  /// [animateToPage]'s parameters are required, and [defaultAnimateToPage]'s parameters are optional.
+  Future<void> defaultAnimateToPage(int page, {Curve curve = _kPageScrollCurve, Duration duration = _kPageScrollDuration}) {
     return animateToPage(page, curve: curve, duration: duration);
   }
 }

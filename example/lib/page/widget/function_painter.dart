@@ -57,23 +57,6 @@ class _FunctionPainterPageState extends State<FunctionPainterPage> {
               ),
             ),
           ),
-          Divider(height: 1, thickness: 1),
-          Expanded(
-            child: BannedIcon(
-              banned: true,
-              color: Colors.grey,
-              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-              lineWidth: 15,
-              blinkLineWidth: 8,
-              offset: 15,
-              size: Size.square(150),
-              icon: Icon(
-                Icons.check,
-                color: Colors.grey,
-                size: 150,
-              ),
-            ),
-          ),
         ],
       ),
     );

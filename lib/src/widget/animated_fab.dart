@@ -35,9 +35,9 @@ class AnimatedFab extends StatefulWidget {
 }
 
 class _AnimatedFabState extends State<AnimatedFab> with TickerProviderStateMixin<AnimatedFab> {
-  bool _lastShowFab;
   AnimationController _animController;
   Animation<double> _fabAnimation;
+  bool _lastShowFab;
 
   @override
   void initState() {

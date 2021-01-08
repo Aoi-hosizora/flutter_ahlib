@@ -73,8 +73,8 @@ class TextGroup extends StatefulWidget {
     this.selectable = false,
     this.style,
     this.linkPressedColor,
-    this.maxLines,
     // RichText and SelectableText
+    this.maxLines,
     this.strutStyle,
     this.textAlign = TextAlign.start,
     this.textDirection,
@@ -86,7 +86,7 @@ class TextGroup extends StatefulWidget {
     this.overflow = TextOverflow.clip,
     // SelectableText
     this.focusNode,
-    this.toolbarOptions = const ToolbarOptions(selectAll: true, copy: true),
+    this.toolbarOptions,
     this.cursorWidth = 2.0,
     this.cursorHeight,
     this.cursorRadius,
@@ -94,8 +94,8 @@ class TextGroup extends StatefulWidget {
     this.dragStartBehavior = DragStartBehavior.start,
   })  : assert(texts != null && texts.length > 0),
         assert(selectable != null),
-        assert(maxLines == null || maxLines > 0),
         // RichText and SelectableText
+        assert(maxLines == null || maxLines > 0),
         assert(textAlign != null),
         assert(textScaleFactor != null),
         assert(textWidthBasis != null),
@@ -103,7 +103,6 @@ class TextGroup extends StatefulWidget {
         assert(softWrap != null),
         assert(overflow != null),
         // SelectableText
-        assert(toolbarOptions != null),
         assert(dragStartBehavior != null),
         super(key: key);
 
@@ -120,10 +119,10 @@ class TextGroup extends StatefulWidget {
   /// [LinkGroupText.pressedColor] first.
   final Color linkPressedColor;
 
+  // RichText and SelectableText
+
   /// Represents the max lines for text.
   final int maxLines;
-
-  // RichText and SelectableText
 
   /// The strutStyle for [RichText] and [SelectableText].
   final StrutStyle strutStyle;
@@ -197,11 +196,9 @@ class _TextGroupState extends State<TextGroup> {
 
       if (!t.isLink) {
         // NormalGroupText
+        var text = t as NormalGroupText;
         spans.add(
-          TextSpan(
-            text: t.text,
-            style: t.style,
-          ),
+          TextSpan(text: text.text, style: text.style),
         );
       } else {
         // LinkGroupText
@@ -225,41 +222,43 @@ class _TextGroupState extends State<TextGroup> {
 
     var textSpan = TextSpan(
       text: '',
-      style: widget.style,
-      children: spans..add(TextSpan(text: ' ')), // insert an empty TextSpan.
+      style: widget.style ?? DefaultTextStyle.of(context),
+      children: spans..add(TextSpan(text: ' ')),
     );
-
     if (!widget.selectable) {
+      // RichText
       return RichText(
         text: textSpan,
+        // both
         maxLines: widget.maxLines,
-        // ...
         strutStyle: widget.strutStyle,
         textAlign: widget.textAlign,
         textDirection: widget.textDirection,
         textScaleFactor: widget.textScaleFactor,
+        // <<<
         textWidthBasis: widget.textWidthBasis,
         textHeightBehavior: widget.textHeightBehavior,
-        // ...
+        // only
         softWrap: widget.softWrap,
         overflow: widget.overflow,
         // locale: widget.locale,
       );
     } else {
+      // SelectableText
       return SelectableText.rich(
         textSpan,
-        style: widget.style,
+        // both
         maxLines: widget.maxLines,
-        // ...
         strutStyle: widget.strutStyle,
         textAlign: widget.textAlign,
         textDirection: widget.textDirection,
         textScaleFactor: widget.textScaleFactor,
+        // <<<
         textWidthBasis: widget.textWidthBasis,
         textHeightBehavior: widget.textHeightBehavior,
-        // ...
+        // only
         focusNode: widget.focusNode,
-        toolbarOptions: widget.toolbarOptions,
+        toolbarOptions: widget.toolbarOptions ?? ToolbarOptions(selectAll: true, copy: true),
         cursorWidth: widget.cursorWidth,
         cursorHeight: widget.cursorHeight,
         cursorRadius: widget.cursorRadius,

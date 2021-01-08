@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/src/util/dart_extensions.dart';
 
+// ==============
+// AppBar related
+// ==============
+
 /// An implementation of [SliverPersistentHeaderDelegate] with a [PreferredSize] child.
 class SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   const SliverAppBarDelegate({
@@ -63,6 +67,10 @@ class SliverAppBarSizedDelegate extends SliverPersistentHeaderDelegate {
     return maxHeight != oldDelegate.maxHeight || minHeight != oldDelegate.minHeight || child != oldDelegate.child;
   }
 }
+
+// =================
+// separator related
+// =================
 
 /// A custom [SliverChildBuilderDelegate] with separator, notice that this class has not a const constructor.
 class SliverSeparatedBuilderDelegate extends SliverChildBuilderDelegate {

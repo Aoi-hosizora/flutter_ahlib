@@ -18,24 +18,24 @@ class _TextGroupPageState extends State<TextGroupPage> {
           SizedBox(height: 4),
           TextGroup(
             texts: [
-              NormalGroupText(text: 'test1', style: TextStyle(color: Colors.black)),
+              NormalGroupText(text: 'test1'),
               NormalGroupText(
                 text: 'test2test2test2test2test2test2test2test2test2test2test2test2test2test2test2test2test2test2test2',
                 style: TextStyle(color: Colors.red),
               ),
-              NormalGroupText(text: 'test3', style: TextStyle(color: Colors.black)),
+              NormalGroupText(text: 'test3'),
             ],
           ),
           Divider(),
           TextGroup(
             texts: [
-              NormalGroupText(text: 'test1', style: TextStyle(color: Colors.black)),
+              NormalGroupText(text: 'test1'),
               LinkGroupText(
                 text: 'link',
                 onTap: () => print('tapped'),
                 style: TextStyle(color: Theme.of(context).primaryColor),
               ),
-              NormalGroupText(text: 'test3', style: TextStyle(color: Colors.black)),
+              NormalGroupText(text: 'test3'),
             ],
             linkPressedColor: Colors.red,
           ),

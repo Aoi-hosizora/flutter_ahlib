@@ -42,7 +42,7 @@ http: ^0.12.2
     + `SliverAppBarDelegate` `SliverAppBarSizedDelegate` `SliverSeparatedBuilderDelegate` `SliverSeparatedListDelegate`
     + `TextGroup`
     + `TabInPageNotification`
-    + `FunctionPainter` `BannedIcon`
+    + `FunctionPainter`
 + List:
   + `AppendIndicator`
   + `UpdatableDataView` `UpdatableDataViewController`
