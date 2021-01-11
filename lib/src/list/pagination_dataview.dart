@@ -114,7 +114,7 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
   }
 
   bool _onScroll(ScrollNotification s) {
-    _downScrollable = !s.metrics.isShortScroll() && s.metrics.isInBottom();
+    _downScrollable = !s.metrics.isShortScrollArea() && s.metrics.isInBottom();
     return false;
   }
 
@@ -300,7 +300,7 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
   }
 
   bool _onScroll(ScrollNotification s) {
-    _downScrollable = !s.metrics.isShortScroll() && s.metrics.isInBottom();
+    _downScrollable = !s.metrics.isShortScrollArea() && s.metrics.isInBottom();
     return false;
   }
 
@@ -510,7 +510,7 @@ class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGrid
   }
 
   bool _onScroll(ScrollNotification s) {
-    _downScrollable = !s.metrics.isShortScroll() && s.metrics.isInBottom();
+    _downScrollable = !s.metrics.isShortScrollArea() && s.metrics.isInBottom();
     return false;
   }
 

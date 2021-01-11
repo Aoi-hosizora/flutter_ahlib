@@ -74,13 +74,14 @@ extension PageControllerExtension on PageController {
 
 /// A helper extension for [ScrollMetrics].
 extension ScrollMetricsExtension on ScrollMetrics {
-  /// Check the scrollable area is short.
-  bool isShortScroll() {
-    return maxScrollExtent == 0;
+  /// Check if the scrollable area's size is shorter than parent.
+  bool isShortScrollArea() {
+    return maxScrollExtent == 0.0;
   }
 
-  /// Check the current scroll position is in the bottom.
+  /// Check if the current scroll position is in the bottom of the parent.
   bool isInBottom() {
-    return pixels >= maxScrollExtent && !outOfRange;
+    return extentAfter == 0.0;
+    // return pixels >= maxScrollExtent && !outOfRange;
   }
 }

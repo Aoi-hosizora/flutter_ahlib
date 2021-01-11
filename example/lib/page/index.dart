@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_ahlib_example/page/list/append_indicator.dart';
 import 'package:flutter_ahlib_example/page/list/pagination_listview.dart';
 import 'package:flutter_ahlib_example/page/list/pagination_sliver_listview.dart';
 import 'package:flutter_ahlib_example/page/list/pagination_staggered_gridview.dart';
@@ -84,6 +85,7 @@ class _IndexPageState extends State<IndexPage> {
               alignment: WrapAlignment.center,
               spacing: 8,
               children: [
+                _button('AppendIndicator', AppendIndicatorPage()),
                 _button('RefreshableListView', RefreshableListViewPage()),
                 _button('RefreshableSliverListView', RefreshableSliverListViewPage()),
                 _button('RefreshableStaggeredGridView', RefreshableStaggeredGridViewPage()),
