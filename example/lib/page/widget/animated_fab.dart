@@ -57,10 +57,23 @@ class _AnimatedFabPageState extends State<AnimatedFabPage> {
           ),
           Positioned(
             left: 0,
-            right: 0,
             bottom: 50,
             child: AnimatedFab(
               show: _show,
+              fab: FloatingActionButton(
+                child: Icon(Icons.vertical_align_top),
+                onPressed: () => _controller.scrollToTop(),
+                heroTag: '3',
+              ),
+            ),
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 50,
+            child: ScrollAnimatedFab(
+              scrollController: _controller,
+              condition: ScrollAnimatedCondition.direction,
               fab: FloatingActionButton(
                 child: Icon(Icons.vertical_align_top),
                 onPressed: () => _controller.scrollToTop(),

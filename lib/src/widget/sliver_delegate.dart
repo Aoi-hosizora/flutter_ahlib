@@ -11,7 +11,7 @@ class SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
     @required this.child,
   }) : assert(child != null);
 
-  /// [PreferredSize] child.
+  /// The preferred sized child of this widget.
   final PreferredSize child;
 
   @override
@@ -37,18 +37,16 @@ class SliverAppBarSizedDelegate extends SliverPersistentHeaderDelegate {
     @required this.minHeight,
     @required this.maxHeight,
     @required this.child,
-  })  : assert(minHeight != null),
-        assert(maxHeight != null),
-        assert(minHeight <= maxHeight),
+  })  : assert(minHeight != null && maxHeight != null && minHeight <= maxHeight),
         assert(child != null);
 
-  /// The minimum height.
+  /// The minimum height of this widget.
   final double minHeight;
 
-  /// The maximum height.
+  /// The maximum height of this widget.
   final double maxHeight;
 
-  /// [Widget] child.
+  /// The child of this widget.
   final Widget child;
 
   @override
@@ -72,7 +70,7 @@ class SliverAppBarSizedDelegate extends SliverPersistentHeaderDelegate {
 // separator related
 // =================
 
-/// A custom [SliverChildBuilderDelegate] with separator, notice that this class has not a const constructor.
+/// A custom [SliverChildBuilderDelegate] with separator. Notice that this class has not a const constructor.
 class SliverSeparatedBuilderDelegate extends SliverChildBuilderDelegate {
   SliverSeparatedBuilderDelegate(
     NullableIndexedWidgetBuilder builder, {
@@ -86,7 +84,7 @@ class SliverSeparatedBuilderDelegate extends SliverChildBuilderDelegate {
         );
 }
 
-/// A custom [SliverChildListDelegate] with separator, notice that this class has not a const constructor.
+/// A custom [SliverChildListDelegate] with separator. Notice that this class has not a const constructor.
 class SliverSeparatedListDelegate extends SliverChildListDelegate {
   SliverSeparatedListDelegate(
     List<Widget> children, {

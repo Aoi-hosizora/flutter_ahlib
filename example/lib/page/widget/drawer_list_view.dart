@@ -191,7 +191,7 @@ class _MyDrawerState extends State<MyDrawer> {
           DrawerListView<DrawerSelection>(
             items: _items,
             currentSelection: widget.currentDrawerSelection,
-            onGoto: (t, v) {
+            onNavigatorTo: (t, v) {
               if (t == DrawerSelection.indexPage) {
                 Navigator.of(context).popUntil((route) => route.settings.name == '.');
               } else {

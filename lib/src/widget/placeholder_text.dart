@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// A state used to describe the current state of [PlaceholderText].
+/// A state enum used to describe the current state of [PlaceholderText].
 enum PlaceholderState {
   normal, // 1. not empty
   loading, // 2. empty && loading
@@ -8,44 +8,43 @@ enum PlaceholderState {
   error, // 4. empty && !loading && !error
 }
 
-/// [PlaceholderState] changed callback function, used in [PlaceholderText].
+/// A [PlaceholderText.state] changed callback function, with old state and new state.
 typedef PlaceholderStateChangedCallback = void Function(PlaceholderState oldState, PlaceholderState newState);
 
-/// Display setting for [PlaceholderText].
+/// A display setting of [PlaceholderText].
 class PlaceholderSetting {
   const PlaceholderSetting({
-    //
+    // text
     this.loadingText = 'Loading...',
     this.nothingText = 'Nothing',
     this.retryText = 'Retry',
     this.unknownErrorText = 'Unknown error',
-    //
+    // icon
     this.nothingIcon = Icons.clear_all,
     this.errorIcon = Icons.error,
-    //
+    // padding
     this.textPadding = const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
     this.iconPadding = const EdgeInsets.all(5),
     this.buttonPadding = const EdgeInsets.all(5),
     this.progressPadding = const EdgeInsets.all(30),
-    //
+    // style
     this.textStyle = const TextStyle(fontSize: 20),
     this.buttonTextStyle = const TextStyle(fontSize: 14),
     this.iconSize = 50,
     this.iconColor = Colors.grey,
     this.progressSize = 40,
     this.buttonBorderSide = const BorderSide(style: BorderStyle.solid, color: Color(0xFFD7D7D7)),
-    //
+    // show loading xxx
     this.showLoadingProgress = true,
     this.showLoadingText = true,
-    //
+    // show nothing xxx
     this.showNothingIcon = true,
     this.showNothingText = true,
     this.showNothingRetry = true,
-    //
+    // show error xxx
     this.showErrorIcon = true,
     this.showErrorText = true,
     this.showErrorRetry = true,
-    //
   })  : assert(loadingText != null),
         assert(nothingText != null),
         assert(retryText != null),
@@ -71,7 +70,7 @@ class PlaceholderSetting {
         assert(showErrorText != null),
         assert(showErrorRetry != null);
 
-  /// Use Chinese text as default setting.
+  /// Translates the current setting to Chinese.
   PlaceholderSetting toChinese({
     String loadingText = '加载中...',
     String nothingText = '无内容',
@@ -106,7 +105,7 @@ class PlaceholderSetting {
     );
   }
 
-  /// Use Japanese text as default setting.
+  /// Translates the current setting to Japanese.
   PlaceholderSetting toJapanese({
     String loadingText = '読み込み中...',
     String nothingText = '何も見つかりませんでした',
@@ -165,23 +164,22 @@ class PlaceholderSetting {
   final double progressSize;
   final BorderSide buttonBorderSide;
 
-  // loading
+  // show loading xxx
   final bool showLoadingProgress;
   final bool showLoadingText;
 
-  // nothing
+  // show nothing xxx
   final bool showNothingIcon;
   final bool showNothingText;
   final bool showNothingRetry;
 
-  // error
+  // show error xxx
   final bool showErrorIcon;
   final bool showErrorText;
   final bool showErrorRetry;
 }
 
-/// Placeholder text mainly used for network requesting with [ListView],
-/// including normal, loading, nothing, error.
+/// A placeholder text mainly used with [ListView] when using network request, includes four states: normal, loading, nothing, error.
 class PlaceholderText extends StatefulWidget {
   const PlaceholderText({
     Key key,
@@ -196,6 +194,7 @@ class PlaceholderText extends StatefulWidget {
         assert(setting != null),
         super(key: key);
 
+  /// Creates [PlaceholderText] by some conditions.
   const PlaceholderText.from({
     Key key,
     @required Widget Function(BuildContext) childBuilder,
@@ -226,22 +225,22 @@ class PlaceholderText extends StatefulWidget {
           setting: setting,
         );
 
-  /// Builder for child.
+  /// The child builder of this widget.
   final Widget Function(BuildContext) childBuilder;
 
-  /// Refresh handler for retry.
+  /// The refresh handler to retry.
   final Function onRefresh;
 
-  /// Error message (if null, will invoke error state).
+  /// The current error message, shown when [PlaceholderState.error].
   final String errorText;
 
-  /// Placeholder's current state.
+  /// The current state of this widget.
   final PlaceholderState state;
 
-  /// Callback when [state] changed.
+  /// The callback function when the state changed.
   final PlaceholderStateChangedCallback onChanged;
 
-  /// Display setting for [PlaceholderText].
+  /// The display setting of this widget.
   final PlaceholderSetting setting;
 
   @override
@@ -249,8 +248,7 @@ class PlaceholderText extends StatefulWidget {
 }
 
 class _PlaceholderTextState extends State<PlaceholderText> {
-  /// Store the last state, used to check onChanged event.
-  PlaceholderState _lastState;
+  PlaceholderState _lastState; // store the last state
 
   @override
   void initState() {
@@ -397,7 +395,7 @@ class _PlaceholderTextState extends State<PlaceholderText> {
       // unreachable
       ////////////////////////////////////////////////////////////////
       default:
-        return Container();
+        return Container(); // dummy
     }
   }
 }

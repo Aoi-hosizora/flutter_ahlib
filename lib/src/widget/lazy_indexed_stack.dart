@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// This is a lazy version of [IndexedStack].
+/// An [IndexedStack] loaded in lazy.
 class LazyIndexedStack extends StatefulWidget {
   const LazyIndexedStack({
     Key key,
@@ -14,22 +14,22 @@ class LazyIndexedStack extends StatefulWidget {
         assert(itemBuilder != null),
         super(key: key);
 
-  /// alignment of [IndexedStack].
+  /// The alignment of this widget.
   final AlignmentGeometry alignment;
 
-  /// textDirection of [IndexedStack].
+  /// The textDirection of this widget.
   final TextDirection textDirection;
 
-  /// sizing of [IndexedStack].
+  /// The sizing of this widget.
   final StackFit sizing;
 
-  /// index of [IndexedStack].
+  /// The index of this widget.
   final int index;
 
-  /// Item count for children of [IndexedStack].
+  /// The item count of this widget.
   final int itemCount;
 
-  /// Item builder for children of [IndexedStack].
+  /// The item builder of this widget.
   final IndexedWidgetBuilder itemBuilder;
 
   @override
@@ -45,9 +45,9 @@ class _LazyIndexedStackState extends State<LazyIndexedStack> {
     for (var i = 0; i < widget.itemCount; i++) {
       if (i == widget.index) {
         _children.add(widget.itemBuilder(context, i));
-        _loaded.add(true);
+        _loaded.add(true); // loaded
       } else {
-        _children.add(Container());
+        _children.add(Container()); // empty container
         _loaded.add(false);
       }
     }

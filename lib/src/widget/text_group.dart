@@ -2,42 +2,38 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/src/util/flutter_extensions.dart';
 
-/// [_TextGroupChild] is an abstract of the type of [TextGroup]'s children,
-/// which must implement the [text], [style], including [NormalGroupText] and [LinkGroupText].
-abstract class _TextGroupChild {
-  const _TextGroupChild();
+/// An abstract text group item that represents [TextGroup]'s children, which must implement the [text], [style],
+/// inherited by [NormalGroupText] and [LinkGroupText].
+abstract class TextGroupChild {
+  const TextGroupChild();
 
-  /// Represents the content to show.
+  /// The content of this item.
   String get text;
 
-  /// Represents the text style to show.
+  /// The text style of this item.
   TextStyle get style;
 
-  /// Represents which this child is a [LinkGroupText].
+  /// The boolean represents whether this child is a [LinkGroupText].
   bool get isLink => false;
-
-// bool get isXXX => false;
 }
 
-/// [NormalGroupText] is a kind of [TextGroup]'s children, represents a normal text,
-/// including [text] and [style].
-class NormalGroupText extends _TextGroupChild {
+/// A [TextGroupChild] that represents a normal text.
+class NormalGroupText extends TextGroupChild {
   const NormalGroupText({
     @required this.text,
     this.style,
   })  : assert(text != null),
         super();
 
-  /// Represents the content to show.
+  /// The content of this item.
   final String text;
 
-  /// Represents the text style to show.
+  /// The text style of this item.
   final TextStyle style;
 }
 
-/// [LinkGroupText] is a kind of [TextGroup]'s children, represents a text with link,
-/// including [text], [style], [pressedColor] and [onTap].
-class LinkGroupText extends _TextGroupChild {
+/// A [TextGroupChild] that represents a linked text.
+class LinkGroupText extends TextGroupChild {
   const LinkGroupText({
     @required this.text,
     this.style,
@@ -47,25 +43,24 @@ class LinkGroupText extends _TextGroupChild {
         assert(onTap != null),
         super();
 
-  /// Represents the content to show.
+  /// The content of this item.
   final String text;
 
-  /// Represents the text style to show.
+  /// The text style of this item.
   final TextStyle style;
 
-  /// Represents the link color when pressed. When the [TextGroup.linkPressedColor] and
-  /// this property are set at the same time, [TextGroup] will use this value.
+  /// The link color when this item pressed. If [TextGroup.linkPressedColor] and this property are both set, [TextGroup] will use this value first.
   final Color pressedColor;
 
-  /// Represents the behavior when the link are pressed.
+  /// The behavior when the link is pressed.
   final Function() onTap;
 
-  /// Represents this is a [LinkGroupText].
+  /// The boolean represents whether this child is a [LinkGroupText].
   bool get isLink => true;
 }
 
-/// [TextGroup] is a [RichText] or [SelectableText] wrapped widget with state, including a list of
-/// child with [_TextGroupChild] type, which including [NormalGroupText] and [LinkGroupText].
+/// A [RichText] or [SelectableText] wrapped widget with state, including a list of child in [TextGroupChild] type, which can be
+/// [NormalGroupText] and [LinkGroupText].
 class TextGroup extends StatefulWidget {
   const TextGroup({
     Key key,
@@ -106,71 +101,70 @@ class TextGroup extends StatefulWidget {
         assert(dragStartBehavior != null),
         super(key: key);
 
-  /// Represents the children of [TextGroup].
-  final List<_TextGroupChild> texts;
+  /// The children of this widget.
+  final List<TextGroupChild> texts;
 
-  /// Represents this [RichText] can be selected or not.
+  /// The switcher represents this widget can be selectable.
   final bool selectable;
 
-  /// Represents the text style of the upper [TextSpan].
+  /// The text style of the outer [TextSpan].
   final TextStyle style;
 
-  /// Represents the text color when link pressed, [TextGroup] will use the value of
-  /// [LinkGroupText.pressedColor] first.
+  /// The text color when the link pressed, [TextGroup] will use [LinkGroupText.pressedColor] first.
   final Color linkPressedColor;
 
   // RichText and SelectableText
 
-  /// Represents the max lines for text.
+  /// The max lines of [RichText] and [SelectableText].
   final int maxLines;
 
-  /// The strutStyle for [RichText] and [SelectableText].
+  /// The strutStyle of [RichText] and [SelectableText].
   final StrutStyle strutStyle;
 
-  /// The textAlign for [RichText] and [SelectableText].
+  /// The textAlign of [RichText] and [SelectableText].
   final TextAlign textAlign;
 
-  /// The textDirection for [RichText] and [SelectableText].
+  /// The textDirection of [RichText] and [SelectableText].
   final TextDirection textDirection;
 
-  /// The textScaleFactor for [RichText] and [SelectableText].
+  /// The textScaleFactor of [RichText] and [SelectableText].
   final double textScaleFactor;
 
-  /// The textWidthBasis for [RichText] and [SelectableText].
+  /// The textWidthBasis of [RichText] and [SelectableText].
   final TextWidthBasis textWidthBasis;
 
-  /// The textHeightBehavior for [RichText] and [SelectableText].
+  /// The textHeightBehavior of [RichText] and [SelectableText].
   final TextHeightBehavior textHeightBehavior;
 
   // RichText
 
-  /// The softWrap for [RichText] when [selectable] is false.
+  /// The softWrap of [RichText] when [selectable] is false.
   final bool softWrap;
 
-  /// The overflow for [RichText] when [selectable] is false.
+  /// The overflow of [RichText] when [selectable] is false.
   final TextOverflow overflow;
 
   // SelectableText
 
-  /// The focusNode for [SelectableText] when [selectable] is true.
+  /// The focusNode of [SelectableText] when [selectable] is true.
   final FocusNode focusNode;
 
-  /// The toolbarOptions for [SelectableText] when [selectable] is true.
+  /// The toolbarOptions of [SelectableText] when [selectable] is true.
   final ToolbarOptions toolbarOptions;
 
-  /// The cursorWidth for [SelectableText] when [selectable] is true.
+  /// The cursorWidth of [SelectableText] when [selectable] is true.
   final double cursorWidth;
 
-  /// The cursorHeight for [SelectableText] when [selectable] is true.
+  /// The cursorHeight of [SelectableText] when [selectable] is true.
   final double cursorHeight;
 
-  /// The cursorRadius for [SelectableText] when [selectable] is true.
+  /// The cursorRadius of [SelectableText] when [selectable] is true.
   final Radius cursorRadius;
 
-  /// The cursorColor for [SelectableText] when [selectable] is true.
+  /// The cursorColor of [SelectableText] when [selectable] is true.
   final Color cursorColor;
 
-  /// The dragStartBehavior for [SelectableText] when [selectable] is true.
+  /// The dragStartBehavior of [SelectableText] when [selectable] is true.
   final DragStartBehavior dragStartBehavior;
 
   @override
@@ -178,8 +172,7 @@ class TextGroup extends StatefulWidget {
 }
 
 class _TextGroupState extends State<TextGroup> {
-  /// The tap down indicators list.
-  var _tapDowns = <bool>[];
+  var _tapDowns = <bool>[]; // tap down indicator list
 
   @override
   void initState() {
@@ -189,6 +182,7 @@ class _TextGroupState extends State<TextGroup> {
 
   @override
   Widget build(BuildContext context) {
+    // inner textSpan-s
     var spans = <TextSpan>[];
     for (var i = 0; i < widget.texts.length; i++) {
       var t = widget.texts[i];
@@ -220,11 +214,13 @@ class _TextGroupState extends State<TextGroup> {
       }
     }
 
+    // outer textSpan
     var textSpan = TextSpan(
       text: '',
       style: widget.style ?? DefaultTextStyle.of(context),
       children: spans..add(TextSpan(text: ' ')),
     );
+
     if (!widget.selectable) {
       // RichText
       return RichText(
@@ -235,7 +231,6 @@ class _TextGroupState extends State<TextGroup> {
         textAlign: widget.textAlign,
         textDirection: widget.textDirection,
         textScaleFactor: widget.textScaleFactor,
-        // <<<
         textWidthBasis: widget.textWidthBasis,
         textHeightBehavior: widget.textHeightBehavior,
         // only
@@ -253,7 +248,6 @@ class _TextGroupState extends State<TextGroup> {
         textAlign: widget.textAlign,
         textDirection: widget.textDirection,
         textScaleFactor: widget.textScaleFactor,
-        // <<<
         textWidthBasis: widget.textWidthBasis,
         textHeightBehavior: widget.textHeightBehavior,
         // only

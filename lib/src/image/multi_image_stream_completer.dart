@@ -9,7 +9,8 @@ import 'package:flutter/scheduler.dart';
 double get timeDilation => _timeDilation;
 double _timeDilation = 1.0;
 
-/// [MultiImageStreamCompleter] refers from https://github.com/Baseflow/flutter_cached_network_image/blob/develop/lib/src/image_provider/multi_image_stream_completer.dart.
+/// an [ImageStreamCompleter], refers to
+/// https://github.com/Baseflow/flutter_cached_network_image/blob/develop/lib/src/image_provider/multi_image_stream_completer.dart.
 class MultiImageStreamCompleter extends ImageStreamCompleter {
   MultiImageStreamCompleter({
     @required Stream<ui.Codec> codec,

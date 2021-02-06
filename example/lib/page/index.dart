@@ -11,7 +11,7 @@ import 'package:flutter_ahlib_example/page/widget/function_painter.dart';
 import 'package:flutter_ahlib_example/page/widget/icon_text.dart';
 import 'package:flutter_ahlib_example/page/widget/lazy_indexed_stack.dart';
 import 'package:flutter_ahlib_example/page/widget/placeholder_text.dart';
-import 'package:flutter_ahlib_example/page/widget/popup_menu.dart';
+import 'package:flutter_ahlib_example/page/widget/popup_list_menu.dart';
 import 'package:flutter_ahlib_example/page/widget/animated_fab.dart';
 import 'package:flutter_ahlib_example/page/widget/sliver_delegate.dart';
 import 'package:flutter_ahlib_example/page/widget/tab_in_page_notification.dart';
@@ -71,7 +71,7 @@ class _IndexPageState extends State<IndexPage> {
                 _button('PlaceholderText', PlaceholderTextPage()),
                 _button('DrawerListView', DrawerListViewPage(), RouteSettings(name: '.')),
                 _button('IconText', IconTextPage()),
-                _button('PopupMenu', PopupMenuPage()),
+                _button('PopupListMenu', PopupListMenuPage()),
                 _button('AnimatedFab', AnimatedFabPage()),
                 _button('LazyIndexedStack', LazyIndexedStackPage()),
                 _button('SliverDelegate', SliverDelegatePage()),

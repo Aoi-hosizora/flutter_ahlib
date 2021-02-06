@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
 
-/// Alignment of [Icon] and [Text], used in [IconText].
+/// The alignment of [Icon] and [Text], used in [IconText].
 enum IconTextAlignment {
-  /// Horizontal Row: Icon -> Text.
+  /// Represents horizontal row: Icon -> Text.
   l2r,
 
-  /// Horizontal Row: Text -> Icon.
+  /// Represents Horizontal Row: Text -> Icon.
   r2l,
 
-  /// Vertical Column: Icon -> Text.
+  /// Represents vertical column: Icon -> Text.
   t2b,
 
-  /// Vertical Column: Text -> Icon.
+  /// Represents vertical column: Text -> Icon.
   b2t,
 }
 
-/// Wrap [Icon] and [Text] with a [Row] and [Column].
+/// The default space of [IconText].
+const _defaultSpace = 15.0;
+
+/// A wrapped [Icon] and [Text] with [Row] and [Column].
 class IconText extends StatelessWidget {
   const IconText({
     Key key,
@@ -24,7 +27,7 @@ class IconText extends StatelessWidget {
     this.iconPadding = EdgeInsets.zero,
     this.textPadding = EdgeInsets.zero,
     this.alignment = IconTextAlignment.l2r,
-    this.space = 15.0,
+    this.space = _defaultSpace,
     this.mainAxisAlignment = MainAxisAlignment.start,
     this.mainAxisSize = MainAxisSize.max,
     this.crossAxisAlignment = CrossAxisAlignment.center,
@@ -39,34 +42,34 @@ class IconText extends StatelessWidget {
         assert(crossAxisAlignment != null),
         super(key: key);
 
-  /// A simple non-const constructor for [IconText].
+  /// Creates a [IconText] in a simple way, note that this is a non-const constructor.
   IconText.simple(IconData icon, String text) : this(icon: Icon(icon), text: Text(text));
 
-  /// The icon of the item.
+  /// The icon of this widget.
   final Icon icon;
 
-  /// The text of the item.
+  /// The text of this widget.
   final Text text;
 
-  /// Padding of [icon].
+  /// The padding of this widget's icon.
   final EdgeInsets iconPadding;
 
-  /// Padding of [text].
+  /// The padding of this widget's text.
   final EdgeInsets textPadding;
 
-  /// Alignment of [icon] and [text].
+  /// The alignment of the icon and the text, defaults to [IconTextAlignment.l2r].
   final IconTextAlignment alignment;
 
-  /// Space between [icon] and [text].
+  /// The space between the icon and the text, defaults to 15.0.
   final double space;
 
-  /// The MainAxisAlignment of row or column.
+  /// The mainAxisAlignment of the row or column.
   final MainAxisAlignment mainAxisAlignment;
 
-  /// The MainAxisSize of row or column.
+  /// The mainAxisSize of the row or column.
   final MainAxisSize mainAxisSize;
 
-  /// The CrossAxisAlignment of row or column.
+  /// The crossAxisAlignment of the row or column.
   final CrossAxisAlignment crossAxisAlignment;
 
   @override
@@ -124,7 +127,7 @@ class IconText extends StatelessWidget {
           ],
         );
       default:
-        return Container();
+        return Container(); // dummy
     }
   }
 }

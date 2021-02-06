@@ -12,30 +12,38 @@ abstract class LocalOrNetworkImageProvider extends ImageProvider<LocalOrNetworkI
     double scale,
     Map<String, String> headers,
     BaseCacheManager cacheManager,
-    Function() onFile,
-    Function() onNetwork,
+    Function() onFileLoading,
+    Function() onNetworkLoading,
+    Function() onFileLoaded,
+    Function() onNetworkLoaded,
   }) = image_provider.LocalOrNetworkImageProvider;
 
-  /// The FILE getter function from which the image will be fetched.
+  /// The file of the image to load.
   Future<io.File> Function() get file;
 
-  /// The URL getter function from which the image will be fetched.
+  /// The web url of the image to load.
   Future<String> Function() get url;
 
-  /// The scale to place in the [ImageInfo] object of the image.
+  /// The scale of the image.
   double get scale;
 
-  /// The HTTP headers that will be used to fetch image from network.
+  /// The headers of the request used to fetch the network image.
   Map<String, String> get headers;
 
-  /// Optional cache manager. If no cache manager is defined DefaultCacheManager() will be used.
+  /// The cache manager, uses [DefaultCacheManager] if null.
   BaseCacheManager get cacheManager;
 
-  /// The callback function when file loaded.
-  Function() get onFile;
+  /// The callback function invoked when the local file starts to loading.
+  Function() get onFileLoading;
 
-  /// The callback function when image downloaded.
-  Function() get onNetwork;
+  /// The callback function invoked when the network image start to download.
+  Function() get onNetworkLoading;
+
+  /// The callback function invoked when the local file loaded.
+  Function() get onFileLoaded;
+
+  /// The callback function invoked when the network image downloaded.
+  Function() get onNetworkLoaded;
 
   @override
   Future<LocalOrNetworkImageProvider> obtainKey(ImageConfiguration configuration);

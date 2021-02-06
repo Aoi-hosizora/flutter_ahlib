@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/src/widget/icon_text.dart';
 
-/// [MenuItem] is a replacement of [SimpleDialogOption] used in [showPopupListMenu]. This is not a [Widget],
-/// but a data class to store option and used as a [SimpleDialogOption].
+/// A menu item used in [showPopupListMenu], is a replacement of [SimpleDialogOption] used in [showPopupListMenu].
+/// This is not a [Widget], but just a data class to store options and used as a [SimpleDialogOption].
 class MenuItem {
   const MenuItem({
     @required Widget child,
@@ -17,22 +17,22 @@ class MenuItem {
         assert(dismissBefore == false || dismissAfter == false, 'dismissBefore and dismissAfter could only have one is true'),
         _child = child;
 
-  /// A child needs to rendered, see [child].
+  /// The child that needs to render, see [child].
   final Widget _child;
 
-  /// A function will be invoked when this item is tapped.
+  /// The function that will be invoked when this item is tapped.
   final Function action;
 
-  /// Padding for menu item.
+  /// The padding of this item.
   final EdgeInsets padding;
 
-  /// A dialog option for dismiss before the action invoked.
+  /// The switcher to dismiss before the action invoked.
   final bool dismissBefore;
 
-  /// A dialog option for dismiss after the action invoked.
+  /// The switcher to dismiss after the action invoked.
   final bool dismissAfter;
 
-  /// A rendered child for menu item.
+  /// The rendered child of this item.
   Widget get child => _child;
 }
 
@@ -41,7 +41,7 @@ class TextMenuItem extends MenuItem {
   const TextMenuItem({
     @required Text text,
     Function action,
-    EdgeInsets padding = const EdgeInsets.symmetric(horizontal: 24, vertical: 13),
+    EdgeInsets padding = const EdgeInsets.symmetric(horizontal: 24, vertical: 13), // text default padding
     bool dismissBefore = true,
     bool dismissAfter = false,
   }) : super(
@@ -58,7 +58,7 @@ class IconTextMenuItem extends MenuItem {
   const IconTextMenuItem({
     @required IconText iconText,
     Function action,
-    EdgeInsets padding = const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+    EdgeInsets padding = const EdgeInsets.symmetric(horizontal: 15, vertical: 8), // iconText default padding
     bool dismissBefore = true,
     bool dismissAfter = false,
   }) : super(
@@ -70,8 +70,7 @@ class IconTextMenuItem extends MenuItem {
         );
 }
 
-/// Show [SimpleDialog] with a list of items, the items can be [MenuItem], [TextMenuItem], [IconTextMenuItem]
-/// or your own defined [MenuItem].
+/// Shows [SimpleDialog] with a list of items, the items can be [MenuItem], [TextMenuItem] and [IconTextMenuItem].
 Future<void> showPopupListMenu({
   @required BuildContext context,
   Widget title,

@@ -1,8 +1,5 @@
 // Reference from https://github.com/google/quiver-dart/blob/master/lib/src/core/hash.dart.
 
-/// Generates a hash code for multiple [objects].
-int hashObjects(Iterable objects) => _finish(objects.fold(0, (h, i) => _combine(h, i.hashCode)));
-
 /// Generates a hash code for two objects.
 int hash2(a, b) => _finish(_combine(_combine(0, a.hashCode), b.hashCode));
 
@@ -17,6 +14,9 @@ int hash5(a, b, c, d, e) => _finish(_combine(_combine(_combine(_combine(_combine
 
 /// Generates a hash code for six objects.
 int hash6(a, b, c, d, e, f) => _finish(_combine(_combine(_combine(_combine(_combine(_combine(0, a.hashCode), b.hashCode), c.hashCode), d.hashCode), e.hashCode), f.hashCode));
+
+/// Generates a hash code for iterable objects.
+int hashObjects(Iterable objects) => _finish(objects.fold(0, (h, i) => _combine(h, i.hashCode)));
 
 // Jenkins hash function
 int _combine(int hash, int value) {

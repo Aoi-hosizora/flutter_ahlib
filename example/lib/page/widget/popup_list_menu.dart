@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/flutter_ahlib.dart';
 
-class PopupMenuPage extends StatefulWidget {
-  const PopupMenuPage({Key key}) : super(key: key);
+class PopupListMenuPage extends StatefulWidget {
+  const PopupListMenuPage({Key key}) : super(key: key);
 
   @override
-  _PopupMenuPageState createState() => _PopupMenuPageState();
+  _PopupListMenuPageState createState() => _PopupListMenuPageState();
 }
 
-class _PopupMenuPageState extends State<PopupMenuPage> {
+class _PopupListMenuPageState extends State<PopupListMenuPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('PopupMenu Example'),
+        title: Text('PopupListMenu Example'),
       ),
       body: Center(
         child: Column(
