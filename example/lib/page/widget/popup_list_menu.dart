@@ -23,7 +23,7 @@ class _PopupListMenuPageState extends State<PopupListMenuPage> {
               child: Text('showPopupListMenu - IconTextMenuItem'),
               onPressed: () => showPopupListMenu(
                 context: context,
-                title: Text('showIconPopupMenu'),
+                title: Text('showPopupListMenu'),
                 barrierDismissible: true,
                 items: [
                   IconTextMenuItem(
@@ -41,7 +41,7 @@ class _PopupListMenuPageState extends State<PopupListMenuPage> {
               child: Text('showPopupListMenu - TextMenuItem'),
               onPressed: () => showPopupListMenu(
                 context: context,
-                title: Text('showTextPopupMenu'),
+                title: Text('showPopupListMenu'),
                 barrierDismissible: true,
                 items: [
                   TextMenuItem(
@@ -59,12 +59,13 @@ class _PopupListMenuPageState extends State<PopupListMenuPage> {
               child: Text('showPopupListMenu - XXX'),
               onPressed: () => showPopupListMenu(
                 context: context,
-                title: Text('showTextPopupMenu'),
+                title: Text('showPopupListMenu'),
                 barrierDismissible: true,
                 items: [
                   TextMenuItem(
                     text: Text('test5'),
                     action: () => print('test5'),
+                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 13),
                     dismissBefore: true,
                     dismissAfter: false,
                   ),
@@ -77,6 +78,7 @@ class _PopupListMenuPageState extends State<PopupListMenuPage> {
                   MenuItem(
                     child: Text('test7'),
                     action: () => print('test7'),
+                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 13),
                     dismissBefore: false,
                     dismissAfter: false,
                   ),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/src/list/append_indicator.dart';
 import 'package:flutter_ahlib/src/widget/placeholder_text.dart';
 
-/// An abstract widget for updatable data view, including [RefreshableDataView] and [PaginationDataView].
+/// An abstract widget for updatable data view, implements by [RefreshableDataView] and [PaginationDataView].
 abstract class UpdatableDataView<T> extends StatefulWidget {
   const UpdatableDataView({Key key}) : super(key: key);
 
@@ -25,6 +25,7 @@ abstract class UpdatableDataView<T> extends StatefulWidget {
 /// A list of behavior and display settings for [UpdatableDataView].
 class UpdatableDataViewSetting<T> {
   const UpdatableDataViewSetting({
+    // display
     this.padding,
     this.physics = const AlwaysScrollableScrollPhysics(),
     this.reverse = false,
@@ -35,7 +36,7 @@ class UpdatableDataViewSetting<T> {
     this.placeholderSetting = const PlaceholderSetting(),
     this.onStateChanged,
     this.wantKeepAlive = true,
-    // ===================================
+    // behavior
     this.refreshFirst = true,
     this.clearWhenRefresh = false,
     this.clearWhenError = false,
@@ -57,7 +58,7 @@ class UpdatableDataViewSetting<T> {
         assert(clearWhenError != null),
         assert(updateOnlyIfNotEmpty != null);
 
-  /* Display setting */
+  // Display settings
 
   /// The padding for [ScrollView].
   final EdgeInsetsGeometry padding;
@@ -89,44 +90,43 @@ class UpdatableDataViewSetting<T> {
   /// The wantKeepAlive for [AutomaticKeepAliveClientMixin].
   final bool wantKeepAlive;
 
-  /* Behavior setting */
+  // Behavior settings
 
-  /// Do refresh when init view.
+  /// The switcher to do refresh when init view.
   final bool refreshFirst;
 
-  /// Clear list and error message when refresh data.
+  /// The switcher to clear list and error message when refresh data.
   final bool clearWhenRefresh;
 
-  /// Clear list when error aroused.
+  /// The switcher to clear list when error aroused.
   final bool clearWhenError;
 
-  /// Update list only when return data is not empty, used for pagination.
+  /// The switcher to update list only when the returned data is not empty, used for pagination.
   final bool updateOnlyIfNotEmpty;
 
-  /// Callback when start loading.
+  /// The callback when start loading.
   final void Function() onStartLoading;
 
-  /// Callback when stop loading.
+  /// The callback when stop loading.
   final void Function() onStopLoading;
 
-  /// Callback when start refreshing.
+  /// The callback when start refreshing.
   final void Function() onStartRefreshing;
 
-  /// Callback when stop refreshing.
+  /// The callback when stop refreshing.
   final void Function() onStopRefreshing;
 
-  /// Callback when data has been appended.
+  /// The callback when data has been appended.
   final void Function(List<T>) onAppend;
 
-  /// Callback when error invoked.
+  /// The callback when error invoked.
   final void Function(dynamic) onError;
 
-  /// Callback when get nothing, used for pagination.
+  /// The callback when get nothing, used for pagination.
   final void Function() onNothing;
 }
 
-/// Some extra widgets for [UpdatableDataView], these widgets are inside or outside [PlaceholderText],
-/// and lies before or after [ScrollView].
+/// A list of extra widgets for [UpdatableDataView], includes widget lies before or after [ScrollView], inside or outside [PlaceholderText].
 class UpdatableDataViewExtraWidgets {
   const UpdatableDataViewExtraWidgets({
     this.innerCrossAxisAlignment = CrossAxisAlignment.center,
@@ -156,22 +156,21 @@ class UpdatableDataViewExtraWidgets {
   final Widget outerBottomWidget;
 }
 
-/// A controller for [UpdatableDataView], it uses two [GlobalKey] to control
-/// [RefreshIndicator] and [AppendIndicator], and includes [refresh] and [append].
+/// A controller for [UpdatableDataView], uses two [GlobalKey]-s to control [RefreshIndicator] and [AppendIndicator], and includes [refresh] and [append] methods.
 class UpdatableDataViewController {
   GlobalKey<RefreshIndicatorState> _refreshIndicatorKey;
   GlobalKey<AppendIndicatorState> _appendIndicatorKey;
 
-  /// Register the given [GlobalKey] of [RefreshIndicatorState] to this controller.
+  /// Registers the given [GlobalKey] of [RefreshIndicatorState] to this controller.
   void attachRefresh(GlobalKey<RefreshIndicatorState> key) => _refreshIndicatorKey = key;
 
-  /// Register the given [GlobalKey] of [AppendIndicatorState] to this controller.
+  /// Registers the given [GlobalKey] of [AppendIndicatorState] to this controller.
   void attachAppend(GlobalKey<AppendIndicatorState> key) => _appendIndicatorKey = key;
 
-  /// Unregister the given [GlobalKey] of [RefreshIndicatorState] from this controller.
+  /// Unregisters the given [GlobalKey] of [RefreshIndicatorState] from this controller.
   void detachRefresh() => _refreshIndicatorKey = null;
 
-  /// Unregister the given [GlobalKey] of [AppendIndicatorState] from this controller.
+  /// Unregisters the given [GlobalKey] of [AppendIndicatorState] from this controller.
   void detachAppend() => _appendIndicatorKey = null;
 
   @mustCallSuper
@@ -180,8 +179,7 @@ class UpdatableDataViewController {
     detachAppend();
   }
 
-  /// Show the refresh indicator and run the callback as if it had been started interactively.
-  /// See [RefreshIndicatorState.show].
+  /// Shows the refresh indicator and runs the callback as if it had been started interactively.
   Future<void> refresh() {
     if (_refreshIndicatorKey == null) {
       return Future.value();
@@ -189,8 +187,7 @@ class UpdatableDataViewController {
     return _refreshIndicatorKey.currentState?.show();
   }
 
-  /// Show the append indicator and run the callback as if it had been started interactively.
-  /// See [AppendIndicatorState.show].
+  /// Shows the append indicator and runs the callback as if it had been started interactively.
   Future<void> append() {
     if (_appendIndicatorKey == null) {
       return Future.value();

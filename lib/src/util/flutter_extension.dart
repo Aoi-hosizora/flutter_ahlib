@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
-/// A helper extension for [State].
+/// An extension for [State].
 extension StateExtension<T extends StatefulWidget> on State<T> {
   /// Equals to call `if (mounted) setState(() {});`
   void mountedSetState(void Function() func) {
@@ -12,10 +12,10 @@ extension StateExtension<T extends StatefulWidget> on State<T> {
   }
 }
 
-/// Default [Curve] value for [scrollWithAnimate], [scrollTop] and [scrollBottom].
+/// Default [Curve] value for [scrollWithAnimate], [scrollToTop] and [scrollToBottom].
 const _kAnimatedScrollCurve = Curves.easeInOutQuint;
 
-/// Default [Duration] value for [scrollWithAnimate], [scrollTop] and [scrollBottom].
+/// Default [Duration] value for [scrollWithAnimate], [scrollToTop] and [scrollToBottom].
 const _kAnimatedScrollDuration = const Duration(milliseconds: 500);
 
 /// Default offset value for [scrollDown] and [scrollUp].
@@ -27,7 +27,7 @@ const _kAnimatedLocalScrollCurve = Curves.easeOutCirc;
 /// Default [Duration] value for [scrollDown] and [scrollUp].
 const _kAnimatedLocalScrollDuration = const Duration(milliseconds: 300);
 
-/// A helper extension for [ScrollController].
+/// An extension for [ScrollController].
 extension ScrollControllerExtension on ScrollController {
   /// Scroll to offset with default [Curve] and [Duration].
   Future<void> scrollWithAnimate(double offset, {Curve curve = _kAnimatedScrollCurve, Duration duration = _kAnimatedScrollDuration}) {
@@ -63,7 +63,7 @@ const _kPageScrollCurve = Curves.easeOutQuad;
 /// Default [Duration] value for [defaultAnimateToPage].
 const _kPageScrollDuration = kTabScrollDuration;
 
-/// A helper extension for [PageController].
+/// An extension for [PageController].
 extension PageControllerExtension on PageController {
   /// An optional parameters version of [animateToPage], is like as [ScrollController.animateTo], note that
   /// [animateToPage]'s parameters are required, and [defaultAnimateToPage]'s parameters are optional.
@@ -72,7 +72,7 @@ extension PageControllerExtension on PageController {
   }
 }
 
-/// A helper extension for [ScrollMetrics].
+/// An helper extension for [ScrollMetrics].
 extension ScrollMetricsExtension on ScrollMetrics {
   /// Check if the scrollable area's size is shorter than parent.
   bool isShortScrollArea() {
@@ -81,7 +81,7 @@ extension ScrollMetricsExtension on ScrollMetrics {
 
   /// Check if the current scroll position is in the bottom of the parent.
   bool isInBottom() {
-    return extentAfter == 0.0;
     // return pixels >= maxScrollExtent && !outOfRange;
+    return extentAfter == 0.0;
   }
 }

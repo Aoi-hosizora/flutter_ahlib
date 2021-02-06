@@ -166,7 +166,7 @@ class _ScrollAnimatedFabState extends State<ScrollAnimatedFab> with TickerProvid
     if (widget.condition == ScrollAnimatedCondition.offset) {
       canShow = (widget.scrollController?.offset ?? 0) >= widget.offset;
     } else if (widget.condition == ScrollAnimatedCondition.direction) {
-      canShow = widget.scrollController?.position?.userScrollDirection == ScrollDirection.reverse;
+      canShow = (widget.scrollController?.position?.extentBefore ?? 0) > 0 && widget.scrollController?.position?.userScrollDirection == ScrollDirection.forward;
     }
 
     if (canShow != _lastShow) {

@@ -4,11 +4,10 @@ import 'package:flutter_ahlib/src/widget/placeholder_text.dart';
 import 'package:flutter_ahlib/src/widget/sliver_delegate.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
-/// A duration for flashing list after clear the data.
+/// The duration for flashing list after clear the data.
 final _kFlashListDuration = Duration(milliseconds: 50);
 
-/// An abstract [UpdatableDataView] for refreshable data view, including
-/// [RefreshableListView], [RefreshableSliverListView], [RefreshableStaggeredGridView].
+/// An abstract [UpdatableDataView] for refreshable data view, implements by [RefreshableListView], [RefreshableSliverListView], [RefreshableStaggeredGridView].
 abstract class RefreshableDataView<T> extends UpdatableDataView<T> {
   const RefreshableDataView({Key key}) : super(key: key);
 
@@ -16,8 +15,7 @@ abstract class RefreshableDataView<T> extends UpdatableDataView<T> {
   Future<List<T>> Function() get getData;
 }
 
-/// Refreshable [ListView] is an implementation of [RefreshableDataView], with
-/// [RefreshIndicator], [PlaceholderText], [Scrollbar] and [ListView].
+/// A [RefreshableDataView] with [ListView], includes [RefreshIndicator], [PlaceholderText], [Scrollbar] and [ListView].
 class RefreshableListView<T> extends RefreshableDataView<T> {
   const RefreshableListView({
     Key key,
@@ -167,8 +165,7 @@ class _RefreshableListViewState<T> extends State<RefreshableListView<T>> with Au
   }
 }
 
-/// Refreshable [SliverList] is an implementation of [RefreshableDataView], with
-/// [RefreshIndicator], [PlaceholderText], [Scrollbar], [CustomScrollView] and [SliverList].
+/// A [RefreshableDataView] with [SliverList], includes [RefreshIndicator], [PlaceholderText], [Scrollbar], [CustomScrollView] and [SliverList].
 class RefreshableSliverListView<T> extends RefreshableDataView<T> {
   const RefreshableSliverListView({
     Key key,
@@ -179,13 +176,13 @@ class RefreshableSliverListView<T> extends RefreshableDataView<T> {
     this.scrollController,
     @required this.itemBuilder,
     // ===================================
-    this.hasOverlapAbsorber = false,
     this.separator,
+    this.useOverlapInjector = false,
     this.extra,
   })  : assert(data != null && getData != null),
         assert(setting != null),
         assert(itemBuilder != null),
-        assert(hasOverlapAbsorber != null),
+        assert(useOverlapInjector != null),
         super(key: key);
 
   /// The list of data.
@@ -204,7 +201,8 @@ class RefreshableSliverListView<T> extends RefreshableDataView<T> {
   @override
   final UpdatableDataViewController controller;
 
-  /// The controller for [CustomScrollView].
+  /// The controller for [CustomScrollView], you have to wrap this widget with [Builder] and use [PrimaryScrollController.of] to get correct
+  /// [ScrollController] from [NestedScrollView], JUST NOT TO use [NestedScrollView]'s scrollController directly.
   @override
   final ScrollController scrollController;
 
@@ -212,12 +210,13 @@ class RefreshableSliverListView<T> extends RefreshableDataView<T> {
   @override
   final Widget Function(BuildContext, T) itemBuilder;
 
-  /// Check if outer [NestedScrollView] use [SliverOverlapAbsorber]. And if the value is true, you may need to
-  /// wrap this widget with [Builder] to get correct [ScrollController] by [NestedScrollView.sliverOverlapAbsorberHandleFor].
-  final bool hasOverlapAbsorber;
-
   /// The separator in [SliverList].
   final Widget separator;
+
+  /// The switcher to use [SliverOverlapInjector], defaults to false. This is useful when outer [NestedScrollView] use [SliverOverlapAbsorber],
+  /// or you can manually set the padding in [UpdatableDataViewExtraWidgets] and just set this value to false. If set to true, you have to wrap
+  /// this widget with [Builder] to get correct [SliverOverlapAbsorber] handler by [NestedScrollView.sliverOverlapAbsorberHandleFor].
+  final bool useOverlapInjector;
 
   /// The extra widgets.
   final UpdatableDataViewExtraWidgets extra;
@@ -278,10 +277,11 @@ class _RefreshableSliverListViewState<T> extends State<RefreshableSliverListView
       shrinkWrap: widget.setting.shrinkWrap,
       // ===================================
       slivers: [
-        if (widget.hasOverlapAbsorber)
+        if (widget.useOverlapInjector)
           SliverOverlapInjector(
             handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
           ),
+
         SliverPadding(
           padding: widget.setting.padding ?? EdgeInsets.zero,
           sliver: SliverList(
@@ -341,8 +341,7 @@ class _RefreshableSliverListViewState<T> extends State<RefreshableSliverListView
   }
 }
 
-/// Refreshable [StaggeredGridView] is an implementation of [RefreshableDataView], with
-/// [RefreshIndicator], [PlaceholderText], [Scrollbar] and [StaggeredGridView].
+/// A [RefreshableDataView] with [StaggeredGridView], includes [RefreshIndicator], [PlaceholderText], [Scrollbar] and [StaggeredGridView].
 class RefreshableStaggeredGridView<T> extends RefreshableDataView<T> {
   const RefreshableStaggeredGridView({
     Key key,
@@ -508,8 +507,7 @@ class _RefreshableStaggeredGridViewState<T> extends State<RefreshableStaggeredGr
   }
 }
 
-/// The getData inner implementation, used in [RefreshableListView._getData],
-/// [RefreshableListView._getData] and [RefreshableStaggeredGridView._getData].
+/// The getData inner implementation, used in [RefreshableListView._getData], [RefreshableListView._getData] and [RefreshableStaggeredGridView._getData].
 Future<void> _getDataCore<T>({
   @required void Function(bool) setLoading,
   @required void Function(String) setErrorMessage,
@@ -533,8 +531,8 @@ Future<void> _getDataCore<T>({
   if (setting.clearWhenRefresh) {
     data.clear();
   }
-  setting.onStartRefreshing?.call();
-  setting.onStartLoading?.call();
+  setting.onStartRefreshing?.call(); // start refreshing
+  setting.onStartLoading?.call(); // start loading
   doSetState();
 
   // get data
@@ -561,8 +559,8 @@ Future<void> _getDataCore<T>({
   }).whenComplete(() {
     // finish loading and setState
     setLoading(false);
-    setting.onStopLoading?.call();
-    setting.onStopRefreshing?.call();
+    setting.onStopLoading?.call(); // stop loading
+    setting.onStopRefreshing?.call(); // stop refreshing
     doSetState();
   });
 }

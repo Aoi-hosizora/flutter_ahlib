@@ -8,7 +8,6 @@ class RefreshableStaggeredGridViewPage extends StatefulWidget {
 }
 
 class _RefreshableStaggeredGridViewPageState extends State<RefreshableStaggeredGridViewPage> {
-  /*
   final _controller = UpdatableDataViewController();
   final _scrollController = ScrollController();
   final _fabController = AnimatedFabController();
@@ -22,36 +21,26 @@ class _RefreshableStaggeredGridViewPageState extends State<RefreshableStaggeredG
     }
     return List.generate(50, (i) => 'Item ${i + 1}');
   }
-   */
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('RefreshableStaggeredGridView Example'),
-        /*
         actions: [
           IconButton(
             icon: Icon(Icons.refresh),
             onPressed: () => _controller.refresh(),
           ),
           IconButton(
-            icon: BannedIcon(
-              banned: !_isError,
-              icon: Icon(Icons.error),
-              color: Colors.white,
-              backgroundColor: Theme.of(context).primaryColor,
-              offset: 1.5,
-            ),
+            icon: Icon(!_isError ? Icons.error : Icons.check),
             onPressed: () {
               _isError = !_isError;
               if (mounted) setState(() {});
             },
           ),
         ],
-         */
       ),
-      /*
       body: RefreshableStaggeredGridView<String>(
         data: _data,
         getData: () => _getData(),
@@ -64,10 +53,10 @@ class _RefreshableStaggeredGridViewPageState extends State<RefreshableStaggeredG
           onStateChanged: (_, __) => _fabController.hide(),
           onStartLoading: () => print('onStartLoading'),
           onStopLoading: () => print('onStopLoading'),
-          onRefresh: () => print('onRefresh'),
+          onStartRefreshing: () => print('onStartRefreshing'),
+          onStopRefreshing: () => print('onStopRefreshing'),
           onAppend: (l) => print('onAppend: ${l.length}'),
           onError: (e) => print('onError: $e'),
-          showScrollbar: true,
         ),
         itemBuilder: (_, item) => ListTile(
           title: Text(item),
@@ -75,57 +64,47 @@ class _RefreshableStaggeredGridViewPageState extends State<RefreshableStaggeredG
         ),
         crossAxisCount: 2 * 3,
         staggeredTileBuilder: (_) => StaggeredTile.fit(2),
-        innerTopWidget: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: EdgeInsets.fromLTRB(10, 8, 0, 8),
-              child: Text('inner top widget'),
-            ),
-            Divider(height: 1, thickness: 1),
-          ],
-        ),
-        innerBottomWidget: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Divider(height: 1, thickness: 1),
-            Padding(
-              padding: EdgeInsets.fromLTRB(10, 8, 0, 8),
-              child: Text('inner bottom widget'),
-            ),
-          ],
-        ),
-        outerTopWidget: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Padding(
-              padding: EdgeInsets.fromLTRB(0, 8, 10, 8),
-              child: Text('outer top widget'),
-            ),
-            Divider(height: 1, thickness: 1),
-          ],
-        ),
-        outerBottomWidget: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Divider(height: 1, thickness: 1),
-            Padding(
-              padding: EdgeInsets.fromLTRB(0, 8, 10, 8),
-              child: Text('outer bottom widget'),
-            ),
-          ],
+        extra: UpdatableDataViewExtraWidgets(
+          innerTopWidget: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(padding: EdgeInsets.fromLTRB(10, 8, 0, 8), child: Text('inner top widget')),
+              Divider(height: 1, thickness: 1),
+            ],
+          ),
+          innerBottomWidget: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Divider(height: 1, thickness: 1),
+              Padding(padding: EdgeInsets.fromLTRB(10, 8, 0, 8), child: Text('inner bottom widget')),
+            ],
+          ),
+          outerTopWidget: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('outer top widget')),
+              Divider(height: 1, thickness: 1),
+            ],
+          ),
+          outerBottomWidget: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Divider(height: 1, thickness: 1),
+              Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('outer bottom widget')),
+            ],
+          ),
         ),
       ),
       floatingActionButton: ScrollAnimatedFab(
         controller: _fabController,
         scrollController: _scrollController,
+        condition: ScrollAnimatedCondition.direction,
         fab: FloatingActionButton(
           child: Icon(Icons.vertical_align_top),
           onPressed: () => _scrollController.scrollToTop(),
-          heroTag: 'RefreshableSliverListViewPage',
+          heroTag: 'RefreshableStaggeredGridView',
         ),
       ),
-       */
     );
   }
 }

@@ -7,7 +7,6 @@ class RefreshableListViewPage extends StatefulWidget {
 }
 
 class _RefreshableListViewPageState extends State<RefreshableListViewPage> {
-  /*
   final _controller = UpdatableDataViewController();
   final _scrollController = ScrollController();
   final _fabController = AnimatedFabController();
@@ -21,36 +20,26 @@ class _RefreshableListViewPageState extends State<RefreshableListViewPage> {
     }
     return List.generate(50, (i) => 'Item ${i + 1}');
   }
-   */
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('RefreshableListView Example'),
-        /*
         actions: [
           IconButton(
             icon: Icon(Icons.refresh),
             onPressed: () => _controller.refresh(),
           ),
           IconButton(
-            icon: BannedIcon(
-              banned: !_isError,
-              icon: Icon(Icons.error),
-              color: Colors.white,
-              backgroundColor: Theme.of(context).primaryColor,
-              offset: 1.5,
-            ),
+            icon: Icon(!_isError ? Icons.error : Icons.check),
             onPressed: () {
               _isError = !_isError;
               if (mounted) setState(() {});
             },
           ),
         ],
-         */
       ),
-      /*
       body: RefreshableListView<String>(
         data: _data,
         getData: () => _getData(),
@@ -63,66 +52,57 @@ class _RefreshableListViewPageState extends State<RefreshableListViewPage> {
           onStateChanged: (_, __) => _fabController.hide(),
           onStartLoading: () => print('onStartLoading'),
           onStopLoading: () => print('onStopLoading'),
-          onRefresh: () => print('onRefresh'),
+          onStartRefreshing: () => print('onStartRefreshing'),
+          onStopRefreshing: () => print('onStopRefreshing'),
           onAppend: (l) => print('onAppend: ${l.length}'),
           onError: (e) => print('onError: $e'),
-          showScrollbar: true,
         ),
         itemBuilder: (_, item) => ListTile(
           title: Text(item),
           onTap: () {},
         ),
-        innerTopWidget: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: EdgeInsets.fromLTRB(10, 8, 0, 8),
-              child: Text('inner top widget'),
-            ),
-            Divider(height: 1, thickness: 1),
-          ],
-        ),
-        innerBottomWidget: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Divider(height: 1, thickness: 1),
-            Padding(
-              padding: EdgeInsets.fromLTRB(10, 8, 0, 8),
-              child: Text('inner bottom widget'),
-            ),
-          ],
-        ),
-        outerTopWidget: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Padding(
-              padding: EdgeInsets.fromLTRB(0, 8, 10, 8),
-              child: Text('outer top widget'),
-            ),
-            Divider(height: 1, thickness: 1),
-          ],
-        ),
-        outerBottomWidget: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Divider(height: 1, thickness: 1),
-            Padding(
-              padding: EdgeInsets.fromLTRB(0, 8, 10, 8),
-              child: Text('outer bottom widget'),
-            ),
-          ],
+        separator: Divider(height: 1, thickness: 1),
+        extra: UpdatableDataViewExtraWidgets(
+          innerTopWidget: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(padding: EdgeInsets.fromLTRB(10, 8, 0, 8), child: Text('inner top widget')),
+              Divider(height: 1, thickness: 1),
+            ],
+          ),
+          innerBottomWidget: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Divider(height: 1, thickness: 1),
+              Padding(padding: EdgeInsets.fromLTRB(10, 8, 0, 8), child: Text('inner bottom widget')),
+            ],
+          ),
+          outerTopWidget: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('outer top widget')),
+              Divider(height: 1, thickness: 1),
+            ],
+          ),
+          outerBottomWidget: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Divider(height: 1, thickness: 1),
+              Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('outer bottom widget')),
+            ],
+          ),
         ),
       ),
       floatingActionButton: ScrollAnimatedFab(
         controller: _fabController,
         scrollController: _scrollController,
+        condition: ScrollAnimatedCondition.direction,
         fab: FloatingActionButton(
           child: Icon(Icons.vertical_align_top),
           onPressed: () => _scrollController.scrollToTop(),
           heroTag: 'RefreshableListViewPage',
         ),
       ),
-       */
     );
   }
 }

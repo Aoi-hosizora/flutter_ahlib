@@ -1,4 +1,4 @@
-// Reference from https://github.com/google/quiver-dart/blob/master/lib/src/core/hash.dart.
+// Refers to: https://github.com/google/quiver-dart/blob/master/lib/src/core/hash.dart.
 
 /// Generates a hash code for two objects.
 int hash2(a, b) => _finish(_combine(_combine(0, a.hashCode), b.hashCode));

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_ahlib/src/util/dart_extensions.dart';
+import 'package:flutter_ahlib/src/util/dart_extension.dart';
 
 // ==============
 // AppBar related

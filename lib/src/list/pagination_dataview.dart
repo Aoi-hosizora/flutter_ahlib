@@ -2,19 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_ahlib/src/list/append_indicator.dart';
 import 'package:flutter_ahlib/src/list/updatable_dataview.dart';
-import 'package:flutter_ahlib/src/util/flutter_extensions.dart';
+import 'package:flutter_ahlib/src/util/flutter_extension.dart';
 import 'package:flutter_ahlib/src/widget/placeholder_text.dart';
 import 'package:flutter_ahlib/src/widget/sliver_delegate.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
-/// A duration for flashing list after clear the data.
+/// The duration for flashing list after clear the data.
 final _kFlashListDuration = Duration(milliseconds: 50);
 
-/// A duration for fake refreshing for nothing.
+/// The duration for fake refreshing when nothing.
 final _kNothingRefreshDuration = Duration(milliseconds: 200);
 
-/// An abstract [UpdatableDataView] for pagination data view, including
-/// [PaginationListView], [PaginationSliverListView], [PaginationStaggeredGridView].
+/// An abstract [UpdatableDataView] for pagination data view, implements by [PaginationListView], [PaginationSliverListView], [PaginationStaggeredGridView].
 abstract class PaginationDataView<T> extends UpdatableDataView<T> {
   const PaginationDataView({Key key}) : super(key: key);
 
@@ -25,8 +24,7 @@ abstract class PaginationDataView<T> extends UpdatableDataView<T> {
   PaginationSetting get paginationSetting;
 }
 
-/// Pagination [ListView] is an implementation of [PaginationDataView], with
-/// [AppendIndicator], [RefreshIndicator], [PlaceholderText], [Scrollbar] and [ListView].
+/// A [PaginationDataView] with [ListView], includes [AppendIndicator], [RefreshIndicator], [PlaceholderText], [Scrollbar] and [ListView].
 class PaginationListView<T> extends PaginationDataView<T> {
   const PaginationListView({
     Key key,
@@ -86,10 +84,10 @@ class PaginationListView<T> extends PaginationDataView<T> {
 class _PaginationListViewState<T> extends State<PaginationListView<T>> with AutomaticKeepAliveClientMixin<PaginationListView<T>> {
   final _appendIndicatorKey = GlobalKey<AppendIndicatorState>();
   final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
-  var _downScrollable = false;
   var _forceState = PlaceholderState.nothing;
   var _loading = false;
   var _errorMessage = '';
+  var _downScrollable = false;
   dynamic _nextIndicator;
 
   @override
@@ -123,10 +121,10 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
     return _getDataCore(
       reset: reset,
       nextIndicator: _nextIndicator,
-      setLoading: (l) => _loading = l,
-      setErrorMessage: (e) => _errorMessage = e,
       setNextIndicator: (i) => _nextIndicator = i,
       getDownScrollable: () => _downScrollable,
+      setLoading: (l) => _loading = l,
+      setErrorMessage: (e) => _errorMessage = e,
       data: widget.data,
       getData: widget.getData,
       setting: widget.setting,
@@ -205,8 +203,7 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
   }
 }
 
-/// Pagination [SliverList] is an implementation of [PaginationDataView], with
-/// [AppendIndicator], [RefreshIndicator], [PlaceholderText], [Scrollbar], [CustomScrollView] and [SliverList].
+/// A [PaginationDataView] with [SliverList], includes [AppendIndicator], [RefreshIndicator], [PlaceholderText], [Scrollbar], [CustomScrollView] and [SliverList].
 class PaginationSliverListView<T> extends PaginationDataView<T> {
   const PaginationSliverListView({
     Key key,
@@ -218,13 +215,13 @@ class PaginationSliverListView<T> extends PaginationDataView<T> {
     this.scrollController,
     @required this.itemBuilder,
     // ===================================
-    this.hasOverlapAbsorber = false,
     this.separator,
+    this.useOverlapInjector = false,
     this.extra,
   })  : assert(data != null && getData != null),
         assert(setting != null && paginationSetting != null),
         assert(itemBuilder != null),
-        assert(hasOverlapAbsorber != null),
+        assert(useOverlapInjector != null),
         super(key: key);
 
   /// The list of data.
@@ -247,7 +244,8 @@ class PaginationSliverListView<T> extends PaginationDataView<T> {
   @override
   final UpdatableDataViewController controller;
 
-  /// The controller for [CustomScrollView].
+  /// The controller for [CustomScrollView], you have to wrap this widget with [Builder] and use [PrimaryScrollController.of] to get correct
+  /// [ScrollController] from [NestedScrollView], JUST NOT TO use [NestedScrollView]'s scrollController directly.
   @override
   final ScrollController scrollController;
 
@@ -255,12 +253,13 @@ class PaginationSliverListView<T> extends PaginationDataView<T> {
   @override
   final Widget Function(BuildContext, T) itemBuilder;
 
-  /// Check if outer [NestedScrollView] use [SliverOverlapAbsorber]. And if the value is true, you may need to
-  /// wrap this widget with [Builder] to get correct [ScrollController] by [NestedScrollView.sliverOverlapAbsorberHandleFor].
-  final bool hasOverlapAbsorber;
-
   /// The separator in [SliverList].
   final Widget separator;
+
+  /// The switcher to use [SliverOverlapInjector], defaults to false. This is useful when outer [NestedScrollView] use [SliverOverlapAbsorber],
+  /// or you can manually set the padding in [UpdatableDataViewExtraWidgets] and just set this value to false. If set to true, you have to wrap
+  /// this widget with [Builder] to get correct [SliverOverlapAbsorber] handler by [NestedScrollView.sliverOverlapAbsorberHandleFor].
+  final bool useOverlapInjector;
 
   /// The extra widgets.
   final UpdatableDataViewExtraWidgets extra;
@@ -272,10 +271,10 @@ class PaginationSliverListView<T> extends PaginationDataView<T> {
 class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T>> with AutomaticKeepAliveClientMixin<PaginationSliverListView<T>> {
   final _appendIndicatorKey = GlobalKey<AppendIndicatorState>();
   final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
-  var _downScrollable = false;
   var _forceState = PlaceholderState.nothing;
   var _loading = false;
   var _errorMessage = '';
+  var _downScrollable = false;
   dynamic _nextIndicator;
 
   @override
@@ -309,10 +308,10 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
     return _getDataCore(
       reset: reset,
       nextIndicator: _nextIndicator,
-      setLoading: (l) => _loading = l,
-      setErrorMessage: (e) => _errorMessage = e,
       setNextIndicator: (i) => _nextIndicator = i,
       getDownScrollable: () => _downScrollable,
+      setLoading: (l) => _loading = l,
+      setErrorMessage: (e) => _errorMessage = e,
       data: widget.data,
       getData: widget.getData,
       setting: widget.setting,
@@ -338,7 +337,7 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
       shrinkWrap: widget.setting.shrinkWrap,
       // ===================================
       slivers: [
-        if (widget.hasOverlapAbsorber)
+        if (widget.useOverlapInjector)
           SliverOverlapInjector(
             handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
           ),
@@ -408,8 +407,7 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
   }
 }
 
-/// Pagination [StaggeredGridView] is an implementation of [PaginationDataView], with
-/// [AppendIndicator], [RefreshIndicator], [PlaceholderText], [Scrollbar] and [StaggeredGridView].
+/// A [PaginationDataView] with [StaggeredGridView], includes [AppendIndicator], [RefreshIndicator], [PlaceholderText], [Scrollbar] and [StaggeredGridView].
 class PaginationStaggeredGridView<T> extends PaginationDataView<T> {
   const PaginationStaggeredGridView({
     Key key,
@@ -482,10 +480,10 @@ class PaginationStaggeredGridView<T> extends PaginationDataView<T> {
 class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGridView<T>> with AutomaticKeepAliveClientMixin<PaginationStaggeredGridView<T>> {
   final _appendIndicatorKey = GlobalKey<AppendIndicatorState>();
   final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
-  var _downScrollable = false;
   var _forceState = PlaceholderState.nothing;
   var _loading = false;
   var _errorMessage = '';
+  var _downScrollable = false;
   dynamic _nextIndicator;
 
   @override
@@ -519,10 +517,10 @@ class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGrid
     return _getDataCore(
       reset: reset,
       nextIndicator: _nextIndicator,
-      setLoading: (l) => _loading = l,
-      setErrorMessage: (e) => _errorMessage = e,
       setNextIndicator: (i) => _nextIndicator = i,
       getDownScrollable: () => _downScrollable,
+      setLoading: (l) => _loading = l,
+      setErrorMessage: (e) => _errorMessage = e,
       data: widget.data,
       getData: widget.getData,
       setting: widget.setting,
@@ -630,15 +628,15 @@ class PagedList<T> {
   final dynamic next;
 }
 
-/// The getData inner implementation, need [setLoading], [setErrorMessage], [nextIndicator] set-get and [getDownScrollable].
+/// The getData inner implementation, used in [PaginationListView._getData], [PaginationListView._getData] and [PaginationStaggeredGridView._getData].
 Future<void> _getDataCore<T>({
   @required bool reset,
   @required dynamic nextIndicator,
+  @required void Function(dynamic) setNextIndicator,
+  @required bool Function() getDownScrollable,
   // ===================================
   @required void Function(bool) setLoading,
   @required void Function(String) setErrorMessage,
-  @required void Function(dynamic) setNextIndicator,
-  @required bool Function() getDownScrollable,
   // ===================================
   @required List<T> data,
   @required Future<PagedList<T>> Function({dynamic indicator}) getData,
@@ -650,10 +648,10 @@ Future<void> _getDataCore<T>({
 }) async {
   assert(reset != null);
   assert(nextIndicator != null);
-  assert(setLoading != null);
-  assert(setErrorMessage != null);
   assert(setNextIndicator != null);
   assert(getDownScrollable != null);
+  assert(setLoading != null);
+  assert(setErrorMessage != null);
   assert(data != null);
   assert(getData != null);
   assert(setting != null);
@@ -663,7 +661,8 @@ Future<void> _getDataCore<T>({
 
   // reset page
   if (reset) {
-    setNextIndicator(paginationSetting.initialIndicator);
+    nextIndicator = paginationSetting.initialIndicator;
+    setNextIndicator(nextIndicator);
   }
 
   // start loading
@@ -673,9 +672,9 @@ Future<void> _getDataCore<T>({
     if (setting.clearWhenRefresh) {
       data.clear();
     }
-    setting.onStartRefreshing?.call();
+    setting.onStartRefreshing?.call(); // start refreshing
   }
-  setting.onStartLoading?.call();
+  setting.onStartLoading?.call(); // start loading
   doSetState();
 
   // nothing
@@ -683,7 +682,7 @@ Future<void> _getDataCore<T>({
     return Future.delayed(_kNothingRefreshDuration).then((_) {
       setErrorMessage('');
       setting.onAppend?.call([]);
-      setting.onStopLoading?.call();
+      setting.onStopLoading?.call(); // stop loading
       doSetState();
     });
   }
@@ -725,9 +724,9 @@ Future<void> _getDataCore<T>({
   }).whenComplete(() {
     // finish loading and setState
     setLoading(false);
-    setting.onStopLoading?.call();
+    setting.onStopLoading?.call(); // stop loading
     if (reset) {
-      setting.onStopRefreshing?.call();
+      setting.onStopRefreshing?.call(); // stop refreshing
     }
     doSetState();
   });

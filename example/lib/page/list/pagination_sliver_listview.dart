@@ -7,54 +7,46 @@ class PaginationSliverListViewPage extends StatefulWidget {
 }
 
 class _PaginationSliverListViewPageState extends State<PaginationSliverListViewPage> {
-  /*
   final _controller = UpdatableDataViewController();
   final _scrollController = ScrollController();
   final _fabController = AnimatedFabController();
   var _isError = false;
   var _data = <String>[];
 
-  Future<List<String>> _getData({int page}) async {
+  Future<PagedList<String>> _getData({int page}) async {
     print('_getData: $page');
     await Future.delayed(Duration(seconds: 2));
     if (_isError) {
       return Future.error('something wrong');
     }
-    if (page > 4) {
-      return [];
+    if (page > 5) {
+      return PagedList(list: [], next: 0);
     }
-    return List.generate(10, (i) => 'Item $page - ${i + 1}');
+    return PagedList(
+      list: List.generate(10, (i) => 'Item $page - ${(page - 1) * 10 + i + 1}'),
+      next: page + 1,
+    );
   }
-   */
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('PaginationSliverListView Example'),
-        /*
         actions: [
           IconButton(
             icon: Icon(Icons.refresh),
             onPressed: () => _controller.refresh(),
           ),
           IconButton(
-            icon: BannedIcon(
-              banned: !_isError,
-              icon: Icon(Icons.error),
-              color: Colors.white,
-              backgroundColor: Theme.of(context).primaryColor,
-              offset: 1.5,
-            ),
+            icon: Icon(!_isError ? Icons.error : Icons.check),
             onPressed: () {
               _isError = !_isError;
               if (mounted) setState(() {});
             },
           ),
         ],
-         */
       ),
-      /*
       body: NestedScrollView(
         headerSliverBuilder: (c, _) => [
           SliverToBoxAdapter(
@@ -64,42 +56,61 @@ class _PaginationSliverListViewPageState extends State<PaginationSliverListViewP
               color: Colors.yellow,
             ),
           ),
-        ],
-        body: PaginationSliverListView<String>(
-          data: _data,
-          strategy: PaginationStrategy.offsetBased,
-          paginationSetting: PaginationSetting(initialPage: 1),
-          getDataByOffset: ({int page}) => _getData(page: page),
-          controller: _controller,
-          scrollController: _scrollController,
-          setting: UpdatableDataViewSetting(
-            refreshFirst: true,
-            clearWhenError: true,
-            clearWhenRefresh: true,
-            onStateChanged: (_, __) => _fabController.hide(),
-            onStartLoading: () => print('onStartLoading'),
-            onStopLoading: () => print('onStopLoading'),
-            onRefresh: () => print('onRefresh'),
-            onAppend: (l) => print('onAppend: ${l.length}'),
-            onError: (e) => print('onError: $e'),
-            showScrollbar: true,
+          SliverOverlapAbsorber(
+            handle: NestedScrollView.sliverOverlapAbsorberHandleFor(c),
+            sliver: SliverPersistentHeader(
+              pinned: true,
+              floating: true,
+              delegate: SliverAppBarSizedDelegate(
+                minHeight: 15,
+                maxHeight: 15,
+                child: Container(color: Colors.red),
+              ),
+            ),
           ),
-          itemBuilder: (_, item) => ListTile(
-            title: Text(item),
-            onTap: () {},
+        ],
+        controller: _scrollController,
+        body: Builder(
+          builder: (c) => PaginationSliverListView<String>(
+            data: _data,
+            getData: ({indicator}) => _getData(page: indicator),
+            controller: _controller,
+            scrollController: PrimaryScrollController.of(c),
+            paginationSetting: PaginationSetting(
+              initialIndicator: 1,
+              nothingIndicator: 0,
+            ),
+            setting: UpdatableDataViewSetting(
+              refreshFirst: true,
+              clearWhenError: true,
+              clearWhenRefresh: true,
+              onStateChanged: (_, __) => _fabController.hide(),
+              onStartLoading: () => print('onStartLoading'),
+              onStopLoading: () => print('onStopLoading'),
+              onStartRefreshing: () => print('onStartRefreshing'),
+              onStopRefreshing: () => print('onStopRefreshing'),
+              onAppend: (l) => print('onAppend: ${l.length}'),
+              onError: (e) => print('onError: $e'),
+            ),
+            itemBuilder: (_, item) => ListTile(
+              title: Text(item),
+              onTap: () {},
+            ),
+            separator: Divider(height: 1, thickness: 1),
+            useOverlapInjector: true,
           ),
         ),
       ),
       floatingActionButton: ScrollAnimatedFab(
         controller: _fabController,
         scrollController: _scrollController,
+        condition: ScrollAnimatedCondition.direction,
         fab: FloatingActionButton(
           child: Icon(Icons.vertical_align_top),
           onPressed: () => _scrollController.scrollToTop(),
           heroTag: 'RefreshableListViewPage',
         ),
       ),
-       */
     );
   }
 }

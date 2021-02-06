@@ -1,6 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_ahlib/src/util/flutter_extensions.dart';
+import 'package:flutter_ahlib/src/util/flutter_extension.dart';
 
 /// An abstract text group item that represents [TextGroup]'s children, which must implement the [text], [style],
 /// inherited by [NormalGroupText] and [LinkGroupText].
@@ -217,7 +217,7 @@ class _TextGroupState extends State<TextGroup> {
     // outer textSpan
     var textSpan = TextSpan(
       text: '',
-      style: widget.style ?? DefaultTextStyle.of(context),
+      style: widget.style ?? DefaultTextStyle.of(context).style,
       children: spans..add(TextSpan(text: ' ')),
     );
 

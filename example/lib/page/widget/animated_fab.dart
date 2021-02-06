@@ -27,37 +27,46 @@ class _AnimatedFabPageState extends State<AnimatedFabPage> {
       ),
       body: Stack(
         children: [
-          ListView(
-            controller: _controller,
-            children: List.generate(
-              30,
-              (num) => ListTile(
-                title: Text(
-                  num == 5
-                      ? 'show'
-                      : num == 6
-                          ? 'hide'
-                          : 'Item $num',
+          Scrollbar(
+            child: ListView(
+              controller: _controller,
+              children: List.generate(
+                30,
+                (num) => ListTile(
+                  title: Text(
+                    num == 5
+                        ? 'show l'
+                        : num == 6
+                            ? 'hide l'
+                            : num == 7
+                                ? 'show r'
+                                : num == 8
+                                    ? 'hide r'
+                                    : 'Item $num',
+                  ),
+                  onTap: () {
+                    if (num == 5) {
+                      _show = true;
+                      if (mounted) setState(() {});
+                    } else if (num == 6) {
+                      _show = false;
+                      if (mounted) setState(() {});
+                    }
+                    if (num == 7) {
+                      _fabController.show();
+                    } else if (num == 8) {
+                      _fabController.hide();
+                    } else {
+                      print('Item $num');
+                    }
+                  },
                 ),
-                onTap: () {
-                  if (num == 5) {
-                    _show = true;
-                    _fabController.show();
-                    if (mounted) setState(() {});
-                  } else if (num == 6) {
-                    _show = false;
-                    _fabController.hide();
-                    if (mounted) setState(() {});
-                  } else {
-                    print('Item $num');
-                  }
-                },
               ),
             ),
           ),
           Positioned(
-            left: 0,
-            bottom: 50,
+            left: 16,
+            bottom: 16,
             child: AnimatedFab(
               show: _show,
               fab: FloatingActionButton(
@@ -70,7 +79,7 @@ class _AnimatedFabPageState extends State<AnimatedFabPage> {
           Positioned(
             left: 0,
             right: 0,
-            bottom: 50,
+            bottom: 16,
             child: ScrollAnimatedFab(
               scrollController: _controller,
               condition: ScrollAnimatedCondition.direction,

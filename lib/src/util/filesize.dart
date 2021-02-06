@@ -1,5 +1,5 @@
-/// [filesize] returns a string type of file size.
-/// Reference from https://github.com/synw/filesize/blob/master/lib/src/filesize.dart.
+/// Returns a rendered string value of given file size.
+/// Refers to: https://github.com/synw/filesize/blob/master/lib/src/filesize.dart.
 String filesize(int size, [int round = 2, bool space = true]) {
   int divider = 1024;
 

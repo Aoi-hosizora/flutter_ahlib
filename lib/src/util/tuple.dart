@@ -1,4 +1,4 @@
-// Reference from https://github.com/google/tuple.dart/blob/master/lib/tuple.dart.
+// Refers to: https://github.com/google/tuple.dart/blob/master/lib/tuple.dart.
 
 import 'package:flutter_ahlib/src/util/hash.dart';
 
@@ -12,7 +12,7 @@ class Tuple2<T1, T2> {
   /// The second item of the tuple.
   T2 item2;
 
-  /// Create a new tuple value with the specified list [items].
+  /// Creates a new tuple value with the specified list [items].
   factory Tuple2.fromList(List items) {
     if (items.length != 2) {
       throw ArgumentError('items must have length 2');
@@ -48,7 +48,7 @@ class Tuple3<T1, T2, T3> {
   /// The third item of the tuple.
   T3 item3;
 
-  /// Create a new tuple value with the specified list [items].
+  /// Creates a new tuple value with the specified list [items].
   factory Tuple3.fromList(List items) {
     if (items.length != 3) {
       throw ArgumentError('items must have length 3');
@@ -87,7 +87,7 @@ class Tuple4<T1, T2, T3, T4> {
   /// The forth item of the tuple.
   T4 item4;
 
-  /// Create a new tuple value with the specified list [items].
+  /// Creates a new tuple value with the specified list [items].
   factory Tuple4.fromList(List items) {
     if (items.length != 4) {
       throw ArgumentError('items must have length 4');
@@ -129,7 +129,7 @@ class Tuple5<T1, T2, T3, T4, T5> {
   /// The fifth item of the tuple.
   T5 item5;
 
-  /// Create a new tuple value with the specified list [items].
+  /// Creates a new tuple value with the specified list [items].
   factory Tuple5.fromList(List items) {
     if (items.length != 5) {
       throw ArgumentError('items must have length 5');
@@ -174,7 +174,7 @@ class Tuple6<T1, T2, T3, T4, T5, T6> {
   /// The sixth item of the tuple.
   T6 item6;
 
-  /// Create a new tuple value with the specified list [items].
+  /// Creates a new tuple value with the specified list [items].
   factory Tuple6.fromList(List items) {
     if (items.length != 6) {
       throw ArgumentError('items must have length 6');
