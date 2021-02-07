@@ -8,9 +8,9 @@ void main() {
       var indicator = 0;
       var f = () => indicator++;
 
-      expect(AuthState.instance.registerDefault(f, testReceiver), true);
-      expect(AuthState.instance.registerDefault(f, testReceiver), false);
-      expect(AuthState.instance.registerDefault(f, testReceiver, force: true), true);
+      expect(AuthState.instance.registerDefault(testReceiver, f), true);
+      expect(AuthState.instance.registerDefault(testReceiver, f), false);
+      expect(AuthState.instance.registerDefault(testReceiver, f, force: true), true);
 
       expect(indicator, 0);
       AuthState.instance.notify('');
@@ -39,8 +39,8 @@ void main() {
       var indicator = 0;
       var f = () => indicator++;
 
-      expect(AuthState.instance.register(f, testReceiver, '1'), true);
-      expect(AuthState.instance.register(f, testReceiver, '2'), true);
+      expect(AuthState.instance.register(testReceiver, '1', f), true);
+      expect(AuthState.instance.register(testReceiver, '2', f), true);
 
       expect(indicator, 0);
       AuthState.instance.notify('');

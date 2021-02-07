@@ -50,14 +50,17 @@ class _SliverDelegatePageState extends State<SliverDelegatePage> {
                 delegate: SliverSeparatedListDelegate(
                   List.generate(
                     10,
-                    (i) => ListTile(
-                      title: Text('item $i'),
-                    ),
+                    (i) => ListTile(title: Text('item $i')),
                   ),
-                  separator: Divider(
-                    height: 1,
-                    thickness: 1,
-                  ),
+                  separator: Divider(height: 1, thickness: 1),
+                ),
+              ),
+              SliverToBoxAdapter(child: SizedBox(height: 30)),
+              SliverList(
+                delegate: SliverSeparatedListBuilderDelegate(
+                  (c, i) => ListTile(title: Text('item $i')),
+                  childCount: 10,
+                  separatorBuilder: (c, i) => Divider(height: 1, thickness: 1),
                 ),
               ),
             ],

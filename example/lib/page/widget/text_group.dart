@@ -20,24 +20,30 @@ class _TextGroupPageState extends State<TextGroupPage> {
             texts: [
               NormalGroupText(text: 'test1'),
               NormalGroupText(
-                text: 'test2test2test2test2test2test2test2test2test2test2test2test2test2test2test2test2test2test2test2',
+                text: 'NormalGroupTextNormalGroupTextNormalGroupTextNormalGroupTextNormalGroupTextNormalGroupText',
                 style: TextStyle(color: Colors.red),
               ),
-              NormalGroupText(text: 'test3'),
-            ],
-          ),
-          Divider(),
-          TextGroup(
-            texts: [
-              NormalGroupText(text: 'test1'),
+              NormalGroupText(text: 'test2'),
               LinkGroupText(
-                text: 'link',
-                onTap: () => print('tapped'),
-                style: TextStyle(color: Theme.of(context).primaryColor),
+                text: 'LinkGroupText 1',
+                onTap: () => print('tapped 1'),
+                normalColor: Theme.of(context).primaryColor,
+                pressedColor: Colors.red,
               ),
               NormalGroupText(text: 'test3'),
+              LinkGroupText(
+                text: 'LinkGroupText 2',
+                onTap: () => print('tapped 2'),
+                pressedColor: Theme.of(context).primaryColor,
+                showUnderline: false,
+              ),
+              NormalGroupText(text: 'test4'),
+              LinkGroupText(
+                text: 'LinkGroupText 3',
+                onTap: () => print('tapped 3'),
+                normalColor: Theme.of(context).primaryColor,
+              ),
             ],
-            linkPressedColor: Colors.red,
           ),
           Divider(),
           TextGroup(
@@ -45,27 +51,31 @@ class _TextGroupPageState extends State<TextGroupPage> {
             texts: [
               NormalGroupText(text: 'test1'),
               NormalGroupText(
-                text: 'test2test2test2test2test2test2test2test2test2test2test2test2test2test2test2test2test2test2test2',
+                text: 'NormalGroupTextNormalGroupTextNormalGroupTextNormalGroupTextNormalGroupTextNormalGroupText',
                 style: TextStyle(color: Colors.red),
               ),
-              NormalGroupText(text: 'test3'),
-            ],
-          ),
-          Divider(),
-          TextGroup(
-            selectable: true,
-            texts: [
-              NormalGroupText(text: 'test1'),
+              NormalGroupText(text: 'test2'),
               LinkGroupText(
-                text: 'link',
-                onTap: () => print('tapped'),
-                style: TextStyle(color: Theme.of(context).primaryColor),
+                text: 'LinkGroupText 1',
+                onTap: () => print('tapped 1'),
+                normalColor: Theme.of(context).primaryColor,
+                pressedColor: Colors.red,
               ),
               NormalGroupText(text: 'test3'),
+              LinkGroupText(
+                text: 'LinkGroupText 2',
+                onTap: () => print('tapped 2'),
+                pressedColor: Theme.of(context).primaryColor,
+                showUnderline: false,
+              ),
+              NormalGroupText(text: 'test4'),
+              LinkGroupText(
+                text: 'LinkGroupText 3',
+                onTap: () => print('tapped 3'),
+                normalColor: Theme.of(context).primaryColor,
+              ),
             ],
-            linkPressedColor: Colors.red,
           ),
-          SizedBox(height: 4),
         ],
       ),
     );

@@ -64,72 +64,55 @@ class _RefreshableSliverListViewPageState extends State<RefreshableSliverListVie
         ],
         controller: _scrollController,
         body: Builder(
-          builder: (c) => RefreshableSliverListView<String>(
-            data: _data,
-            getData: () => _getData(),
-            controller: _controller,
-            scrollController: PrimaryScrollController.of(c),
-            setting: UpdatableDataViewSetting(
-              refreshFirst: true,
-              clearWhenError: true,
-              clearWhenRefresh: true,
-              onStateChanged: (_, __) => _fabController.hide(),
-              onStartLoading: () => print('onStartLoading'),
-              onStopLoading: () => print('onStopLoading'),
-              onStartRefreshing: () => print('onStartRefreshing'),
-              onStopRefreshing: () => print('onStopRefreshing'),
-              onAppend: (l) => print('onAppend: ${l.length}'),
-              onError: (e) => print('onError: $e'),
+          builder: (c) => Scaffold(
+            body: RefreshableSliverListView<String>(
+              data: _data,
+              getData: () => _getData(),
+              controller: _controller,
+              scrollController: PrimaryScrollController.of(c),
+              setting: UpdatableDataViewSetting(
+                refreshFirst: true,
+                clearWhenError: true,
+                clearWhenRefresh: true,
+                onStateChanged: (_, __) => _fabController.hide(),
+                onStartLoading: () => print('onStartLoading'),
+                onStopLoading: () => print('onStopLoading'),
+                onStartRefreshing: () => print('onStartRefreshing'),
+                onStopRefreshing: () => print('onStopRefreshing'),
+                onAppend: (l) => print('onAppend: ${l.length}'),
+                onError: (e) => print('onError: $e'),
+              ),
+              itemBuilder: (_, item) => ListTile(
+                title: Text(item),
+                onTap: () {},
+              ),
+              separator: Divider(height: 1, thickness: 1),
+              // hasOverlapAbsorber: true,
+              useOverlapInjector: false,
+              extra: UpdatableDataViewExtraWidgets(
+                innerTopWidget: Align(alignment: Alignment.centerLeft, child: Padding(padding: EdgeInsets.fromLTRB(10, 8, 0, 8), child: Text('inner top widget'))),
+                innerBottomWidget: Align(alignment: Alignment.centerLeft, child: Padding(padding: EdgeInsets.fromLTRB(10, 8, 0, 8), child: Text('inner bottom widget'))),
+                outerTopWidget: Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 23, 10, 8), child: Text('outer top widget'))),
+                outerBottomWidget: Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('outer bottom widget'))),
+                inListTopWidgets: [Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('in list top widget')))],
+                inListBottomWidgets: [Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('in list bottom widget')))],
+                innerTopDivider: Divider(thickness: 1, height: 1),
+                innerBottomDivider: Divider(thickness: 1, height: 1),
+                outerTopDivider: Divider(thickness: 1, height: 1),
+                outerBottomDivider: Divider(thickness: 1, height: 1),
+              ),
             ),
-            itemBuilder: (_, item) => ListTile(
-              title: Text(item),
-              onTap: () {},
-            ),
-            separator: Divider(height: 1, thickness: 1),
-            // hasOverlapAbsorber: true,
-            useOverlapInjector: false,
-            extra: UpdatableDataViewExtraWidgets(
-              innerTopWidget: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(padding: EdgeInsets.fromLTRB(10, 8, 0, 8), child: Text('inner top widget')),
-                  Divider(height: 1, thickness: 1),
-                ],
-              ),
-              innerBottomWidget: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Divider(height: 1, thickness: 1),
-                  Padding(padding: EdgeInsets.fromLTRB(10, 8, 0, 8), child: Text('inner bottom widget')),
-                ],
-              ),
-              outerTopWidget: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  SizedBox(height: 15), // manual set padding, remove SliverOverlapInjector
-                  Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('outer top widget')),
-                  Divider(height: 1, thickness: 1),
-                ],
-              ),
-              outerBottomWidget: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Divider(height: 1, thickness: 1),
-                  Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('outer bottom widget')),
-                ],
+            floatingActionButton: ScrollAnimatedFab(
+              controller: _fabController,
+              scrollController: PrimaryScrollController.of(c), // <<<
+              condition: ScrollAnimatedCondition.direction,
+              fab: FloatingActionButton(
+                child: Icon(Icons.vertical_align_top),
+                onPressed: () => _scrollController.scrollToTop(),
+                heroTag: 'RefreshableSliverListViewPage',
               ),
             ),
           ),
-        ),
-      ),
-      floatingActionButton: ScrollAnimatedFab(
-        controller: _fabController,
-        scrollController: _scrollController,
-        condition: ScrollAnimatedCondition.direction,
-        fab: FloatingActionButton(
-          child: Icon(Icons.vertical_align_top),
-          onPressed: () => _scrollController.scrollToTop(),
-          heroTag: 'RefreshableSliverListViewPage',
         ),
       ),
     );

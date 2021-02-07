@@ -75,6 +75,18 @@ class _PaginationStaggeredGridViewPageState extends State<PaginationStaggeredGri
         ),
         crossAxisCount: 2 * 3,
         staggeredTileBuilder: (_) => StaggeredTile.fit(2),
+        extra: UpdatableDataViewExtraWidgets(
+          innerTopWidget: Align(alignment: Alignment.centerLeft, child: Padding(padding: EdgeInsets.fromLTRB(10, 8, 0, 8), child: Text('inner top widget'))),
+          innerBottomWidget: Align(alignment: Alignment.centerLeft, child: Padding(padding: EdgeInsets.fromLTRB(10, 8, 0, 8), child: Text('inner bottom widget'))),
+          outerTopWidget: Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('outer top widget'))),
+          outerBottomWidget: Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('outer bottom widget'))),
+          inListTopWidgets: [Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('in list top widget')))], // ignore
+          inListBottomWidgets: [Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('in list bottom widget')))], // ignore
+          innerTopDivider: Divider(thickness: 1, height: 1),
+          innerBottomDivider: Divider(thickness: 1, height: 1),
+          outerTopDivider: Divider(thickness: 1, height: 1),
+          outerBottomDivider: Divider(thickness: 1, height: 1),
+        ),
       ),
       floatingActionButton: ScrollAnimatedFab(
         controller: _fabController,

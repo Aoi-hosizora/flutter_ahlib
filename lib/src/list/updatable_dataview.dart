@@ -126,7 +126,24 @@ class UpdatableDataViewSetting<T> {
   final void Function() onNothing;
 }
 
-/// A list of extra widgets for [UpdatableDataView], includes widget lies before or after [ScrollView], inside or outside [PlaceholderText].
+/// A list of extra widgets used in [UpdatableDataView], includes widget and divider lies before or after [ScrollView], inside or outside [PlaceholderText].
+///
+/// Widgets order:
+/// ```
+/// outerTopWidget
+/// outerTopDivider
+/// innerTopWidget
+/// innerTopDivider
+/// ==========
+/// inListTopWidgets
+/// ...
+/// inListBottomWidgets
+/// ==========
+/// innerBottomDivider
+/// innerBottomWidget
+/// outerBottomDivider
+/// outerBottomWidget
+/// ```
 class UpdatableDataViewExtraWidgets {
   const UpdatableDataViewExtraWidgets({
     this.innerCrossAxisAlignment = CrossAxisAlignment.center,
@@ -135,6 +152,12 @@ class UpdatableDataViewExtraWidgets {
     this.innerBottomWidget,
     this.outerTopWidget,
     this.outerBottomWidget,
+    this.inListTopWidgets,
+    this.inListBottomWidgets,
+    this.innerTopDivider,
+    this.innerBottomDivider,
+    this.outerTopDivider,
+    this.outerBottomDivider,
   });
 
   /// The crossAxisAlignment for inner [Column] inside [PlaceholderText].
@@ -143,17 +166,41 @@ class UpdatableDataViewExtraWidgets {
   /// The crossAxisAlignment for outer [Column] outside [PlaceholderText].
   final CrossAxisAlignment outerCrossAxisAlignment;
 
-  /// The widget before [ListView] inside [PlaceholderText].
+  /// The widget before [ScrollView] inside [PlaceholderText].
   final Widget innerTopWidget;
 
-  /// The widget after [ListView] inside [PlaceholderText].
+  /// The widget after [ScrollView] inside [PlaceholderText].
   final Widget innerBottomWidget;
 
-  /// The widget before [ListView] outside [PlaceholderText].
+  /// The widget before [ScrollView] outside [PlaceholderText].
   final Widget outerTopWidget;
 
-  /// The widget after [ListView] outside [PlaceholderText].
+  /// The widget after [ScrollView] outside [PlaceholderText].
   final Widget outerBottomWidget;
+
+  /// The widgets in the top of [ScrollView], that will have no separator between items.
+  final List<Widget> inListTopWidgets;
+
+  /// The widgets in the bottom of [ScrollView], that will have no separator between items.
+  final List<Widget> inListBottomWidgets;
+
+  // /// The widgets in the bottom of the top of [ScrollView], that will have separator between items.
+  // final List<Widget> inListBottomOfTopWidgets;
+  //
+  // /// The widgets in the top of the bottom of [ScrollView], that will have separator between items.
+  // final List<Widget> inListTopOfBottomWidgets;
+
+  /// The divider before [ScrollView] inside [PlaceholderText], if null, do not show it.
+  final Widget innerTopDivider;
+
+  /// The divider after [ScrollView] inside [PlaceholderText], if null, do not show it.
+  final Widget innerBottomDivider;
+
+  /// The divider before [ScrollView] outside [PlaceholderText], if null, do not show it.
+  final Widget outerTopDivider;
+
+  /// The divider after [ScrollView] outside [PlaceholderText], if null, do not show it.
+  final Widget outerBottomDivider;
 }
 
 /// A controller for [UpdatableDataView], uses two [GlobalKey]-s to control [RefreshIndicator] and [AppendIndicator], and includes [refresh] and [append] methods.
@@ -181,17 +228,11 @@ class UpdatableDataViewController {
 
   /// Shows the refresh indicator and runs the callback as if it had been started interactively.
   Future<void> refresh() {
-    if (_refreshIndicatorKey == null) {
-      return Future.value();
-    }
-    return _refreshIndicatorKey.currentState?.show();
+    return _refreshIndicatorKey?.currentState?.show() ?? Future.value();
   }
 
   /// Shows the append indicator and runs the callback as if it had been started interactively.
   Future<void> append() {
-    if (_appendIndicatorKey == null) {
-      return Future.value();
-    }
-    return _appendIndicatorKey.currentState?.show();
+    return _appendIndicatorKey?.currentState?.show() ?? Future.value();
   }
 }

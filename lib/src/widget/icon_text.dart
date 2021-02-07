@@ -16,7 +16,7 @@ enum IconTextAlignment {
 }
 
 /// The default space of [IconText].
-const _defaultSpace = 15.0;
+const _kDefaultSpace = 15.0;
 
 /// A wrapped [Icon] and [Text] with [Row] and [Column].
 class IconText extends StatelessWidget {
@@ -27,7 +27,7 @@ class IconText extends StatelessWidget {
     this.iconPadding = EdgeInsets.zero,
     this.textPadding = EdgeInsets.zero,
     this.alignment = IconTextAlignment.l2r,
-    this.space = _defaultSpace,
+    this.space = _kDefaultSpace,
     this.mainAxisAlignment = MainAxisAlignment.start,
     this.mainAxisSize = MainAxisSize.max,
     this.crossAxisAlignment = CrossAxisAlignment.center,
@@ -46,10 +46,10 @@ class IconText extends StatelessWidget {
   IconText.simple(IconData icon, String text) : this(icon: Icon(icon), text: Text(text));
 
   /// The icon of this widget.
-  final Icon icon;
+  final Widget icon;
 
   /// The text of this widget.
-  final Text text;
+  final Widget text;
 
   /// The padding of this widget's icon.
   final EdgeInsets iconPadding;

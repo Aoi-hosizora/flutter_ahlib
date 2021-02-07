@@ -70,21 +70,7 @@ class SliverAppBarSizedDelegate extends SliverPersistentHeaderDelegate {
 // separator related
 // =================
 
-/// A custom [SliverChildBuilderDelegate] with separator. Notice that this class has not a const constructor.
-class SliverSeparatedBuilderDelegate extends SliverChildBuilderDelegate {
-  SliverSeparatedBuilderDelegate(
-    NullableIndexedWidgetBuilder builder, {
-    @required Widget separator,
-    int childCount,
-  })  : assert(builder != null),
-        assert(separator != null),
-        super(
-          (c, idx) => idx % 2 != 0 ? separator : builder.call(c, idx ~/ 2),
-          childCount: childCount * 2 - 1,
-        );
-}
-
-/// A custom [SliverChildListDelegate] with separator. Notice that this class has not a const constructor.
+/// A custom [SliverChildListDelegate] (implementation of [SliverChildDelegate]) with separator. Notice that this class has not a const constructor.
 class SliverSeparatedListDelegate extends SliverChildListDelegate {
   SliverSeparatedListDelegate(
     List<Widget> children, {
@@ -93,5 +79,19 @@ class SliverSeparatedListDelegate extends SliverChildListDelegate {
         assert(separator != null),
         super(
           children.separate(separator),
+        );
+}
+
+/// A custom [SliverChildBuilderDelegate] (implementation of [SliverChildDelegate]) with separator builder. Notice that this class has not a const constructor.
+class SliverSeparatedListBuilderDelegate extends SliverChildBuilderDelegate {
+  SliverSeparatedListBuilderDelegate(
+    NullableIndexedWidgetBuilder builder, {
+    int childCount,
+    @required Widget Function(BuildContext, int) separatorBuilder,
+  })  : assert(builder != null),
+        assert(separatorBuilder != null),
+        super(
+          (c, idx) => idx % 2 != 0 ? separatorBuilder.call(c, idx ~/ 2) : builder.call(c, idx ~/ 2),
+          childCount: childCount * 2 - 1,
         );
 }

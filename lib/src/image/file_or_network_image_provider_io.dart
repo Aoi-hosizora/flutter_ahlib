@@ -8,11 +8,11 @@ import 'package:flutter/painting.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:http/http.dart' as http show head;
 
-import 'local_network_image_provider.dart' as image_provider;
+import 'file_or_network_image_provider.dart' as image_provider;
 
-/// The default implementation of [image_provider.LocalOrNetworkImageProvider].
-class LocalOrNetworkImageProvider extends ImageProvider<image_provider.LocalOrNetworkImageProvider> implements image_provider.LocalOrNetworkImageProvider {
-  const LocalOrNetworkImageProvider({
+/// The default implementation of [image_provider.FileOrNetworkImageProvider].
+class FileOrNetworkImageProvider extends ImageProvider<image_provider.FileOrNetworkImageProvider> implements image_provider.FileOrNetworkImageProvider {
+  const FileOrNetworkImageProvider({
     @required this.file,
     @required this.url,
     this.scale = 1.0,
@@ -29,7 +29,7 @@ class LocalOrNetworkImageProvider extends ImageProvider<image_provider.LocalOrNe
   @override
   final Future<io.File> Function() file;
 
-  /// The web url of the image to load.
+  /// The url of the image to load.
   @override
   final Future<String> Function() url;
 
@@ -45,7 +45,7 @@ class LocalOrNetworkImageProvider extends ImageProvider<image_provider.LocalOrNe
   @override
   final BaseCacheManager cacheManager;
 
-  /// The callback function invoked when the local file starts to loading.
+  /// The callback function invoked when the local file starts to load.
   @override
   final Function() onFileLoading;
 
@@ -63,13 +63,13 @@ class LocalOrNetworkImageProvider extends ImageProvider<image_provider.LocalOrNe
 
   /// Overrides the [ImageProvider].
   @override
-  Future<LocalOrNetworkImageProvider> obtainKey(ImageConfiguration configuration) {
-    return SynchronousFuture<LocalOrNetworkImageProvider>(this);
+  Future<FileOrNetworkImageProvider> obtainKey(ImageConfiguration configuration) {
+    return SynchronousFuture<FileOrNetworkImageProvider>(this);
   }
 
   /// Overrides the [ImageProvider].
   @override
-  ImageStreamCompleter load(image_provider.LocalOrNetworkImageProvider key, DecoderCallback decode) {
+  ImageStreamCompleter load(image_provider.FileOrNetworkImageProvider key, DecoderCallback decode) {
     final chunkEvents = StreamController<ImageChunkEvent>();
     return MultiImageStreamCompleter(
       codec: _loadAsync(key, chunkEvents, decode),
@@ -86,7 +86,7 @@ class LocalOrNetworkImageProvider extends ImageProvider<image_provider.LocalOrNe
   }
 
   /// Loads image to [ui.Codec] stream, used in [load] and [MultiImageStreamCompleter].
-  Stream<ui.Codec> _loadAsync(LocalOrNetworkImageProvider key, StreamController<ImageChunkEvent> chunkEvents, DecoderCallback decode) async* {
+  Stream<ui.Codec> _loadAsync(FileOrNetworkImageProvider key, StreamController<ImageChunkEvent> chunkEvents, DecoderCallback decode) async* {
     assert(key == this);
 
     var file = await key.file.call();
@@ -157,7 +157,7 @@ class LocalOrNetworkImageProvider extends ImageProvider<image_provider.LocalOrNe
 
   @override
   bool operator ==(dynamic other) {
-    if (other is LocalOrNetworkImageProvider) {
+    if (other is FileOrNetworkImageProvider) {
       // ATTENTION: url and file are all functions, so you must save the functions to list
       // before using the ImageProvider, to avoid operator== returning false.
       return url == other.url && file == other.file && scale == other.scale;

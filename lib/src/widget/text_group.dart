@@ -2,23 +2,16 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/src/util/flutter_extension.dart';
 
-/// An abstract text group item that represents [TextGroup]'s children, which must implement the [text], [style],
-/// inherited by [NormalGroupText] and [LinkGroupText].
-abstract class TextGroupChild {
-  const TextGroupChild();
+/// An abstract text group item that represents [TextGroup]'s children, inherited by [NormalGroupText] and [LinkGroupText].
+abstract class TextGroupItem {
+  const TextGroupItem();
 
   /// The content of this item.
   String get text;
-
-  /// The text style of this item.
-  TextStyle get style;
-
-  /// The boolean represents whether this child is a [LinkGroupText].
-  bool get isLink => false;
 }
 
-/// A [TextGroupChild] that represents a normal text.
-class NormalGroupText extends TextGroupChild {
+/// A [TextGroupItem] that represents a normal text.
+class NormalGroupText extends TextGroupItem {
   const NormalGroupText({
     @required this.text,
     this.style,
@@ -26,40 +19,48 @@ class NormalGroupText extends TextGroupChild {
         super();
 
   /// The content of this item.
+  @override
   final String text;
 
   /// The text style of this item.
   final TextStyle style;
 }
 
-/// A [TextGroupChild] that represents a linked text.
-class LinkGroupText extends TextGroupChild {
+/// A [TextGroupItem] that represents a linked text.
+class LinkGroupText extends TextGroupItem {
   const LinkGroupText({
     @required this.text,
-    this.style,
+    this.styleFn,
+    this.normalColor,
     this.pressedColor,
+    this.showUnderline = true,
     @required this.onTap,
   })  : assert(text != null),
+        assert(showUnderline != null),
         assert(onTap != null),
         super();
 
   /// The content of this item.
+  @override
   final String text;
 
-  /// The text style of this item.
-  final TextStyle style;
+  /// The text style function of this item.
+  final TextStyle Function(bool pressed) styleFn;
 
-  /// The link color when this item pressed. If [TextGroup.linkPressedColor] and this property are both set, [TextGroup] will use this value first.
+  /// The link color when this item not pressed.
+  final Color normalColor;
+
+  /// The link color when this item pressed.
   final Color pressedColor;
+
+  /// The switcher to show link underline.
+  final bool showUnderline;
 
   /// The behavior when the link is pressed.
   final Function() onTap;
-
-  /// The boolean represents whether this child is a [LinkGroupText].
-  bool get isLink => true;
 }
 
-/// A [RichText] or [SelectableText] wrapped widget with state, including a list of child in [TextGroupChild] type, which can be
+/// A [RichText] or [SelectableText] wrapped widget with state, including a list of child in [TextGroupItem] type, which can be
 /// [NormalGroupText] and [LinkGroupText].
 class TextGroup extends StatefulWidget {
   const TextGroup({
@@ -67,7 +68,6 @@ class TextGroup extends StatefulWidget {
     @required this.texts,
     this.selectable = false,
     this.style,
-    this.linkPressedColor,
     // RichText and SelectableText
     this.maxLines,
     this.strutStyle,
@@ -87,6 +87,7 @@ class TextGroup extends StatefulWidget {
     this.cursorRadius,
     this.cursorColor,
     this.dragStartBehavior = DragStartBehavior.start,
+    this.minLines,
   })  : assert(texts != null && texts.length > 0),
         assert(selectable != null),
         // RichText and SelectableText
@@ -99,19 +100,17 @@ class TextGroup extends StatefulWidget {
         assert(overflow != null),
         // SelectableText
         assert(dragStartBehavior != null),
+        assert(minLines == null || minLines > 0),
         super(key: key);
 
   /// The children of this widget.
-  final List<TextGroupChild> texts;
+  final List<TextGroupItem> texts;
 
   /// The switcher represents this widget can be selectable.
   final bool selectable;
 
   /// The text style of the outer [TextSpan].
   final TextStyle style;
-
-  /// The text color when the link pressed, [TextGroup] will use [LinkGroupText.pressedColor] first.
-  final Color linkPressedColor;
 
   // RichText and SelectableText
 
@@ -167,6 +166,9 @@ class TextGroup extends StatefulWidget {
   /// The dragStartBehavior of [SelectableText] when [selectable] is true.
   final DragStartBehavior dragStartBehavior;
 
+  /// The minLines of [SelectableText] when [selectable] is true.
+  final int minLines;
+
   @override
   _TextGroupState createState() => _TextGroupState();
 }
@@ -188,29 +190,36 @@ class _TextGroupState extends State<TextGroup> {
       var t = widget.texts[i];
       assert(t != null);
 
-      if (!t.isLink) {
-        // NormalGroupText
-        var text = t as NormalGroupText;
+      if (t is NormalGroupText) {
         spans.add(
-          TextSpan(text: text.text, style: text.style),
+          TextSpan(text: t.text, style: t.style),
         );
-      } else {
-        // LinkGroupText
-        var link = t as LinkGroupText;
+      } else if (t is LinkGroupText) {
+        var textColor = !_tapDowns[i] ? t.normalColor : t.pressedColor;
+        var textStyle = t.styleFn(_tapDowns[i]) ??
+            (t.showUnderline
+                ? TextStyle(color: textColor, decoration: TextDecoration.none)
+                : TextStyle(
+                    color: Colors.transparent,
+                    shadows: [Shadow(color: textColor, offset: Offset(0, -1))], // offset -1
+                    decoration: TextDecoration.underline,
+                    decorationColor: textColor,
+                  ));
         spans.add(
           TextSpan(
             text: t.text,
-            style: (t.style ?? TextStyle()).copyWith(
-              color: !_tapDowns[i] ? null : link.pressedColor ?? widget.linkPressedColor,
-              decorationColor: !_tapDowns[i] ? null : link.pressedColor ?? widget.linkPressedColor,
-            ),
+            style: textStyle,
             recognizer: TapGestureRecognizer()
-              ..onTap = link.onTap
+              ..onTap = t.onTap
               ..onTapDown = ((_) => mountedSetState(() => _tapDowns[i] = true))
               ..onTapUp = ((_) => mountedSetState(() => _tapDowns[i] = false))
               ..onTapCancel = (() => mountedSetState(() => _tapDowns[i] = false)),
           ),
         );
+      } else {
+        spans.add(
+          TextSpan(text: t.text), // custom TextSpan
+        ); // custom TextGroupItem
       }
     }
 
@@ -218,7 +227,7 @@ class _TextGroupState extends State<TextGroup> {
     var textSpan = TextSpan(
       text: '',
       style: widget.style ?? DefaultTextStyle.of(context).style,
-      children: spans..add(TextSpan(text: ' ')),
+      children: spans..add(TextSpan(text: ' ')), // final textSpan
     );
 
     if (!widget.selectable) {
@@ -258,9 +267,9 @@ class _TextGroupState extends State<TextGroup> {
         cursorRadius: widget.cursorRadius,
         cursorColor: widget.cursorColor,
         dragStartBehavior: widget.dragStartBehavior,
+        minLines: widget.minLines,
         // showCursor: widget.showCursor,
         // autofocus: widget.autofocus,
-        // minLines: widget.minLines,
         // enableInteractiveSelection: widget.enableInteractiveSelection,
         // selectionControls: widget.selectionControls,
         // onTap: widget.onTap,

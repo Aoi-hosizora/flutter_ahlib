@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_ahlib_example/page/image/file_or_network_image_provider.dart';
 import 'package:flutter_ahlib_example/page/list/append_indicator.dart';
 import 'package:flutter_ahlib_example/page/list/pagination_listview.dart';
 import 'package:flutter_ahlib_example/page/list/pagination_sliver_listview.dart';
@@ -7,7 +8,6 @@ import 'package:flutter_ahlib_example/page/list/refreshable_listview.dart';
 import 'package:flutter_ahlib_example/page/list/refreshable_sliver_listview.dart';
 import 'package:flutter_ahlib_example/page/list/refreshable_staggered_gridview.dart';
 import 'package:flutter_ahlib_example/page/widget/drawer_list_view.dart';
-import 'package:flutter_ahlib_example/page/widget/function_painter.dart';
 import 'package:flutter_ahlib_example/page/widget/icon_text.dart';
 import 'package:flutter_ahlib_example/page/widget/lazy_indexed_stack.dart';
 import 'package:flutter_ahlib_example/page/widget/placeholder_text.dart';
@@ -77,7 +77,6 @@ class _IndexPageState extends State<IndexPage> {
                 _button('SliverDelegate', SliverDelegatePage()),
                 _button('TextGroup', TextGroupPage()),
                 _button('TabInPageNotification', TabInPageNotificationPage()),
-                _button('FunctionPainter', FunctionPainterPage()),
               ],
             ),
             _text('Lists Example'),
@@ -92,6 +91,14 @@ class _IndexPageState extends State<IndexPage> {
                 _button('PaginationListView', PaginationListViewPage()),
                 _button('PaginationSliverListView', PaginationSliverListViewPage()),
                 _button('PaginationStaggeredGridView', PaginationStaggeredGridViewPage()),
+              ],
+            ),
+            _text('Images Example'),
+            Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 8,
+              children: [
+                _button('FileOrNetworkImageProvider', FileOrNetworkImageProviderPage()),
               ],
             ),
           ],

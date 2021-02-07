@@ -63,34 +63,16 @@ class _RefreshableListViewPageState extends State<RefreshableListViewPage> {
         ),
         separator: Divider(height: 1, thickness: 1),
         extra: UpdatableDataViewExtraWidgets(
-          innerTopWidget: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(padding: EdgeInsets.fromLTRB(10, 8, 0, 8), child: Text('inner top widget')),
-              Divider(height: 1, thickness: 1),
-            ],
-          ),
-          innerBottomWidget: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Divider(height: 1, thickness: 1),
-              Padding(padding: EdgeInsets.fromLTRB(10, 8, 0, 8), child: Text('inner bottom widget')),
-            ],
-          ),
-          outerTopWidget: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('outer top widget')),
-              Divider(height: 1, thickness: 1),
-            ],
-          ),
-          outerBottomWidget: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Divider(height: 1, thickness: 1),
-              Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('outer bottom widget')),
-            ],
-          ),
+          innerTopWidget: Align(alignment: Alignment.centerLeft, child: Padding(padding: EdgeInsets.fromLTRB(10, 8, 0, 8), child: Text('inner top widget'))),
+          innerBottomWidget: Align(alignment: Alignment.centerLeft, child: Padding(padding: EdgeInsets.fromLTRB(10, 8, 0, 8), child: Text('inner bottom widget'))),
+          outerTopWidget: Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('outer top widget'))),
+          outerBottomWidget: Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('outer bottom widget'))),
+          inListTopWidgets: [Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('in list top widget')))],
+          inListBottomWidgets: [Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('in list bottom widget')))],
+          innerTopDivider: Divider(thickness: 1, height: 1),
+          innerBottomDivider: Divider(thickness: 1, height: 1),
+          outerTopDivider: Divider(thickness: 1, height: 1),
+          outerBottomDivider: Divider(thickness: 1, height: 1),
         ),
       ),
       floatingActionButton: ScrollAnimatedFab(

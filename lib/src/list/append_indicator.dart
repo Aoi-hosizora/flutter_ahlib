@@ -11,7 +11,6 @@ enum _AppendIndicatorMode {
   drag, // start to show
   armed, // drag far enough
   append, // run the append callback
-  done_before, // before append callback is done
   done, // append callback is done
   canceled, // canceled by no arming
 }
@@ -22,7 +21,7 @@ class AppendIndicator extends StatefulWidget {
     Key key,
     @required this.child,
     @required this.onAppend,
-    this.minHeight = 4.0,
+    this.minHeight = 5.0,
     this.backgroundColor,
     this.valueColor,
   })  : assert(child != null),
@@ -36,7 +35,7 @@ class AppendIndicator extends StatefulWidget {
   /// The function that is called when appending.
   final AppendCallback onAppend;
 
-  /// The min height of this indicator, defaults to 4dp.
+  /// The min height of this indicator, defaults to 5dp.
   final double minHeight;
 
   /// The background color of this indicator.
@@ -51,17 +50,12 @@ class AppendIndicator extends StatefulWidget {
 
 /// The state of [AppendIndicator], can be used to show the append indicator, see the [show] method.
 class AppendIndicatorState extends State<AppendIndicator> with TickerProviderStateMixin<AppendIndicator> {
-  static const _kScaleSlowDuration = Duration(milliseconds: 400);
-  static const _kScaleFastDuration = Duration(milliseconds: 100);
-  static const _kProgressFadeDuration = Duration(milliseconds: 100);
-  static const _kProgressIncrDuration = Duration(milliseconds: 150);
-  static const _kProgressFinalDuration = Duration(milliseconds: 150);
-  static const _kScrollThreshold = 85.0;
+  static const _kScaleShrinkDuration = Duration(milliseconds: 400);
+  static const _kScaleExpandDuration = Duration(milliseconds: 100);
+  static const _kScrollThreshold = 92.0;
 
   AnimationController _sizeController;
   Animation<double> _sizeFactor;
-  AnimationController _progressController;
-  Animation<double> _progressAnimation;
 
   _AppendIndicatorMode _mode;
   Future<void> _pendingAppendFuture;
@@ -72,8 +66,6 @@ class AppendIndicatorState extends State<AppendIndicator> with TickerProviderSta
     super.initState();
     _sizeController = AnimationController(vsync: this);
     _sizeFactor = _sizeController.drive(Tween(begin: 0.0, end: 1.0));
-    _progressController = AnimationController(vsync: this);
-    _progressAnimation = _progressController.drive(Tween(begin: 0.0, end: 1.0));
   }
 
   @override
@@ -84,7 +76,6 @@ class AppendIndicatorState extends State<AppendIndicator> with TickerProviderSta
 
   void _start() {
     _sizeController.value = 0.0;
-    _progressController.value = 0.0;
     _dragOffset = 0;
   }
 
@@ -163,35 +154,25 @@ class AppendIndicatorState extends State<AppendIndicator> with TickerProviderSta
     // -> append
     _mode = _AppendIndicatorMode.append;
     if (mounted) setState(() {});
-    await _sizeController.animateTo(1.0, duration: _kScaleFastDuration); // expand
+    await _sizeController.animateTo(1.0, duration: _kScaleExpandDuration); // expand
 
     var result = widget.onAppend(); // loading
     result?.whenComplete(() async {
       if (mounted && _mode == _AppendIndicatorMode.append) {
         completer.complete();
-        _dismiss(_AppendIndicatorMode.done); // -> done_before
+        _dismiss(_AppendIndicatorMode.done); // -> done
       }
     });
   }
 
-  /// Show animation with "-> fade -> increasing -> shrink" or "-> shrink".
+  /// Show animation with "-> shrink".
   void _dismiss(_AppendIndicatorMode newMode) async {
-    if (newMode == _AppendIndicatorMode.canceled) {
-      // -> cancel
-      _mode = _AppendIndicatorMode.canceled;
-      if (mounted) setState(() {});
-    } else if (newMode == _AppendIndicatorMode.done) {
-      // -> done_before
-      _mode = _AppendIndicatorMode.done_before;
-      if (mounted) setState(() {});
-      await Future.delayed(_kProgressFadeDuration); // fade
-      await _progressController.animateTo(1.0, duration: _kProgressIncrDuration); // increasing
-      await Future.delayed(_kProgressFinalDuration);
-      // -> done
-      _mode = _AppendIndicatorMode.done;
-      if (mounted) setState(() {});
-    }
-    await _sizeController.animateTo(0.0, duration: _kScaleSlowDuration, curve: Curves.easeOutCubic); // shrink
+    assert(newMode == _AppendIndicatorMode.append || newMode == _AppendIndicatorMode.canceled);
+
+    // -> cancel || -> done
+    _mode = newMode;
+    if (mounted) setState(() {});
+    await _sizeController.animateTo(0.0, duration: _kScaleShrinkDuration, curve: Curves.easeOutCubic); // shrink
 
     // -> null
     _mode = null;
@@ -228,24 +209,12 @@ class AppendIndicatorState extends State<AppendIndicator> with TickerProviderSta
               child: SizeTransition(
                 sizeFactor: _sizeFactor,
                 axis: Axis.horizontal,
-                child: AnimatedCrossFade(
-                  duration: _kProgressFadeDuration,
-                  crossFadeState: _mode == _AppendIndicatorMode.done_before || _mode == _AppendIndicatorMode.done ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-                  firstChild: LinearProgressIndicator(
-                    value: _mode == _AppendIndicatorMode.append || _mode == _AppendIndicatorMode.done_before || _mode == _AppendIndicatorMode.done ? null : 0,
-                    minHeight: widget.minHeight,
-                    backgroundColor: widget.backgroundColor,
-                    valueColor: widget.valueColor,
-                  ),
-                  secondChild: AnimatedBuilder(
-                    animation: _progressAnimation,
-                    builder: (_, __) => LinearProgressIndicator(
-                      value: _progressAnimation.value,
-                      minHeight: widget.minHeight,
-                      backgroundColor: widget.backgroundColor,
-                      valueColor: widget.valueColor,
-                    ),
-                  ),
+                child: LinearProgressIndicator(
+                  // value: 0 (drag, armed, canceled) -> null (append, done)
+                  value: _mode == _AppendIndicatorMode.append || _mode == _AppendIndicatorMode.done ? null : 0,
+                  minHeight: widget.minHeight,
+                  backgroundColor: widget.backgroundColor,
+                  valueColor: widget.valueColor,
                 ),
               ),
             ),

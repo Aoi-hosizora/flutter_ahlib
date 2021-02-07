@@ -143,6 +143,9 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
   Widget build(BuildContext context) {
     super.build(context);
 
+    var data = widget.data;
+    var top = widget.extra?.inListTopWidgets ?? [];
+    var bottom = widget.extra?.inListBottomWidgets ?? [];
     var view = ListView.separated(
       controller: widget.scrollController,
       padding: widget.setting.padding,
@@ -151,8 +154,16 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
       shrinkWrap: widget.setting.shrinkWrap,
       // ===================================
       separatorBuilder: (c, idx) => widget.separator ?? SizedBox(height: 0),
-      itemCount: widget.data.length,
-      itemBuilder: (c, idx) => widget.itemBuilder(c, widget.data[idx]),
+      itemCount: top.length + data.length + bottom.length,
+      itemBuilder: (c, idx) {
+        if (idx < top.length) {
+          return top[idx];
+        } else if (idx >= top.length && idx < top.length + data.length) {
+          return widget.itemBuilder(c, data[idx - top.length]);
+        } else {
+          return bottom[idx - top.length - data.length];
+        }
+      },
     );
 
     return AppendIndicator(
@@ -165,6 +176,7 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
           crossAxisAlignment: widget.extra?.outerCrossAxisAlignment ?? CrossAxisAlignment.center,
           children: [
             if (widget.extra?.outerTopWidget != null) widget.extra.outerTopWidget,
+            if (widget.extra?.outerTopDivider != null) widget.extra.outerTopDivider,
             Expanded(
               child: PlaceholderText.from(
                 onRefresh: () => _refreshIndicatorKey.currentState?.show(),
@@ -178,6 +190,7 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
                   crossAxisAlignment: widget.extra?.innerCrossAxisAlignment ?? CrossAxisAlignment.center,
                   children: [
                     if (widget.extra?.innerTopWidget != null) widget.extra.innerTopWidget,
+                    if (widget.extra?.innerTopDivider != null) widget.extra.innerTopDivider,
                     Expanded(
                       child: NotificationListener<ScrollNotification>(
                         onNotification: (s) => _onScroll(s),
@@ -190,11 +203,13 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
                             : view,
                       ),
                     ),
+                    if (widget.extra?.innerBottomDivider != null) widget.extra.innerBottomDivider,
                     if (widget.extra?.innerBottomWidget != null) widget.extra.innerBottomWidget,
                   ],
                 ),
               ),
             ),
+            if (widget.extra?.outerBottomDivider != null) widget.extra.outerBottomDivider,
             if (widget.extra?.outerBottomWidget != null) widget.extra.outerBottomWidget,
           ],
         ),
@@ -330,6 +345,9 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
   Widget build(BuildContext context) {
     super.build(context);
 
+    var data = widget.data;
+    var top = widget.extra?.inListTopWidgets ?? [];
+    var bottom = widget.extra?.inListBottomWidgets ?? [];
     var view = CustomScrollView(
       controller: widget.scrollController,
       physics: widget.setting.physics,
@@ -344,16 +362,19 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
         SliverPadding(
           padding: widget.setting.padding ?? EdgeInsets.zero,
           sliver: SliverList(
-            delegate: widget.separator == null
-                ? SliverChildBuilderDelegate(
-                    (c, idx) => widget.itemBuilder(c, widget.data[idx]),
-                    childCount: widget.data.length,
-                  )
-                : SliverSeparatedBuilderDelegate(
-                    (c, idx) => widget.itemBuilder(c, widget.data[idx]),
-                    childCount: widget.data.length,
-                    separator: widget.separator,
-                  ),
+            delegate: SliverSeparatedListBuilderDelegate(
+              (c, idx) {
+                if (idx < top.length) {
+                  return top[idx];
+                } else if (idx >= top.length && idx < top.length + data.length) {
+                  return widget.itemBuilder(c, data[idx - top.length]);
+                } else {
+                  return bottom[idx - top.length - data.length];
+                }
+              },
+              childCount: top.length + data.length + bottom.length,
+              separatorBuilder: (c, idx) => widget.separator ?? SizedBox(height: 0),
+            ),
           ),
         ),
       ],
@@ -369,6 +390,7 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
           crossAxisAlignment: widget.extra?.outerCrossAxisAlignment ?? CrossAxisAlignment.center,
           children: [
             if (widget.extra?.outerTopWidget != null) widget.extra.outerTopWidget,
+            if (widget.extra?.outerTopDivider != null) widget.extra.outerTopDivider,
             Expanded(
               child: PlaceholderText.from(
                 onRefresh: () => _refreshIndicatorKey.currentState?.show(),
@@ -382,6 +404,7 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
                   crossAxisAlignment: widget.extra?.innerCrossAxisAlignment ?? CrossAxisAlignment.center,
                   children: [
                     if (widget.extra?.innerTopWidget != null) widget.extra.innerTopWidget,
+                    if (widget.extra?.innerTopDivider != null) widget.extra.innerTopDivider,
                     Expanded(
                       child: NotificationListener<ScrollNotification>(
                         onNotification: (s) => _onScroll(s),
@@ -394,11 +417,13 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
                             : view,
                       ),
                     ),
+                    if (widget.extra?.innerBottomDivider != null) widget.extra.innerBottomDivider,
                     if (widget.extra?.innerBottomWidget != null) widget.extra.innerBottomWidget,
                   ],
                 ),
               ),
             ),
+            if (widget.extra?.outerBottomDivider != null) widget.extra.outerBottomDivider,
             if (widget.extra?.outerBottomWidget != null) widget.extra.outerBottomWidget,
           ],
         ),
@@ -470,7 +495,7 @@ class PaginationStaggeredGridView<T> extends PaginationDataView<T> {
   /// The crossAxisSpacing for [StaggeredGridView]
   final double crossAxisSpacing;
 
-  /// The extra widgets.
+  /// The extra widgets, notice that the inListXXXWidgets will be ignored.
   final UpdatableDataViewExtraWidgets extra;
 
   @override
@@ -551,7 +576,7 @@ class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGrid
       mainAxisSpacing: widget.mainAxisSpacing ?? 0,
       crossAxisSpacing: widget.crossAxisSpacing ?? 0,
       itemCount: widget.data.length,
-      itemBuilder: (c, idx) => widget.itemBuilder(c, widget.data[idx]),
+      itemBuilder: (c, idx) => widget.itemBuilder(c, widget.data[idx]), // ignore extra inListXXX
     );
 
     return AppendIndicator(
@@ -564,6 +589,7 @@ class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGrid
           crossAxisAlignment: widget.extra?.outerCrossAxisAlignment ?? CrossAxisAlignment.center,
           children: [
             if (widget.extra?.outerTopWidget != null) widget.extra.outerTopWidget,
+            if (widget.extra?.outerTopDivider != null) widget.extra.outerTopDivider,
             Expanded(
               child: PlaceholderText.from(
                 onRefresh: () => _refreshIndicatorKey.currentState?.show(),
@@ -577,6 +603,7 @@ class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGrid
                   crossAxisAlignment: widget.extra?.innerCrossAxisAlignment ?? CrossAxisAlignment.center,
                   children: [
                     if (widget.extra?.innerTopWidget != null) widget.extra.innerTopWidget,
+                    if (widget.extra?.innerTopDivider != null) widget.extra.innerTopDivider,
                     Expanded(
                       child: NotificationListener<ScrollNotification>(
                         onNotification: (s) => _onScroll(s),
@@ -589,11 +616,13 @@ class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGrid
                             : view,
                       ),
                     ),
+                    if (widget.extra?.innerBottomDivider != null) widget.extra.innerBottomDivider,
                     if (widget.extra?.innerBottomWidget != null) widget.extra.innerBottomWidget,
                   ],
                 ),
               ),
             ),
+            if (widget.extra?.outerBottomDivider != null) widget.extra.outerBottomDivider,
             if (widget.extra?.outerBottomWidget != null) widget.extra.outerBottomWidget,
           ],
         ),

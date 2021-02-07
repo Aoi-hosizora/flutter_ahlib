@@ -28,18 +28,17 @@ import 'package:flutter_ahlib/flutter_ahlib.dart'; // the whole library
     + `IconText`
     + `showPopupListMenu`
     + `AnimatedFab` `ScrollAnimatedFab` `AnimatedFabController`
-    + `SliverAppBarDelegate` `SliverAppBarSizedDelegate` `SliverSeparatedBuilderDelegate` `SliverSeparatedListDelegate`
+    + `SliverAppBarDelegate` `SliverAppBarSizedDelegate` `SliverSeparatedListDelegate` `SliverSeparatedListBuilderDelegate`
     + `TextGroup`
     + `LazyIndexedStack`
     + `TabInPageNotification`
-    + `FunctionPainter`
 + list.dart:
   + `AppendIndicator`
   + `UpdatableDataView` `UpdatableDataViewController`
   + `RefreshableDataView` `RefreshableListView` `RefreshableSliverListView` `RefreshableStaggeredGridView`
   + `PaginationDataView` `PaginationListView` `PaginationSliverListView` `PaginationStaggeredGridView`
 + image.dart:
-    + `LocalOrNetworkImageProvider`
+    + `FileOrNetworkImageProvider`
     + `MultiImageStreamCompleter`
 + util.dart:
     + `ActionController`

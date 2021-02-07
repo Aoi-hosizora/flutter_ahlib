@@ -10,7 +10,6 @@ export 'src/widget/sliver_delegate.dart';
 export 'src/widget/text_group.dart';
 export 'src/widget/lazy_indexed_stack.dart';
 export 'src/widget/tab_in_page_notification.dart';
-export 'src/widget/function_painter.dart';
 
 // list
 export 'src/list/append_indicator.dart';
@@ -19,7 +18,7 @@ export 'src/list/refreshable_dataview.dart';
 export 'src/list/pagination_dataview.dart';
 
 // image
-export 'src/image/local_network_image_provider.dart';
+export 'src/image/file_or_network_image_provider.dart';
 export 'src/image/multi_image_stream_completer.dart';
 
 // util

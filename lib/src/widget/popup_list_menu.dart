@@ -5,20 +5,19 @@ import 'package:flutter_ahlib/src/widget/icon_text.dart';
 /// This is not a [Widget], but just a data class to store options and used as a [SimpleDialogOption].
 class MenuItem {
   const MenuItem({
-    @required Widget child,
+    @required this.child,
     @required this.action,
-    this.padding = const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+    this.padding = const EdgeInsets.symmetric(horizontal: 26, vertical: 16),
     this.dismissBefore = true,
     this.dismissAfter = false,
   })  : assert(child != null),
         assert(action != null),
         assert(dismissBefore != null),
         assert(dismissAfter != null),
-        assert(dismissBefore == false || dismissAfter == false, 'dismissBefore and dismissAfter could only have one is true'),
-        _child = child;
+        assert(dismissBefore == false || dismissAfter == false, 'dismissBefore and dismissAfter could only have one is true');
 
-  /// The child that needs to render, see [child].
-  final Widget _child;
+  /// The child of this item, see [child].
+  final Widget child;
 
   /// The function that will be invoked when this item is tapped.
   final Function action;
@@ -31,17 +30,14 @@ class MenuItem {
 
   /// The switcher to dismiss after the action invoked.
   final bool dismissAfter;
-
-  /// The rendered child of this item.
-  Widget get child => _child;
 }
 
 /// A [MenuItem] with only a [Text], and has a default [padding].
 class TextMenuItem extends MenuItem {
   const TextMenuItem({
-    @required Text text,
-    Function action,
-    EdgeInsets padding = const EdgeInsets.symmetric(horizontal: 24, vertical: 13), // text default padding
+    @required Widget text,
+    @required Function action,
+    EdgeInsets padding = const EdgeInsets.symmetric(horizontal: 26, vertical: 16), // different default padding
     bool dismissBefore = true,
     bool dismissAfter = false,
   }) : super(
@@ -56,9 +52,9 @@ class TextMenuItem extends MenuItem {
 /// A [MenuItem] with only a [IconText], and has a default [padding].
 class IconTextMenuItem extends MenuItem {
   const IconTextMenuItem({
-    @required IconText iconText,
-    Function action,
-    EdgeInsets padding = const EdgeInsets.symmetric(horizontal: 15, vertical: 8), // iconText default padding
+    @required Widget iconText,
+    @required Function action,
+    EdgeInsets padding = const EdgeInsets.symmetric(horizontal: 18, vertical: 10), // different default padding
     bool dismissBefore = true,
     bool dismissAfter = false,
   }) : super(
@@ -80,7 +76,7 @@ Future<void> showPopupListMenu({
   bool useSafeArea = true,
 }) {
   assert(context != null);
-  assert(items != null && items.length > 0);
+  assert(items != null);
   assert(barrierDismissible != null);
   assert(useSafeArea != null);
 

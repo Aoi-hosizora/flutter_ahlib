@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 /// The default duration of [AnimatedFab] and [ScrollAnimatedFab].
-const _defaultDuration = const Duration(milliseconds: 250);
+const _kDefaultDuration = const Duration(milliseconds: 250);
 
 /// The default curve of [AnimatedFab] and [ScrollAnimatedFab].
-const _defaultCurve = Curves.easeOutBack;
+const _kDefaultCurve = Curves.easeOutBack;
 
 /// The default scroll offset of [ScrollAnimatedFab].
-const _defaultScrollOffset = 50.0;
+const _kDefaultScrollOffset = 50.0;
 
 /// A [FloatingActionButton] wrapped by [ScaleTransition] that will do animation with [show] switcher.
 class AnimatedFab extends StatefulWidget {
@@ -16,8 +16,8 @@ class AnimatedFab extends StatefulWidget {
     Key key,
     @required this.fab,
     this.controller,
-    this.duration = _defaultDuration,
-    this.curve = _defaultCurve,
+    this.duration = _kDefaultDuration,
+    this.curve = _kDefaultCurve,
     this.show = false,
   })  : assert(fab != null),
         assert(duration != null),
@@ -25,8 +25,8 @@ class AnimatedFab extends StatefulWidget {
         assert(show != null),
         super(key: key);
 
-  /// The widget below this widget in the tree.
-  final FloatingActionButton fab;
+  /// The widget below this widget in the tree, which is a [FloatingActionButton].
+  final Widget fab;
 
   /// The controller of this widget.
   final AnimatedFabController controller;
@@ -98,11 +98,11 @@ class ScrollAnimatedFab extends StatefulWidget {
     Key key,
     @required this.fab,
     this.controller,
-    this.duration = _defaultDuration,
-    this.curve = _defaultCurve,
+    this.duration = _kDefaultDuration,
+    this.curve = _kDefaultCurve,
     @required this.scrollController,
     this.condition = ScrollAnimatedCondition.offset,
-    this.offset = _defaultScrollOffset,
+    this.offset = _kDefaultScrollOffset,
   })  : assert(fab != null),
         assert(duration != null),
         assert(curve != null),
@@ -111,8 +111,8 @@ class ScrollAnimatedFab extends StatefulWidget {
         assert(offset != null && offset >= 0),
         super(key: key);
 
-  /// The widget below this widget in the tree.
-  final FloatingActionButton fab;
+  /// The widget below this widget in the tree, which is a [FloatingActionButton].
+  final Widget fab;
 
   /// The controller of this widget.
   final AnimatedFabController controller;
@@ -166,7 +166,8 @@ class _ScrollAnimatedFabState extends State<ScrollAnimatedFab> with TickerProvid
     if (widget.condition == ScrollAnimatedCondition.offset) {
       canShow = (widget.scrollController?.offset ?? 0) >= widget.offset;
     } else if (widget.condition == ScrollAnimatedCondition.direction) {
-      canShow = (widget.scrollController?.position?.extentBefore ?? 0) > 0 && widget.scrollController?.position?.userScrollDirection == ScrollDirection.forward;
+      var pos = widget.scrollController?.position;
+      canShow = (pos?.extentBefore ?? 0) > 0 && pos?.userScrollDirection == ScrollDirection.forward;
     }
 
     if (canShow != _lastShow) {

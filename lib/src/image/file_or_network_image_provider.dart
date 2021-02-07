@@ -1,14 +1,15 @@
 import 'dart:io' as io show File;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-import 'local_network_image_provider_io.dart' as image_provider;
+import 'file_or_network_image_provider_io.dart' as image_provider;
 
 /// An [ImageProvider] for local file or network image with cache.
-abstract class LocalOrNetworkImageProvider extends ImageProvider<LocalOrNetworkImageProvider> {
-  const factory LocalOrNetworkImageProvider({
-    Future<io.File> Function() file,
-    Future<String> Function() url,
+abstract class FileOrNetworkImageProvider extends ImageProvider<FileOrNetworkImageProvider> {
+  const factory FileOrNetworkImageProvider({
+    @required Future<io.File> Function() file,
+    @required Future<String> Function() url,
     double scale,
     Map<String, String> headers,
     BaseCacheManager cacheManager,
@@ -16,12 +17,12 @@ abstract class LocalOrNetworkImageProvider extends ImageProvider<LocalOrNetworkI
     Function() onNetworkLoading,
     Function() onFileLoaded,
     Function() onNetworkLoaded,
-  }) = image_provider.LocalOrNetworkImageProvider;
+  }) = image_provider.FileOrNetworkImageProvider;
 
   /// The file of the image to load.
   Future<io.File> Function() get file;
 
-  /// The web url of the image to load.
+  /// The url of the image to load.
   Future<String> Function() get url;
 
   /// The scale of the image.
@@ -33,7 +34,7 @@ abstract class LocalOrNetworkImageProvider extends ImageProvider<LocalOrNetworkI
   /// The cache manager, uses [DefaultCacheManager] if null.
   BaseCacheManager get cacheManager;
 
-  /// The callback function invoked when the local file starts to loading.
+  /// The callback function invoked when the local file starts to load.
   Function() get onFileLoading;
 
   /// The callback function invoked when the network image start to download.
@@ -46,8 +47,8 @@ abstract class LocalOrNetworkImageProvider extends ImageProvider<LocalOrNetworkI
   Function() get onNetworkLoaded;
 
   @override
-  Future<LocalOrNetworkImageProvider> obtainKey(ImageConfiguration configuration);
+  Future<FileOrNetworkImageProvider> obtainKey(ImageConfiguration configuration);
 
   @override
-  ImageStreamCompleter load(LocalOrNetworkImageProvider key, DecoderCallback decode);
+  ImageStreamCompleter load(FileOrNetworkImageProvider key, DecoderCallback decode);
 }
