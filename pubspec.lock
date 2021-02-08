@@ -78,13 +78,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "5.2.1"
-  filesize:
-    dependency: "direct main"
-    description:
-      name: filesize
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "1.0.4"
   flutter:
     dependency: "direct main"
     description: flutter

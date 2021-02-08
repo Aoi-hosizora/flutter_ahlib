@@ -1,62 +1,70 @@
 import 'package:flutter/material.dart';
 
-/// A state used to describe the current state of [PlaceholderText].
+/// A state enum used to describe the current state of [PlaceholderText].
 enum PlaceholderState {
-  normal, // 1. !isEmpty
-  loading, // 2. isLoading (&& isEmpty)
-  nothing, // 3. errorText?.isNotEmpty == true (&& isEmpty && !isLoading)
-  error, // 4. else (isEmpty && !isLoading && errorText != null)
+  normal, // 1. not empty
+  loading, // 2. empty && loading
+  nothing, // 3. empty && !loading && error
+  error, // 4. empty && !loading && !error
 }
 
-/// [PlaceholderState] changed callback function, used in [PlaceholderText].
+/// A [PlaceholderText.state] changed callback function, with old state and new state.
 typedef PlaceholderStateChangedCallback = void Function(PlaceholderState oldState, PlaceholderState newState);
 
-/// Setting for displaying [PlaceholderText].
+/// A display setting of [PlaceholderText].
 class PlaceholderSetting {
   const PlaceholderSetting({
-    //
+    // text
     this.loadingText = 'Loading...',
     this.nothingText = 'Nothing',
     this.retryText = 'Retry',
     this.unknownErrorText = 'Unknown error',
-    //
+    // icon
+    this.nothingIcon = Icons.clear_all,
+    this.errorIcon = Icons.error,
+    // padding
     this.textPadding = const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
     this.iconPadding = const EdgeInsets.all(5),
     this.buttonPadding = const EdgeInsets.all(5),
-    this.progressPadding = const EdgeInsets.all(30),
-    //
+    this.progressPadding = const EdgeInsets.all(27.5),
+    this.progressTextPadding = const EdgeInsets.all(14),
+    // style
     this.textStyle = const TextStyle(fontSize: 20),
     this.buttonTextStyle = const TextStyle(fontSize: 14),
+    this.buttonBorderSide = const BorderSide(style: BorderStyle.solid, color: Color(0xFFD7D7D7)),
     this.iconSize = 50,
     this.iconColor = Colors.grey,
-    this.progressSize = 40,
-    this.buttonBorderSide = const BorderSide(style: BorderStyle.solid, color: Color(0xFFD7D7D7)),
-    //
+    this.progressSize = 45,
+    this.progressStrokeWidth = 4.4,
+    // show loading xxx
     this.showLoadingProgress = true,
     this.showLoadingText = true,
-    //
+    // show nothing xxx
     this.showNothingIcon = true,
     this.showNothingText = true,
     this.showNothingRetry = true,
-    //
+    // show error xxx
     this.showErrorIcon = true,
     this.showErrorText = true,
     this.showErrorRetry = true,
-    //
   })  : assert(loadingText != null),
         assert(nothingText != null),
         assert(retryText != null),
         assert(unknownErrorText != null),
+        assert(nothingIcon != null),
+        assert(errorIcon != null),
         assert(textPadding != null),
         assert(iconPadding != null),
         assert(buttonPadding != null),
         assert(progressPadding != null),
+        assert(progressTextPadding != null),
         assert(textStyle != null),
         assert(buttonTextStyle != null),
+        assert(buttonBorderSide != null),
         assert(iconSize != null),
         assert(iconColor != null),
         assert(progressSize != null),
-        assert(buttonBorderSide != null),
+        assert(progressStrokeWidth != null),
         assert(showLoadingProgress != null),
         assert(showLoadingText != null),
         assert(showNothingIcon != null),
@@ -66,7 +74,7 @@ class PlaceholderSetting {
         assert(showErrorText != null),
         assert(showErrorRetry != null);
 
-  /// Use Chinese text as default setting.
+  /// Translates the current setting to Chinese.
   PlaceholderSetting toChinese({
     String loadingText = '加载中...',
     String nothingText = '无内容',
@@ -78,16 +86,20 @@ class PlaceholderSetting {
       nothingText: nothingText,
       retryText: retryText,
       unknownErrorText: unknownErrorText,
+      nothingIcon: this.nothingIcon,
+      errorIcon: this.errorIcon,
       textPadding: this.textPadding,
       iconPadding: this.iconPadding,
       buttonPadding: this.buttonPadding,
       progressPadding: this.progressPadding,
+      progressTextPadding: this.progressTextPadding,
       textStyle: this.textStyle,
       buttonTextStyle: this.buttonTextStyle,
+      buttonBorderSide: this.buttonBorderSide,
       iconSize: this.iconSize,
       iconColor: this.iconColor,
       progressSize: this.progressSize,
-      buttonBorderSide: this.buttonBorderSide,
+      progressStrokeWidth: this.progressStrokeWidth,
       showLoadingProgress: this.showLoadingProgress,
       showLoadingText: this.showLoadingText,
       showNothingIcon: this.showNothingIcon,
@@ -99,7 +111,7 @@ class PlaceholderSetting {
     );
   }
 
-  /// Use Japanese text as default setting.
+  /// Translates the current setting to Japanese.
   PlaceholderSetting toJapanese({
     String loadingText = '読み込み中...',
     String nothingText = '何も見つかりませんでした',
@@ -111,16 +123,20 @@ class PlaceholderSetting {
       nothingText: nothingText,
       retryText: retryText,
       unknownErrorText: unknownErrorText,
+      nothingIcon: this.nothingIcon,
+      errorIcon: this.errorIcon,
       textPadding: this.textPadding,
       iconPadding: this.iconPadding,
       buttonPadding: this.buttonPadding,
       progressPadding: this.progressPadding,
+      progressTextPadding: this.progressTextPadding,
       textStyle: this.textStyle,
       buttonTextStyle: this.buttonTextStyle,
+      buttonBorderSide: this.buttonBorderSide,
       iconSize: this.iconSize,
       iconColor: this.iconColor,
       progressSize: this.progressSize,
-      buttonBorderSide: this.buttonBorderSide,
+      progressStrokeWidth: this.progressStrokeWidth,
       showLoadingProgress: this.showLoadingProgress,
       showLoadingText: this.showLoadingText,
       showNothingIcon: this.showNothingIcon,
@@ -138,37 +154,42 @@ class PlaceholderSetting {
   final String retryText;
   final String unknownErrorText;
 
+  // icon
+  final IconData nothingIcon;
+  final IconData errorIcon;
+
   // padding
   final EdgeInsets textPadding;
   final EdgeInsets iconPadding;
   final EdgeInsets buttonPadding;
   final EdgeInsets progressPadding;
+  final EdgeInsets progressTextPadding;
 
   // style
   final TextStyle textStyle;
   final TextStyle buttonTextStyle;
+  final BorderSide buttonBorderSide;
   final double iconSize;
   final Color iconColor;
   final double progressSize;
-  final BorderSide buttonBorderSide;
+  final double progressStrokeWidth;
 
-  // loading
+  // show loading xxx
   final bool showLoadingProgress;
   final bool showLoadingText;
 
-  // nothing
+  // show nothing xxx
   final bool showNothingIcon;
   final bool showNothingText;
   final bool showNothingRetry;
 
-  // error
+  // show error xxx
   final bool showErrorIcon;
   final bool showErrorText;
   final bool showErrorRetry;
 }
 
-/// Placeholder text mainly used for network requesting with [ListView],
-/// including normal, loading, nothing, error.
+/// A placeholder text mainly used with [ListView] when using network request, includes four states: normal, loading, nothing, error.
 class PlaceholderText extends StatefulWidget {
   const PlaceholderText({
     Key key,
@@ -183,10 +204,11 @@ class PlaceholderText extends StatefulWidget {
         assert(setting != null),
         super(key: key);
 
-  PlaceholderText.from({
+  /// Creates [PlaceholderText] by some conditions.
+  const PlaceholderText.from({
     Key key,
     @required Widget Function(BuildContext) childBuilder,
-    void Function() onRefresh,
+    Function onRefresh,
     String errorText,
     PlaceholderState forceState,
     @required bool isEmpty,
@@ -198,37 +220,37 @@ class PlaceholderText extends StatefulWidget {
           childBuilder: childBuilder,
           onRefresh: onRefresh,
           errorText: errorText,
-          state: forceState != null // has force to state
-              ? forceState // use forceState
-              : !isEmpty // first -> check if it has data
-                  ? PlaceholderState.normal // has data => normal
-                  : isLoading // has no data -> check if is loading
-                      ? PlaceholderState.loading // is loading => loading
-                      : errorText?.isNotEmpty == true // is not loading -> check if error message is null or empty
-                          ? PlaceholderState.error // has error text => error
-                          : true == true // dummy
-                              ? PlaceholderState.nothing // empty, loaded, noerr => nothing
+          state: forceState != null
+              ? forceState // force
+              : isEmpty == false
+                  ? PlaceholderState.normal // not empty
+                  : isLoading == true
+                      ? PlaceholderState.loading // empty && loading
+                      : errorText != null && errorText != ''
+                          ? PlaceholderState.error // empty && !loading && error
+                          : true == true
+                              ? PlaceholderState.nothing // empty && !loading && !error
                               : null,
           onChanged: onChanged,
           setting: setting,
         );
 
-  /// Builder for child.
+  /// The child builder of this widget.
   final Widget Function(BuildContext) childBuilder;
 
-  /// Refresh handler for retry.
-  final void Function() onRefresh;
+  /// The refresh handler to retry.
+  final Function onRefresh;
 
-  /// Error message (if null, will invoke error state).
+  /// The current error message, shown when [PlaceholderState.error].
   final String errorText;
 
-  /// Placeholder's current state.
+  /// The current state of this widget.
   final PlaceholderState state;
 
-  /// Callback when [state] changed.
+  /// The callback function when the state changed.
   final PlaceholderStateChangedCallback onChanged;
 
-  /// Display setting for [PlaceholderText].
+  /// The display setting of this widget.
   final PlaceholderSetting setting;
 
   @override
@@ -236,8 +258,7 @@ class PlaceholderText extends StatefulWidget {
 }
 
 class _PlaceholderTextState extends State<PlaceholderText> {
-  /// Store the last state, used to check onChanged event.
-  PlaceholderState _lastState;
+  PlaceholderState _lastState; // store the last state
 
   @override
   void initState() {
@@ -275,12 +296,14 @@ class _PlaceholderTextState extends State<PlaceholderText> {
                   child: SizedBox(
                     height: widget.setting.progressSize,
                     width: widget.setting.progressSize,
-                    child: CircularProgressIndicator(),
+                    child: CircularProgressIndicator(
+                      strokeWidth: widget.setting.progressStrokeWidth,
+                    ),
                   ),
                 ),
               if (widget.setting.showLoadingText)
                 Padding(
-                  padding: widget.setting.textPadding,
+                  padding: widget.setting.progressTextPadding,
                   child: Text(
                     widget.setting.loadingText,
                     textAlign: TextAlign.center,
@@ -303,7 +326,7 @@ class _PlaceholderTextState extends State<PlaceholderText> {
                 Padding(
                   padding: widget.setting.iconPadding,
                   child: Icon(
-                    Icons.clear_all,
+                    widget.setting.nothingIcon,
                     size: widget.setting.iconSize,
                     color: widget.setting.iconColor,
                   ),
@@ -348,7 +371,7 @@ class _PlaceholderTextState extends State<PlaceholderText> {
                 Padding(
                   padding: widget.setting.iconPadding,
                   child: Icon(
-                    Icons.error,
+                    widget.setting.errorIcon,
                     size: widget.setting.iconSize,
                     color: widget.setting.iconColor,
                   ),
@@ -384,7 +407,7 @@ class _PlaceholderTextState extends State<PlaceholderText> {
       // unreachable
       ////////////////////////////////////////////////////////////////
       default:
-        return SizedBox(height: 0);
+        return Container(); // dummy
     }
   }
 }

@@ -1,48 +1,47 @@
+import 'dart:math' as math;
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-/// Used in [AnimatedOpacity] and [onAppend.whenComplete].
-const _kAnimatedDuration = Duration(milliseconds: 500);
-
-/// Used in [AppendIndicatorState._onPointerMove].
-const _kPointerMovingThreshold = 30.0;
-
-/// Represents indicator's state.
-enum _AppendIndicatorMode {
-  /// Indicate is now positioned animating.
-  none,
-
-  /// Indicate is now showing and refreshing.
-  appending,
-}
-
-/// Append callback function, used in [AppendIndicator].
+/// An append callback function used in [AppendIndicator].
 typedef AppendCallback = Future<void> Function();
 
-/// An indicator widget same with [RefreshIndicator],
-/// show in the bottom of view, mainly used for showing append information.
+/// An indicator mode used in [AppendIndicator].
+enum _AppendIndicatorMode {
+  drag, // start to show
+  armed, // drag far enough
+  append, // run the append callback
+  done, // append callback is done
+  canceled, // canceled by no arming
+}
+
+/// An indicator widget same with [RefreshIndicator], shown in the bottom of view, mainly used for showing append information.
 class AppendIndicator extends StatefulWidget {
   const AppendIndicator({
     Key key,
     @required this.child,
     @required this.onAppend,
+    this.minHeight = 5.0,
     this.backgroundColor,
     this.valueColor,
   })  : assert(child != null),
         assert(onAppend != null),
+        assert(minHeight == null || minHeight > 0),
         super(key: key);
 
   /// The widget below this widget in the tree.
   final Widget child;
 
-  /// A function that's called when the indicator is appending.
+  /// The function that is called when appending.
   final AppendCallback onAppend;
 
-  /// The progress indicator's background color.
+  /// The min height of this indicator, defaults to 5dp.
+  final double minHeight;
+
+  /// The background color of this indicator.
   final Color backgroundColor;
 
-  /// The progress indicator's color as an animated value.
+  /// The value color of this indicator.
   final Animation<Color> valueColor;
 
   @override
@@ -50,68 +49,141 @@ class AppendIndicator extends StatefulWidget {
 }
 
 /// The state of [AppendIndicator], can be used to show the append indicator, see the [show] method.
-class AppendIndicatorState extends State<AppendIndicator> {
+class AppendIndicatorState extends State<AppendIndicator> with TickerProviderStateMixin<AppendIndicator> {
+  static const _kScaleShrinkDuration = Duration(milliseconds: 400);
+  static const _kScaleExpandDuration = Duration(milliseconds: 100);
+  static const _kScrollThreshold = 92.0;
+
+  AnimationController _sizeController;
+  Animation<double> _sizeFactor;
+
   _AppendIndicatorMode _mode;
   Future<void> _pendingAppendFuture;
-  double _extent = -1;
-  double _pointerDownPosition = 0;
+  double _dragOffset;
 
-  bool _onScroll(ScrollNotification s) {
-    _extent = s.metrics.maxScrollExtent;
-    bool short = _extent == 0;
-    bool bottom = s.metrics.pixels >= s.metrics.maxScrollExtent && !s.metrics.outOfRange;
-    if (!short && bottom) {
-      _show(); // 1
+  @override
+  void initState() {
+    super.initState();
+    _sizeController = AnimationController(vsync: this);
+    _sizeFactor = _sizeController.drive(Tween(begin: 0.0, end: 1.0));
+  }
+
+  @override
+  void dispose() {
+    _sizeController.dispose();
+    super.dispose();
+  }
+
+  void _start() {
+    _sizeController.value = 0.0;
+    _dragOffset = 0;
+  }
+
+  bool _onScroll(ScrollNotification notification) {
+    var metrics = notification.metrics;
+
+    // scroll update (directly)
+    if (notification is ScrollUpdateNotification) {
+      if (metrics.extentAfter == 0.0 && metrics.maxScrollExtent > 0.0 && _mode == null) {
+        _start();
+        _show(); // show directly
+        return false;
+      }
+    }
+
+    // scroll start
+    if (notification is ScrollStartNotification) {
+      if (metrics.extentAfter == 0.0 && _mode == null) {
+        _start();
+        _mode = _AppendIndicatorMode.drag;
+        if (mounted) setState(() {});
+      }
+      return false;
+    }
+
+    // scroll update
+    double delta;
+    if (_mode == _AppendIndicatorMode.drag || _mode == _AppendIndicatorMode.armed) {
+      if (notification is ScrollUpdateNotification) {
+        delta = notification.scrollDelta;
+      } else if (notification is OverscrollNotification) {
+        delta = notification.overscroll;
+      }
+    }
+    if (delta != null) {
+      _dragOffset = _dragOffset + delta;
+      _sizeController.value = math.pow((_dragOffset / _kScrollThreshold).clamp(0.0, 1.0), 2);
+      if (_dragOffset > _kScrollThreshold && _mode == _AppendIndicatorMode.drag) {
+        _mode = _AppendIndicatorMode.armed;
+      } else if (_dragOffset <= _kScrollThreshold && _mode == _AppendIndicatorMode.armed) {
+        _mode = _AppendIndicatorMode.drag;
+      }
+      return false;
+    }
+
+    // scroll end
+    if (notification is ScrollEndNotification) {
+      if (_mode == _AppendIndicatorMode.armed) {
+        _show();
+      } else if (_mode == _AppendIndicatorMode.drag) {
+        _dismiss(_AppendIndicatorMode.canceled); // -> canceled
+      }
+      return false;
+    }
+
+    return false;
+  }
+
+  bool _onOverflowScroll(OverscrollIndicatorNotification notification) {
+    if (_mode == _AppendIndicatorMode.drag || _mode == _AppendIndicatorMode.armed) {
+      notification.disallowGlow(); // disable glow
+      return true;
     }
     return false;
   }
 
-  void _onPointerDown(PointerDownEvent e) {
-    _pointerDownPosition = e.position?.dy ?? 0;
-  }
-
-  void _onPointerMove(PointerMoveEvent e) {
-    if (e.down && _pointerDownPosition != null) {
-      bool short = _extent == 0;
-      if (short && _pointerDownPosition - (e.position?.dy ?? 0) > _kPointerMovingThreshold) {
-        _show(); // 2
-      }
-    }
-  }
-
-  void _onPointerUp(PointerUpEvent e) {
-    _pointerDownPosition = null;
-  }
-
-  /// Inner implementation of [show], used in [show], [_onScroll] and [_onPointerMove].
-  void _show() {
-    final Completer<void> completer = Completer<void>();
-    _pendingAppendFuture = completer.future;
-    if (!mounted || _mode != null) {
+  /// Shows animation with "-> expand -> loading".
+  void _show() async {
+    if (!mounted) {
       return;
     }
 
-    _mode = _AppendIndicatorMode.appending;
+    final Completer<void> completer = Completer<void>();
+    _pendingAppendFuture = completer.future;
+
+    // -> append
+    _mode = _AppendIndicatorMode.append;
     if (mounted) setState(() {});
+    await _sizeController.animateTo(1.0, duration: _kScaleExpandDuration); // expand
 
-    final result = widget.onAppend();
+    var result = widget.onAppend(); // loading
     result?.whenComplete(() async {
-      if (mounted && _mode == _AppendIndicatorMode.appending) {
+      if (mounted && _mode == _AppendIndicatorMode.append) {
         completer.complete();
-        _mode = _AppendIndicatorMode.none;
-        await Future.delayed(_kAnimatedDuration);
-        if (mounted) setState(() {});
-
-        _mode = null;
-        if (mounted) setState(() {});
+        _dismiss(_AppendIndicatorMode.done); // -> done
       }
     });
   }
 
-  /// Show the indicator and run the callback as if it had been started interactively.
-  /// If this method is called while the callback is running, it quietly does nothing.
+  /// Show animation with "-> shrink".
+  void _dismiss(_AppendIndicatorMode newMode) async {
+    assert(newMode == _AppendIndicatorMode.append || newMode == _AppendIndicatorMode.canceled);
+
+    // -> cancel || -> done
+    _mode = newMode;
+    if (mounted) setState(() {});
+    await _sizeController.animateTo(0.0, duration: _kScaleShrinkDuration, curve: Curves.easeOutCubic); // shrink
+
+    // -> null
+    _mode = null;
+    if (mounted) setState(() {});
+  }
+
+  /// Shows the indicator and runs the callback as if it had been started interactively. If this method
+  /// is called while the callback is running, it quietly does nothing.
   Future<void> show() {
     if (_mode == null) {
+      _start();
       _show();
     }
     return _pendingAppendFuture;
@@ -123,22 +195,24 @@ class AppendIndicatorState extends State<AppendIndicator> {
       children: [
         NotificationListener<ScrollNotification>(
           onNotification: (s) => _onScroll(s),
-          child: Listener(
-            onPointerDown: (m) => _onPointerDown(m),
-            onPointerMove: (m) => _onPointerMove(m),
-            onPointerUp: (m) => _onPointerUp(m),
+          child: NotificationListener<OverscrollIndicatorNotification>(
+            onNotification: (s) => _onOverflowScroll(s),
             child: widget.child,
           ),
         ),
         if (_mode != null)
           Positioned(
             bottom: 0,
-            child: AnimatedOpacity(
-              opacity: _mode == _AppendIndicatorMode.none ? 0 : 1,
-              duration: _kAnimatedDuration,
-              child: SizedBox(
-                width: MediaQuery.of(context).size.width,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: SizeTransition(
+                sizeFactor: _sizeFactor,
+                axis: Axis.horizontal,
                 child: LinearProgressIndicator(
+                  // value: 0 (drag, armed, canceled) -> null (append, done)
+                  value: _mode == _AppendIndicatorMode.append || _mode == _AppendIndicatorMode.done ? null : 0,
+                  minHeight: widget.minHeight,
                   backgroundColor: widget.backgroundColor,
                   valueColor: widget.valueColor,
                 ),
