@@ -10,7 +10,7 @@ abstract class TextGroupItem {
   String get text;
 }
 
-/// A [TextGroupItem] that represents a normal text.
+/// A [TextGroupItem] that represents a normal text. This is not a [Widget], but just a data class to store options and used in [TextGroup].
 class NormalGroupText extends TextGroupItem {
   const NormalGroupText({
     @required this.text,
@@ -26,7 +26,7 @@ class NormalGroupText extends TextGroupItem {
   final TextStyle style;
 }
 
-/// A [TextGroupItem] that represents a linked text.
+/// A [TextGroupItem] that represents a linked text. This is not a [Widget], but just a data class to store options and used in [TextGroup].
 class LinkGroupText extends TextGroupItem {
   const LinkGroupText({
     @required this.text,
@@ -196,14 +196,14 @@ class _TextGroupState extends State<TextGroup> {
         );
       } else if (t is LinkGroupText) {
         var textColor = !_tapDowns[i] ? t.normalColor : t.pressedColor;
-        var textStyle = t.styleFn(_tapDowns[i]) ??
-            (t.showUnderline
+        var textStyle = t.styleFn?.call(_tapDowns[i]) ??
+            (!t.showUnderline
                 ? TextStyle(color: textColor, decoration: TextDecoration.none)
                 : TextStyle(
                     color: Colors.transparent,
-                    shadows: [Shadow(color: textColor, offset: Offset(0, -1))], // offset -1
+                    shadows: [Shadow(color: textColor ?? Colors.black, offset: Offset(0, -1))], // offset -1
                     decoration: TextDecoration.underline,
-                    decorationColor: textColor,
+                    decorationColor: textColor ?? Colors.black,
                   ));
         spans.add(
           TextSpan(

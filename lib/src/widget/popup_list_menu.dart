@@ -7,7 +7,7 @@ class MenuItem {
   const MenuItem({
     @required this.child,
     @required this.action,
-    this.padding = const EdgeInsets.symmetric(horizontal: 26, vertical: 16),
+    this.padding = const EdgeInsets.symmetric(horizontal: 27, vertical: 16),
     this.dismissBefore = true,
     this.dismissAfter = false,
   })  : assert(child != null),
@@ -37,7 +37,7 @@ class TextMenuItem extends MenuItem {
   const TextMenuItem({
     @required Widget text,
     @required Function action,
-    EdgeInsets padding = const EdgeInsets.symmetric(horizontal: 26, vertical: 16), // different default padding
+    EdgeInsets padding = const EdgeInsets.symmetric(horizontal: 27, vertical: 16), // different default padding
     bool dismissBefore = true,
     bool dismissAfter = false,
   }) : super(
@@ -90,7 +90,10 @@ Future<void> showPopupListMenu({
       children: [
         for (var item in items)
           SimpleDialogOption(
-            child: item.child,
+            child: DefaultTextStyle(
+              style: Theme.of(context).textTheme.subtitle1,
+              child: item.child,
+            ),
             padding: item.padding,
             onPressed: () {
               if (item.dismissBefore) {

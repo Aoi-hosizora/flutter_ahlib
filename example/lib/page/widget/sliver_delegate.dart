@@ -49,7 +49,7 @@ class _SliverDelegatePageState extends State<SliverDelegatePage> {
               SliverList(
                 delegate: SliverSeparatedListDelegate(
                   List.generate(
-                    10,
+                    5,
                     (i) => ListTile(title: Text('item $i')),
                   ),
                   separator: Divider(height: 1, thickness: 1),
@@ -59,7 +59,7 @@ class _SliverDelegatePageState extends State<SliverDelegatePage> {
               SliverList(
                 delegate: SliverSeparatedListBuilderDelegate(
                   (c, i) => ListTile(title: Text('item $i')),
-                  childCount: 10,
+                  childCount: 5,
                   separatorBuilder: (c, i) => Divider(height: 1, thickness: 1),
                 ),
               ),

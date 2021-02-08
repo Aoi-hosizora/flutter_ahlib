@@ -143,9 +143,10 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
   Widget build(BuildContext context) {
     super.build(context);
 
-    var data = widget.data;
     var top = widget.extra?.inListTopWidgets ?? [];
+    var data = widget.data;
     var bottom = widget.extra?.inListBottomWidgets ?? [];
+    var tl = top.length, dl = data.length, bl = bottom.length;
     var view = ListView.separated(
       controller: widget.scrollController,
       padding: widget.setting.padding,
@@ -153,15 +154,23 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
       reverse: widget.setting.reverse,
       shrinkWrap: widget.setting.shrinkWrap,
       // ===================================
-      separatorBuilder: (c, idx) => widget.separator ?? SizedBox(height: 0),
-      itemCount: top.length + data.length + bottom.length,
-      itemBuilder: (c, idx) {
-        if (idx < top.length) {
-          return top[idx];
-        } else if (idx >= top.length && idx < top.length + data.length) {
-          return widget.itemBuilder(c, data[idx - top.length]);
+      separatorBuilder: (c, idx) {
+        if (idx < tl) {
+          return SizedBox(height: 0);
+        } else if (idx < tl + dl - 1) {
+          return widget.separator ?? SizedBox(height: 0);
         } else {
-          return bottom[idx - top.length - data.length];
+          return SizedBox(height: 0);
+        }
+      },
+      itemCount: tl + dl + bl,
+      itemBuilder: (c, idx) {
+        if (idx < tl) {
+          return top[idx];
+        } else if (idx < tl + dl) {
+          return widget.itemBuilder(c, data[idx - tl]);
+        } else {
+          return bottom[idx - tl - dl];
         }
       },
     );
@@ -345,9 +354,10 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
   Widget build(BuildContext context) {
     super.build(context);
 
-    var data = widget.data;
     var top = widget.extra?.inListTopWidgets ?? [];
+    var data = widget.data;
     var bottom = widget.extra?.inListBottomWidgets ?? [];
+    var tl = top.length, dl = data.length, bl = bottom.length;
     var view = CustomScrollView(
       controller: widget.scrollController,
       physics: widget.setting.physics,
@@ -364,16 +374,24 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
           sliver: SliverList(
             delegate: SliverSeparatedListBuilderDelegate(
               (c, idx) {
-                if (idx < top.length) {
+                if (idx < tl) {
                   return top[idx];
-                } else if (idx >= top.length && idx < top.length + data.length) {
-                  return widget.itemBuilder(c, data[idx - top.length]);
+                } else if (idx < tl + dl) {
+                  return widget.itemBuilder(c, data[idx - tl]);
                 } else {
-                  return bottom[idx - top.length - data.length];
+                  return bottom[idx - tl - dl];
                 }
               },
-              childCount: top.length + data.length + bottom.length,
-              separatorBuilder: (c, idx) => widget.separator ?? SizedBox(height: 0),
+              childCount: tl + dl + bl,
+              separatorBuilder: (c, idx) {
+                if (idx < tl) {
+                  return SizedBox(height: 0);
+                } else if (idx < tl + dl - 1) {
+                  return widget.separator ?? SizedBox(height: 0);
+                } else {
+                  return SizedBox(height: 0);
+                }
+              },
             ),
           ),
         ),
@@ -495,7 +513,7 @@ class PaginationStaggeredGridView<T> extends PaginationDataView<T> {
   /// The crossAxisSpacing for [StaggeredGridView]
   final double crossAxisSpacing;
 
-  /// The extra widgets, notice that the inListXXXWidgets will be ignored.
+  /// The extra widgets, notice that the inListXXX and outListXXX will be ignored.
   final UpdatableDataViewExtraWidgets extra;
 
   @override
@@ -576,7 +594,7 @@ class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGrid
       mainAxisSpacing: widget.mainAxisSpacing ?? 0,
       crossAxisSpacing: widget.crossAxisSpacing ?? 0,
       itemCount: widget.data.length,
-      itemBuilder: (c, idx) => widget.itemBuilder(c, widget.data[idx]), // ignore extra inListXXX
+      itemBuilder: (c, idx) => widget.itemBuilder(c, widget.data[idx]), // ignore extra inListXXX and outListXXX
     );
 
     return AppendIndicator(

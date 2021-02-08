@@ -16,16 +16,16 @@ class _PaginationStaggeredGridViewPageState extends State<PaginationStaggeredGri
 
   Future<PagedList<String>> _getData({int page}) async {
     print('_getData: $page');
+    if (page > 5) {
+      return PagedList(list: [], next: 0);
+    }
     await Future.delayed(Duration(seconds: 2));
     if (_isError) {
       return Future.error('something wrong');
     }
-    if (page > 5) {
-      return PagedList(list: [], next: 0);
-    }
     return PagedList(
       list: List.generate(10, (i) => 'Item $page - ${(page - 1) * 10 + i + 1}'),
-      next: page + 1,
+      next: page == 5 ? 0 : page + 1,
     );
   }
 
@@ -80,8 +80,8 @@ class _PaginationStaggeredGridViewPageState extends State<PaginationStaggeredGri
           innerBottomWidget: Align(alignment: Alignment.centerLeft, child: Padding(padding: EdgeInsets.fromLTRB(10, 8, 0, 8), child: Text('inner bottom widget'))),
           outerTopWidget: Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('outer top widget'))),
           outerBottomWidget: Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('outer bottom widget'))),
-          inListTopWidgets: [Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('in list top widget')))], // ignore
-          inListBottomWidgets: [Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('in list bottom widget')))], // ignore
+          inListTopWidgets: [Center(child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 0, 8), child: Text('in list top widget')))].repeat(3), // ignore
+          inListBottomWidgets: [Center(child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 0, 8), child: Text('in list bottom widget')))].repeat(3), // ignore
           innerTopDivider: Divider(thickness: 1, height: 1),
           innerBottomDivider: Divider(thickness: 1, height: 1),
           outerTopDivider: Divider(thickness: 1, height: 1),

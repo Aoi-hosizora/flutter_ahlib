@@ -29,6 +29,20 @@ extension BoolExtension on bool {
 
 /// An extension for [List].
 extension ListExtension<T> on List<T> {
+  /// Returns a new list containing totalCount count of the given list.
+  List<T> repeat(int totalCount) {
+    if (totalCount <= 1) {
+      return this;
+    }
+    var newList = <T>[];
+    for (int i = 0; i < totalCount; i++) {
+      for (var item in this) {
+        newList.add(item);
+      }
+    }
+    return newList;
+  }
+
   /// Returns a new list with separator build by [builder], between items.
   List<T> separateWithBuilder(T Function(int) builder) {
     assert(builder != null);

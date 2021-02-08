@@ -13,70 +13,72 @@ class _TextGroupPageState extends State<TextGroupPage> {
       appBar: AppBar(
         title: Text('TextGroup Example'),
       ),
-      body: Column(
-        children: [
-          SizedBox(height: 4),
-          TextGroup(
-            texts: [
-              NormalGroupText(text: 'test1'),
-              NormalGroupText(
-                text: 'NormalGroupTextNormalGroupTextNormalGroupTextNormalGroupTextNormalGroupTextNormalGroupText',
-                style: TextStyle(color: Colors.red),
-              ),
-              NormalGroupText(text: 'test2'),
-              LinkGroupText(
-                text: 'LinkGroupText 1',
-                onTap: () => print('tapped 1'),
-                normalColor: Theme.of(context).primaryColor,
-                pressedColor: Colors.red,
-              ),
-              NormalGroupText(text: 'test3'),
-              LinkGroupText(
-                text: 'LinkGroupText 2',
-                onTap: () => print('tapped 2'),
-                pressedColor: Theme.of(context).primaryColor,
-                showUnderline: false,
-              ),
-              NormalGroupText(text: 'test4'),
-              LinkGroupText(
-                text: 'LinkGroupText 3',
-                onTap: () => print('tapped 3'),
-                normalColor: Theme.of(context).primaryColor,
-              ),
-            ],
-          ),
-          Divider(),
-          TextGroup(
-            selectable: true,
-            texts: [
-              NormalGroupText(text: 'test1'),
-              NormalGroupText(
-                text: 'NormalGroupTextNormalGroupTextNormalGroupTextNormalGroupTextNormalGroupTextNormalGroupText',
-                style: TextStyle(color: Colors.red),
-              ),
-              NormalGroupText(text: 'test2'),
-              LinkGroupText(
-                text: 'LinkGroupText 1',
-                onTap: () => print('tapped 1'),
-                normalColor: Theme.of(context).primaryColor,
-                pressedColor: Colors.red,
-              ),
-              NormalGroupText(text: 'test3'),
-              LinkGroupText(
-                text: 'LinkGroupText 2',
-                onTap: () => print('tapped 2'),
-                pressedColor: Theme.of(context).primaryColor,
-                showUnderline: false,
-              ),
-              NormalGroupText(text: 'test4'),
-              LinkGroupText(
-                text: 'LinkGroupText 3',
-                onTap: () => print('tapped 3'),
-                normalColor: Theme.of(context).primaryColor,
-              ),
-            ],
-          ),
-        ],
+      body: Padding(
+        padding: EdgeInsets.all(10),
+        child: Column(
+          children: [
+            TextGroup(
+              texts: [
+                NormalGroupText(text: 'test1'),
+                NormalGroupText(
+                  text: '|NormalGroupTextNormalGroupTextNormalGroupTextNormalGroupTextNormalGroupTextNormalGroupText|',
+                  style: TextStyle(color: Colors.red),
+                ),
+                NormalGroupText(text: 'test2'),
+                LinkGroupText(
+                  text: '|LinkGroupText1|',
+                  onTap: () => print('tapped 1'),
+                  normalColor: Theme.of(context).primaryColor,
+                  pressedColor: Colors.red,
+                ),
+                NormalGroupText(text: 'test3'),
+                LinkGroupText(
+                  text: '|LinkGroupText2|',
+                  onTap: () => print('tapped 2'),
+                  pressedColor: Theme.of(context).primaryColor,
+                ),
+                NormalGroupText(text: 'test4'),
+                LinkGroupText(
+                  text: '|LinkGroupText3|',
+                  onTap: () => print('tapped 3'),
+                  normalColor: Theme.of(context).primaryColor,
+                  showUnderline: false,
+                ),
+              ],
+            ),
+            Divider(),
+            TextGroup(
+              selectable: true,
+              texts: [
+                NormalGroupText(text: 'test1'),
+                NormalGroupText(
+                  text: '|NormalGroupTextNormalGroupTextNormalGroupTextNormalGroupTextNormalGroupTextNormalGroupText|',
+                  style: TextStyle(color: Colors.red),
+                ),
+                NormalGroupText(text: 'test2'),
+                LinkGroupText(
+                  text: '|LinkGroupText1|',
+                  onTap: () => print('tapped 1'),
+                  normalColor: Theme.of(context).primaryColor,
+                  pressedColor: Colors.red,
+                ),
+                NormalGroupText(text: 'test3'),
+                LinkGroupText(
+                  text: '|LinkGroupText2|',
+                  onTap: () => print('tapped 2'),
+                  pressedColor: Theme.of(context).primaryColor,
+                ),
+                NormalGroupText(text: 'test4'),
+                LinkGroupText(
+                  text: '|LinkGroupText3|',
+                  onTap: () => print('tapped 3'),
+                  normalColor: Theme.of(context).primaryColor,
+                  showUnderline: false,
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

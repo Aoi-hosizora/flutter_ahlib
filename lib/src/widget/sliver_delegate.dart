@@ -70,7 +70,7 @@ class SliverAppBarSizedDelegate extends SliverPersistentHeaderDelegate {
 // separator related
 // =================
 
-/// A custom [SliverChildListDelegate] (implementation of [SliverChildDelegate]) with separator. Notice that this class has not a const constructor.
+/// A custom [SliverChildListDelegate] (implementation of [SliverChildDelegate]) with separator.
 class SliverSeparatedListDelegate extends SliverChildListDelegate {
   SliverSeparatedListDelegate(
     List<Widget> children, {
@@ -82,7 +82,7 @@ class SliverSeparatedListDelegate extends SliverChildListDelegate {
         );
 }
 
-/// A custom [SliverChildBuilderDelegate] (implementation of [SliverChildDelegate]) with separator builder. Notice that this class has not a const constructor.
+/// A custom [SliverChildBuilderDelegate] (implementation of [SliverChildDelegate]) with separator builder.
 class SliverSeparatedListBuilderDelegate extends SliverChildBuilderDelegate {
   SliverSeparatedListBuilderDelegate(
     NullableIndexedWidgetBuilder builder, {

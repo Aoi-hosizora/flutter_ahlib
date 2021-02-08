@@ -72,7 +72,7 @@ extension PageControllerExtension on PageController {
   }
 }
 
-/// An helper extension for [ScrollMetrics].
+/// An extension for [ScrollMetrics].
 extension ScrollMetricsExtension on ScrollMetrics {
   /// Check if the scrollable area's size is shorter than parent.
   bool isShortScrollArea() {

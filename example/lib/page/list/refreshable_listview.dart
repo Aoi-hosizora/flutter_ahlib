@@ -21,6 +21,17 @@ class _RefreshableListViewPageState extends State<RefreshableListViewPage> {
     return List.generate(50, (i) => 'Item ${i + 1}');
   }
 
+  var _innerTopW = true;
+  var _innerBottomW = true;
+  var _outerTopW = true;
+  var _outerBottomW = true;
+  var _inListTopW = true;
+  var _inListBottomW = true;
+  var _innerTopD = true;
+  var _innerBottomD = true;
+  var _outerTopD = true;
+  var _outerBottomD = true;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,6 +48,55 @@ class _RefreshableListViewPageState extends State<RefreshableListViewPage> {
               _isError = !_isError;
               if (mounted) setState(() {});
             },
+          ),
+          PopupMenuButton<String>(
+            onSelected: (s) {
+              switch (s) {
+                case 'innerTopW':
+                  _innerTopW = !_innerTopW;
+                  break;
+                case 'innerBottomW':
+                  _innerBottomW = !_innerBottomW;
+                  break;
+                case 'outerTopW':
+                  _outerTopW = !_outerTopW;
+                  break;
+                case 'outerBottomW':
+                  _outerBottomW = !_outerBottomW;
+                  break;
+                case 'inListTopW':
+                  _inListTopW = !_inListTopW;
+                  break;
+                case 'inListBottomW':
+                  _inListBottomW = !_inListBottomW;
+                  break;
+                case 'innerTopD':
+                  _innerTopD = !_innerTopD;
+                  break;
+                case 'innerBottomD':
+                  _innerBottomD = !_innerBottomD;
+                  break;
+                case 'outerTopD':
+                  _outerTopD = !_outerTopD;
+                  break;
+                case 'outerBottomD':
+                  _outerBottomD = !_outerBottomD;
+                  break;
+              }
+              if (mounted) setState(() {});
+            },
+            itemBuilder: (_) => [
+              'outerTopW',
+              'outerTopD',
+              'innerTopW',
+              'innerTopD',
+              'inListTopW',
+              'inListBottomW',
+              'innerBottomD',
+              'innerBottomW',
+              'outerBottomD',
+              'outerBottomW',
+            ].map((s) => PopupMenuItem(value: s, child: Text(s))).toList(),
           ),
         ],
       ),
@@ -63,16 +123,16 @@ class _RefreshableListViewPageState extends State<RefreshableListViewPage> {
         ),
         separator: Divider(height: 1, thickness: 1),
         extra: UpdatableDataViewExtraWidgets(
-          innerTopWidget: Align(alignment: Alignment.centerLeft, child: Padding(padding: EdgeInsets.fromLTRB(10, 8, 0, 8), child: Text('inner top widget'))),
-          innerBottomWidget: Align(alignment: Alignment.centerLeft, child: Padding(padding: EdgeInsets.fromLTRB(10, 8, 0, 8), child: Text('inner bottom widget'))),
-          outerTopWidget: Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('outer top widget'))),
-          outerBottomWidget: Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('outer bottom widget'))),
-          inListTopWidgets: [Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('in list top widget')))],
-          inListBottomWidgets: [Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('in list bottom widget')))],
-          innerTopDivider: Divider(thickness: 1, height: 1),
-          innerBottomDivider: Divider(thickness: 1, height: 1),
-          outerTopDivider: Divider(thickness: 1, height: 1),
-          outerBottomDivider: Divider(thickness: 1, height: 1),
+          innerTopWidget: _innerTopW ? Align(alignment: Alignment.centerLeft, child: Padding(padding: EdgeInsets.fromLTRB(10, 8, 0, 8), child: Text('inner top widget'))) : null,
+          innerBottomWidget: _innerBottomW ? Align(alignment: Alignment.centerLeft, child: Padding(padding: EdgeInsets.fromLTRB(10, 8, 0, 8), child: Text('inner bottom widget'))) : null,
+          outerTopWidget: _outerTopW ? Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('outer top widget'))) : null,
+          outerBottomWidget: _outerBottomW ? Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('outer bottom widget'))) : null,
+          inListTopWidgets: _inListTopW ? [Center(child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 0, 8), child: Text('in list top widget')))].repeat(3) : null,
+          inListBottomWidgets: _inListBottomW ? [Center(child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 0, 8), child: Text('in list bottom widget')))].repeat(3) : null,
+          innerTopDivider: _innerTopD ? Divider(thickness: 1, height: 1) : null,
+          innerBottomDivider: _innerBottomD ? Divider(thickness: 1, height: 1) : null,
+          outerTopDivider: _outerTopD ? Divider(thickness: 1, height: 1) : null,
+          outerBottomDivider: _outerBottomD ? Divider(thickness: 1, height: 1) : null,
         ),
       ),
       floatingActionButton: ScrollAnimatedFab(

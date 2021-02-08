@@ -26,14 +26,16 @@ class PlaceholderSetting {
     this.textPadding = const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
     this.iconPadding = const EdgeInsets.all(5),
     this.buttonPadding = const EdgeInsets.all(5),
-    this.progressPadding = const EdgeInsets.all(30),
+    this.progressPadding = const EdgeInsets.all(27.5),
+    this.progressTextPadding = const EdgeInsets.all(14),
     // style
     this.textStyle = const TextStyle(fontSize: 20),
     this.buttonTextStyle = const TextStyle(fontSize: 14),
+    this.buttonBorderSide = const BorderSide(style: BorderStyle.solid, color: Color(0xFFD7D7D7)),
     this.iconSize = 50,
     this.iconColor = Colors.grey,
-    this.progressSize = 40,
-    this.buttonBorderSide = const BorderSide(style: BorderStyle.solid, color: Color(0xFFD7D7D7)),
+    this.progressSize = 45,
+    this.progressStrokeWidth = 4.4,
     // show loading xxx
     this.showLoadingProgress = true,
     this.showLoadingText = true,
@@ -55,12 +57,14 @@ class PlaceholderSetting {
         assert(iconPadding != null),
         assert(buttonPadding != null),
         assert(progressPadding != null),
+        assert(progressTextPadding != null),
         assert(textStyle != null),
         assert(buttonTextStyle != null),
+        assert(buttonBorderSide != null),
         assert(iconSize != null),
         assert(iconColor != null),
         assert(progressSize != null),
-        assert(buttonBorderSide != null),
+        assert(progressStrokeWidth != null),
         assert(showLoadingProgress != null),
         assert(showLoadingText != null),
         assert(showNothingIcon != null),
@@ -88,12 +92,14 @@ class PlaceholderSetting {
       iconPadding: this.iconPadding,
       buttonPadding: this.buttonPadding,
       progressPadding: this.progressPadding,
+      progressTextPadding: this.progressTextPadding,
       textStyle: this.textStyle,
       buttonTextStyle: this.buttonTextStyle,
+      buttonBorderSide: this.buttonBorderSide,
       iconSize: this.iconSize,
       iconColor: this.iconColor,
       progressSize: this.progressSize,
-      buttonBorderSide: this.buttonBorderSide,
+      progressStrokeWidth: this.progressStrokeWidth,
       showLoadingProgress: this.showLoadingProgress,
       showLoadingText: this.showLoadingText,
       showNothingIcon: this.showNothingIcon,
@@ -123,12 +129,14 @@ class PlaceholderSetting {
       iconPadding: this.iconPadding,
       buttonPadding: this.buttonPadding,
       progressPadding: this.progressPadding,
+      progressTextPadding: this.progressTextPadding,
       textStyle: this.textStyle,
       buttonTextStyle: this.buttonTextStyle,
+      buttonBorderSide: this.buttonBorderSide,
       iconSize: this.iconSize,
       iconColor: this.iconColor,
       progressSize: this.progressSize,
-      buttonBorderSide: this.buttonBorderSide,
+      progressStrokeWidth: this.progressStrokeWidth,
       showLoadingProgress: this.showLoadingProgress,
       showLoadingText: this.showLoadingText,
       showNothingIcon: this.showNothingIcon,
@@ -155,14 +163,16 @@ class PlaceholderSetting {
   final EdgeInsets iconPadding;
   final EdgeInsets buttonPadding;
   final EdgeInsets progressPadding;
+  final EdgeInsets progressTextPadding;
 
   // style
   final TextStyle textStyle;
   final TextStyle buttonTextStyle;
+  final BorderSide buttonBorderSide;
   final double iconSize;
   final Color iconColor;
   final double progressSize;
-  final BorderSide buttonBorderSide;
+  final double progressStrokeWidth;
 
   // show loading xxx
   final bool showLoadingProgress;
@@ -286,12 +296,14 @@ class _PlaceholderTextState extends State<PlaceholderText> {
                   child: SizedBox(
                     height: widget.setting.progressSize,
                     width: widget.setting.progressSize,
-                    child: CircularProgressIndicator(),
+                    child: CircularProgressIndicator(
+                      strokeWidth: widget.setting.progressStrokeWidth,
+                    ),
                   ),
                 ),
               if (widget.setting.showLoadingText)
                 Padding(
-                  padding: widget.setting.textPadding,
+                  padding: widget.setting.progressTextPadding,
                   child: Text(
                     widget.setting.loadingText,
                     textAlign: TextAlign.center,

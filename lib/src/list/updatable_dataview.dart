@@ -136,7 +136,7 @@ class UpdatableDataViewSetting<T> {
 /// innerTopDivider
 /// ==========
 /// inListTopWidgets
-/// ...
+/// ... (with separator)
 /// inListBottomWidgets
 /// ==========
 /// innerBottomDivider
@@ -183,12 +183,6 @@ class UpdatableDataViewExtraWidgets {
 
   /// The widgets in the bottom of [ScrollView], that will have no separator between items.
   final List<Widget> inListBottomWidgets;
-
-  // /// The widgets in the bottom of the top of [ScrollView], that will have separator between items.
-  // final List<Widget> inListBottomOfTopWidgets;
-  //
-  // /// The widgets in the top of the bottom of [ScrollView], that will have separator between items.
-  // final List<Widget> inListTopOfBottomWidgets;
 
   /// The divider before [ScrollView] inside [PlaceholderText], if null, do not show it.
   final Widget innerTopDivider;
