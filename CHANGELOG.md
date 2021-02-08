@@ -1,3 +1,7 @@
+## [1.2.0] - Refactor the whole library and add some widgets
+
+1. This is a break update, see https://github.com/Aoi-hosizora/flutter_ahlib/pull/13
+
 ## [1.1.3+1] - Fix list widgets and add some examples
 
 ## [1.1.3] - Add more settings for widgets
