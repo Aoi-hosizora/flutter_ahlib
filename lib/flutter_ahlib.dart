@@ -18,7 +18,7 @@ export 'src/list/refreshable_dataview.dart';
 export 'src/list/pagination_dataview.dart';
 
 // image
-export 'src/image/file_or_network_image_provider.dart';
+export 'src/image/local_or_cached_network_image_provider.dart';
 export 'src/image/multi_image_stream_completer.dart';
 
 // util
@@ -28,4 +28,3 @@ export 'src/util/hash.dart';
 export 'src/util/dart_extension.dart';
 export 'src/util/flutter_extension.dart';
 export 'src/util/filesize.dart';
-export 'src/util/notifier_data.dart';
