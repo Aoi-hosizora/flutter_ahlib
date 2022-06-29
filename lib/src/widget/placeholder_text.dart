@@ -209,7 +209,7 @@ class PlaceholderText extends StatefulWidget {
     Key key,
     @required Widget Function(BuildContext) childBuilder,
     Function onRefresh,
-    String errorText,
+    String? errorText,
     PlaceholderState forceState,
     @required bool isEmpty,
     @required bool isLoading,

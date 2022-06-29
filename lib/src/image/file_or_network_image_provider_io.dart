@@ -13,8 +13,8 @@ import 'file_or_network_image_provider.dart' as image_provider;
 /// The default implementation of [image_provider.FileOrNetworkImageProvider].
 class FileOrNetworkImageProvider extends ImageProvider<image_provider.FileOrNetworkImageProvider> implements image_provider.FileOrNetworkImageProvider {
   const FileOrNetworkImageProvider({
-    @required this.file,
-    @required this.url,
+    required this.file,
+    required this.url,
     this.scale = 1.0,
     this.headers,
     this.cacheManager,
@@ -22,16 +22,15 @@ class FileOrNetworkImageProvider extends ImageProvider<image_provider.FileOrNetw
     this.onNetworkLoading,
     this.onFileLoaded,
     this.onNetworkLoaded,
-  })  : assert(file != null),
-        assert(url != null);
+  });
 
   /// The file of the image to load.
   @override
-  final Future<io.File> Function() file;
+  final Future<io.File?> Function() file;
 
   /// The url of the image to load.
   @override
-  final Future<String> Function() url;
+  final Future<String?> Function() url;
 
   /// The scale of the image.
   @override
@@ -39,27 +38,27 @@ class FileOrNetworkImageProvider extends ImageProvider<image_provider.FileOrNetw
 
   /// The headers of the request used to fetch the network image.
   @override
-  final Map<String, String> headers;
+  final Map<String, String>? headers;
 
   /// The cache manager, uses [DefaultCacheManager] if null.
   @override
-  final BaseCacheManager cacheManager;
+  final BaseCacheManager? cacheManager;
 
   /// The callback function invoked when the local file starts to load.
   @override
-  final Function() onFileLoading;
+  final Function()? onFileLoading;
 
   /// The callback function invoked when the network image start to download.
   @override
-  final Function() onNetworkLoading;
+  final Function()? onNetworkLoading;
 
   /// The callback function invoked when the local file loaded.
   @override
-  final Function() onFileLoaded;
+  final Function()? onFileLoaded;
 
   /// The callback function invoked when the network image downloaded.
   @override
-  final Function() onNetworkLoaded;
+  final Function()? onNetworkLoaded;
 
   /// Overrides the [ImageProvider].
   @override
