@@ -13,48 +13,44 @@ abstract class TextGroupItem {
 /// A [TextGroupItem] that represents a normal text. This is not a [Widget], but just a data class to store options and used in [TextGroup].
 class NormalGroupText extends TextGroupItem {
   const NormalGroupText({
-    @required this.text,
+    required this.text,
     this.style,
-  })  : assert(text != null),
-        super();
+  });
 
   /// The content of this item.
   @override
   final String text;
 
   /// The text style of this item.
-  final TextStyle style;
+  final TextStyle? style;
 }
 
 /// A [TextGroupItem] that represents a linked text. This is not a [Widget], but just a data class to store options and used in [TextGroup].
 class LinkGroupText extends TextGroupItem {
   const LinkGroupText({
-    @required this.text,
+    required this.text,
     this.styleFn,
     this.normalColor,
     this.pressedColor,
     this.showUnderline = true,
-    @required this.onTap,
-  })  : assert(text != null),
-        assert(showUnderline != null),
-        assert(onTap != null),
-        super();
+    required this.onTap,
+  });
 
   /// The content of this item.
   @override
   final String text;
 
   /// The text style function of this item.
-  final TextStyle Function(bool pressed) styleFn;
+  final TextStyle Function(bool pressed)? styleFn;
 
   /// The link color when this item not pressed.
-  final Color normalColor;
+  final Color? normalColor;
 
   /// The link color when this item pressed.
-  final Color pressedColor;
+  final Color? pressedColor;
 
-  /// The switcher to show link underline.
-  final bool showUnderline;
+  /// The switcher to show link underline, defaults to true.
+  final bool? showUnderline;
 
   /// The behavior when the link is pressed.
   final Function() onTap;
@@ -64,8 +60,8 @@ class LinkGroupText extends TextGroupItem {
 /// [NormalGroupText] and [LinkGroupText].
 class TextGroup extends StatefulWidget {
   const TextGroup({
-    Key key,
-    @required this.texts,
+    Key? key,
+    required this.texts,
     this.selectable = false,
     this.style,
     // RichText and SelectableText
@@ -88,18 +84,8 @@ class TextGroup extends StatefulWidget {
     this.cursorColor,
     this.dragStartBehavior = DragStartBehavior.start,
     this.minLines,
-  })  : assert(texts != null && texts.length > 0),
-        assert(selectable != null),
-        // RichText and SelectableText
+  })  : assert(texts.length > 0),
         assert(maxLines == null || maxLines > 0),
-        assert(textAlign != null),
-        assert(textScaleFactor != null),
-        assert(textWidthBasis != null),
-        // RichText
-        assert(softWrap != null),
-        assert(overflow != null),
-        // SelectableText
-        assert(dragStartBehavior != null),
         assert(minLines == null || minLines > 0),
         super(key: key);
 
@@ -110,21 +96,21 @@ class TextGroup extends StatefulWidget {
   final bool selectable;
 
   /// The text style of the outer [TextSpan].
-  final TextStyle style;
+  final TextStyle? style;
 
   // RichText and SelectableText
 
   /// The max lines of [RichText] and [SelectableText].
-  final int maxLines;
+  final int? maxLines;
 
   /// The strutStyle of [RichText] and [SelectableText].
-  final StrutStyle strutStyle;
+  final StrutStyle? strutStyle;
 
   /// The textAlign of [RichText] and [SelectableText].
   final TextAlign textAlign;
 
   /// The textDirection of [RichText] and [SelectableText].
-  final TextDirection textDirection;
+  final TextDirection? textDirection;
 
   /// The textScaleFactor of [RichText] and [SelectableText].
   final double textScaleFactor;
@@ -133,7 +119,7 @@ class TextGroup extends StatefulWidget {
   final TextWidthBasis textWidthBasis;
 
   /// The textHeightBehavior of [RichText] and [SelectableText].
-  final TextHeightBehavior textHeightBehavior;
+  final TextHeightBehavior? textHeightBehavior;
 
   // RichText
 
@@ -146,28 +132,28 @@ class TextGroup extends StatefulWidget {
   // SelectableText
 
   /// The focusNode of [SelectableText] when [selectable] is true.
-  final FocusNode focusNode;
+  final FocusNode? focusNode;
 
   /// The toolbarOptions of [SelectableText] when [selectable] is true.
-  final ToolbarOptions toolbarOptions;
+  final ToolbarOptions? toolbarOptions;
 
   /// The cursorWidth of [SelectableText] when [selectable] is true.
   final double cursorWidth;
 
   /// The cursorHeight of [SelectableText] when [selectable] is true.
-  final double cursorHeight;
+  final double? cursorHeight;
 
   /// The cursorRadius of [SelectableText] when [selectable] is true.
-  final Radius cursorRadius;
+  final Radius? cursorRadius;
 
   /// The cursorColor of [SelectableText] when [selectable] is true.
-  final Color cursorColor;
+  final Color? cursorColor;
 
   /// The dragStartBehavior of [SelectableText] when [selectable] is true.
   final DragStartBehavior dragStartBehavior;
 
   /// The minLines of [SelectableText] when [selectable] is true.
-  final int minLines;
+  final int? minLines;
 
   @override
   _TextGroupState createState() => _TextGroupState();
@@ -188,7 +174,6 @@ class _TextGroupState extends State<TextGroup> {
     var spans = <TextSpan>[];
     for (var i = 0; i < widget.texts.length; i++) {
       var t = widget.texts[i];
-      assert(t != null);
 
       if (t is NormalGroupText) {
         spans.add(
@@ -197,7 +182,7 @@ class _TextGroupState extends State<TextGroup> {
       } else if (t is LinkGroupText) {
         var textColor = !_tapDowns[i] ? t.normalColor : t.pressedColor;
         var textStyle = t.styleFn?.call(_tapDowns[i]) ??
-            (!t.showUnderline
+            (!(t.showUnderline ?? true)
                 ? TextStyle(color: textColor, decoration: TextDecoration.none)
                 : TextStyle(
                     color: Colors.transparent,

@@ -21,9 +21,9 @@ const _kDefaultSpace = 15.0;
 /// A wrapped [Icon] and [Text] with [Row] and [Column].
 class IconText extends StatelessWidget {
   const IconText({
-    Key key,
-    @required this.icon,
-    @required this.text,
+    Key? key,
+    required this.icon,
+    required this.text,
     this.iconPadding = EdgeInsets.zero,
     this.textPadding = EdgeInsets.zero,
     this.alignment = IconTextAlignment.l2r,
@@ -31,19 +31,11 @@ class IconText extends StatelessWidget {
     this.mainAxisAlignment = MainAxisAlignment.start,
     this.mainAxisSize = MainAxisSize.max,
     this.crossAxisAlignment = CrossAxisAlignment.center,
-  })  : assert(icon != null),
-        assert(text != null),
-        assert(iconPadding != null),
-        assert(textPadding != null),
-        assert(alignment != null),
-        assert(space != null && space >= 0),
-        assert(mainAxisAlignment != null),
-        assert(mainAxisSize != null),
-        assert(crossAxisAlignment != null),
+  })  : assert(space == null || space >= 0),
         super(key: key);
 
   /// Creates a [IconText] in a simple way, note that this is a non-const constructor.
-  IconText.simple(IconData icon, String text) : this(icon: Icon(icon), text: Text(text));
+  IconText.simple(IconData icon, String text) : this(icon: Icon(icon), text: Text(text)); // ignore: use_key_in_widget_constructors
 
   /// The icon of this widget.
   final Widget icon;
@@ -51,31 +43,34 @@ class IconText extends StatelessWidget {
   /// The text of this widget.
   final Widget text;
 
-  /// The padding of this widget's icon.
-  final EdgeInsets iconPadding;
+  /// The padding of this widget's icon, default to zero.
+  final EdgeInsets? iconPadding;
 
-  /// The padding of this widget's text.
-  final EdgeInsets textPadding;
+  /// The padding of this widget's text, default to zero.
+  final EdgeInsets? textPadding;
 
   /// The alignment of the icon and the text, defaults to [IconTextAlignment.l2r].
   final IconTextAlignment alignment;
 
   /// The space between the icon and the text, defaults to 15.0.
-  final double space;
+  final double? space;
 
-  /// The mainAxisAlignment of the row or column.
-  final MainAxisAlignment mainAxisAlignment;
+  /// The mainAxisAlignment of the row or column, defaults to [MainAxisAlignment.start].
+  final MainAxisAlignment? mainAxisAlignment;
 
-  /// The mainAxisSize of the row or column.
-  final MainAxisSize mainAxisSize;
+  /// The mainAxisSize of the row or column, defaults to [MainAxisSize.max].
+  final MainAxisSize? mainAxisSize;
 
-  /// The crossAxisAlignment of the row or column.
-  final CrossAxisAlignment crossAxisAlignment;
+  /// The crossAxisAlignment of the row or column, defaults to [CrossAxisAlignment.center].
+  final CrossAxisAlignment? crossAxisAlignment;
 
   @override
   Widget build(BuildContext context) {
-    var pIcon = Padding(padding: iconPadding, child: icon);
-    var pText = Padding(padding: textPadding, child: text);
+    var pIcon = Padding(padding: iconPadding ?? EdgeInsets.zero, child: icon);
+    var pText = Padding(padding: textPadding ?? EdgeInsets.zero, child: text);
+    var mainAxisAlignment = this.mainAxisAlignment ?? MainAxisAlignment.start;
+    var mainAxisSize = this.mainAxisSize ?? MainAxisSize.max;
+    var crossAxisAlignment = this.crossAxisAlignment ?? CrossAxisAlignment.center;
 
     switch (alignment) {
       case IconTextAlignment.l2r:
@@ -86,7 +81,7 @@ class IconText extends StatelessWidget {
           crossAxisAlignment: crossAxisAlignment,
           children: [
             pIcon,
-            SizedBox(height: 0, width: this.space),
+            SizedBox(height: 0, width: space ?? _kDefaultSpace),
             pText,
           ],
         );
@@ -98,7 +93,7 @@ class IconText extends StatelessWidget {
           crossAxisAlignment: crossAxisAlignment,
           children: [
             pText,
-            SizedBox(height: 0, width: this.space),
+            SizedBox(height: 0, width: space ?? _kDefaultSpace),
             pIcon,
           ],
         );
@@ -110,7 +105,7 @@ class IconText extends StatelessWidget {
           crossAxisAlignment: crossAxisAlignment,
           children: [
             pIcon,
-            SizedBox(height: this.space, width: 0),
+            SizedBox(height: space ?? _kDefaultSpace, width: 0),
             pText,
           ],
         );
@@ -122,12 +117,13 @@ class IconText extends StatelessWidget {
           crossAxisAlignment: crossAxisAlignment,
           children: [
             pText,
-            SizedBox(height: this.space, width: 0),
+            SizedBox(height: space ?? _kDefaultSpace, width: 0),
             pIcon,
           ],
         );
       default:
-        return Container(); // dummy
+        // Unreachable
+        return Container();
     }
   }
 }

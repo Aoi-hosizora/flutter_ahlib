@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/flutter_ahlib.dart';
 
 class AnimatedFabPage extends StatefulWidget {
-  const AnimatedFabPage({Key key}) : super(key: key);
+  const AnimatedFabPage({Key? key}) : super(key: key);
 
   @override
   _AnimatedFabPageState createState() => _AnimatedFabPageState();

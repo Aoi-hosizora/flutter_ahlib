@@ -4,7 +4,7 @@ import 'package:flutter_ahlib/src/widget/placeholder_text.dart';
 
 /// An abstract widget for updatable data view, implements by [RefreshableDataView] and [PaginationDataView].
 abstract class UpdatableDataView<T> extends StatefulWidget {
-  const UpdatableDataView({Key key}) : super(key: key);
+  const UpdatableDataView({Key? key}) : super(key: key);
 
   /// The list of data.
   List<T> get data;

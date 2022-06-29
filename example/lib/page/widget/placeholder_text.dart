@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/flutter_ahlib.dart';
 
 class PlaceholderTextPage extends StatefulWidget {
-  const PlaceholderTextPage({Key key}) : super(key: key);
+  const PlaceholderTextPage({Key? key}) : super(key: key);
 
   @override
   _PlaceholderTextPageState createState() => _PlaceholderTextPageState();
@@ -47,7 +47,7 @@ class _PlaceholderTextPageState extends State<PlaceholderTextPage> {
           children: [
             Expanded(
               child: PlaceholderText.from(
-                setting: PlaceholderSetting().toJapanese(),
+                setting: PlaceholderSetting().copyWithJapanese(),
                 isEmpty: _empty,
                 isLoading: _loading,
                 errorText: _error ? 'error' : '',

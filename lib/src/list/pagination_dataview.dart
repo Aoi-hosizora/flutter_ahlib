@@ -15,7 +15,7 @@ final _kNothingRefreshDuration = Duration(milliseconds: 200);
 
 /// An abstract [UpdatableDataView] for pagination data view, implements by [PaginationListView], [PaginationSliverListView], [PaginationStaggeredGridView].
 abstract class PaginationDataView<T> extends UpdatableDataView<T> {
-  const PaginationDataView({Key key}) : super(key: key);
+  const PaginationDataView({Key? key}) : super(key: key);
 
   /// The function to get list data with pagination.
   Future<PagedList<T>> Function({dynamic indicator}) get getData;
@@ -27,14 +27,14 @@ abstract class PaginationDataView<T> extends UpdatableDataView<T> {
 /// A [PaginationDataView] with [ListView], includes [AppendIndicator], [RefreshIndicator], [PlaceholderText], [Scrollbar] and [ListView].
 class PaginationListView<T> extends PaginationDataView<T> {
   const PaginationListView({
-    Key key,
-    @required this.data,
-    @required this.getData,
+    Key? key,
+    required this.data,
+    required this.getData,
     this.setting = const UpdatableDataViewSetting(),
     this.paginationSetting = const PaginationSetting(),
     this.controller,
     this.scrollController,
-    @required this.itemBuilder,
+    required this.itemBuilder,
     // ===================================
     this.separator,
     this.extra,
@@ -116,7 +116,7 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
     return false;
   }
 
-  Future<void> _getData({@required bool reset}) async {
+  Future<void> _getData({required bool reset}) async {
     _forceState = null;
     return _getDataCore(
       reset: reset,
@@ -230,14 +230,14 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
 /// A [PaginationDataView] with [SliverList], includes [AppendIndicator], [RefreshIndicator], [PlaceholderText], [Scrollbar], [CustomScrollView] and [SliverList].
 class PaginationSliverListView<T> extends PaginationDataView<T> {
   const PaginationSliverListView({
-    Key key,
-    @required this.data,
-    @required this.getData,
+    Key? key,
+    required this.data,
+    required this.getData,
     this.setting = const UpdatableDataViewSetting(),
     this.paginationSetting = const PaginationSetting(),
     this.controller,
     this.scrollController,
-    @required this.itemBuilder,
+    required this.itemBuilder,
     // ===================================
     this.separator,
     this.useOverlapInjector = false,
@@ -327,7 +327,7 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
     return false;
   }
 
-  Future<void> _getData({@required bool reset}) async {
+  Future<void> _getData({required bool reset}) async {
     _forceState = null;
     return _getDataCore(
       reset: reset,
@@ -453,17 +453,17 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
 /// A [PaginationDataView] with [StaggeredGridView], includes [AppendIndicator], [RefreshIndicator], [PlaceholderText], [Scrollbar] and [StaggeredGridView].
 class PaginationStaggeredGridView<T> extends PaginationDataView<T> {
   const PaginationStaggeredGridView({
-    Key key,
-    @required this.data,
-    @required this.getData,
+    Key? key,
+    required this.data,
+    required this.getData,
     this.setting = const UpdatableDataViewSetting(),
     this.paginationSetting = const PaginationSetting(),
     this.controller,
     this.scrollController,
-    @required this.itemBuilder,
+    required this.itemBuilder,
     // ===================================
-    @required this.staggeredTileBuilder,
-    @required this.crossAxisCount,
+    required this.staggeredTileBuilder,
+    required this.crossAxisCount,
     this.mainAxisSpacing = 0,
     this.crossAxisSpacing = 0,
     this.extra,
@@ -555,7 +555,7 @@ class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGrid
     return false;
   }
 
-  Future<void> _getData({@required bool reset}) async {
+  Future<void> _getData({required bool reset}) async {
     _forceState = null;
     return _getDataCore(
       reset: reset,
@@ -666,7 +666,7 @@ class PaginationSetting {
 
 /// A data model for [PaginationDataView], represents the returned data.
 class PagedList<T> {
-  const PagedList({@required this.list, @required this.next});
+  const PagedList({required this.list, required this.next});
 
   /// The list data.
   final List<T> list;
@@ -677,21 +677,21 @@ class PagedList<T> {
 
 /// The getData inner implementation, used in [PaginationListView._getData], [PaginationListView._getData] and [PaginationStaggeredGridView._getData].
 Future<void> _getDataCore<T>({
-  @required bool reset,
-  @required dynamic nextIndicator,
-  @required void Function(dynamic) setNextIndicator,
-  @required bool Function() getDownScrollable,
+  required bool reset,
+  required dynamic nextIndicator,
+  required void Function(dynamic) setNextIndicator,
+  required bool Function() getDownScrollable,
   // ===================================
-  @required void Function(bool) setLoading,
-  @required void Function(String) setErrorMessage,
+  required void Function(bool) setLoading,
+  required void Function(String) setErrorMessage,
   // ===================================
-  @required List<T> data,
-  @required Future<PagedList<T>> Function({dynamic indicator}) getData,
-  @required UpdatableDataViewSetting<T> setting,
-  @required PaginationSetting paginationSetting,
-  @required ScrollController scrollController,
+  required List<T> data,
+  required Future<PagedList<T>> Function({dynamic indicator}) getData,
+  required UpdatableDataViewSetting<T> setting,
+  required PaginationSetting paginationSetting,
+  required ScrollController scrollController,
   // ===================================
-  @required void Function() doSetState,
+  required void Function() doSetState,
 }) async {
   assert(reset != null);
   assert(nextIndicator != null);

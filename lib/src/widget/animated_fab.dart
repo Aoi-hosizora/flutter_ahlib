@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 /// The default duration of [AnimatedFab] and [ScrollAnimatedFab].
-const _kDefaultDuration = const Duration(milliseconds: 250);
+const _kDefaultDuration = Duration(milliseconds: 250);
 
 /// The default curve of [AnimatedFab] and [ScrollAnimatedFab].
 const _kDefaultCurve = Curves.easeOutBack;
@@ -13,29 +13,25 @@ const _kDefaultScrollOffset = 50.0;
 /// A [FloatingActionButton] wrapped by [ScaleTransition] that will do animation with [show] switcher.
 class AnimatedFab extends StatefulWidget {
   const AnimatedFab({
-    Key key,
-    @required this.fab,
+    Key? key,
+    required this.fab,
     this.controller,
     this.duration = _kDefaultDuration,
     this.curve = _kDefaultCurve,
     this.show = false,
-  })  : assert(fab != null),
-        assert(duration != null),
-        assert(curve != null),
-        assert(show != null),
-        super(key: key);
+  }) : super(key: key);
 
   /// The widget below this widget in the tree, which is a [FloatingActionButton].
   final Widget fab;
 
   /// The controller of this widget.
-  final AnimatedFabController controller;
+  final AnimatedFabController? controller;
 
   /// The duration of the animation to show this fab.
-  final Duration duration;
+  final Duration? duration;
 
   /// The curve of the animation to show this fab.
-  final Curve curve;
+  final Curve? curve;
 
   /// The switcher to show this fab or not, defaults to false.
   final bool show;
@@ -45,21 +41,22 @@ class AnimatedFab extends StatefulWidget {
 }
 
 class _AnimatedFabState extends State<AnimatedFab> with TickerProviderStateMixin<AnimatedFab> {
-  AnimationController _animController;
-  Animation<double> _fabAnimation;
-  bool _lastShow; // store the last state
+  late AnimationController _animController;
+  late Animation<double> _fabAnimation;
+  bool? _lastShow; // store the last state
 
   @override
   void initState() {
     super.initState();
-    _animController = AnimationController(vsync: this, duration: widget.duration);
-    _fabAnimation = CurvedAnimation(parent: _animController, curve: widget.curve);
+    _animController = AnimationController(vsync: this, duration: widget.duration ?? _kDefaultDuration);
+    _fabAnimation = CurvedAnimation(parent: _animController, curve: widget.curve ?? _kDefaultCurve);
 
     widget.controller?.attachAnim(_animController);
   }
 
   @override
   void dispose() {
+    widget.controller?.detachAnim();
     _animController.dispose();
     super.dispose();
   }
@@ -83,7 +80,7 @@ class _AnimatedFabState extends State<AnimatedFab> with TickerProviderStateMixin
   }
 }
 
-/// A condition enum to do animation when scrolling used in [ScrollAnimatedFab].
+/// A condition enum to decide how [ScrollAnimatedFab] does animation when scrolling.
 enum ScrollAnimatedCondition {
   /// Uses scroll offset as the animation condition.
   offset,
@@ -95,33 +92,28 @@ enum ScrollAnimatedCondition {
 /// A [FloatingActionButton] wrapped by [ScaleTransition] that will do animation when scrolling.
 class ScrollAnimatedFab extends StatefulWidget {
   const ScrollAnimatedFab({
-    Key key,
-    @required this.fab,
+    Key? key,
+    required this.fab,
     this.controller,
     this.duration = _kDefaultDuration,
     this.curve = _kDefaultCurve,
-    @required this.scrollController,
+    required this.scrollController,
     this.condition = ScrollAnimatedCondition.offset,
     this.offset = _kDefaultScrollOffset,
-  })  : assert(fab != null),
-        assert(duration != null),
-        assert(curve != null),
-        assert(scrollController != null),
-        assert(condition != null),
-        assert(offset != null && offset >= 0),
+  })  : assert(offset == null || offset >= 0),
         super(key: key);
 
   /// The widget below this widget in the tree, which is a [FloatingActionButton].
   final Widget fab;
 
   /// The controller of this widget.
-  final AnimatedFabController controller;
+  final AnimatedFabController? controller;
 
   /// The duration of the animation to show this fab.
-  final Duration duration;
+  final Duration? duration;
 
   /// The curve of the animation to show this fab.
-  final Curve curve;
+  final Curve? curve;
 
   /// The scroll controller to detect scroll offset.
   final ScrollController scrollController;
@@ -130,22 +122,22 @@ class ScrollAnimatedFab extends StatefulWidget {
   final ScrollAnimatedCondition condition;
 
   /// The offset threshold of invoking fab shown when used [ScrollAnimatedCondition.offset].
-  final double offset;
+  final double? offset;
 
   @override
   _ScrollAnimatedFabState createState() => _ScrollAnimatedFabState();
 }
 
 class _ScrollAnimatedFabState extends State<ScrollAnimatedFab> with TickerProviderStateMixin<ScrollAnimatedFab> {
-  AnimationController _animController;
-  Animation<double> _fabAnimation;
-  bool _lastShow; // store the last state
+  late AnimationController _animController;
+  late Animation<double> _fabAnimation;
+  bool? _lastShow; // store the last state
 
   @override
   void initState() {
     super.initState();
-    _animController = AnimationController(vsync: this, duration: widget.duration);
-    _fabAnimation = CurvedAnimation(parent: _animController, curve: widget.curve);
+    _animController = AnimationController(vsync: this, duration: widget.duration ?? _kDefaultDuration);
+    _fabAnimation = CurvedAnimation(parent: _animController, curve: widget.curve ?? _kDefaultCurve);
 
     widget.scrollController.addListener(_scrollListener);
     widget.controller?.attachAnim(_animController);
@@ -153,6 +145,7 @@ class _ScrollAnimatedFabState extends State<ScrollAnimatedFab> with TickerProvid
 
   @override
   void dispose() {
+    widget.controller?.detachAnim();
     _animController.dispose();
     widget.scrollController.removeListener(_scrollListener);
     super.dispose();
@@ -160,14 +153,12 @@ class _ScrollAnimatedFabState extends State<ScrollAnimatedFab> with TickerProvid
 
   /// Subscribes the scroll offset and direction from given scroll controller.
   void _scrollListener() {
-    assert(widget.condition != null);
-
     bool canShow = false;
     if (widget.condition == ScrollAnimatedCondition.offset) {
-      canShow = (widget.scrollController?.offset ?? 0) >= widget.offset;
+      canShow = widget.scrollController.offset >= (widget.offset ?? _kDefaultScrollOffset);
     } else if (widget.condition == ScrollAnimatedCondition.direction) {
-      var pos = widget.scrollController?.position;
-      canShow = (pos?.extentBefore ?? 0) > 0 && pos?.userScrollDirection == ScrollDirection.forward;
+      var pos = widget.scrollController.position;
+      canShow = pos.extentBefore > 0 && pos.userScrollDirection == ScrollDirection.forward;
     }
 
     if (canShow != _lastShow) {
@@ -192,7 +183,7 @@ class _ScrollAnimatedFabState extends State<ScrollAnimatedFab> with TickerProvid
 
 /// A controller of [AnimatedFab] and [ScrollAnimatedFab], includes [show] and [hide] methods.
 class AnimatedFabController {
-  AnimationController _animController;
+  AnimationController? _animController;
 
   /// Registers the given [AnimationController] to this controller.
   void attachAnim(AnimationController a) => _animController = a;

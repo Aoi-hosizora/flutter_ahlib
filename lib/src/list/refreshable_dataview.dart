@@ -9,7 +9,7 @@ final _kFlashListDuration = Duration(milliseconds: 50);
 
 /// An abstract [UpdatableDataView] for refreshable data view, implements by [RefreshableListView], [RefreshableSliverListView], [RefreshableStaggeredGridView].
 abstract class RefreshableDataView<T> extends UpdatableDataView<T> {
-  const RefreshableDataView({Key key}) : super(key: key);
+  const RefreshableDataView({Key? key}) : super(key: key);
 
   /// The function to get list data.
   Future<List<T>> Function() get getData;
@@ -18,13 +18,13 @@ abstract class RefreshableDataView<T> extends UpdatableDataView<T> {
 /// A [RefreshableDataView] with [ListView], includes [RefreshIndicator], [PlaceholderText], [Scrollbar] and [ListView].
 class RefreshableListView<T> extends RefreshableDataView<T> {
   const RefreshableListView({
-    Key key,
-    @required this.data,
-    @required this.getData,
+    Key? key,
+    required this.data,
+    required this.getData,
     this.setting = const UpdatableDataViewSetting(),
     this.controller,
     this.scrollController,
-    @required this.itemBuilder,
+    required this.itemBuilder,
     // ===================================
     this.separator,
     this.extra,
@@ -192,13 +192,13 @@ class _RefreshableListViewState<T> extends State<RefreshableListView<T>> with Au
 /// A [RefreshableDataView] with [SliverList], includes [RefreshIndicator], [PlaceholderText], [Scrollbar], [CustomScrollView] and [SliverList].
 class RefreshableSliverListView<T> extends RefreshableDataView<T> {
   const RefreshableSliverListView({
-    Key key,
-    @required this.data,
-    @required this.getData,
+    Key? key,
+    required this.data,
+    required this.getData,
     this.setting = const UpdatableDataViewSetting(),
     this.controller,
     this.scrollController,
-    @required this.itemBuilder,
+    required this.itemBuilder,
     // ===================================
     this.separator,
     this.useOverlapInjector = false,
@@ -386,16 +386,16 @@ class _RefreshableSliverListViewState<T> extends State<RefreshableSliverListView
 /// A [RefreshableDataView] with [StaggeredGridView], includes [RefreshIndicator], [PlaceholderText], [Scrollbar] and [StaggeredGridView].
 class RefreshableStaggeredGridView<T> extends RefreshableDataView<T> {
   const RefreshableStaggeredGridView({
-    Key key,
-    @required this.data,
-    @required this.getData,
+    Key? key,
+    required this.data,
+    required this.getData,
     this.setting = const UpdatableDataViewSetting(),
     this.controller,
     this.scrollController,
-    @required this.itemBuilder,
+    required this.itemBuilder,
     // ===================================
-    @required this.staggeredTileBuilder,
-    @required this.crossAxisCount,
+    required this.staggeredTileBuilder,
+    required this.crossAxisCount,
     this.mainAxisSpacing = 0.0,
     this.crossAxisSpacing = 0.0,
     this.extra,
@@ -555,14 +555,14 @@ class _RefreshableStaggeredGridViewState<T> extends State<RefreshableStaggeredGr
 
 /// The getData inner implementation, used in [RefreshableListView._getData], [RefreshableListView._getData] and [RefreshableStaggeredGridView._getData].
 Future<void> _getDataCore<T>({
-  @required void Function(bool) setLoading,
-  @required void Function(String) setErrorMessage,
+  required void Function(bool) setLoading,
+  required void Function(String) setErrorMessage,
   // ===================================
-  @required List<T> data,
-  @required Future<List<T>> Function() getData,
-  @required UpdatableDataViewSetting<T> setting,
+  required List<T> data,
+  required Future<List<T>> Function() getData,
+  required UpdatableDataViewSetting<T> setting,
   // ===================================
-  @required void Function() doSetState,
+  required void Function() doSetState,
 }) async {
   assert(setLoading != null);
   assert(setErrorMessage != null);

@@ -12,6 +12,12 @@ enum _DrawerItemType {
   widget,
 }
 
+/// The default background color of [DrawerPageItem].
+const _kDefaultBackgroundColor = Colors.transparent;
+
+/// The default scroll offset of [DrawerPageItem] and [DrawerActionItem].
+const _kDefaultHighlightColor = Color(0xFFE0E0E0);
+
 // ==========
 // DrawerItem
 // ==========
@@ -19,7 +25,7 @@ enum _DrawerItemType {
 /// An abstract drawer item used in [DrawerListView], implemented by [DrawerPageItem], [DrawerActionItem] and [DrawerWidgetItem].
 /// This is not a [Widget], but just a data class to store options and used in [DrawerListView].
 abstract class DrawerItem {
-  const DrawerItem({this.type});
+  const DrawerItem({required this.type});
 
   /// The derived class type in [_DrawerItemType] type.
   final _DrawerItemType type;
@@ -28,28 +34,22 @@ abstract class DrawerItem {
 /// A [DrawerItem] which is used to navigate to a page, where [T] can be an enum type of page, this will be wrapped by [ListTile].
 class DrawerPageItem<T> extends DrawerItem {
   const DrawerPageItem({
-    @required this.title,
+    required this.title,
     this.leading,
     this.trailing,
-    @required this.page,
-    this.selection,
-    this.backgroundColor = Colors.transparent,
-    this.highlightColor = const Color(0xFFE0E0E0),
+    required this.page,
+    required this.selection,
+    this.backgroundColor = _kDefaultBackgroundColor,
+    this.highlightColor = _kDefaultHighlightColor,
     this.autoCloseWhenTapped = true,
     this.autoCloseWhenAlreadySelected = false,
-  })  : assert(title != null),
-        assert(page != null),
-        assert(backgroundColor != null),
-        assert(highlightColor != null),
-        assert(autoCloseWhenTapped != null),
-        assert(autoCloseWhenAlreadySelected != null),
-        super(type: _DrawerItemType.page);
+  }) : super(type: _DrawerItemType.page);
 
   /// Creates a [DrawerPageItem] in a simple way.
-  DrawerPageItem.simple(String title, IconData icon, Widget page, T selection)
+  DrawerPageItem.simple(String title, IconData? icon, Widget page, T selection)
       : this(
           title: Text(title),
-          leading: Icon(icon),
+          leading: icon != null ? null : Icon(icon),
           page: page,
           selection: selection,
         );
@@ -58,10 +58,10 @@ class DrawerPageItem<T> extends DrawerItem {
   final Widget title;
 
   /// The leading widget of this item.
-  final Widget leading;
+  final Widget? leading;
 
   /// The trailing widget of this item.
-  final Widget trailing;
+  final Widget? trailing;
 
   /// The navigator destination page.
   final Widget page;
@@ -70,41 +70,36 @@ class DrawerPageItem<T> extends DrawerItem {
   final T selection;
 
   /// The background color of this item.
-  final Color backgroundColor;
+  final Color? backgroundColor;
 
   /// The highlight color of this item if selected.
-  final Color highlightColor;
+  final Color? highlightColor;
 
-  /// The switcher to auto close the drawer when this item is tapped and the page is shown.
-  final bool autoCloseWhenTapped;
+  /// The switcher to auto close the drawer when this item is tapped and the page is shown, defaults to true.
+  final bool? autoCloseWhenTapped;
 
-  /// The switcher to auto close the drawer when this item is already selected.
-  final bool autoCloseWhenAlreadySelected;
+  /// The switcher to auto close the drawer when this item is already selected, defaults to false.
+  final bool? autoCloseWhenAlreadySelected;
 }
 
 /// A [DrawerItem] which is used to invoke an action, this will be wrapped by [ListTile].
 class DrawerActionItem extends DrawerItem {
   const DrawerActionItem({
-    @required this.title,
+    required this.title,
     this.leading,
     this.trailing,
-    @required this.action,
+    required this.action,
     this.longPressAction,
-    this.backgroundColor = Colors.transparent,
+    this.backgroundColor = _kDefaultBackgroundColor,
     this.autoCloseWhenTapped = true,
     this.autoCloseWhenLongPressed = false,
-  })  : assert(title != null),
-        assert(action != null),
-        assert(backgroundColor != null),
-        assert(autoCloseWhenTapped != null),
-        assert(autoCloseWhenLongPressed != null),
-        super(type: _DrawerItemType.action);
+  }) : super(type: _DrawerItemType.action);
 
   /// Creates a [DrawerActionItem] in a simple way.
-  DrawerActionItem.simple(String title, IconData icon, Function action)
+  DrawerActionItem.simple(String title, IconData? icon, Function action)
       : this(
           title: Text(title),
-          leading: Icon(icon),
+          leading: icon == null ? null : Icon(icon),
           action: action,
         );
 
@@ -112,33 +107,32 @@ class DrawerActionItem extends DrawerItem {
   final Widget title;
 
   /// The leading widget of this item.
-  final Widget leading;
+  final Widget? leading;
 
   /// The trailing widget of this item.
-  final Widget trailing;
+  final Widget? trailing;
 
   /// The tap action of this item.
   final Function action;
 
   /// The long pressed action of this item.
-  final Function longPressAction;
+  final Function? longPressAction;
 
   /// The background color of this item.
-  final Color backgroundColor;
+  final Color? backgroundColor;
 
-  /// The switcher to auto close the drawer when this item is tapped.
-  final bool autoCloseWhenTapped;
+  /// The switcher to auto close the drawer when this item is tapped, defaults to true.
+  final bool? autoCloseWhenTapped;
 
-  /// The switcher to auto close the drawer when this item is long pressed.
-  final bool autoCloseWhenLongPressed;
+  /// The switcher to auto close the drawer when this item is long pressed, defaults to false.
+  final bool? autoCloseWhenLongPressed;
 }
 
 /// A [DrawerItem] which is used to show a widget.
 class DrawerWidgetItem extends DrawerItem {
   const DrawerWidgetItem({
-    @required this.child,
-  })  : assert(child != null),
-        super(type: _DrawerItemType.widget);
+    required this.child,
+  }) : super(type: _DrawerItemType.widget);
 
   /// Creates a [DrawerWidgetItem] in a simple way.
   DrawerWidgetItem.simple(Widget child) : this(child: child);
@@ -155,7 +149,7 @@ class DrawerWidgetItem extends DrawerItem {
 ///
 /// Example:
 /// ```
-/// enum DrawerSelection {...}
+/// enum DrawerSelection { home, a, b }
 ///
 /// Drawer(
 ///   child: ListView(
@@ -163,13 +157,18 @@ class DrawerWidgetItem extends DrawerItem {
 ///     children: [
 ///       DrawerHeader(...),
 ///       DrawerListView<DrawerSelection>(
-///         items: [...],
+///         items: [
+///           DrawerPageItem<DrawerSelection>.simple('Home', null, HomePage(), DrawerSelection.home),
+///           DrawerWidgetItem.simple(Divider()),
+///           DrawerPageItem<DrawerSelection>.simple('A', null, APage(), DrawerSelection.a),
+///           DrawerPageItem<DrawerSelection>.simple('B', null, BPage(), DrawerSelection.b),
+///         ],
 ///         currentSelection: ...,
-///         onNavigatorTo: (t, v) {
-///           if (t == xxx) {
-///             Navigator.of(context).popUntil((route) => route.settings.name == 'xxx');
+///         onNavigatorTo: (t, page) {
+///           if (t == DrawerSelection.home) {
+///             Navigator.of(context).popUntil((route) => route.settings.name == 'HomePage');
 ///           } else {
-///             Navigator.of(context).push(MaterialPageRoute(builder: (c) => v));
+///             Navigator.of(context).push(MaterialPageRoute(builder: (c) => page));
 ///           }
 ///         },
 ///       ),
@@ -179,27 +178,24 @@ class DrawerWidgetItem extends DrawerItem {
 /// ```
 class DrawerListView<T> extends StatefulWidget {
   const DrawerListView({
-    Key key,
-    @required this.items,
-    @required this.onNavigatorTo,
+    Key? key,
+    required this.items,
+    required this.onNavigatorTo,
     this.currentSelection,
     this.enableHighlight = true,
-  })  : assert(items != null),
-        assert(onNavigatorTo != null),
-        assert(enableHighlight != null),
-        super(key: key);
+  }) : super(key: key);
 
   /// The list of [DrawerItem] to show.
   final List<DrawerItem> items;
 
   /// The navigateTo function used for [DrawerPageItem].
-  final Function(T, Widget) onNavigatorTo;
+  final Function(T?, Widget) onNavigatorTo;
 
   /// The current selected item used for [DrawerPageItem].
-  final T currentSelection;
+  final T? currentSelection;
 
   /// The switcher to highlight the selected item used for [DrawerPageItem], defaults to true.
-  final bool enableHighlight;
+  final bool? enableHighlight;
 
   @override
   _DrawerListViewState<T> createState() => _DrawerListViewState<T>();
@@ -216,23 +212,24 @@ class _DrawerListViewState<T> extends State<DrawerListView<T>> {
             // page
             ////////////////////////////////////////////////////////////////
             case _DrawerItemType.page:
-              DrawerPageItem<T> page = item;
+              var page = item as DrawerPageItem<T>;
+              var selected = widget.enableHighlight ?? true && widget.currentSelection == page.selection;
               return Container(
-                color: widget.enableHighlight && widget.currentSelection == page.selection ? page.highlightColor : page.backgroundColor,
+                color: selected ? (page.highlightColor ?? _kDefaultHighlightColor) : (page.backgroundColor ?? _kDefaultBackgroundColor),
                 child: Material(
                   color: Colors.transparent,
                   child: ListTile(
                     title: page.title,
                     leading: page.leading,
                     trailing: page.trailing,
-                    selected: widget.enableHighlight && widget.currentSelection == page.selection,
+                    selected: selected,
                     onTap: () {
-                      if (page.selection != widget.currentSelection) {
-                        if (page.autoCloseWhenTapped) {
+                      if (widget.currentSelection != page.selection) {
+                        if (page.autoCloseWhenTapped ?? true) {
                           Navigator.pop(context);
                         }
-                        widget.onNavigatorTo?.call(page.selection, page.page);
-                      } else if (page.autoCloseWhenAlreadySelected) {
+                        widget.onNavigatorTo.call(page.selection, page.page);
+                      } else if (page.autoCloseWhenAlreadySelected ?? false) {
                         Navigator.pop(context);
                       }
                     },
@@ -243,27 +240,25 @@ class _DrawerListViewState<T> extends State<DrawerListView<T>> {
             // action
             ////////////////////////////////////////////////////////////////
             case _DrawerItemType.action:
-              DrawerActionItem action = item;
+              var action = item as DrawerActionItem;
               return Container(
-                color: action.backgroundColor,
+                color: action.backgroundColor ?? _kDefaultBackgroundColor,
                 child: Material(
                   color: Colors.transparent,
                   child: ListTile(
                     title: action.title,
                     leading: action.leading,
                     trailing: action.trailing,
-                    onTap: action.action == null
-                        ? null
-                        : () {
-                            if (action.autoCloseWhenTapped) {
-                              Navigator.pop(context);
-                            }
-                            action.action();
-                          },
+                    onTap: () {
+                      if (action.autoCloseWhenTapped ?? true) {
+                        Navigator.pop(context);
+                      }
+                      action.action();
+                    },
                     onLongPress: action.longPressAction == null
                         ? null
                         : () {
-                            if (action.autoCloseWhenLongPressed) {
+                            if (action.autoCloseWhenLongPressed ?? false) {
                               Navigator.pop(context);
                             }
                             action.longPressAction?.call();
@@ -275,7 +270,7 @@ class _DrawerListViewState<T> extends State<DrawerListView<T>> {
             // widget
             ////////////////////////////////////////////////////////////////
             case _DrawerItemType.widget:
-              DrawerWidgetItem widget = item;
+              var widget = item as DrawerWidgetItem;
               return widget.child;
             ////////////////////////////////////////////////////////////////
             // unreachable

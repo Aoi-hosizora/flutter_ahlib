@@ -3,25 +3,23 @@ import 'package:flutter/material.dart';
 /// An [IndexedStack] loaded in lazy.
 class LazyIndexedStack extends StatefulWidget {
   const LazyIndexedStack({
-    Key key,
+    Key? key,
     this.alignment = AlignmentDirectional.topStart,
     this.textDirection,
     this.sizing = StackFit.loose,
     this.index = 0,
-    @required this.itemCount,
-    @required this.itemBuilder,
-  })  : assert(itemCount != null),
-        assert(itemBuilder != null),
-        super(key: key);
+    required this.itemCount,
+    required this.itemBuilder,
+  }) : super(key: key);
 
-  /// The alignment of this widget.
-  final AlignmentGeometry alignment;
+  /// The alignment of this widget, defaults to [AlignmentDirectional.topStart].
+  final AlignmentGeometry? alignment;
 
   /// The textDirection of this widget.
-  final TextDirection textDirection;
+  final TextDirection? textDirection;
 
-  /// The sizing of this widget.
-  final StackFit sizing;
+  /// The sizing of this widget, defaults to [StackFit.loose].
+  final StackFit? sizing;
 
   /// The index of this widget.
   final int index;
@@ -37,8 +35,8 @@ class LazyIndexedStack extends StatefulWidget {
 }
 
 class _LazyIndexedStackState extends State<LazyIndexedStack> {
-  var _children = <Widget>[];
-  var _loaded = <bool>[];
+  final _children = <Widget>[];
+  final _loaded = <bool>[];
 
   @override
   void initState() {
@@ -72,9 +70,9 @@ class _LazyIndexedStackState extends State<LazyIndexedStack> {
   @override
   Widget build(BuildContext context) {
     return IndexedStack(
-      alignment: widget.alignment,
+      alignment: widget.alignment ?? AlignmentDirectional.topStart,
       textDirection: widget.textDirection,
-      sizing: widget.sizing,
+      sizing: widget.sizing ?? StackFit.loose,
       index: widget.index,
       children: _children,
     );

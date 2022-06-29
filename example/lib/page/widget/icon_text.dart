@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/flutter_ahlib.dart';
 
 class IconTextPage extends StatefulWidget {
-  const IconTextPage({Key key}) : super(key: key);
+  const IconTextPage({Key? key}) : super(key: key);
 
   @override
   _IconTextPageState createState() => _IconTextPageState();

@@ -18,7 +18,7 @@ import 'package:flutter_ahlib_example/page/widget/tab_in_page_notification.dart'
 import 'package:flutter_ahlib_example/page/widget/text_group.dart';
 
 class IndexPage extends StatefulWidget {
-  IndexPage({Key key}) : super(key: key);
+  IndexPage({Key? key}) : super(key: key);
 
   @override
   _IndexPageState createState() => _IndexPageState();

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/flutter_ahlib.dart';
 
 class PopupListMenuPage extends StatefulWidget {
-  const PopupListMenuPage({Key key}) : super(key: key);
+  const PopupListMenuPage({Key? key}) : super(key: key);
 
   @override
   _PopupListMenuPageState createState() => _PopupListMenuPageState();

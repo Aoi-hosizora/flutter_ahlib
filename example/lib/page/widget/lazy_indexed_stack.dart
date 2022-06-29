@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/flutter_ahlib.dart';
 
 class LazyIndexedStackPage extends StatefulWidget {
-  const LazyIndexedStackPage({Key key}) : super(key: key);
+  const LazyIndexedStackPage({Key? key}) : super(key: key);
 
   @override
   _LazyIndexedStackPageState createState() => _LazyIndexedStackPageState();

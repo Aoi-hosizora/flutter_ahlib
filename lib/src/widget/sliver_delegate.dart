@@ -8,8 +8,8 @@ import 'package:flutter_ahlib/src/util/dart_extension.dart';
 /// An implementation of [SliverPersistentHeaderDelegate] with a [PreferredSize] child.
 class SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   const SliverAppBarDelegate({
-    @required this.child,
-  }) : assert(child != null);
+    required this.child,
+  });
 
   /// The preferred sized child of this widget.
   final PreferredSize child;
@@ -26,7 +26,7 @@ class SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   }
 
   @override
-  bool shouldRebuild(SliverAppBarDelegate oldDelegate) {
+  bool shouldRebuild(covariant SliverAppBarDelegate oldDelegate) {
     return child != oldDelegate.child;
   }
 }
@@ -34,11 +34,10 @@ class SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
 /// An implementation of [SliverPersistentHeaderDelegate] with size setting and a [Widget] child.
 class SliverAppBarSizedDelegate extends SliverPersistentHeaderDelegate {
   const SliverAppBarSizedDelegate({
-    @required this.minHeight,
-    @required this.maxHeight,
-    @required this.child,
-  })  : assert(minHeight != null && maxHeight != null && minHeight <= maxHeight),
-        assert(child != null);
+    required this.minHeight,
+    required this.maxHeight,
+    required this.child,
+  }) : assert(minHeight <= maxHeight);
 
   /// The minimum height of this widget.
   final double minHeight;
@@ -57,11 +56,13 @@ class SliverAppBarSizedDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return SizedBox.expand(child: child);
+    return SizedBox.expand(
+      child: child,
+    );
   }
 
   @override
-  bool shouldRebuild(SliverAppBarSizedDelegate oldDelegate) {
+  bool shouldRebuild(covariant SliverAppBarSizedDelegate oldDelegate) {
     return maxHeight != oldDelegate.maxHeight || minHeight != oldDelegate.minHeight || child != oldDelegate.child;
   }
 }
@@ -74,10 +75,8 @@ class SliverAppBarSizedDelegate extends SliverPersistentHeaderDelegate {
 class SliverSeparatedListDelegate extends SliverChildListDelegate {
   SliverSeparatedListDelegate(
     List<Widget> children, {
-    @required Widget separator,
-  })  : assert(children != null),
-        assert(separator != null),
-        super(
+    required Widget separator,
+  }) : super(
           children.separate(separator),
         );
 }
@@ -86,11 +85,9 @@ class SliverSeparatedListDelegate extends SliverChildListDelegate {
 class SliverSeparatedListBuilderDelegate extends SliverChildBuilderDelegate {
   SliverSeparatedListBuilderDelegate(
     NullableIndexedWidgetBuilder builder, {
-    int childCount,
-    @required Widget Function(BuildContext, int) separatorBuilder,
-  })  : assert(builder != null),
-        assert(separatorBuilder != null),
-        super(
+    required int childCount,
+    required Widget? Function(BuildContext, int) separatorBuilder,
+  }) : super(
           (c, idx) => idx % 2 != 0 ? separatorBuilder.call(c, idx ~/ 2) : builder.call(c, idx ~/ 2),
           childCount: childCount * 2 - 1,
         );

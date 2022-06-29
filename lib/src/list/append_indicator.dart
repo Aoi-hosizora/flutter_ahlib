@@ -18,9 +18,9 @@ enum _AppendIndicatorMode {
 /// An indicator widget same with [RefreshIndicator], shown in the bottom of view, mainly used for showing append information.
 class AppendIndicator extends StatefulWidget {
   const AppendIndicator({
-    Key key,
-    @required this.child,
-    @required this.onAppend,
+    Key? key,
+    required this.child,
+    required this.onAppend,
     this.minHeight = 5.0,
     this.backgroundColor,
     this.valueColor,

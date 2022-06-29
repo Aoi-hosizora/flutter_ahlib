@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/flutter_ahlib.dart';
 
 class DrawerListViewPage extends StatefulWidget {
-  const DrawerListViewPage({Key key}) : super(key: key);
+  const DrawerListViewPage({Key? key}) : super(key: key);
 
   @override
   _DrawerListViewPageState createState() => _DrawerListViewPageState();
@@ -88,8 +88,8 @@ class __PageCState extends State<_PageC> {
 
 class MyDrawer extends StatefulWidget {
   const MyDrawer({
-    Key key,
-    @required this.currentDrawerSelection,
+    Key? key,
+    required this.currentDrawerSelection,
   })  : assert(currentDrawerSelection != null),
         super(key: key);
   final DrawerSelection currentDrawerSelection;
