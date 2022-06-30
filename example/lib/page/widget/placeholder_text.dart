@@ -19,22 +19,22 @@ class _PlaceholderTextPageState extends State<PlaceholderTextPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('PlaceholderText Example'),
+        title: const Text('PlaceholderText Example'),
         actions: [
           IconButton(
-            icon: Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh),
             onPressed: () => mountedSetState(() => _state = PlaceholderState.loading),
           ),
           IconButton(
-            icon: Icon(Icons.error),
+            icon: const Icon(Icons.error),
             onPressed: () => mountedSetState(() => _state = PlaceholderState.error),
           ),
           IconButton(
-            icon: Icon(Icons.clear_all),
+            icon: const Icon(Icons.clear_all),
             onPressed: () => mountedSetState(() => _state = PlaceholderState.nothing),
           ),
           IconButton(
-            icon: Icon(Icons.check),
+            icon: const Icon(Icons.check),
             onPressed: () => mountedSetState(() => _state = PlaceholderState.normal),
           ),
         ],
@@ -47,11 +47,11 @@ class _PlaceholderTextPageState extends State<PlaceholderTextPage> {
           children: [
             Expanded(
               child: PlaceholderText.from(
-                setting: PlaceholderSetting().copyWithJapanese(),
+                setting: const PlaceholderSetting().copyWithJapanese(),
                 isEmpty: _empty,
                 isLoading: _loading,
-                errorText: _error ? 'error' : '',
-                childBuilder: (_) => Center(
+                errorText: _error ? 'エラー' : '',
+                childBuilder: (_) => const Center(
                   child: Icon(Icons.check),
                 ),
                 onRefresh: () => print('onRefresh2'),
@@ -62,11 +62,11 @@ class _PlaceholderTextPageState extends State<PlaceholderTextPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('empty'),
+                  const Text('empty'),
                   Switch(value: _empty, onChanged: (b) => mountedSetState(() => _empty = b)),
-                  Text('loading'),
+                  const Text('loading'),
                   Switch(value: _loading, onChanged: (b) => mountedSetState(() => _loading = b)),
-                  Text('error'),
+                  const Text('error'),
                   Switch(value: _error, onChanged: (b) => mountedSetState(() => _error = b)),
                 ],
               ),

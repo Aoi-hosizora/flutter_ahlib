@@ -72,7 +72,7 @@ class UpdatableDataViewSetting<T> {
   /// The check to always show [Scrollbar], defaults to false.
   final bool? alwaysShowScrollbar;
 
-  /// The interactive for [Scrollbar], defaults to false.
+  /// The interactive for [Scrollbar], defaults to false, you must pass non-null [ScrollController] if you set this to true.
   final bool? scrollbarInteractive;
 
   /// The radius for [Scrollbar].

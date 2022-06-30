@@ -3,17 +3,19 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/flutter_ahlib.dart';
 
-class FileOrNetworkImageProviderPage extends StatefulWidget {
+class LocalOrCachedNetworkImageProviderPage extends StatefulWidget {
+  const LocalOrCachedNetworkImageProviderPage({Key? key}) : super(key: key);
+
   @override
-  _FileOrNetworkImageProviderPageState createState() => _FileOrNetworkImageProviderPageState();
+  _LocalOrCachedNetworkImageProviderPageState createState() => _LocalOrCachedNetworkImageProviderPageState();
 }
 
-class _FileOrNetworkImageProviderPageState extends State<FileOrNetworkImageProviderPage> {
+class _LocalOrCachedNetworkImageProviderPageState extends State<LocalOrCachedNetworkImageProviderPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('FileOrNetworkImageProvider Example'),
+        title: const Text('LocalOrCachedNetworkImageProvider Example'),
       ),
       body: Center(
         child: Column(
@@ -21,13 +23,13 @@ class _FileOrNetworkImageProviderPageState extends State<FileOrNetworkImageProvi
             Expanded(
               child: Center(
                 child: Image(
-                  image: FileOrNetworkImageProvider(
+                  image: LocalOrCachedNetworkImageProvider(
                     file: () async => null,
-                    url: () async => "https://neilpatel.com/wp-content/uploads/2017/08/colors.jpg",
+                    url: () async => 'https://neilpatel.com/wp-content/uploads/2017/08/colors.jpg',
                     onFileLoading: () => print('onFileLoading'),
                     onFileLoaded: () => print('onFileLoaded'),
-                    onNetworkLoading: () => print('onNetworkLoading'),
-                    onNetworkLoaded: () => print('onNetworkLoaded'),
+                    onUrlLoading: () => print('onNetworkLoading'),
+                    onUrlLoaded: () => print('onNetworkLoaded'),
                   ),
                 ),
               ),
@@ -35,13 +37,13 @@ class _FileOrNetworkImageProviderPageState extends State<FileOrNetworkImageProvi
             Expanded(
               child: Center(
                 child: Image(
-                  image: FileOrNetworkImageProvider(
-                    file: () async => File('/sdcard/android_tools/test.jpg'),
+                  image: LocalOrCachedNetworkImageProvider(
+                    file: () async => File('/sdcard/DCIM/test.jpg'),
                     url: () async => null,
                     onFileLoading: () => print('onFileLoading'),
                     onFileLoaded: () => print('onFileLoaded'),
-                    onNetworkLoading: () => print('onNetworkLoading'),
-                    onNetworkLoaded: () => print('onNetworkLoaded'),
+                    onUrlLoading: () => print('onNetworkLoading'),
+                    onUrlLoaded: () => print('onNetworkLoaded'),
                   ),
                 ),
               ),

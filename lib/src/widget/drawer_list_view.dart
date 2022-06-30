@@ -213,7 +213,7 @@ class _DrawerListViewState<T> extends State<DrawerListView<T>> {
             // ====
             case _DrawerItemType.page:
               var page = item as DrawerPageItem<T>;
-              var selected = widget.enableHighlight ?? true && widget.currentSelection == page.selection;
+              var selected = (widget.enableHighlight ?? true) && widget.currentSelection == page.selection;
               return Container(
                 color: selected ? (page.highlightColor ?? _kDefaultHighlightColor) : (page.backgroundColor ?? _kDefaultBackgroundColor),
                 child: Material(

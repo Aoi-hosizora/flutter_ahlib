@@ -13,9 +13,9 @@ class _DrawerListViewPageState extends State<DrawerListViewPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('DrawerListView Example'),
+        title: const Text('DrawerListView Example'),
       ),
-      drawer: MyDrawer(
+      drawer: const MyDrawer(
         currentDrawerSelection: DrawerSelection.indexPage,
       ),
     );
@@ -39,9 +39,9 @@ class __PageAState extends State<_PageA> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('_PageA'),
+        title: const Text('_PageA'),
       ),
-      drawer: MyDrawer(
+      drawer: const MyDrawer(
         currentDrawerSelection: DrawerSelection.pageA,
       ),
     );
@@ -58,9 +58,9 @@ class __PageBState extends State<_PageB> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('_PageB'),
+        title: const Text('_PageB'),
       ),
-      drawer: MyDrawer(
+      drawer: const MyDrawer(
         currentDrawerSelection: DrawerSelection.pageB,
       ),
     );
@@ -77,9 +77,9 @@ class __PageCState extends State<_PageC> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('_PageC'),
+        title: const Text('_PageC'),
       ),
-      drawer: MyDrawer(
+      drawer: const MyDrawer(
         currentDrawerSelection: DrawerSelection.pageC,
       ),
     );
@@ -90,8 +90,7 @@ class MyDrawer extends StatefulWidget {
   const MyDrawer({
     Key? key,
     required this.currentDrawerSelection,
-  })  : assert(currentDrawerSelection != null),
-        super(key: key);
+  }) : super(key: key);
   final DrawerSelection currentDrawerSelection;
 
   @override
@@ -105,62 +104,57 @@ class _MyDrawerState extends State<MyDrawer> {
   void initState() {
     super.initState();
     _items = [
-      // DrawerPageItem.simple('DrawerListViewPage', Icons.home, DrawerListViewPage(), DrawerSelection.indexPage),
-      // DrawerWidgetItem.simple(Divider(thickness: 1)),
-      // DrawerPageItem.simple('_PageA', Icons.favorite, _PageA(), DrawerSelection.pageA),
-      // DrawerPageItem.simple('_PageB', Icons.history, _PageB(), DrawerSelection.pageB),
-      // DrawerPageItem.simple('_PageC', Icons.file_download, _PageC(), DrawerSelection.pageC),
-      // DrawerWidgetItem.simple(Divider(thickness: 1)),
-      // DrawerActionItem.simple('ActionA', Icons.cached, () => print('ActionA')),
-      // DrawerActionItem.simple('ActionB', Icons.feedback, () => print('ActionB')),
-      // DrawerActionItem.simple('ActionC', Icons.info, () => print('ActionC')),
-      DrawerPageItem(
+      const DrawerPageItem(
         title: Text('DrawerListViewPage'),
         leading: Icon(Icons.home),
         trailing: Icon(Icons.check),
         page: DrawerListViewPage(),
         selection: DrawerSelection.indexPage,
       ),
-      DrawerWidgetItem.simple(Divider(thickness: 1)),
+      DrawerWidgetItem.simple(
+        const Divider(thickness: 1),
+      ),
       DrawerPageItem(
-        title: Text('_PageA'),
-        leading: Icon(Icons.favorite),
+        title: const Text('_PageA'),
+        leading: const Icon(Icons.favorite),
         page: _PageA(),
         selection: DrawerSelection.pageA,
         autoCloseWhenTapped: true,
         autoCloseWhenAlreadySelected: false,
       ),
       DrawerPageItem(
-        title: Text('_PageB'),
-        leading: Icon(Icons.history),
+        title: const Text('_PageB'),
+        leading: const Icon(Icons.history),
         page: _PageB(),
         selection: DrawerSelection.pageB,
         autoCloseWhenTapped: false,
         autoCloseWhenAlreadySelected: true,
       ),
       DrawerPageItem(
-        title: Text('_PageC'),
-        leading: Icon(Icons.file_download),
+        title: const Text('_PageC'),
+        leading: const Icon(Icons.file_download),
         page: _PageC(),
         selection: DrawerSelection.pageC,
       ),
-      DrawerWidgetItem.simple(Divider(thickness: 1)),
+      DrawerWidgetItem.simple(
+        const Divider(thickness: 1),
+      ),
       DrawerActionItem(
-        title: Text('ActionA'),
-        leading: Icon(Icons.cached),
+        title: const Text('ActionA'),
+        leading: const Icon(Icons.cached),
         action: () => print('ActionA'),
         longPressAction: () => print('ActionA2'),
         autoCloseWhenTapped: true,
         autoCloseWhenLongPressed: false,
       ),
       DrawerActionItem(
-        title: Text('ActionB'),
-        leading: Icon(Icons.feedback),
+        title: const Text('ActionB'),
+        leading: const Icon(Icons.feedback),
         action: () => print('ActionB'),
       ),
       DrawerActionItem(
-        title: Text('ActionC'),
-        leading: Icon(Icons.info),
+        title: const Text('ActionC'),
+        leading: const Icon(Icons.info),
         action: () => print('ActionC'),
         longPressAction: () => print('ActionC2'),
         autoCloseWhenTapped: false,
@@ -173,7 +167,7 @@ class _MyDrawerState extends State<MyDrawer> {
   Widget build(BuildContext context) {
     return Drawer(
       child: ListView(
-        padding: EdgeInsets.all(0.0),
+        padding: const EdgeInsets.all(0.0),
         children: [
           DrawerHeader(
             decoration: BoxDecoration(color: Theme.of(context).primaryColor),
@@ -183,7 +177,7 @@ class _MyDrawerState extends State<MyDrawer> {
                 'XXX - YYY',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: Theme.of(context).textTheme.subtitle2.fontSize,
+                  fontSize: Theme.of(context).textTheme.subtitle2!.fontSize,
                 ),
               ),
             ),

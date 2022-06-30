@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/flutter_ahlib.dart';
 
 class RefreshableListViewPage extends StatefulWidget {
+  const RefreshableListViewPage({Key? key}) : super(key: key);
+
   @override
   _RefreshableListViewPageState createState() => _RefreshableListViewPageState();
 }
@@ -11,10 +13,10 @@ class _RefreshableListViewPageState extends State<RefreshableListViewPage> {
   final _scrollController = ScrollController();
   final _fabController = AnimatedFabController();
   var _isError = false;
-  var _data = <String>[];
+  final _data = <String>[];
 
   Future<List<String>> _getData() async {
-    await Future.delayed(Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 2));
     if (_isError) {
       return Future.error('something wrong');
     }
@@ -36,10 +38,10 @@ class _RefreshableListViewPageState extends State<RefreshableListViewPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('RefreshableListView Example'),
+        title: const Text('RefreshableListView Example'),
         actions: [
           IconButton(
-            icon: Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh),
             onPressed: () => _controller.refresh(),
           ),
           IconButton(
@@ -106,6 +108,9 @@ class _RefreshableListViewPageState extends State<RefreshableListViewPage> {
         controller: _controller,
         scrollController: _scrollController,
         setting: UpdatableDataViewSetting(
+          showScrollbar: true,
+          scrollbarInteractive: true,
+          alwaysShowScrollbar: true,
           refreshFirst: true,
           clearWhenError: true,
           clearWhenRefresh: true,
@@ -121,18 +126,18 @@ class _RefreshableListViewPageState extends State<RefreshableListViewPage> {
           title: Text(item),
           onTap: () {},
         ),
-        separator: Divider(height: 1, thickness: 1),
+        separator: const Divider(height: 1, thickness: 1),
         extra: UpdatableDataViewExtraWidgets(
-          innerTopWidget: _innerTopW ? Align(alignment: Alignment.centerLeft, child: Padding(padding: EdgeInsets.fromLTRB(10, 8, 0, 8), child: Text('inner top widget'))) : null,
-          innerBottomWidget: _innerBottomW ? Align(alignment: Alignment.centerLeft, child: Padding(padding: EdgeInsets.fromLTRB(10, 8, 0, 8), child: Text('inner bottom widget'))) : null,
-          outerTopWidget: _outerTopW ? Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('outer top widget'))) : null,
-          outerBottomWidget: _outerBottomW ? Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('outer bottom widget'))) : null,
-          inListTopWidgets: _inListTopW ? [Center(child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 0, 8), child: Text('in list top widget')))].repeat(3) : null,
-          inListBottomWidgets: _inListBottomW ? [Center(child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 0, 8), child: Text('in list bottom widget')))].repeat(3) : null,
-          innerTopDivider: _innerTopD ? Divider(thickness: 1, height: 1) : null,
-          innerBottomDivider: _innerBottomD ? Divider(thickness: 1, height: 1) : null,
-          outerTopDivider: _outerTopD ? Divider(thickness: 1, height: 1) : null,
-          outerBottomDivider: _outerBottomD ? Divider(thickness: 1, height: 1) : null,
+          innerTopWidget: _innerTopW ? const Align(alignment: Alignment.centerLeft, child: Padding(padding: EdgeInsets.fromLTRB(10, 8, 0, 8), child: Text('inner top widget'))) : null,
+          innerBottomWidget: _innerBottomW ? const Align(alignment: Alignment.centerLeft, child: Padding(padding: EdgeInsets.fromLTRB(10, 8, 0, 8), child: Text('inner bottom widget'))) : null,
+          outerTopWidget: _outerTopW ? const Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('outer top widget'))) : null,
+          outerBottomWidget: _outerBottomW ? const Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('outer bottom widget'))) : null,
+          inListTopWidgets: _inListTopW ? [const Center(child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 0, 8), child: Text('in list top widget')))].repeat(3) : null,
+          inListBottomWidgets: _inListBottomW ? [const Center(child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 0, 8), child: Text('in list bottom widget')))].repeat(3) : null,
+          innerTopDivider: _innerTopD ? const Divider(thickness: 1, height: 1) : null,
+          innerBottomDivider: _innerBottomD ? const Divider(thickness: 1, height: 1) : null,
+          outerTopDivider: _outerTopD ? const Divider(thickness: 1, height: 1) : null,
+          outerBottomDivider: _outerBottomD ? const Divider(thickness: 1, height: 1) : null,
         ),
       ),
       floatingActionButton: ScrollAnimatedFab(
@@ -140,7 +145,7 @@ class _RefreshableListViewPageState extends State<RefreshableListViewPage> {
         scrollController: _scrollController,
         condition: ScrollAnimatedCondition.direction,
         fab: FloatingActionButton(
-          child: Icon(Icons.vertical_align_top),
+          child: const Icon(Icons.vertical_align_top),
           onPressed: () => _scrollController.scrollToTop(),
           heroTag: 'RefreshableListViewPage',
         ),

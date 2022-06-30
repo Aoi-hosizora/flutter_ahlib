@@ -13,16 +13,16 @@ class _IconTextPageState extends State<IconTextPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('IconText Example'),
+        title: const Text('IconText Example'),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Divider(),
+            const Divider(),
             InkWell(
               onTap: () {},
-              child: Padding(
+              child: const Padding(
                 padding: EdgeInsets.all(4),
                 child: IconText(
                   mainAxisSize: MainAxisSize.min,
@@ -33,10 +33,10 @@ class _IconTextPageState extends State<IconTextPage> {
                 ),
               ),
             ),
-            Divider(),
+            const Divider(),
             InkWell(
               onTap: () {},
-              child: Padding(
+              child: const Padding(
                 padding: EdgeInsets.all(4),
                 child: IconText(
                   mainAxisSize: MainAxisSize.min,
@@ -47,10 +47,10 @@ class _IconTextPageState extends State<IconTextPage> {
                 ),
               ),
             ),
-            Divider(),
+            const Divider(),
             InkWell(
               onTap: () {},
-              child: Padding(
+              child: const Padding(
                 padding: EdgeInsets.all(4),
                 child: IconText(
                   icon: Icon(Icons.check),
@@ -59,10 +59,10 @@ class _IconTextPageState extends State<IconTextPage> {
                 ),
               ),
             ),
-            Divider(),
+            const Divider(),
             InkWell(
               onTap: () {},
-              child: Padding(
+              child: const Padding(
                 padding: EdgeInsets.all(4),
                 child: IconText(
                   icon: Icon(Icons.check),
@@ -71,7 +71,7 @@ class _IconTextPageState extends State<IconTextPage> {
                 ),
               ),
             ),
-            Divider(),
+            const Divider(),
           ],
         ),
       ),

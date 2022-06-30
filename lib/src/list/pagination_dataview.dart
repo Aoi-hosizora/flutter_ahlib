@@ -234,6 +234,7 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
                                 isAlwaysShown: widget.setting.alwaysShowScrollbar ?? false,
                                 radius: widget.setting.scrollbarRadius,
                                 thickness: widget.setting.scrollbarThickness,
+                                controller: widget.scrollController,
                                 child: view,
                               )
                             : view,
@@ -455,6 +456,7 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
                                 isAlwaysShown: widget.setting.alwaysShowScrollbar ?? false,
                                 radius: widget.setting.scrollbarRadius,
                                 thickness: widget.setting.scrollbarThickness,
+                                controller: widget.scrollController,
                                 child: view,
                               )
                             : view,
@@ -647,6 +649,7 @@ class _PaginationMasonryGridView<T> extends State<PaginationMasonryGridView<T>> 
                                 isAlwaysShown: widget.setting.alwaysShowScrollbar ?? false,
                                 radius: widget.setting.scrollbarRadius,
                                 thickness: widget.setting.scrollbarThickness,
+                                controller: widget.scrollController,
                                 child: view,
                               )
                             : view,

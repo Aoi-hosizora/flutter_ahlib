@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/flutter_ahlib.dart';
 
 class SliverDelegatePage extends StatefulWidget {
+  const SliverDelegatePage({Key? key}) : super(key: key);
+
   @override
   _SliverDelegatePageState createState() => _SliverDelegatePageState();
 }
@@ -11,7 +13,7 @@ class _SliverDelegatePageState extends State<SliverDelegatePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('SliverDelegate Example'),
+        title: const Text('SliverDelegate Example'),
       ),
       body: NestedScrollView(
         headerSliverBuilder: (c, _) => [
@@ -52,15 +54,15 @@ class _SliverDelegatePageState extends State<SliverDelegatePage> {
                     5,
                     (i) => ListTile(title: Text('item $i')),
                   ),
-                  separator: Divider(height: 1, thickness: 1),
+                  separator: const Divider(height: 1, thickness: 1),
                 ),
               ),
-              SliverToBoxAdapter(child: SizedBox(height: 30)),
+              const SliverToBoxAdapter(child: SizedBox(height: 30)),
               SliverList(
                 delegate: SliverSeparatedListBuilderDelegate(
                   (c, i) => ListTile(title: Text('item $i')),
                   childCount: 5,
-                  separatorBuilder: (c, i) => Divider(height: 1, thickness: 1),
+                  separatorBuilder: (c, i) => const Divider(height: 1, thickness: 1),
                 ),
               ),
             ],

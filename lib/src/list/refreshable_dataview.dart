@@ -170,6 +170,7 @@ class _RefreshableListViewState<T> extends State<RefreshableListView<T>> with Au
                             isAlwaysShown: widget.setting.alwaysShowScrollbar ?? false,
                             radius: widget.setting.scrollbarRadius,
                             thickness: widget.setting.scrollbarThickness,
+                            controller: widget.scrollController,
                             child: view,
                           )
                         : view,
@@ -362,6 +363,7 @@ class _RefreshableSliverListViewState<T> extends State<RefreshableSliverListView
                             isAlwaysShown: widget.setting.alwaysShowScrollbar ?? false,
                             radius: widget.setting.scrollbarRadius,
                             thickness: widget.setting.scrollbarThickness,
+                            controller: widget.scrollController,
                             child: view,
                           )
                         : view,
@@ -525,6 +527,7 @@ class _RefreshableMasonryGridView<T> extends State<RefreshableMasonryGridView<T>
                             isAlwaysShown: widget.setting.alwaysShowScrollbar ?? false,
                             radius: widget.setting.scrollbarRadius,
                             thickness: widget.setting.scrollbarThickness,
+                            controller: widget.scrollController,
                             child: view,
                           )
                         : view,

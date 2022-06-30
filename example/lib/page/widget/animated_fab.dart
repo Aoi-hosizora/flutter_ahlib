@@ -9,55 +9,57 @@ class AnimatedFabPage extends StatefulWidget {
 }
 
 class _AnimatedFabPageState extends State<AnimatedFabPage> {
-  var _controller = ScrollController();
-  var _fabController = AnimatedFabController();
+  final _controller = ScrollController();
+  final _fabController = AnimatedFabController();
   var _show = true;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('AnimatedFab Example'),
+        title: const Text('AnimatedFab Example'),
         actions: [
-          IconButton(icon: Icon(Icons.vertical_align_top), onPressed: () => _controller.scrollToTop()),
-          IconButton(icon: Icon(Icons.vertical_align_bottom), onPressed: () => _controller.scrollToBottom()),
-          IconButton(icon: Text('Up'), onPressed: () => _controller.scrollUp()),
-          IconButton(icon: Text('Down'), onPressed: () => _controller.scrollDown()),
+          IconButton(icon: const Icon(Icons.vertical_align_top), onPressed: () => _controller.scrollToTop()),
+          IconButton(icon: const Icon(Icons.vertical_align_bottom), onPressed: () => _controller.scrollToBottom()),
+          IconButton(icon: const Text('Up'), onPressed: () => _controller.scrollUp()),
+          IconButton(icon: const Text('Down'), onPressed: () => _controller.scrollDown()),
         ],
       ),
       body: Stack(
         children: [
           Scrollbar(
+            // isAlwaysShown: true,
+            // interactive: true,
             child: ListView(
               controller: _controller,
               children: List.generate(
                 30,
-                (num) => ListTile(
+                (idx) => ListTile(
                   title: Text(
-                    num == 5
+                    idx == 5
                         ? 'show l'
-                        : num == 6
+                        : idx == 6
                             ? 'hide l'
-                            : num == 7
+                            : idx == 7
                                 ? 'show r'
-                                : num == 8
+                                : idx == 8
                                     ? 'hide r'
-                                    : 'Item $num',
+                                    : 'Item $idx',
                   ),
                   onTap: () {
-                    if (num == 5) {
+                    if (idx == 5) {
                       _show = true;
                       if (mounted) setState(() {});
-                    } else if (num == 6) {
+                    } else if (idx == 6) {
                       _show = false;
                       if (mounted) setState(() {});
                     }
-                    if (num == 7) {
+                    if (idx == 7) {
                       _fabController.show();
-                    } else if (num == 8) {
+                    } else if (idx == 8) {
                       _fabController.hide();
                     } else {
-                      print('Item $num');
+                      print('Item $idx');
                     }
                   },
                 ),
@@ -70,7 +72,7 @@ class _AnimatedFabPageState extends State<AnimatedFabPage> {
             child: AnimatedFab(
               show: _show,
               fab: FloatingActionButton(
-                child: Icon(Icons.vertical_align_top),
+                child: const Icon(Icons.vertical_align_top),
                 onPressed: () => _controller.scrollToTop(),
                 heroTag: '3',
               ),
@@ -84,7 +86,7 @@ class _AnimatedFabPageState extends State<AnimatedFabPage> {
               scrollController: _controller,
               condition: ScrollAnimatedCondition.direction,
               fab: FloatingActionButton(
-                child: Icon(Icons.vertical_align_top),
+                child: const Icon(Icons.vertical_align_top),
                 onPressed: () => _controller.scrollToTop(),
                 heroTag: '2',
               ),
@@ -96,7 +98,7 @@ class _AnimatedFabPageState extends State<AnimatedFabPage> {
         scrollController: _controller,
         controller: _fabController,
         fab: FloatingActionButton(
-          child: Icon(Icons.vertical_align_top),
+          child: const Icon(Icons.vertical_align_top),
           onPressed: () => _controller.scrollToTop(),
           heroTag: '1',
         ),

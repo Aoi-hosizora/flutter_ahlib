@@ -12,8 +12,8 @@ const _kDefaultIconTextMenuItemPadding = EdgeInsets.symmetric(horizontal: 18, ve
 
 /// An enum type for [MenuItem] and [TextMenuItem], used to specify dialog's dismiss behavior.
 enum DismissBehavior {
-  /// Not to dismiss the dialog.
-  no,
+  /// Never to dismiss the dialog when doing action.
+  never,
 
   /// Dismisses the dialog before doing action.
   before,
@@ -83,13 +83,13 @@ Future<void> showPopupListMenu({
   Widget? title,
   required List<MenuItem> items,
   bool? barrierDismissible = true,
-  Color? barrierColor,
+  Color? barrierColor = Colors.black54,
   bool? useSafeArea = true,
 }) {
   return showDialog(
     context: context,
     barrierDismissible: barrierDismissible ?? true,
-    barrierColor: barrierColor,
+    barrierColor: barrierColor ?? Colors.black54,
     useSafeArea: useSafeArea ?? true,
     builder: (c) => SimpleDialog(
       title: title,
@@ -102,11 +102,12 @@ Future<void> showPopupListMenu({
             ),
             padding: item.padding ?? _kDefaultMenuItemPadding,
             onPressed: () {
-              if ((item.dismissBehavior ?? DismissBehavior.before) == DismissBehavior.before) {
+              var dismissBehavior = item.dismissBehavior ?? DismissBehavior.before;
+              if (dismissBehavior == DismissBehavior.before) {
                 Navigator.of(c).pop();
               }
               item.action();
-              if (item.dismissBehavior == DismissBehavior.after) {
+              if (dismissBehavior == DismissBehavior.after) {
                 Navigator.of(c).pop();
               }
             },

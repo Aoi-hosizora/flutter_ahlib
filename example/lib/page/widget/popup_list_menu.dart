@@ -13,17 +13,17 @@ class _PopupListMenuPageState extends State<PopupListMenuPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('PopupListMenu Example'),
+        title: const Text('PopupListMenu Example'),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            OutlineButton(
-              child: Text('showPopupListMenu - IconTextMenuItem'),
+            OutlinedButton(
+              child: const Text('showPopupListMenu - IconTextMenuItem'),
               onPressed: () => showPopupListMenu(
                 context: context,
-                title: Text('showPopupListMenu'),
+                title: const Text('showPopupListMenu'),
                 barrierDismissible: true,
                 items: [
                   IconTextMenuItem(
@@ -37,48 +37,51 @@ class _PopupListMenuPageState extends State<PopupListMenuPage> {
                 ],
               ),
             ),
-            OutlineButton(
-              child: Text('showPopupListMenu - TextMenuItem'),
+            OutlinedButton(
+              child: const Text('showPopupListMenu - TextMenuItem'),
               onPressed: () => showPopupListMenu(
                 context: context,
-                title: Text('showPopupListMenu'),
+                title: const Text('showPopupListMenu'),
                 barrierDismissible: true,
                 items: [
                   TextMenuItem(
-                    text: Text('test3'),
+                    text: const Text('test3'),
                     action: () => print('test3'),
                   ),
                   TextMenuItem(
-                    text: Text('test4'),
+                    text: const Text('test4'),
                     action: () => print('test4'),
                   ),
                 ],
               ),
             ),
-            OutlineButton(
-              child: Text('showPopupListMenu - XXX'),
+            OutlinedButton(
+              child: const Text('showPopupListMenu - XXX'),
               onPressed: () => showPopupListMenu(
                 context: context,
-                title: Text('showPopupListMenu'),
+                title: const Text('showPopupListMenu'),
                 barrierDismissible: true,
                 items: [
                   TextMenuItem(
-                    text: Text('test5'),
-                    action: () => print('test5'),
-                    dismissBefore: true,
-                    dismissAfter: false,
+                    text: const Text('test5'),
+                    action: () async {
+                      await Future.delayed(const Duration(milliseconds: 500));
+                      print('test5');
+                    },
+                    dismissBehavior: DismissBehavior.before,
                   ),
                   IconTextMenuItem(
                     iconText: IconText.simple(Icons.chevron_right, 'test6'),
-                    action: () => print('test6'),
-                    dismissBefore: false,
-                    dismissAfter: true,
+                    action: () async {
+                      await Future.delayed(const Duration(milliseconds: 500));
+                      print('test6');
+                    },
+                    dismissBehavior: DismissBehavior.after,
                   ),
                   MenuItem(
-                    child: Text('test7'),
+                    child: const Text('test7'),
                     action: () => print('test7'),
-                    dismissBefore: false,
-                    dismissAfter: false,
+                    dismissBehavior: DismissBehavior.never,
                   ),
                 ],
               ),

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/flutter_ahlib.dart';
 
 class RefreshableSliverListViewPage extends StatefulWidget {
+  const RefreshableSliverListViewPage({Key? key}) : super(key: key);
+
   @override
   _RefreshableSliverListViewPageState createState() => _RefreshableSliverListViewPageState();
 }
@@ -11,10 +13,10 @@ class _RefreshableSliverListViewPageState extends State<RefreshableSliverListVie
   final _scrollController = ScrollController();
   final _fabController = AnimatedFabController();
   var _isError = false;
-  var _data = <String>[];
+  final _data = <String>[];
 
   Future<List<String>> _getData() async {
-    await Future.delayed(Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 2));
     if (_isError) {
       return Future.error('something wrong');
     }
@@ -25,10 +27,10 @@ class _RefreshableSliverListViewPageState extends State<RefreshableSliverListVie
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('RefreshableSliverListView Example'),
+        title: const Text('RefreshableSliverListView Example'),
         actions: [
           IconButton(
-            icon: Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh),
             onPressed: () => _controller.refresh(),
           ),
           IconButton(
@@ -71,6 +73,9 @@ class _RefreshableSliverListViewPageState extends State<RefreshableSliverListVie
               controller: _controller,
               scrollController: PrimaryScrollController.of(c),
               setting: UpdatableDataViewSetting(
+                showScrollbar: true,
+                scrollbarInteractive: true,
+                alwaysShowScrollbar: true,
                 refreshFirst: true,
                 clearWhenError: true,
                 clearWhenRefresh: true,
@@ -86,28 +91,28 @@ class _RefreshableSliverListViewPageState extends State<RefreshableSliverListVie
                 title: Text(item),
                 onTap: () {},
               ),
-              separator: Divider(height: 1, thickness: 1),
+              separator: const Divider(height: 1, thickness: 1),
               // hasOverlapAbsorber: true,
               useOverlapInjector: false,
               extra: UpdatableDataViewExtraWidgets(
-                innerTopWidget: Align(alignment: Alignment.centerLeft, child: Padding(padding: EdgeInsets.fromLTRB(10, 8, 0, 8), child: Text('inner top widget'))),
-                innerBottomWidget: Align(alignment: Alignment.centerLeft, child: Padding(padding: EdgeInsets.fromLTRB(10, 8, 0, 8), child: Text('inner bottom widget'))),
-                outerTopWidget: Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 23, 10, 8), child: Text('outer top widget'))),
-                outerBottomWidget: Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('outer bottom widget'))),
-                inListTopWidgets: [Center(child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 0, 8), child: Text('in list top widget')))].repeat(3),
-                inListBottomWidgets: [Center(child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 0, 8), child: Text('in list bottom widget')))].repeat(3),
-                innerTopDivider: Divider(thickness: 1, height: 1),
-                innerBottomDivider: Divider(thickness: 1, height: 1),
-                outerTopDivider: Divider(thickness: 1, height: 1),
-                outerBottomDivider: Divider(thickness: 1, height: 1),
+                innerTopWidget: const Align(alignment: Alignment.centerLeft, child: Padding(padding: EdgeInsets.fromLTRB(10, 8, 0, 8), child: Text('inner top widget'))),
+                innerBottomWidget: const Align(alignment: Alignment.centerLeft, child: Padding(padding: EdgeInsets.fromLTRB(10, 8, 0, 8), child: Text('inner bottom widget'))),
+                outerTopWidget: const Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 23, 10, 8), child: Text('outer top widget'))),
+                outerBottomWidget: const Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('outer bottom widget'))),
+                inListTopWidgets: [const Center(child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 0, 8), child: Text('in list top widget')))].repeat(3),
+                inListBottomWidgets: [const Center(child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 0, 8), child: Text('in list bottom widget')))].repeat(3),
+                innerTopDivider: const Divider(thickness: 1, height: 1),
+                innerBottomDivider: const Divider(thickness: 1, height: 1),
+                outerTopDivider: const Divider(thickness: 1, height: 1),
+                outerBottomDivider: const Divider(thickness: 1, height: 1),
               ),
             ),
             floatingActionButton: ScrollAnimatedFab(
               controller: _fabController,
-              scrollController: PrimaryScrollController.of(c), // <<<
+              scrollController: PrimaryScrollController.of(c)!, // <<<
               condition: ScrollAnimatedCondition.direction,
               fab: FloatingActionButton(
-                child: Icon(Icons.vertical_align_top),
+                child: const Icon(Icons.vertical_align_top),
                 onPressed: () => _scrollController.scrollToTop(),
                 heroTag: 'RefreshableSliverListViewPage',
               ),

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_ahlib_example/page/image/file_or_network_image_provider.dart';
+import 'package:flutter_ahlib_example/page/image/local_or_cached_network_image_provider.dart';
 import 'package:flutter_ahlib_example/page/list/append_indicator.dart';
 import 'package:flutter_ahlib_example/page/list/pagination_listview.dart';
 import 'package:flutter_ahlib_example/page/list/pagination_sliver_listview.dart';
-import 'package:flutter_ahlib_example/page/list/pagination_staggered_gridview.dart';
+import 'package:flutter_ahlib_example/page/list/pagination_masonry_gridview.dart';
 import 'package:flutter_ahlib_example/page/list/refreshable_listview.dart';
 import 'package:flutter_ahlib_example/page/list/refreshable_sliver_listview.dart';
-import 'package:flutter_ahlib_example/page/list/refreshable_staggered_gridview.dart';
+import 'package:flutter_ahlib_example/page/list/refreshable_masonry_gridview.dart';
 import 'package:flutter_ahlib_example/page/widget/drawer_list_view.dart';
 import 'package:flutter_ahlib_example/page/widget/icon_text.dart';
 import 'package:flutter_ahlib_example/page/widget/lazy_indexed_stack.dart';
@@ -18,7 +18,7 @@ import 'package:flutter_ahlib_example/page/widget/tab_in_page_notification.dart'
 import 'package:flutter_ahlib_example/page/widget/text_group.dart';
 
 class IndexPage extends StatefulWidget {
-  IndexPage({Key? key}) : super(key: key);
+  const IndexPage({Key? key}) : super(key: key);
 
   @override
   _IndexPageState createState() => _IndexPageState();
@@ -27,28 +27,26 @@ class IndexPage extends StatefulWidget {
 class _IndexPageState extends State<IndexPage> {
   Widget _text(String text) {
     return Padding(
-      padding: EdgeInsets.all(10),
+      padding: const EdgeInsets.all(10),
       child: Text(
         text,
-        style: TextStyle(
+        style: const TextStyle(
           fontSize: 20,
         ),
       ),
     );
   }
 
-  Widget _button(String title, Widget page, [RouteSettings settings]) {
-    return OutlineButton(
+  Widget _button(String title, Widget page, [RouteSettings? settings]) {
+    return OutlinedButton(
       child: Text(title),
       onPressed: () {
-        if (page != null) {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (c) => page,
-              settings: settings,
-            ),
-          );
-        }
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (c) => page,
+            settings: settings,
+          ),
+        );
       },
     );
   }
@@ -57,7 +55,7 @@ class _IndexPageState extends State<IndexPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Flutter Ahlib Example'),
+        title: const Text('Flutter Ahlib Example'),
       ),
       body: Center(
         child: Column(
@@ -68,15 +66,15 @@ class _IndexPageState extends State<IndexPage> {
               alignment: WrapAlignment.center,
               spacing: 8,
               children: [
-                _button('PlaceholderText', PlaceholderTextPage()),
-                _button('DrawerListView', DrawerListViewPage(), RouteSettings(name: '.')),
-                _button('IconText', IconTextPage()),
-                _button('PopupListMenu', PopupListMenuPage()),
-                _button('AnimatedFab', AnimatedFabPage()),
-                _button('LazyIndexedStack', LazyIndexedStackPage()),
-                _button('SliverDelegate', SliverDelegatePage()),
-                _button('TextGroup', TextGroupPage()),
-                _button('TabInPageNotification', TabInPageNotificationPage()),
+                _button('PlaceholderText', const PlaceholderTextPage()),
+                _button('DrawerListView', const DrawerListViewPage(), const RouteSettings(name: '.')),
+                _button('IconText', const IconTextPage()),
+                _button('PopupListMenu', const PopupListMenuPage()),
+                _button('AnimatedFab', const AnimatedFabPage()),
+                _button('LazyIndexedStack', const LazyIndexedStackPage()),
+                _button('SliverDelegate', const SliverDelegatePage()),
+                _button('TextGroup', const TextGroupPage()),
+                _button('TabInPageNotification', const TabInPageNotificationPage()),
               ],
             ),
             _text('Lists Example'),
@@ -84,13 +82,13 @@ class _IndexPageState extends State<IndexPage> {
               alignment: WrapAlignment.center,
               spacing: 8,
               children: [
-                _button('AppendIndicator', AppendIndicatorPage()),
-                _button('RefreshableListView', RefreshableListViewPage()),
-                _button('RefreshableSliverListView', RefreshableSliverListViewPage()),
-                _button('RefreshableStaggeredGridView', RefreshableStaggeredGridViewPage()),
-                _button('PaginationListView', PaginationListViewPage()),
-                _button('PaginationSliverListView', PaginationSliverListViewPage()),
-                _button('PaginationStaggeredGridView', PaginationStaggeredGridViewPage()),
+                _button('AppendIndicator', const AppendIndicatorPage()),
+                _button('RefreshableListView', const RefreshableListViewPage()),
+                _button('RefreshableSliverListView', const RefreshableSliverListViewPage()),
+                _button('RefreshableMasonryGridView', const RefreshableMasonryGridViewPage()),
+                _button('PaginationListView', const PaginationListViewPage()),
+                _button('PaginationSliverListView', const PaginationSliverListViewPage()),
+                _button('PaginationMasonryGridView', const PaginationMasonryGridViewPage()),
               ],
             ),
             _text('Images Example'),
@@ -98,7 +96,7 @@ class _IndexPageState extends State<IndexPage> {
               alignment: WrapAlignment.center,
               spacing: 8,
               children: [
-                _button('FileOrNetworkImageProvider', FileOrNetworkImageProviderPage()),
+                _button('LocalOrCachedNetworkImageProvider', const LocalOrCachedNetworkImageProviderPage()),
               ],
             ),
           ],

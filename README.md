@@ -6,7 +6,7 @@
 [![License](https://img.shields.io/badge/license-mit-blue.svg)](./LICENSE)
 
 + A personal flutter library, contains some useful widgets and utils.
-+ Visit package details in https://pub.dev/packages/flutter_ahlib.
++ Please visit https://pub.dev/packages/flutter_ahlib for this package.
 
 ### Usage
 
@@ -29,10 +29,10 @@ import 'package:flutter_ahlib/flutter_ahlib.dart'; // the whole library
     + `IconText`
     + `LazyIndexedStack`
     + `PlaceholderText`
-    + `MenuItem` `TextMenuItem` `IconTextMenuItem` `showPopupListMenu`
+    + `showPopupListMenu`
     + `SliverAppBarDelegate` `SliverAppBarSizedDelegate` `SliverSeparatedListDelegate` `SliverSeparatedListBuilderDelegate`
     + `TabInPageNotification`
-    + `NormalGroupText` `LinkGroupText` `TextGroup`
+    + `TextGroup`
 + list.dart:
     + `AppendIndicator`
     + `RefreshableDataView` `RefreshableListView` `RefreshableSliverListView` `RefreshableMasonryGridView`

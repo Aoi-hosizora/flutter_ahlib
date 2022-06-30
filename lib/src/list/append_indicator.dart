@@ -183,8 +183,9 @@ class AppendIndicatorState extends State<AppendIndicator> with TickerProviderSta
 
   /// Shows animation as "-> expand -> loading".
   void _show() async {
-    if (!mounted) return;
-    assert(_mode != _AppendIndicatorMode.append);
+    if (!mounted || _mode == _AppendIndicatorMode.append) {
+      return;
+    }
 
     final Completer<void> completer = Completer<void>();
     _pendingAppendFuture = completer.future;
@@ -206,7 +207,7 @@ class AppendIndicatorState extends State<AppendIndicator> with TickerProviderSta
   /// Shows animation as "-> shrink".
   Future<void> _dismiss(_AppendIndicatorMode newMode) async {
     await Future<void>.value();
-    assert(newMode == _AppendIndicatorMode.append || newMode == _AppendIndicatorMode.canceled);
+    assert(newMode == _AppendIndicatorMode.canceled || newMode == _AppendIndicatorMode.done);
 
     // -> cancel || -> done
     _mode = newMode;

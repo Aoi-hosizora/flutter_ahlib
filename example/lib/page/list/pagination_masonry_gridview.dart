@@ -1,14 +1,16 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/flutter_ahlib.dart';
 
-class PaginationListViewPage extends StatefulWidget {
-  const PaginationListViewPage({Key? key}) : super(key: key);
+class PaginationMasonryGridViewPage extends StatefulWidget {
+  const PaginationMasonryGridViewPage({Key? key}) : super(key: key);
 
   @override
-  _PaginationListViewPageState createState() => _PaginationListViewPageState();
+  _PaginationMasonryGridViewPageState createState() => _PaginationMasonryGridViewPageState();
 }
 
-class _PaginationListViewPageState extends State<PaginationListViewPage> {
+class _PaginationMasonryGridViewPageState extends State<PaginationMasonryGridViewPage> {
   final _controller = UpdatableDataViewController();
   final _scrollController = ScrollController();
   final _fabController = AnimatedFabController();
@@ -34,7 +36,7 @@ class _PaginationListViewPageState extends State<PaginationListViewPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('RefreshableListView Example'),
+        title: const Text('PaginationStaggeredGrid Example'),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -49,7 +51,7 @@ class _PaginationListViewPageState extends State<PaginationListViewPage> {
           ),
         ],
       ),
-      body: PaginationListView<String>(
+      body: PaginationMasonryGridView<String>(
         data: _data,
         getData: ({indicator}) => _getData(page: indicator),
         controller: _controller,
@@ -73,18 +75,25 @@ class _PaginationListViewPageState extends State<PaginationListViewPage> {
           onAppend: (l) => print('onAppend: ${l.length}'),
           onError: (e) => print('onError: $e'),
         ),
-        itemBuilder: (_, item) => ListTile(
-          title: Text(item),
-          onTap: () {},
+        itemBuilder: (_, item) => Card(
+          child: ListTile(
+            title: SizedBox(
+              height: 20.0 + Random().nextInt(10) * 10,
+              child: Text(item),
+            ),
+            onTap: () {},
+          ),
         ),
-        separator: const Divider(height: 1, thickness: 1),
+        crossAxisCount: 4,
         extra: UpdatableDataViewExtraWidgets(
           innerTopWidget: const Align(alignment: Alignment.centerLeft, child: Padding(padding: EdgeInsets.fromLTRB(10, 8, 0, 8), child: Text('inner top widget'))),
           innerBottomWidget: const Align(alignment: Alignment.centerLeft, child: Padding(padding: EdgeInsets.fromLTRB(10, 8, 0, 8), child: Text('inner bottom widget'))),
           outerTopWidget: const Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('outer top widget'))),
           outerBottomWidget: const Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('outer bottom widget'))),
           inListTopWidgets: [const Center(child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 0, 8), child: Text('in list top widget')))].repeat(3),
+          // ignore
           inListBottomWidgets: [const Center(child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 0, 8), child: Text('in list bottom widget')))].repeat(3),
+          // ignore
           innerTopDivider: const Divider(thickness: 1, height: 1),
           innerBottomDivider: const Divider(thickness: 1, height: 1),
           outerTopDivider: const Divider(thickness: 1, height: 1),
