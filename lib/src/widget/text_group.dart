@@ -2,14 +2,15 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/src/util/flutter_extension.dart';
 
-/// TODO [TextSpan], [RichText], [SelectableText.rich]
-
 /// An abstract text group item that represents [TextGroup]'s children, inherited by [NormalGroupText] and [LinkGroupText].
 abstract class TextGroupItem {
   const TextGroupItem();
 
   /// The content of this item.
   String get text;
+
+  /// The custom [TextSpan] builder.
+  TextSpan Function(String text)? get textSpanBuilder;
 }
 
 /// A [TextGroupItem] that represents a normal text. This is not a [Widget], but just a data class to store options and used in
@@ -26,6 +27,10 @@ class NormalGroupText extends TextGroupItem {
 
   /// The text style of this item.
   final TextStyle? style;
+
+  /// The custom [TextSpan] builder, which is null for [NormalGroupText].
+  @override
+  TextSpan Function(String text)? get textSpanBuilder => null;
 }
 
 /// A [TextGroupItem] that represents a linked text. This is not a [Widget], but just a data class to store options and used in
@@ -33,7 +38,8 @@ class NormalGroupText extends TextGroupItem {
 class LinkGroupText extends TextGroupItem {
   const LinkGroupText({
     required this.text,
-    this.styleFn,
+    this.normalStyle,
+    this.pressedStyle,
     this.normalColor,
     this.pressedColor,
     this.showUnderline = true,
@@ -44,20 +50,28 @@ class LinkGroupText extends TextGroupItem {
   @override
   final String text;
 
-  /// The text style function of this item.
-  final TextStyle Function(bool pressed)? styleFn;
+  /// The text style when this item is not pressed.
+  final TextStyle? normalStyle;
 
-  /// The link color when this item not pressed.
+  /// The text style when this item is pressed down.
+  final TextStyle? pressedStyle;
+
+  /// The link color when this item is not pressed.
   final Color? normalColor;
 
-  /// The link color when this item pressed.
+  /// The link color when this item is pressed down.
   final Color? pressedColor;
 
-  /// The switcher to show link underline, defaults to true.
+  /// The switcher to show link underline, defaults to true. Note that this option
+  /// will not be used when [normalStyle] or [pressedStyle] is not null.
   final bool? showUnderline;
 
   /// The behavior when the link is pressed.
   final Function() onTap;
+
+  /// The custom [TextSpan] builder, which is null for [LinkGroupText].
+  @override
+  TextSpan Function(String text)? get textSpanBuilder => null;
 }
 
 /// A [RichText] or [SelectableText] wrapped widget with state, including a list of child in [TextGroupItem] type, which can be
@@ -68,7 +82,7 @@ class TextGroup extends StatefulWidget {
     required this.texts,
     this.selectable = false,
     this.style,
-    // RichText and SelectableText
+    // both RichText and SelectableText
     this.maxLines,
     this.strutStyle,
     this.textAlign = TextAlign.start,
@@ -76,12 +90,16 @@ class TextGroup extends StatefulWidget {
     this.textScaleFactor = 1.0,
     this.textWidthBasis = TextWidthBasis.parent,
     this.textHeightBehavior,
-    // RichText
+    // RichText only
     this.softWrap = true,
     this.overflow = TextOverflow.clip,
-    // SelectableText
+    this.locale,
+    // SelectableText only
     this.focusNode,
-    this.toolbarOptions,
+    this.showCursor = false,
+    this.autofocus = false,
+    this.enableInteractiveSelection = true,
+    this.toolbarOptions = const ToolbarOptions(selectAll: true, copy: true),
     this.cursorWidth = 2.0,
     this.cursorHeight,
     this.cursorRadius,
@@ -102,7 +120,7 @@ class TextGroup extends StatefulWidget {
   /// The text style of the outer [TextSpan].
   final TextStyle? style;
 
-  // RichText and SelectableText
+  // both RichText and SelectableText
 
   /// The max lines of [RichText] and [SelectableText].
   final int? maxLines;
@@ -125,7 +143,7 @@ class TextGroup extends StatefulWidget {
   /// The textHeightBehavior of [RichText] and [SelectableText].
   final TextHeightBehavior? textHeightBehavior;
 
-  // RichText
+  // RichText only
 
   /// The softWrap of [RichText] when [selectable] is false, defaults to true.
   final bool? softWrap;
@@ -133,12 +151,24 @@ class TextGroup extends StatefulWidget {
   /// The overflow of [RichText] when [selectable] is false, defaults to [TextOverflow.clip].
   final TextOverflow? overflow;
 
-  // SelectableText
+  /// The locale of [RichText] when [selectable] is false.
+  final Locale? locale;
+
+  // SelectableText only
 
   /// The focusNode of [SelectableText] when [selectable] is true.
   final FocusNode? focusNode;
 
-  /// The toolbarOptions of [SelectableText] when [selectable] is true.
+  /// The showCursor of [SelectableText] when [selectable] is true, defaults to false.
+  final bool? showCursor;
+
+  /// The autofocus of [SelectableText] when [selectable] is true, defaults to false.
+  final bool? autofocus;
+
+  /// The enableInteractiveSelection of [SelectableText] when [selectable] is true, defaults to true.
+  final bool? enableInteractiveSelection;
+
+  /// The toolbarOptions of [SelectableText] when [selectable] is true, defaults to [ToolbarOptions(selectAll: true, copy: true)].
   final ToolbarOptions? toolbarOptions;
 
   /// The cursorWidth of [SelectableText] when [selectable] is true, defaults to 2.0.
@@ -173,26 +203,43 @@ class _TextGroupState extends State<TextGroup> {
   }
 
   @override
+  void didUpdateWidget(covariant TextGroup oldWidget) {
+    _tapDowns = List.generate(widget.texts.length, (_) => false);
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // inner textSpan-s
+    // inner TextSpan-s
     var spans = <TextSpan>[];
     for (var i = 0; i < widget.texts.length; i++) {
       var t = widget.texts[i];
 
       if (t is NormalGroupText) {
         spans.add(
-          TextSpan(text: t.text, style: t.style),
+          TextSpan(
+            text: t.text,
+            style: t.style,
+          ),
         );
       } else if (t is LinkGroupText) {
         var textColor = !_tapDowns[i] ? t.normalColor : t.pressedColor;
-        var textStyle = t.styleFn?.call(_tapDowns[i]) ??
+        var textStyle = (!_tapDowns[i] ? t.normalStyle : t.pressedStyle) ??
             (!(t.showUnderline ?? true)
-                ? TextStyle(color: textColor, decoration: TextDecoration.none)
+                ? TextStyle(
+                    color: textColor,
+                    decoration: TextDecoration.none,
+                  )
                 : TextStyle(
                     color: Colors.transparent,
-                    shadows: [Shadow(color: textColor ?? Colors.black, offset: const Offset(0, -1))], // offset -1
                     decoration: TextDecoration.underline,
-                    decorationColor: textColor ?? Colors.black,
+                    decorationColor: textColor ?? Colors.black, // colorized underline
+                    shadows: [
+                      Shadow(
+                        offset: const Offset(0, -1), // text offset
+                        color: textColor ?? Colors.black,
+                      ),
+                    ],
                   ));
         spans.add(
           TextSpan(
@@ -205,22 +252,28 @@ class _TextGroupState extends State<TextGroup> {
               ..onTapCancel = (() => mountedSetState(() => _tapDowns[i] = false)),
           ),
         );
-      } else {
+      } else if (t.textSpanBuilder != null) {
+        // custom TextGroupItem with textSpanBuilder
         spans.add(
-          TextSpan(text: t.text), // custom TextSpan
-        ); // custom TextGroupItem
+          t.textSpanBuilder!(t.text),
+        );
+      } else {
+        // custom TextGroupItem without textSpanBuilder
+        spans.add(
+          TextSpan(text: t.text),
+        );
       }
     }
 
-    // outer textSpan
+    // outer TextSpan
     var textSpan = TextSpan(
       text: '',
       style: widget.style ?? DefaultTextStyle.of(context).style,
-      children: spans..add(const TextSpan(text: ' ')), // final textSpan
+      children: spans..add(const TextSpan(text: ' ')), // final empty TextSpan
     );
 
+    // RichText or SelectedText
     if (!(widget.selectable ?? false)) {
-      // RichText
       return RichText(
         text: textSpan,
         // both
@@ -234,10 +287,9 @@ class _TextGroupState extends State<TextGroup> {
         // only
         softWrap: widget.softWrap ?? true,
         overflow: widget.overflow ?? TextOverflow.clip,
-        // locale: widget.locale,
+        locale: widget.locale,
       );
     } else {
-      // SelectableText
       return SelectableText.rich(
         textSpan,
         // both
@@ -250,20 +302,17 @@ class _TextGroupState extends State<TextGroup> {
         textHeightBehavior: widget.textHeightBehavior,
         // only
         focusNode: widget.focusNode,
+        showCursor: widget.showCursor ?? false,
+        autofocus: widget.autofocus ?? false,
+        enableInteractiveSelection: widget.enableInteractiveSelection ?? true,
         toolbarOptions: widget.toolbarOptions ?? const ToolbarOptions(selectAll: true, copy: true),
+        minLines: widget.minLines,
         cursorWidth: widget.cursorWidth ?? 2.0,
         cursorHeight: widget.cursorHeight,
         cursorRadius: widget.cursorRadius,
         cursorColor: widget.cursorColor,
         dragStartBehavior: widget.dragStartBehavior ?? DragStartBehavior.start,
-        minLines: widget.minLines,
-        // showCursor: widget.showCursor,
-        // autofocus: widget.autofocus,
-        // enableInteractiveSelection: widget.enableInteractiveSelection,
-        // selectionControls: widget.selectionControls,
-        // onTap: widget.onTap,
-        // scrollPhysics: widget.scrollPhysics,
-        // onSelectionChanged: widget.onSelectionChanged,
+        // do not used => style, selectionControls, onTap, scrollPhysics, onSelectionChanged, semanticsLabel
       );
     }
   }

@@ -166,8 +166,10 @@ class _RefreshableListViewState<T> extends State<RefreshableListView<T>> with Au
                   Expanded(
                     child: widget.setting.showScrollbar ?? true
                         ? Scrollbar(
-                            thickness: widget.setting.scrollbarThickness,
+                            interactive: widget.setting.scrollbarInteractive ?? false,
+                            isAlwaysShown: widget.setting.alwaysShowScrollbar ?? false,
                             radius: widget.setting.scrollbarRadius,
+                            thickness: widget.setting.scrollbarThickness,
                             child: view,
                           )
                         : view,
@@ -356,8 +358,10 @@ class _RefreshableSliverListViewState<T> extends State<RefreshableSliverListView
                   Expanded(
                     child: widget.setting.showScrollbar ?? true
                         ? Scrollbar(
-                            thickness: widget.setting.scrollbarThickness,
+                            interactive: widget.setting.scrollbarInteractive ?? false,
+                            isAlwaysShown: widget.setting.alwaysShowScrollbar ?? false,
                             radius: widget.setting.scrollbarRadius,
+                            thickness: widget.setting.scrollbarThickness,
                             child: view,
                           )
                         : view,
@@ -517,8 +521,10 @@ class _RefreshableMasonryGridView<T> extends State<RefreshableMasonryGridView<T>
                   Expanded(
                     child: widget.setting.showScrollbar ?? true
                         ? Scrollbar(
-                            thickness: widget.setting.scrollbarThickness,
+                            interactive: widget.setting.scrollbarInteractive ?? false,
+                            isAlwaysShown: widget.setting.alwaysShowScrollbar ?? false,
                             radius: widget.setting.scrollbarRadius,
+                            thickness: widget.setting.scrollbarThickness,
                             child: view,
                           )
                         : view,

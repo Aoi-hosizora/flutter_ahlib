@@ -31,8 +31,10 @@ class UpdatableDataViewSetting<T> {
     this.reverse = false,
     this.shrinkWrap = false,
     this.showScrollbar = true,
-    this.scrollbarThickness,
+    this.alwaysShowScrollbar = false,
+    this.scrollbarInteractive = false,
     this.scrollbarRadius,
+    this.scrollbarThickness,
     this.placeholderSetting = const PlaceholderSetting(),
     this.onStateChanged,
     this.wantKeepAlive = true,
@@ -67,11 +69,17 @@ class UpdatableDataViewSetting<T> {
   /// The visibility for [Scrollbar], defaults to true.
   final bool? showScrollbar;
 
-  /// The thickness for [Scrollbar].
-  final double? scrollbarThickness;
+  /// The check to always show [Scrollbar], defaults to false.
+  final bool? alwaysShowScrollbar;
+
+  /// The interactive for [Scrollbar], defaults to false.
+  final bool? scrollbarInteractive;
 
   /// The radius for [Scrollbar].
   final Radius? scrollbarRadius;
+
+  /// The thickness for [Scrollbar].
+  final double? scrollbarThickness;
 
   /// The setting for [PlaceholderText], defaults to PlaceholderSetting().
   final PlaceholderSetting? placeholderSetting;

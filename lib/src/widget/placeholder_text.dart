@@ -31,8 +31,7 @@ class PlaceholderSetting {
     // style
     this.textStyle = const TextStyle(fontSize: 20),
     this.buttonTextStyle = const TextStyle(fontSize: 14),
-    this.buttonStyle = const ButtonStyle(), // TODO
-    // this.buttonBorderSide = const BorderSide(style: BorderStyle.solid, color: Color(0xFFD7D7D7)),
+    this.buttonStyle = const ButtonStyle(),
     this.iconSize = 50,
     this.iconColor = Colors.grey,
     this.progressSize = 45,
@@ -246,14 +245,14 @@ class _PlaceholderTextState extends State<PlaceholderText> {
     }
 
     switch (widget.state) {
-      ////////////////////////////////////////////////////////////////
+      // ======
       // normal
-      ////////////////////////////////////////////////////////////////
+      // ======
       case PlaceholderState.normal:
         return widget.childBuilder(context);
-      ////////////////////////////////////////////////////////////////
+      // =======
       // loading
-      ////////////////////////////////////////////////////////////////
+      // =======
       case PlaceholderState.loading:
         return Center(
           child: Column(
@@ -283,9 +282,9 @@ class _PlaceholderTextState extends State<PlaceholderText> {
             ],
           ),
         );
-      ////////////////////////////////////////////////////////////////
+      // =======
       // nothing
-      ////////////////////////////////////////////////////////////////
+      // =======
       case PlaceholderState.nothing:
         return Center(
           child: Column(
@@ -322,18 +321,15 @@ class _PlaceholderTextState extends State<PlaceholderText> {
                       widget.onRefresh?.call();
                       if (mounted) setState(() {});
                     },
-                    style: widget.setting.buttonStyle, // TODO
-                    // style: OutlinedButton.styleFrom(
-                    //   side: widget.setting.buttonBorderSide,
-                    // ),
+                    style: widget.setting.buttonStyle,
                   ),
                 ),
             ],
           ),
         );
-      ////////////////////////////////////////////////////////////////
+      // =====
       // error
-      ////////////////////////////////////////////////////////////////
+      // =====
       case PlaceholderState.error:
         return Center(
           child: Column(
@@ -370,18 +366,15 @@ class _PlaceholderTextState extends State<PlaceholderText> {
                       widget.onRefresh?.call();
                       if (mounted) setState(() {});
                     },
-                    style: widget.setting.buttonStyle, // TODO
-                    // style: OutlinedButton.styleFrom(
-                    //   side: widget.setting.buttonBorderSide,
-                    // ),
+                    style: widget.setting.buttonStyle,
                   ),
                 ),
             ],
           ),
         );
-      ////////////////////////////////////////////////////////////////
+      // ===========
       // unreachable
-      ////////////////////////////////////////////////////////////////
+      // ===========
       default:
         return const SizedBox(height: 0); // dummy
     }

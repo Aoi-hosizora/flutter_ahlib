@@ -230,8 +230,10 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
                         onNotification: (s) => _onScroll(s),
                         child: widget.setting.showScrollbar ?? true
                             ? Scrollbar(
-                                thickness: widget.setting.scrollbarThickness,
+                                interactive: widget.setting.scrollbarInteractive ?? false,
+                                isAlwaysShown: widget.setting.alwaysShowScrollbar ?? false,
                                 radius: widget.setting.scrollbarRadius,
+                                thickness: widget.setting.scrollbarThickness,
                                 child: view,
                               )
                             : view,
@@ -449,8 +451,10 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
                         onNotification: (s) => _onScroll(s),
                         child: widget.setting.showScrollbar ?? true
                             ? Scrollbar(
-                                thickness: widget.setting.scrollbarThickness,
+                                interactive: widget.setting.scrollbarInteractive ?? false,
+                                isAlwaysShown: widget.setting.alwaysShowScrollbar ?? false,
                                 radius: widget.setting.scrollbarRadius,
+                                thickness: widget.setting.scrollbarThickness,
                                 child: view,
                               )
                             : view,
@@ -639,8 +643,10 @@ class _PaginationMasonryGridView<T> extends State<PaginationMasonryGridView<T>> 
                         onNotification: (s) => _onScroll(s),
                         child: widget.setting.showScrollbar ?? true
                             ? Scrollbar(
-                                thickness: widget.setting.scrollbarThickness,
+                                interactive: widget.setting.scrollbarInteractive ?? false,
+                                isAlwaysShown: widget.setting.alwaysShowScrollbar ?? false,
                                 radius: widget.setting.scrollbarRadius,
+                                thickness: widget.setting.scrollbarThickness,
                                 child: view,
                               )
                             : view,

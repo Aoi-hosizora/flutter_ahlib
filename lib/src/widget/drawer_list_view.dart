@@ -208,9 +208,9 @@ class _DrawerListViewState<T> extends State<DrawerListView<T>> {
       children: widget.items.map(
         (item) {
           switch (item.type) {
-            ////////////////////////////////////////////////////////////////
+            // ====
             // page
-            ////////////////////////////////////////////////////////////////
+            // ====
             case _DrawerItemType.page:
               var page = item as DrawerPageItem<T>;
               var selected = widget.enableHighlight ?? true && widget.currentSelection == page.selection;
@@ -236,9 +236,9 @@ class _DrawerListViewState<T> extends State<DrawerListView<T>> {
                   ),
                 ),
               );
-            ////////////////////////////////////////////////////////////////
+            // ======
             // action
-            ////////////////////////////////////////////////////////////////
+            // ======
             case _DrawerItemType.action:
               var action = item as DrawerActionItem;
               return Container(
@@ -266,15 +266,15 @@ class _DrawerListViewState<T> extends State<DrawerListView<T>> {
                   ),
                 ),
               );
-            ////////////////////////////////////////////////////////////////
+            // ======
             // widget
-            ////////////////////////////////////////////////////////////////
+            // ======
             case _DrawerItemType.widget:
               var widget = item as DrawerWidgetItem;
               return widget.child;
-            ////////////////////////////////////////////////////////////////
+            // ===========
             // unreachable
-            ////////////////////////////////////////////////////////////////
+            // ===========
             default:
               return const SizedBox(height: 0); // dummy
           }

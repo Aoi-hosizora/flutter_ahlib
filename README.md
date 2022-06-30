@@ -11,12 +11,13 @@
 ### Usage
 
 ```dart
-import 'package:flutter_ahlib/widget.dart'; // for widgets
+// Import package as required
+import 'package:flutter_ahlib/widget.dart'; // for common widgets
 import 'package:flutter_ahlib/list.dart'; // for list widgets
 import 'package:flutter_ahlib/image.dart'; // for image widgets
 import 'package:flutter_ahlib/util.dart'; // for utils
 
-// Or import all packages directly.
+// Import all packages directly
 import 'package:flutter_ahlib/flutter_ahlib.dart'; // the whole library
 ```
 
@@ -34,8 +35,8 @@ import 'package:flutter_ahlib/flutter_ahlib.dart'; // the whole library
     + `NormalGroupText` `LinkGroupText` `TextGroup`
 + list.dart:
     + `AppendIndicator`
-    + `RefreshableDataView` `RefreshableListView` `RefreshableSliverListView` `RefreshableStaggeredGridView`
-    + `PaginationDataView` `PaginationListView` `PaginationSliverListView` `PaginationStaggeredGridView`
+    + `RefreshableDataView` `RefreshableListView` `RefreshableSliverListView` `RefreshableMasonryGridView`
+    + `PaginationDataView` `PaginationListView` `PaginationSliverListView` `PaginationMasonryGridView`
     + `UpdatableDataView` `UpdatableDataViewController`
 + image.dart:
     + `LocalOrCachedNetworkImageProvider`

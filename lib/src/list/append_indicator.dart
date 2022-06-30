@@ -3,27 +3,47 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-/// An append callback function used in [AppendIndicator].
+/// The minimum height of [LinearProgressIndicator] used in [AppendIndicator].
+const _kMinimumIndicatorHeight = 5.0;
+
+/// The duration of scale shrinking used in [AppendIndicator].
+const _kScaleShrinkDuration = Duration(milliseconds: 400);
+
+/// The curve of scale shrinking used in [AppendIndicator].
+const _kScaleShrinkCurve = Curves.easeOutCubic;
+
+/// The duration of scale expanding used in [AppendIndicator].
+const _kScaleExpandDuration = Duration(milliseconds: 100);
+
+/// The scroll threshold used in [AppendIndicator], the state of indicator will turn to armed when
+/// the dragging offset is larger than this threshold.
+const _kArmedScrollThreshold = 92.0;
+
+/// The signature for a function which is used by [AppendIndicator.onAppend]. I0t is called when user
+/// has dragged a [AppendIndicator] far enough to demonstrate that they want the app to append data.
 typedef AppendCallback = Future<void> Function();
 
-/// An indicator mode used in [AppendIndicator].
+/// An indicator mode, or state machine states, which is used in [AppendIndicator].
 enum _AppendIndicatorMode {
-  drag, // start to show
+  drag, // pointer is down
   armed, // drag far enough
   append, // run the append callback
   done, // append callback is done
   canceled, // canceled by no arming
 }
 
-/// An indicator widget same with [RefreshIndicator], shown in the bottom of view, mainly used for showing append information.
+/// An indicator widget which is similar with [RefreshIndicator], uses [LinearProgressIndicator] shown
+/// in the bottom of view as indicator, mainly used for showing append information.
 class AppendIndicator extends StatefulWidget {
   const AppendIndicator({
     Key? key,
     required this.child,
     required this.onAppend,
-    this.minHeight = 5.0,
+    this.minHeight = _kMinimumIndicatorHeight,
     this.backgroundColor,
+    this.color,
     this.valueColor,
+    this.notificationPredicate = defaultScrollNotificationPredicate,
   })  : assert(minHeight == null || minHeight > 0),
         super(key: key);
 
@@ -39,21 +59,23 @@ class AppendIndicator extends StatefulWidget {
   /// The background color of this indicator.
   final Color? backgroundColor;
 
+  /// The color of this indicator, and this is only used if [valueColor] is null.
+  final Color? color;
+
   /// The value color of this indicator.
-  final Animation<Color>? valueColor;
+  final Animation<Color?>? valueColor;
+
+  /// The check that specifies whether a [ScrollNotification] should be handled by this widget,
+  /// defaults to [defaultScrollNotificationPredicate].
+  final ScrollNotificationPredicate? notificationPredicate;
 
   @override
   AppendIndicatorState createState() => AppendIndicatorState();
 }
 
-/// TODO [RefreshIndicator] and [RefreshIndicatorState]
-
-/// The state of [AppendIndicator], can be used to show the append indicator, see the [show] method.
+/// The state of [AppendIndicator], can be used to show the append indicator at the bottom,
+/// which is a [LinearProgressIndicator].
 class AppendIndicatorState extends State<AppendIndicator> with TickerProviderStateMixin<AppendIndicator> {
-  static const _kScaleShrinkDuration = Duration(milliseconds: 400);
-  static const _kScaleExpandDuration = Duration(milliseconds: 100);
-  static const _kScrollThreshold = 92.0;
-
   late AnimationController _sizeController;
   late Animation<double> _sizeFactor;
 
@@ -74,16 +96,26 @@ class AppendIndicatorState extends State<AppendIndicator> with TickerProviderSta
     super.dispose();
   }
 
+  /// Starts and initializes the drag offset and animation size controller value.
   void _start() {
+    assert(_mode == null);
+
+    _dragOffset = 0.0;
     _sizeController.value = 0.0;
-    _dragOffset = 0;
   }
 
+  /// Handles scroll notification.
   bool _onScroll(ScrollNotification notification) {
+    var predicate = widget.notificationPredicate ?? defaultScrollNotificationPredicate;
+    if (!predicate(notification)) {
+      return false;
+    }
+
+    // metrics is used to check if the indicator should start
     var metrics = notification.metrics;
 
     // scroll update (directly)
-    if (notification is ScrollUpdateNotification) {
+    if (notification is ScrollUpdateNotification && notification.dragDetails != null) {
       if (metrics.extentAfter == 0.0 && metrics.maxScrollExtent > 0.0 && _mode == null) {
         _start();
         _show(); // show directly
@@ -92,7 +124,7 @@ class AppendIndicatorState extends State<AppendIndicator> with TickerProviderSta
     }
 
     // scroll start
-    if (notification is ScrollStartNotification) {
+    if (notification is ScrollStartNotification && notification.dragDetails != null) {
       if (metrics.extentAfter == 0.0 && _mode == null) {
         _start();
         _mode = _AppendIndicatorMode.drag;
@@ -112,10 +144,10 @@ class AppendIndicatorState extends State<AppendIndicator> with TickerProviderSta
     }
     if (delta != null) {
       _dragOffset = _dragOffset + delta;
-      _sizeController.value = math.pow((_dragOffset / _kScrollThreshold).clamp(0.0, 1.0), 2) as double;
-      if (_dragOffset > _kScrollThreshold && _mode == _AppendIndicatorMode.drag) {
+      _sizeController.value = math.pow((_dragOffset / _kArmedScrollThreshold).clamp(0.0, 1.0), 2).toDouble();
+      if (_dragOffset > _kArmedScrollThreshold && _mode == _AppendIndicatorMode.drag) {
         _mode = _AppendIndicatorMode.armed;
-      } else if (_dragOffset <= _kScrollThreshold && _mode == _AppendIndicatorMode.armed) {
+      } else if (_dragOffset <= _kArmedScrollThreshold && _mode == _AppendIndicatorMode.armed) {
         _mode = _AppendIndicatorMode.drag;
       }
       return false;
@@ -124,9 +156,11 @@ class AppendIndicatorState extends State<AppendIndicator> with TickerProviderSta
     // scroll end
     if (notification is ScrollEndNotification) {
       if (_mode == _AppendIndicatorMode.armed) {
-        _show();
+        _show(); // -> append -> done
       } else if (_mode == _AppendIndicatorMode.drag) {
         _dismiss(_AppendIndicatorMode.canceled); // -> canceled
+      } else {
+        // do nothing
       }
       return false;
     }
@@ -134,19 +168,23 @@ class AppendIndicatorState extends State<AppendIndicator> with TickerProviderSta
     return false;
   }
 
+  /// Handles glow notification.
   bool _onOverflowScroll(OverscrollIndicatorNotification notification) {
+    if (notification.depth != 0 || !notification.leading) {
+      return false;
+    }
     if (_mode == _AppendIndicatorMode.drag || _mode == _AppendIndicatorMode.armed) {
+      // _mode == _AppendIndicatorMode.drag || _mode == _AppendIndicatorMode.armed
       notification.disallowIndicator(); // disable glow
       return true;
     }
     return false;
   }
 
-  /// Shows animation with "-> expand -> loading".
+  /// Shows animation as "-> expand -> loading".
   void _show() async {
-    if (!mounted) {
-      return;
-    }
+    if (!mounted) return;
+    assert(_mode != _AppendIndicatorMode.append);
 
     final Completer<void> completer = Completer<void>();
     _pendingAppendFuture = completer.future;
@@ -156,8 +194,8 @@ class AppendIndicatorState extends State<AppendIndicator> with TickerProviderSta
     if (mounted) setState(() {});
     await _sizeController.animateTo(1.0, duration: _kScaleExpandDuration); // expand
 
-    var result = widget.onAppend(); // loading
-    result.whenComplete(() async {
+    var appendResult = widget.onAppend(); // loading
+    appendResult.whenComplete(() {
       if (mounted && _mode == _AppendIndicatorMode.append) {
         completer.complete();
         _dismiss(_AppendIndicatorMode.done); // -> done
@@ -165,22 +203,26 @@ class AppendIndicatorState extends State<AppendIndicator> with TickerProviderSta
     });
   }
 
-  /// Show animation with "-> shrink".
-  void _dismiss(_AppendIndicatorMode newMode) async {
+  /// Shows animation as "-> shrink".
+  Future<void> _dismiss(_AppendIndicatorMode newMode) async {
+    await Future<void>.value();
     assert(newMode == _AppendIndicatorMode.append || newMode == _AppendIndicatorMode.canceled);
 
     // -> cancel || -> done
     _mode = newMode;
     if (mounted) setState(() {});
-    await _sizeController.animateTo(0.0, duration: _kScaleShrinkDuration, curve: Curves.easeOutCubic); // shrink
+    await _sizeController.animateTo(0.0, duration: _kScaleShrinkDuration, curve: _kScaleShrinkCurve); // shrink
 
     // -> null
-    _mode = null;
-    if (mounted) setState(() {});
+    if (_mode == newMode) {
+      _dragOffset = 0.0;
+      _mode = null;
+      if (mounted) setState(() {});
+    }
   }
 
-  /// Shows the indicator and runs the callback as if it had been started interactively. If this method
-  /// is called while the callback is running, it quietly does nothing.
+  /// Shows the indicator and runs the callback as if it had been started interactively. If this
+  /// method is called while the callback is running, it quietly does nothing.
   Future<void> show() {
     if (_mode == null) {
       _start();
@@ -212,8 +254,9 @@ class AppendIndicatorState extends State<AppendIndicator> with TickerProviderSta
                 child: LinearProgressIndicator(
                   // value: 0 (drag, armed, canceled) -> null (append, done)
                   value: _mode == _AppendIndicatorMode.append || _mode == _AppendIndicatorMode.done ? null : 0,
-                  minHeight: widget.minHeight,
+                  minHeight: widget.minHeight ?? _kMinimumIndicatorHeight,
                   backgroundColor: widget.backgroundColor,
+                  color: widget.color,
                   valueColor: widget.valueColor,
                 ),
               ),
