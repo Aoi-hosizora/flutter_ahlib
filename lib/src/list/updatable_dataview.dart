@@ -13,10 +13,10 @@ abstract class UpdatableDataView<T> extends StatefulWidget {
   UpdatableDataViewSetting<T> get setting;
 
   /// The controller for the behavior.
-  UpdatableDataViewController get controller;
+  UpdatableDataViewController? get controller;
 
   /// The controller for [ScrollView].
-  ScrollController get scrollController;
+  ScrollController? get scrollController;
 
   /// The itemBuilder for [ScrollView].
   Widget Function(BuildContext, T) get itemBuilder;
@@ -48,82 +48,74 @@ class UpdatableDataViewSetting<T> {
     this.onAppend,
     this.onError,
     this.onNothing,
-  })  : assert(reverse != null),
-        assert(shrinkWrap != null),
-        assert(showScrollbar != null),
-        assert(placeholderSetting != null),
-        assert(wantKeepAlive != null),
-        assert(refreshFirst != null),
-        assert(clearWhenRefresh != null),
-        assert(clearWhenError != null),
-        assert(updateOnlyIfNotEmpty != null);
+  });
 
   // Display settings
 
   /// The padding for [ScrollView].
-  final EdgeInsetsGeometry padding;
+  final EdgeInsetsGeometry? padding;
 
-  /// The physics for [ScrollView].
-  final ScrollPhysics physics;
+  /// The physics for [ScrollView], defaults to AlwaysScrollableScrollPhysics().
+  final ScrollPhysics? physics;
 
-  /// The reverse for [ScrollView].
-  final bool reverse;
+  /// The reverse for [ScrollView], defaults to false.
+  final bool? reverse;
 
-  /// The shrinkWrap for [ScrollView].
-  final bool shrinkWrap;
+  /// The shrinkWrap for [ScrollView], defaults to false.
+  final bool? shrinkWrap;
 
-  /// The visibility for [Scrollbar].
-  final bool showScrollbar;
+  /// The visibility for [Scrollbar], defaults to true.
+  final bool? showScrollbar;
 
   /// The thickness for [Scrollbar].
-  final double scrollbarThickness;
+  final double? scrollbarThickness;
 
   /// The radius for [Scrollbar].
-  final Radius scrollbarRadius;
+  final Radius? scrollbarRadius;
 
-  /// The setting for [PlaceholderText].
-  final PlaceholderSetting placeholderSetting;
+  /// The setting for [PlaceholderText], defaults to PlaceholderSetting().
+  final PlaceholderSetting? placeholderSetting;
 
   /// The callback when [PlaceholderText] state changed.
-  final PlaceholderStateChangedCallback onStateChanged;
+  final PlaceholderStateChangedCallback? onStateChanged;
 
-  /// The wantKeepAlive for [AutomaticKeepAliveClientMixin].
-  final bool wantKeepAlive;
+  /// The wantKeepAlive for [AutomaticKeepAliveClientMixin], defaults to true.
+  final bool? wantKeepAlive;
 
   // Behavior settings
 
-  /// The switcher to do refresh when init view.
-  final bool refreshFirst;
+  /// The switcher to do refresh when init view, defaults to true.
+  final bool? refreshFirst;
 
-  /// The switcher to clear list and error message when refresh data.
-  final bool clearWhenRefresh;
+  /// The switcher to clear list and error message when refresh data, defaults to false.
+  final bool? clearWhenRefresh;
 
-  /// The switcher to clear list when error aroused.
-  final bool clearWhenError;
+  /// The switcher to clear list when error aroused, defaults to false.
+  final bool? clearWhenError;
 
-  /// The switcher to update list only when the returned data is not empty, used for pagination.
-  final bool updateOnlyIfNotEmpty;
+  /// The switcher to update list only when the returned data is not empty, defaults to false, used for pagination.
+  final bool? updateOnlyIfNotEmpty;
 
   /// The callback when start loading.
-  final void Function() onStartLoading;
+  final void Function()? onStartLoading;
 
   /// The callback when stop loading.
-  final void Function() onStopLoading;
+  final void Function()? onStopLoading;
 
   /// The callback when start refreshing.
-  final void Function() onStartRefreshing;
+  final void Function()? onStartRefreshing;
 
   /// The callback when stop refreshing.
-  final void Function() onStopRefreshing;
+  final void Function()? onStopRefreshing;
 
   /// The callback when data has been appended.
-  final void Function(List<T>) onAppend;
+  final void Function(List<T>)? onAppend;
 
   /// The callback when error invoked.
-  final void Function(dynamic) onError;
+  final void Function(dynamic)? onError;
 
   /// The callback when get nothing, used for pagination.
-  final void Function() onNothing;
+  final void Function()? onNothing;
 }
 
 /// A list of extra widgets used in [UpdatableDataView], includes widget and divider lies before or after [ScrollView], inside or outside [PlaceholderText].
@@ -160,47 +152,47 @@ class UpdatableDataViewExtraWidgets {
     this.outerBottomDivider,
   });
 
-  /// The crossAxisAlignment for inner [Column] inside [PlaceholderText].
-  final CrossAxisAlignment innerCrossAxisAlignment;
+  /// The crossAxisAlignment for inner [Column] inside [PlaceholderText], defaults to [CrossAxisAlignment.center].
+  final CrossAxisAlignment? innerCrossAxisAlignment;
 
-  /// The crossAxisAlignment for outer [Column] outside [PlaceholderText].
-  final CrossAxisAlignment outerCrossAxisAlignment;
+  /// The crossAxisAlignment for outer [Column] outside [PlaceholderText], defaults to [CrossAxisAlignment.center].
+  final CrossAxisAlignment? outerCrossAxisAlignment;
 
   /// The widget before [ScrollView] inside [PlaceholderText].
-  final Widget innerTopWidget;
+  final Widget? innerTopWidget;
 
   /// The widget after [ScrollView] inside [PlaceholderText].
-  final Widget innerBottomWidget;
+  final Widget? innerBottomWidget;
 
   /// The widget before [ScrollView] outside [PlaceholderText].
-  final Widget outerTopWidget;
+  final Widget? outerTopWidget;
 
   /// The widget after [ScrollView] outside [PlaceholderText].
-  final Widget outerBottomWidget;
+  final Widget? outerBottomWidget;
 
   /// The widgets in the top of [ScrollView], that will have no separator between items.
-  final List<Widget> inListTopWidgets;
+  final List<Widget>? inListTopWidgets;
 
   /// The widgets in the bottom of [ScrollView], that will have no separator between items.
-  final List<Widget> inListBottomWidgets;
+  final List<Widget>? inListBottomWidgets;
 
   /// The divider before [ScrollView] inside [PlaceholderText], if null, do not show it.
-  final Widget innerTopDivider;
+  final Widget? innerTopDivider;
 
   /// The divider after [ScrollView] inside [PlaceholderText], if null, do not show it.
-  final Widget innerBottomDivider;
+  final Widget? innerBottomDivider;
 
   /// The divider before [ScrollView] outside [PlaceholderText], if null, do not show it.
-  final Widget outerTopDivider;
+  final Widget? outerTopDivider;
 
   /// The divider after [ScrollView] outside [PlaceholderText], if null, do not show it.
-  final Widget outerBottomDivider;
+  final Widget? outerBottomDivider;
 }
 
 /// A controller for [UpdatableDataView], uses two [GlobalKey]-s to control [RefreshIndicator] and [AppendIndicator], and includes [refresh] and [append] methods.
 class UpdatableDataViewController {
-  GlobalKey<RefreshIndicatorState> _refreshIndicatorKey;
-  GlobalKey<AppendIndicatorState> _appendIndicatorKey;
+  GlobalKey<RefreshIndicatorState>? _refreshIndicatorKey;
+  GlobalKey<AppendIndicatorState>? _appendIndicatorKey;
 
   /// Registers the given [GlobalKey] of [RefreshIndicatorState] to this controller.
   void attachRefresh(GlobalKey<RefreshIndicatorState> key) => _refreshIndicatorKey = key;

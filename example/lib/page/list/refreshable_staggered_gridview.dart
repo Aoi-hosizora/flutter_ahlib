@@ -41,7 +41,7 @@ class _RefreshableStaggeredGridViewPageState extends State<RefreshableStaggeredG
           ),
         ],
       ),
-      body: RefreshableStaggeredGridView<String>(
+      body: RefreshableMasonryGridView<String>(
         data: _data,
         getData: () => _getData(),
         controller: _controller,

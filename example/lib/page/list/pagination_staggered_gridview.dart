@@ -48,7 +48,7 @@ class _PaginationStaggeredGridViewPageState extends State<PaginationStaggeredGri
           ),
         ],
       ),
-      body: PaginationStaggeredGridView<String>(
+      body: PaginationMasonryGridView<String>(
         data: _data,
         getData: ({indicator}) => _getData(page: indicator),
         controller: _controller,

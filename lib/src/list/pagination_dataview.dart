@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_ahlib/src/list/append_indicator.dart';
 import 'package:flutter_ahlib/src/list/updatable_dataview.dart';
 import 'package:flutter_ahlib/src/util/flutter_extension.dart';
@@ -13,7 +12,7 @@ final _kFlashListDuration = Duration(milliseconds: 50);
 /// The duration for fake refreshing when nothing.
 final _kNothingRefreshDuration = Duration(milliseconds: 200);
 
-/// An abstract [UpdatableDataView] for pagination data view, implements by [PaginationListView], [PaginationSliverListView], [PaginationStaggeredGridView].
+/// An abstract [UpdatableDataView] for pagination data view, implements by [PaginationListView], [PaginationSliverListView], [PaginationMasonryGridView].
 abstract class PaginationDataView<T> extends UpdatableDataView<T> {
   const PaginationDataView({Key? key}) : super(key: key);
 
@@ -38,10 +37,7 @@ class PaginationListView<T> extends PaginationDataView<T> {
     // ===================================
     this.separator,
     this.extra,
-  })  : assert(data != null && getData != null),
-        assert(setting != null && paginationSetting != null),
-        assert(itemBuilder != null),
-        super(key: key);
+  }) : super(key: key);
 
   /// The list of data.
   @override
@@ -61,21 +57,21 @@ class PaginationListView<T> extends PaginationDataView<T> {
 
   /// The controller for the behavior.
   @override
-  final UpdatableDataViewController controller;
+  final UpdatableDataViewController? controller;
 
   /// The controller for [ListView].
   @override
-  final ScrollController scrollController;
+  final ScrollController? scrollController;
 
   /// The itemBuilder for [ListView].
   @override
   final Widget Function(BuildContext, T) itemBuilder;
 
   /// The separator in [ListView].
-  final Widget separator;
+  final Widget? separator;
 
   /// The extra widgets.
-  final UpdatableDataViewExtraWidgets extra;
+  final UpdatableDataViewExtraWidgets? extra;
 
   @override
   _PaginationListViewState<T> createState() => _PaginationListViewState<T>();
@@ -84,7 +80,7 @@ class PaginationListView<T> extends PaginationDataView<T> {
 class _PaginationListViewState<T> extends State<PaginationListView<T>> with AutomaticKeepAliveClientMixin<PaginationListView<T>> {
   final _appendIndicatorKey = GlobalKey<AppendIndicatorState>();
   final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
-  var _forceState = PlaceholderState.nothing;
+  PlaceholderState? _forceState = PlaceholderState.nothing;
   var _loading = false;
   var _errorMessage = '';
   var _downScrollable = false;
@@ -93,9 +89,9 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
   @override
   void initState() {
     super.initState();
-    if (widget.setting.refreshFirst) {
+    if (widget.setting.refreshFirst ?? true) {
       _forceState = PlaceholderState.loading;
-      WidgetsBinding.instance.addPostFrameCallback((_) => _refreshIndicatorKey?.currentState?.show());
+      WidgetsBinding.instance?.addPostFrameCallback((_) => _refreshIndicatorKey.currentState?.show());
     } else {
       _forceState = widget.data.isEmpty ? PlaceholderState.nothing : PlaceholderState.normal;
     }
@@ -137,7 +133,7 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
   }
 
   @override
-  bool get wantKeepAlive => widget.setting.wantKeepAlive;
+  bool get wantKeepAlive => widget.setting.wantKeepAlive ?? true;
 
   @override
   Widget build(BuildContext context) {
@@ -150,9 +146,9 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
     var view = ListView.separated(
       controller: widget.scrollController,
       padding: widget.setting.padding,
-      physics: widget.setting.physics,
-      reverse: widget.setting.reverse,
-      shrinkWrap: widget.setting.shrinkWrap,
+      physics: widget.setting.physics?? const AlwaysScrollableScrollPhysics(),
+      reverse: widget.setting.reverse ?? false,
+      shrinkWrap: widget.setting.shrinkWrap ?? false,
       // ===================================
       separatorBuilder: (c, idx) {
         if (idx < tl) {
@@ -184,8 +180,8 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
         child: Column(
           crossAxisAlignment: widget.extra?.outerCrossAxisAlignment ?? CrossAxisAlignment.center,
           children: [
-            if (widget.extra?.outerTopWidget != null) widget.extra.outerTopWidget,
-            if (widget.extra?.outerTopDivider != null) widget.extra.outerTopDivider,
+            if (widget.extra?.outerTopWidget != null) (widget.extra?.outerTopWidget)!,
+            if (widget.extra?.outerTopDivider != null) (widget.extra?.outerTopDivider)!,
             Expanded(
               child: PlaceholderText.from(
                 onRefresh: () => _refreshIndicatorKey.currentState?.show(),
@@ -194,16 +190,16 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
                 isEmpty: widget.data.isEmpty,
                 errorText: _errorMessage,
                 onChanged: widget.setting.onStateChanged,
-                setting: widget.setting.placeholderSetting,
+                setting: widget.setting.placeholderSetting ?? const PlaceholderSetting(),
                 childBuilder: (c) => Column(
                   crossAxisAlignment: widget.extra?.innerCrossAxisAlignment ?? CrossAxisAlignment.center,
                   children: [
-                    if (widget.extra?.innerTopWidget != null) widget.extra.innerTopWidget,
-                    if (widget.extra?.innerTopDivider != null) widget.extra.innerTopDivider,
+                    if (widget.extra?.innerTopWidget != null) (widget.extra?.innerTopWidget)!,
+                    if (widget.extra?.innerTopDivider != null) (widget.extra?.innerTopDivider)!,
                     Expanded(
                       child: NotificationListener<ScrollNotification>(
                         onNotification: (s) => _onScroll(s),
-                        child: widget.setting.showScrollbar
+                        child: widget.setting.showScrollbar ?? true
                             ? Scrollbar(
                                 thickness: widget.setting.scrollbarThickness,
                                 radius: widget.setting.scrollbarRadius,
@@ -212,14 +208,14 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
                             : view,
                       ),
                     ),
-                    if (widget.extra?.innerBottomDivider != null) widget.extra.innerBottomDivider,
-                    if (widget.extra?.innerBottomWidget != null) widget.extra.innerBottomWidget,
+                    if (widget.extra?.innerBottomDivider != null) (widget.extra?.innerBottomDivider)!,
+                    if (widget.extra?.innerBottomWidget != null) (widget.extra?.innerBottomWidget)!,
                   ],
                 ),
               ),
             ),
-            if (widget.extra?.outerBottomDivider != null) widget.extra.outerBottomDivider,
-            if (widget.extra?.outerBottomWidget != null) widget.extra.outerBottomWidget,
+            if (widget.extra?.outerBottomDivider != null) (widget.extra?.outerBottomDivider)!,
+            if (widget.extra?.outerBottomWidget != null) (widget.extra?.outerBottomWidget)!,
           ],
         ),
       ),
@@ -242,11 +238,7 @@ class PaginationSliverListView<T> extends PaginationDataView<T> {
     this.separator,
     this.useOverlapInjector = false,
     this.extra,
-  })  : assert(data != null && getData != null),
-        assert(setting != null && paginationSetting != null),
-        assert(itemBuilder != null),
-        assert(useOverlapInjector != null),
-        super(key: key);
+  }) : super(key: key);
 
   /// The list of data.
   @override
@@ -266,27 +258,27 @@ class PaginationSliverListView<T> extends PaginationDataView<T> {
 
   /// The controller for the behavior.
   @override
-  final UpdatableDataViewController controller;
+  final UpdatableDataViewController? controller;
 
   /// The controller for [CustomScrollView], you have to wrap this widget with [Builder] and use [PrimaryScrollController.of] to get correct
   /// [ScrollController] from [NestedScrollView], JUST NOT TO use [NestedScrollView]'s scrollController directly.
   @override
-  final ScrollController scrollController;
+  final ScrollController? scrollController;
 
   /// The itemBuilder for [SliverList].
   @override
   final Widget Function(BuildContext, T) itemBuilder;
 
   /// The separator in [SliverList].
-  final Widget separator;
+  final Widget? separator;
 
   /// The switcher to use [SliverOverlapInjector], defaults to false. This is useful when outer [NestedScrollView] use [SliverOverlapAbsorber],
   /// or you can manually set the padding in [UpdatableDataViewExtraWidgets] and just set this value to false. If set to true, you have to wrap
   /// this widget with [Builder] to get correct [SliverOverlapAbsorber] handler by [NestedScrollView.sliverOverlapAbsorberHandleFor].
-  final bool useOverlapInjector;
+  final bool? useOverlapInjector;
 
   /// The extra widgets.
-  final UpdatableDataViewExtraWidgets extra;
+  final UpdatableDataViewExtraWidgets? extra;
 
   @override
   _PaginationSliverListViewState<T> createState() => _PaginationSliverListViewState<T>();
@@ -295,7 +287,7 @@ class PaginationSliverListView<T> extends PaginationDataView<T> {
 class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T>> with AutomaticKeepAliveClientMixin<PaginationSliverListView<T>> {
   final _appendIndicatorKey = GlobalKey<AppendIndicatorState>();
   final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
-  var _forceState = PlaceholderState.nothing;
+  PlaceholderState? _forceState = PlaceholderState.nothing;
   var _loading = false;
   var _errorMessage = '';
   var _downScrollable = false;
@@ -304,9 +296,9 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
   @override
   void initState() {
     super.initState();
-    if (widget.setting.refreshFirst) {
+    if (widget.setting.refreshFirst ?? true) {
       _forceState = PlaceholderState.loading;
-      WidgetsBinding.instance.addPostFrameCallback((_) => _refreshIndicatorKey?.currentState?.show());
+      WidgetsBinding.instance?.addPostFrameCallback((_) => _refreshIndicatorKey.currentState?.show());
     } else {
       _forceState = widget.data.isEmpty ? PlaceholderState.nothing : PlaceholderState.normal;
     }
@@ -348,7 +340,7 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
   }
 
   @override
-  bool get wantKeepAlive => widget.setting.wantKeepAlive;
+  bool get wantKeepAlive => widget.setting.wantKeepAlive ?? true;
 
   @override
   Widget build(BuildContext context) {
@@ -360,17 +352,17 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
     var tl = top.length, dl = data.length, bl = bottom.length;
     var view = CustomScrollView(
       controller: widget.scrollController,
-      physics: widget.setting.physics,
-      reverse: widget.setting.reverse,
-      shrinkWrap: widget.setting.shrinkWrap,
+      physics: widget.setting.physics ?? const AlwaysScrollableScrollPhysics(),
+      reverse: widget.setting.reverse ?? false,
+      shrinkWrap: widget.setting.shrinkWrap ?? false,
       // ===================================
       slivers: [
-        if (widget.useOverlapInjector)
+        if (widget.useOverlapInjector ?? false)
           SliverOverlapInjector(
             handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
           ),
         SliverPadding(
-          padding: widget.setting.padding ?? EdgeInsets.zero,
+          padding: widget.setting.padding ?? MediaQuery.maybeOf(context)?.padding.copyWith(top: 0, bottom: 0) ?? EdgeInsets.zero,
           sliver: SliverList(
             delegate: SliverSeparatedListBuilderDelegate(
               (c, idx) {
@@ -407,8 +399,8 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
         child: Column(
           crossAxisAlignment: widget.extra?.outerCrossAxisAlignment ?? CrossAxisAlignment.center,
           children: [
-            if (widget.extra?.outerTopWidget != null) widget.extra.outerTopWidget,
-            if (widget.extra?.outerTopDivider != null) widget.extra.outerTopDivider,
+            if (widget.extra?.outerTopWidget != null) (widget.extra?.outerTopWidget)!,
+            if (widget.extra?.outerTopDivider != null) (widget.extra?.outerTopDivider)!,
             Expanded(
               child: PlaceholderText.from(
                 onRefresh: () => _refreshIndicatorKey.currentState?.show(),
@@ -417,16 +409,16 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
                 isEmpty: widget.data.isEmpty,
                 errorText: _errorMessage,
                 onChanged: widget.setting.onStateChanged,
-                setting: widget.setting.placeholderSetting,
+                setting: widget.setting.placeholderSetting ?? const PlaceholderSetting(),
                 childBuilder: (c) => Column(
                   crossAxisAlignment: widget.extra?.innerCrossAxisAlignment ?? CrossAxisAlignment.center,
                   children: [
-                    if (widget.extra?.innerTopWidget != null) widget.extra.innerTopWidget,
-                    if (widget.extra?.innerTopDivider != null) widget.extra.innerTopDivider,
+                    if (widget.extra?.innerTopWidget != null) (widget.extra?.innerTopWidget)!,
+                    if (widget.extra?.innerTopDivider != null) (widget.extra?.innerTopDivider)!,
                     Expanded(
                       child: NotificationListener<ScrollNotification>(
                         onNotification: (s) => _onScroll(s),
-                        child: widget.setting.showScrollbar
+                        child: widget.setting.showScrollbar ?? true
                             ? Scrollbar(
                                 thickness: widget.setting.scrollbarThickness,
                                 radius: widget.setting.scrollbarRadius,
@@ -435,14 +427,14 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
                             : view,
                       ),
                     ),
-                    if (widget.extra?.innerBottomDivider != null) widget.extra.innerBottomDivider,
-                    if (widget.extra?.innerBottomWidget != null) widget.extra.innerBottomWidget,
+                    if (widget.extra?.innerBottomDivider != null) (widget.extra?.innerBottomDivider)!,
+                    if (widget.extra?.innerBottomWidget != null) (widget.extra?.innerBottomWidget)!,
                   ],
                 ),
               ),
             ),
-            if (widget.extra?.outerBottomDivider != null) widget.extra.outerBottomDivider,
-            if (widget.extra?.outerBottomWidget != null) widget.extra.outerBottomWidget,
+            if (widget.extra?.outerBottomDivider != null) (widget.extra?.outerBottomDivider)!,
+            if (widget.extra?.outerBottomWidget != null) (widget.extra?.outerBottomWidget)!,
           ],
         ),
       ),
@@ -450,9 +442,9 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
   }
 }
 
-/// A [PaginationDataView] with [StaggeredGridView], includes [AppendIndicator], [RefreshIndicator], [PlaceholderText], [Scrollbar] and [StaggeredGridView].
-class PaginationStaggeredGridView<T> extends PaginationDataView<T> {
-  const PaginationStaggeredGridView({
+/// A [PaginationDataView] with [MasonryGridView], includes [AppendIndicator], [RefreshIndicator], [PlaceholderText], [Scrollbar] and [MasonryGridView].
+class PaginationMasonryGridView<T> extends PaginationDataView<T> {
+  const PaginationMasonryGridView({
     Key? key,
     required this.data,
     required this.getData,
@@ -462,16 +454,11 @@ class PaginationStaggeredGridView<T> extends PaginationDataView<T> {
     this.scrollController,
     required this.itemBuilder,
     // ===================================
-    required this.staggeredTileBuilder,
     required this.crossAxisCount,
-    this.mainAxisSpacing = 0,
-    this.crossAxisSpacing = 0,
+    this.mainAxisSpacing = 0.0,
+    this.crossAxisSpacing = 0.0,
     this.extra,
-  })  : assert(data != null && getData != null),
-        assert(setting != null && paginationSetting != null),
-        assert(itemBuilder != null),
-        assert(staggeredTileBuilder != null && crossAxisCount != null),
-        super(key: key);
+  }) : super(key: key);
 
   /// The list of data.
   @override
@@ -491,39 +478,36 @@ class PaginationStaggeredGridView<T> extends PaginationDataView<T> {
 
   /// The controller for the behavior.
   @override
-  final UpdatableDataViewController controller;
+  final UpdatableDataViewController? controller;
 
-  /// The controller for [StaggeredGridView].
+  /// The controller for [MasonryGridView].
   @override
-  final ScrollController scrollController;
+  final ScrollController? scrollController;
 
-  /// The itemBuilder for [StaggeredGridView].
+  /// The itemBuilder for [MasonryGridView].
   @override
   final Widget Function(BuildContext, T) itemBuilder;
 
-  /// The staggeredTileBuilder for [StaggeredGridView].
-  final StaggeredTile Function(int) staggeredTileBuilder;
-
-  /// The crossAxisCount for [StaggeredGridView].
+  /// The crossAxisCount for [MasonryGridView].
   final int crossAxisCount;
 
-  /// The mainAxisSpacing for [StaggeredGridView].
-  final double mainAxisSpacing;
+  /// The mainAxisSpacing for [MasonryGridView].
+  final double? mainAxisSpacing;
 
-  /// The crossAxisSpacing for [StaggeredGridView]
-  final double crossAxisSpacing;
+  /// The crossAxisSpacing for [MasonryGridView]
+  final double? crossAxisSpacing;
 
   /// The extra widgets, notice that the inListXXX and outListXXX will be ignored.
-  final UpdatableDataViewExtraWidgets extra;
+  final UpdatableDataViewExtraWidgets? extra;
 
   @override
-  _PaginationStaggeredGridViewState<T> createState() => _PaginationStaggeredGridViewState<T>();
+  _PaginationMasonryGridView<T> createState() => _PaginationMasonryGridView<T>();
 }
 
-class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGridView<T>> with AutomaticKeepAliveClientMixin<PaginationStaggeredGridView<T>> {
+class _PaginationMasonryGridView<T> extends State<PaginationMasonryGridView<T>> with AutomaticKeepAliveClientMixin<PaginationMasonryGridView<T>> {
   final _appendIndicatorKey = GlobalKey<AppendIndicatorState>();
   final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
-  var _forceState = PlaceholderState.nothing;
+  PlaceholderState? _forceState = PlaceholderState.nothing;
   var _loading = false;
   var _errorMessage = '';
   var _downScrollable = false;
@@ -532,9 +516,9 @@ class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGrid
   @override
   void initState() {
     super.initState();
-    if (widget.setting.refreshFirst) {
+    if (widget.setting.refreshFirst ?? true) {
       _forceState = PlaceholderState.loading;
-      WidgetsBinding.instance.addPostFrameCallback((_) => _refreshIndicatorKey?.currentState?.show());
+      WidgetsBinding.instance?.addPostFrameCallback((_) => _refreshIndicatorKey.currentState?.show());
     } else {
       _forceState = widget.data.isEmpty ? PlaceholderState.nothing : PlaceholderState.normal;
     }
@@ -576,20 +560,19 @@ class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGrid
   }
 
   @override
-  bool get wantKeepAlive => widget.setting.wantKeepAlive;
+  bool get wantKeepAlive => widget.setting.wantKeepAlive ?? true;
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
 
-    var view = StaggeredGridView.countBuilder(
+    var view = MasonryGridView.count(
       controller: widget.scrollController,
       padding: widget.setting.padding,
-      physics: widget.setting.physics,
-      reverse: widget.setting.reverse,
-      shrinkWrap: widget.setting.shrinkWrap,
+      physics: widget.setting.physics ?? const AlwaysScrollableScrollPhysics(),
+      reverse: widget.setting.reverse ?? false ,
+      shrinkWrap: widget.setting.shrinkWrap ?? false,
       // ===================================
-      staggeredTileBuilder: widget.staggeredTileBuilder,
       crossAxisCount: widget.crossAxisCount,
       mainAxisSpacing: widget.mainAxisSpacing ?? 0,
       crossAxisSpacing: widget.crossAxisSpacing ?? 0,
@@ -606,8 +589,8 @@ class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGrid
         child: Column(
           crossAxisAlignment: widget.extra?.outerCrossAxisAlignment ?? CrossAxisAlignment.center,
           children: [
-            if (widget.extra?.outerTopWidget != null) widget.extra.outerTopWidget,
-            if (widget.extra?.outerTopDivider != null) widget.extra.outerTopDivider,
+            if (widget.extra?.outerTopWidget != null) (widget.extra?.outerTopWidget)!,
+            if (widget.extra?.outerTopDivider != null) (widget.extra?.outerTopDivider)!,
             Expanded(
               child: PlaceholderText.from(
                 onRefresh: () => _refreshIndicatorKey.currentState?.show(),
@@ -616,16 +599,16 @@ class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGrid
                 isEmpty: widget.data.isEmpty,
                 errorText: _errorMessage,
                 onChanged: widget.setting.onStateChanged,
-                setting: widget.setting.placeholderSetting,
+                setting: widget.setting.placeholderSetting ?? const PlaceholderSetting(),
                 childBuilder: (c) => Column(
                   crossAxisAlignment: widget.extra?.innerCrossAxisAlignment ?? CrossAxisAlignment.center,
                   children: [
-                    if (widget.extra?.innerTopWidget != null) widget.extra.innerTopWidget,
-                    if (widget.extra?.innerTopDivider != null) widget.extra.innerTopDivider,
+                    if (widget.extra?.innerTopWidget != null) (widget.extra?.innerTopWidget)!,
+                    if (widget.extra?.innerTopDivider != null) (widget.extra?.innerTopDivider)!,
                     Expanded(
                       child: NotificationListener<ScrollNotification>(
                         onNotification: (s) => _onScroll(s),
-                        child: widget.setting.showScrollbar
+                        child: widget.setting.showScrollbar ?? true
                             ? Scrollbar(
                                 thickness: widget.setting.scrollbarThickness,
                                 radius: widget.setting.scrollbarRadius,
@@ -634,14 +617,14 @@ class _PaginationStaggeredGridViewState<T> extends State<PaginationStaggeredGrid
                             : view,
                       ),
                     ),
-                    if (widget.extra?.innerBottomDivider != null) widget.extra.innerBottomDivider,
-                    if (widget.extra?.innerBottomWidget != null) widget.extra.innerBottomWidget,
+                    if (widget.extra?.innerBottomDivider != null) (widget.extra?.innerBottomDivider)!,
+                    if (widget.extra?.innerBottomWidget != null) (widget.extra?.innerBottomWidget)!,
                   ],
                 ),
               ),
             ),
-            if (widget.extra?.outerBottomDivider != null) widget.extra.outerBottomDivider,
-            if (widget.extra?.outerBottomWidget != null) widget.extra.outerBottomWidget,
+            if (widget.extra?.outerBottomDivider != null) (widget.extra?.outerBottomDivider)!,
+            if (widget.extra?.outerBottomWidget != null) (widget.extra?.outerBottomWidget)!,
           ],
         ),
       ),
@@ -654,7 +637,7 @@ class PaginationSetting {
   const PaginationSetting({
     this.initialIndicator = 1,
     this.nothingIndicator,
-  }) : assert(initialIndicator != null);
+  });
 
   /// The initial indicator for pagination, default is 1 and not null. Notice that if you are
   /// using seek based pagination strategy, it is necessary to set this value to your own.
@@ -666,7 +649,10 @@ class PaginationSetting {
 
 /// A data model for [PaginationDataView], represents the returned data.
 class PagedList<T> {
-  const PagedList({required this.list, required this.next});
+  const PagedList({
+    required this.list,
+    required this.next,
+  });
 
   /// The list data.
   final List<T> list;
@@ -675,7 +661,7 @@ class PagedList<T> {
   final dynamic next;
 }
 
-/// The getData inner implementation, used in [PaginationListView._getData], [PaginationListView._getData] and [PaginationStaggeredGridView._getData].
+/// The getData inner implementation, used in [PaginationListView._getData], [PaginationListView._getData] and [PaginationMasonryGridView._getData].
 Future<void> _getDataCore<T>({
   required bool reset,
   required dynamic nextIndicator,
@@ -689,23 +675,10 @@ Future<void> _getDataCore<T>({
   required Future<PagedList<T>> Function({dynamic indicator}) getData,
   required UpdatableDataViewSetting<T> setting,
   required PaginationSetting paginationSetting,
-  required ScrollController scrollController,
+  required ScrollController? scrollController,
   // ===================================
   required void Function() doSetState,
 }) async {
-  assert(reset != null);
-  assert(nextIndicator != null);
-  assert(setNextIndicator != null);
-  assert(getDownScrollable != null);
-  assert(setLoading != null);
-  assert(setErrorMessage != null);
-  assert(data != null);
-  assert(getData != null);
-  assert(setting != null);
-  assert(paginationSetting != null);
-  assert(scrollController != null);
-  assert(doSetState != null);
-
   // reset page
   if (reset) {
     nextIndicator = paginationSetting.initialIndicator;
@@ -716,7 +689,7 @@ Future<void> _getDataCore<T>({
   setLoading(true);
   setErrorMessage('');
   if (reset) {
-    if (setting.clearWhenRefresh) {
+    if (setting.clearWhenRefresh ?? false) {
       data.clear();
     }
     setting.onStartRefreshing?.call(); // start refreshing
@@ -741,7 +714,7 @@ Future<void> _getDataCore<T>({
   return func.then((PagedList<T> list) async {
     // success to get data without error
     setErrorMessage('');
-    if (list.list.isEmpty && setting.updateOnlyIfNotEmpty) {
+    if (list.list.isEmpty && (setting.updateOnlyIfNotEmpty ?? false)) {
       setting.onAppend?.call([]);
       return; // got an empty list
     }
@@ -764,7 +737,7 @@ Future<void> _getDataCore<T>({
   }).catchError((e) {
     // error aroused
     setErrorMessage(e.toString());
-    if (setting.clearWhenError) {
+    if (setting.clearWhenError ?? false) {
       data.clear();
     }
     setting.onError?.call(e);

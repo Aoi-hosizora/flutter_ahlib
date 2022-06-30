@@ -24,9 +24,7 @@ class AppendIndicator extends StatefulWidget {
     this.minHeight = 5.0,
     this.backgroundColor,
     this.valueColor,
-  })  : assert(child != null),
-        assert(onAppend != null),
-        assert(minHeight == null || minHeight > 0),
+  })  : assert(minHeight == null || minHeight > 0),
         super(key: key);
 
   /// The widget below this widget in the tree.
@@ -36,17 +34,19 @@ class AppendIndicator extends StatefulWidget {
   final AppendCallback onAppend;
 
   /// The min height of this indicator, defaults to 5dp.
-  final double minHeight;
+  final double? minHeight;
 
   /// The background color of this indicator.
-  final Color backgroundColor;
+  final Color? backgroundColor;
 
   /// The value color of this indicator.
-  final Animation<Color> valueColor;
+  final Animation<Color>? valueColor;
 
   @override
   AppendIndicatorState createState() => AppendIndicatorState();
 }
+
+/// TODO [RefreshIndicator] and [RefreshIndicatorState]
 
 /// The state of [AppendIndicator], can be used to show the append indicator, see the [show] method.
 class AppendIndicatorState extends State<AppendIndicator> with TickerProviderStateMixin<AppendIndicator> {
@@ -54,12 +54,12 @@ class AppendIndicatorState extends State<AppendIndicator> with TickerProviderSta
   static const _kScaleExpandDuration = Duration(milliseconds: 100);
   static const _kScrollThreshold = 92.0;
 
-  AnimationController _sizeController;
-  Animation<double> _sizeFactor;
+  late AnimationController _sizeController;
+  late Animation<double> _sizeFactor;
 
-  _AppendIndicatorMode _mode;
-  Future<void> _pendingAppendFuture;
-  double _dragOffset;
+  _AppendIndicatorMode? _mode;
+  Future<void>? _pendingAppendFuture;
+  double _dragOffset = 0;
 
   @override
   void initState() {
@@ -102,7 +102,7 @@ class AppendIndicatorState extends State<AppendIndicator> with TickerProviderSta
     }
 
     // scroll update
-    double delta;
+    double? delta;
     if (_mode == _AppendIndicatorMode.drag || _mode == _AppendIndicatorMode.armed) {
       if (notification is ScrollUpdateNotification) {
         delta = notification.scrollDelta;
@@ -112,7 +112,7 @@ class AppendIndicatorState extends State<AppendIndicator> with TickerProviderSta
     }
     if (delta != null) {
       _dragOffset = _dragOffset + delta;
-      _sizeController.value = math.pow((_dragOffset / _kScrollThreshold).clamp(0.0, 1.0), 2);
+      _sizeController.value = math.pow((_dragOffset / _kScrollThreshold).clamp(0.0, 1.0), 2) as double;
       if (_dragOffset > _kScrollThreshold && _mode == _AppendIndicatorMode.drag) {
         _mode = _AppendIndicatorMode.armed;
       } else if (_dragOffset <= _kScrollThreshold && _mode == _AppendIndicatorMode.armed) {
@@ -136,7 +136,7 @@ class AppendIndicatorState extends State<AppendIndicator> with TickerProviderSta
 
   bool _onOverflowScroll(OverscrollIndicatorNotification notification) {
     if (_mode == _AppendIndicatorMode.drag || _mode == _AppendIndicatorMode.armed) {
-      notification.disallowGlow(); // disable glow
+      notification.disallowIndicator(); // disable glow
       return true;
     }
     return false;
@@ -157,7 +157,7 @@ class AppendIndicatorState extends State<AppendIndicator> with TickerProviderSta
     await _sizeController.animateTo(1.0, duration: _kScaleExpandDuration); // expand
 
     var result = widget.onAppend(); // loading
-    result?.whenComplete(() async {
+    result.whenComplete(() async {
       if (mounted && _mode == _AppendIndicatorMode.append) {
         completer.complete();
         _dismiss(_AppendIndicatorMode.done); // -> done
@@ -186,7 +186,7 @@ class AppendIndicatorState extends State<AppendIndicator> with TickerProviderSta
       _start();
       _show();
     }
-    return _pendingAppendFuture;
+    return _pendingAppendFuture ?? Future.value();
   }
 
   @override
