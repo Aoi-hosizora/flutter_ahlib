@@ -22,7 +22,7 @@ enum DismissBehavior {
   after,
 }
 
-/// A menu item used in [showPopupListMenu], is a replacement of [SimpleDialogOption] used in [showPopupListMenu].
+/// A menu item used in [showPopupListMenu], is a replacement of [SimpleDialogOption] used in [showDialog].
 /// This is not a [Widget], but just a data class to store options and used as a [SimpleDialogOption].
 class MenuItem {
   const MenuItem({
@@ -38,14 +38,15 @@ class MenuItem {
   /// The function that will be invoked when this item is tapped.
   final Function action;
 
-  /// The padding of this item, defaults to [EdgeInsets.symmetric(vertical: 8, horizontal: 24)].
+  /// The padding of this item, defaults to EdgeInsets.symmetric(vertical: 8, horizontal: 24).
   final EdgeInsets? padding;
 
   /// The behavior enum used to specify dialog's dismiss behavior, defaults to [DismissBehavior.before].
   final DismissBehavior? dismissBehavior;
 }
 
-/// A [MenuItem] with only a [Text], and has a default padding [EdgeInsets.symmetric(horizontal: 28, vertical: 16)].
+/// A [MenuItem] with only a [Text], and has a default padding EdgeInsets.symmetric(horizontal: 28, vertical: 16)
+/// and subtitle1 text style.
 class TextMenuItem extends MenuItem {
   const TextMenuItem({
     required Widget text,
@@ -60,7 +61,8 @@ class TextMenuItem extends MenuItem {
         );
 }
 
-/// A [MenuItem] with only a [IconText], and has a default padding [EdgeInsets.symmetric(horizontal: 18, vertical: 10)].
+/// A [MenuItem] with only a [IconText], and has a default padding EdgeInsets.symmetric(horizontal: 18, vertical: 10)
+/// and subtitle1 text style.
 class IconTextMenuItem extends MenuItem {
   const IconTextMenuItem({
     required Widget iconText,

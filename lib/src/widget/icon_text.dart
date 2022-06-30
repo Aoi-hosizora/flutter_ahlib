@@ -35,7 +35,7 @@ class IconText extends StatelessWidget {
         super(key: key);
 
   /// Creates a [IconText] in a simple way, note that this is a non-const constructor.
-  IconText.simple(IconData icon, String text) : this(icon: Icon(icon), text: Text(text)); // ignore: use_key_in_widget_constructors
+  IconText.simple(IconData icon, String text, {Key? key}) : this(key: key, icon: Icon(icon), text: Text(text));
 
   /// The icon of this widget.
   final Widget icon;
@@ -50,7 +50,7 @@ class IconText extends StatelessWidget {
   final EdgeInsets? textPadding;
 
   /// The alignment of the icon and the text, defaults to [IconTextAlignment.l2r].
-  final IconTextAlignment alignment;
+  final IconTextAlignment? alignment;
 
   /// The space between the icon and the text, defaults to 15.0.
   final double? space;
@@ -72,7 +72,7 @@ class IconText extends StatelessWidget {
     var mainAxisSize = this.mainAxisSize ?? MainAxisSize.max;
     var crossAxisAlignment = this.crossAxisAlignment ?? CrossAxisAlignment.center;
 
-    switch (alignment) {
+    switch (alignment ?? IconTextAlignment.l2r) {
       case IconTextAlignment.l2r:
         // Horizontal: Icon -> Text
         return Row(
@@ -123,7 +123,7 @@ class IconText extends StatelessWidget {
         );
       default:
         // Unreachable
-        return Container();
+        return const SizedBox(height: 0); // dummy
     }
   }
 }

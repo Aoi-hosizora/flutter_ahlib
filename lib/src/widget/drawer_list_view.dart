@@ -276,7 +276,7 @@ class _DrawerListViewState<T> extends State<DrawerListView<T>> {
             // unreachable
             ////////////////////////////////////////////////////////////////
             default:
-              return Container(); // dummy
+              return const SizedBox(height: 0); // dummy
           }
         },
       ).toList(),

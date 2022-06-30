@@ -45,7 +45,7 @@ class _LazyIndexedStackState extends State<LazyIndexedStack> {
         _children.add(widget.itemBuilder(context, i));
         _loaded.add(true); // loaded
       } else {
-        _children.add(Container()); // empty container
+        _children.add(const SizedBox(height: 0)); // dummy child
         _loaded.add(false);
       }
     }

@@ -5,7 +5,7 @@ import 'package:flutter_ahlib/src/widget/sliver_delegate.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 /// The duration for flashing list after clear the data.
-final _kFlashListDuration = Duration(milliseconds: 50);
+const _kFlashListDuration = Duration(milliseconds: 50);
 
 /// An abstract [UpdatableDataView] for refreshable data view, implements by [RefreshableListView], [RefreshableSliverListView], [RefreshableMasonryGridView].
 abstract class RefreshableDataView<T> extends UpdatableDataView<T> {
@@ -122,11 +122,11 @@ class _RefreshableListViewState<T> extends State<RefreshableListView<T>> with Au
       // ===================================
       separatorBuilder: (c, idx) {
         if (idx < tl) {
-          return SizedBox(height: 0);
+          return const SizedBox(height: 0);
         } else if (idx < tl + dl - 1) {
-          return widget.separator ?? SizedBox(height: 0);
+          return widget.separator ?? const SizedBox(height: 0);
         } else {
-          return SizedBox(height: 0);
+          return const SizedBox(height: 0);
         }
       },
       itemCount: tl + dl + bl,
@@ -318,11 +318,11 @@ class _RefreshableSliverListViewState<T> extends State<RefreshableSliverListView
               childCount: tl + dl + bl,
               separatorBuilder: (c, idx) {
                 if (idx < tl) {
-                  return SizedBox(height: 0);
+                  return const SizedBox(height: 0);
                 } else if (idx < tl + dl - 1) {
-                  return widget.separator ?? SizedBox(height: 0);
+                  return widget.separator ?? const SizedBox(height: 0);
                 } else {
-                  return SizedBox(height: 0);
+                  return const SizedBox(height: 0);
                 }
               },
             ),
@@ -426,7 +426,7 @@ class RefreshableMasonryGridView<T> extends RefreshableDataView<T> {
   /// The crossAxisSpacing for [MasonryGridView], defaults to 0.
   final double? crossAxisSpacing;
 
-  /// The extra widgets, notice that the inListXXX and outListXXX will be ignored.
+  /// The extra widgets, notice that the innerXXX and outerXXX will be ignored.
   final UpdatableDataViewExtraWidgets? extra;
 
   @override
@@ -489,7 +489,7 @@ class _RefreshableMasonryGridView<T> extends State<RefreshableMasonryGridView<T>
       mainAxisSpacing: widget.mainAxisSpacing ?? 0,
       crossAxisSpacing: widget.crossAxisSpacing ?? 0,
       itemCount: widget.data.length,
-      itemBuilder: (c, idx) => widget.itemBuilder(c, widget.data[idx]), // ignore extra inListXXX and outListXXX
+      itemBuilder: (c, idx) => widget.itemBuilder(c, widget.data[idx]), // ignore extra innerXXX and outerXXX
     );
 
     return RefreshIndicator(

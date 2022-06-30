@@ -18,7 +18,7 @@ class AnimatedFab extends StatefulWidget {
     this.controller,
     this.duration = _kDefaultDuration,
     this.curve = _kDefaultCurve,
-    this.show = false,
+    required this.show,
   }) : super(key: key);
 
   /// The widget below this widget in the tree, which is a [FloatingActionButton].
@@ -33,7 +33,7 @@ class AnimatedFab extends StatefulWidget {
   /// The curve of the animation to show this fab.
   final Curve? curve;
 
-  /// The switcher to show this fab or not, defaults to false.
+  /// The switcher to show this fab or not.
   final bool show;
 
   @override

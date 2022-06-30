@@ -10,6 +10,7 @@ import 'local_or_cached_network_image_provider.dart' as image_provider;
 import 'multi_image_stream_completer.dart';
 import 'package:http/http.dart' as http show head;
 
+// Refers to:
 // https://github.com/Baseflow/flutter_cached_network_image/blob/v3.1.0/cached_network_image/lib/src/image_provider/cached_network_image_provider.dart
 // https://github.com/Baseflow/flutter_cached_network_image/blob/v3.1.0/cached_network_image/lib/src/image_provider/_image_loader.dart
 

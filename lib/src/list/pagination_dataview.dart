@@ -7,20 +7,49 @@ import 'package:flutter_ahlib/src/widget/sliver_delegate.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 /// The duration for flashing list after clear the data.
-final _kFlashListDuration = Duration(milliseconds: 50);
+const _kFlashListDuration = Duration(milliseconds: 50);
 
 /// The duration for fake refreshing when nothing.
-final _kNothingRefreshDuration = Duration(milliseconds: 200);
+const _kNothingRefreshDuration = Duration(milliseconds: 200);
 
 /// An abstract [UpdatableDataView] for pagination data view, implements by [PaginationListView], [PaginationSliverListView], [PaginationMasonryGridView].
 abstract class PaginationDataView<T> extends UpdatableDataView<T> {
   const PaginationDataView({Key? key}) : super(key: key);
 
   /// The function to get list data with pagination.
-  Future<PagedList<T>> Function({dynamic indicator}) get getData;
+  Future<PagedList<T>> Function({required dynamic indicator}) get getData;
 
   /// The pagination setting.
   PaginationSetting get paginationSetting;
+}
+
+/// A data model for [PaginationDataView], represents the returned data.
+class PagedList<T> {
+  const PagedList({
+    required this.list,
+    required this.next,
+  });
+
+  /// The list data.
+  final List<T> list;
+
+  /// The next indicator for pagination.
+  final dynamic next;
+}
+
+/// A list of pagination settings for [PaginationDataView].
+class PaginationSetting {
+  const PaginationSetting({
+    this.initialIndicator = 1,
+    this.nothingIndicator,
+  });
+
+  /// The initial indicator for pagination, default is 1 and not null. Notice that if you are
+  /// using seek based pagination strategy, it is necessary to set this value to your own.
+  final int initialIndicator;
+
+  /// The indicator which means there is no data at this page, default value is null for no check.
+  final dynamic nothingIndicator;
 }
 
 /// A [PaginationDataView] with [ListView], includes [AppendIndicator], [RefreshIndicator], [PlaceholderText], [Scrollbar] and [ListView].
@@ -45,7 +74,7 @@ class PaginationListView<T> extends PaginationDataView<T> {
 
   /// The function to get list data with pagination.
   @override
-  final Future<PagedList<T>> Function({dynamic indicator}) getData;
+  final Future<PagedList<T>> Function({required dynamic indicator}) getData;
 
   /// The display and behavior setting.
   @override
@@ -146,17 +175,17 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
     var view = ListView.separated(
       controller: widget.scrollController,
       padding: widget.setting.padding,
-      physics: widget.setting.physics?? const AlwaysScrollableScrollPhysics(),
+      physics: widget.setting.physics ?? const AlwaysScrollableScrollPhysics(),
       reverse: widget.setting.reverse ?? false,
       shrinkWrap: widget.setting.shrinkWrap ?? false,
       // ===================================
       separatorBuilder: (c, idx) {
         if (idx < tl) {
-          return SizedBox(height: 0);
+          return const SizedBox(height: 0);
         } else if (idx < tl + dl - 1) {
-          return widget.separator ?? SizedBox(height: 0);
+          return widget.separator ?? const SizedBox(height: 0);
         } else {
-          return SizedBox(height: 0);
+          return const SizedBox(height: 0);
         }
       },
       itemCount: tl + dl + bl,
@@ -246,7 +275,7 @@ class PaginationSliverListView<T> extends PaginationDataView<T> {
 
   /// The function to get list data with pagination.
   @override
-  final Future<PagedList<T>> Function({dynamic indicator}) getData;
+  final Future<PagedList<T>> Function({required dynamic indicator}) getData;
 
   /// The display and behavior setting.
   @override
@@ -377,11 +406,11 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
               childCount: tl + dl + bl,
               separatorBuilder: (c, idx) {
                 if (idx < tl) {
-                  return SizedBox(height: 0);
+                  return const SizedBox(height: 0);
                 } else if (idx < tl + dl - 1) {
-                  return widget.separator ?? SizedBox(height: 0);
+                  return widget.separator ?? const SizedBox(height: 0);
                 } else {
-                  return SizedBox(height: 0);
+                  return const SizedBox(height: 0);
                 }
               },
             ),
@@ -466,7 +495,7 @@ class PaginationMasonryGridView<T> extends PaginationDataView<T> {
 
   /// The function to get list data with pagination.
   @override
-  final Future<PagedList<T>> Function({dynamic indicator}) getData;
+  final Future<PagedList<T>> Function({required dynamic indicator}) getData;
 
   /// The display and behavior setting.
   @override
@@ -497,7 +526,7 @@ class PaginationMasonryGridView<T> extends PaginationDataView<T> {
   /// The crossAxisSpacing for [MasonryGridView]
   final double? crossAxisSpacing;
 
-  /// The extra widgets, notice that the inListXXX and outListXXX will be ignored.
+  /// The extra widgets, notice that the innerXXX and outerXXX will be ignored.
   final UpdatableDataViewExtraWidgets? extra;
 
   @override
@@ -570,14 +599,14 @@ class _PaginationMasonryGridView<T> extends State<PaginationMasonryGridView<T>> 
       controller: widget.scrollController,
       padding: widget.setting.padding,
       physics: widget.setting.physics ?? const AlwaysScrollableScrollPhysics(),
-      reverse: widget.setting.reverse ?? false ,
+      reverse: widget.setting.reverse ?? false,
       shrinkWrap: widget.setting.shrinkWrap ?? false,
       // ===================================
       crossAxisCount: widget.crossAxisCount,
       mainAxisSpacing: widget.mainAxisSpacing ?? 0,
       crossAxisSpacing: widget.crossAxisSpacing ?? 0,
       itemCount: widget.data.length,
-      itemBuilder: (c, idx) => widget.itemBuilder(c, widget.data[idx]), // ignore extra inListXXX and outListXXX
+      itemBuilder: (c, idx) => widget.itemBuilder(c, widget.data[idx]), // ignore extra innerXXX and outerXXX
     );
 
     return AppendIndicator(
@@ -632,35 +661,6 @@ class _PaginationMasonryGridView<T> extends State<PaginationMasonryGridView<T>> 
   }
 }
 
-/// A list of pagination settings for [PaginationDataView].
-class PaginationSetting {
-  const PaginationSetting({
-    this.initialIndicator = 1,
-    this.nothingIndicator,
-  });
-
-  /// The initial indicator for pagination, default is 1 and not null. Notice that if you are
-  /// using seek based pagination strategy, it is necessary to set this value to your own.
-  final int initialIndicator;
-
-  /// The indicator which means there is no data at this page, default value is null for no check.
-  final dynamic nothingIndicator;
-}
-
-/// A data model for [PaginationDataView], represents the returned data.
-class PagedList<T> {
-  const PagedList({
-    required this.list,
-    required this.next,
-  });
-
-  /// The list data.
-  final List<T> list;
-
-  /// The next indicator for pagination.
-  final dynamic next;
-}
-
 /// The getData inner implementation, used in [PaginationListView._getData], [PaginationListView._getData] and [PaginationMasonryGridView._getData].
 Future<void> _getDataCore<T>({
   required bool reset,
@@ -672,7 +672,7 @@ Future<void> _getDataCore<T>({
   required void Function(String) setErrorMessage,
   // ===================================
   required List<T> data,
-  required Future<PagedList<T>> Function({dynamic indicator}) getData,
+  required Future<PagedList<T>> Function({required dynamic indicator}) getData,
   required UpdatableDataViewSetting<T> setting,
   required PaginationSetting paginationSetting,
   required ScrollController? scrollController,

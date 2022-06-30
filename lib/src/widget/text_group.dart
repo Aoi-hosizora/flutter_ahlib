@@ -2,6 +2,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/src/util/flutter_extension.dart';
 
+/// TODO [TextSpan], [RichText], [SelectableText.rich]
+
 /// An abstract text group item that represents [TextGroup]'s children, inherited by [NormalGroupText] and [LinkGroupText].
 abstract class TextGroupItem {
   const TextGroupItem();
@@ -10,7 +12,8 @@ abstract class TextGroupItem {
   String get text;
 }
 
-/// A [TextGroupItem] that represents a normal text. This is not a [Widget], but just a data class to store options and used in [TextGroup].
+/// A [TextGroupItem] that represents a normal text. This is not a [Widget], but just a data class to store options and used in
+/// [TextGroup].
 class NormalGroupText extends TextGroupItem {
   const NormalGroupText({
     required this.text,
@@ -25,7 +28,8 @@ class NormalGroupText extends TextGroupItem {
   final TextStyle? style;
 }
 
-/// A [TextGroupItem] that represents a linked text. This is not a [Widget], but just a data class to store options and used in [TextGroup].
+/// A [TextGroupItem] that represents a linked text. This is not a [Widget], but just a data class to store options and used in
+/// [TextGroup].
 class LinkGroupText extends TextGroupItem {
   const LinkGroupText({
     required this.text,
@@ -92,8 +96,8 @@ class TextGroup extends StatefulWidget {
   /// The children of this widget.
   final List<TextGroupItem> texts;
 
-  /// The switcher represents this widget can be selectable.
-  final bool selectable;
+  /// The switcher represents this widget can be selectable, defaults to false.
+  final bool? selectable;
 
   /// The text style of the outer [TextSpan].
   final TextStyle? style;
@@ -106,28 +110,28 @@ class TextGroup extends StatefulWidget {
   /// The strutStyle of [RichText] and [SelectableText].
   final StrutStyle? strutStyle;
 
-  /// The textAlign of [RichText] and [SelectableText].
-  final TextAlign textAlign;
+  /// The textAlign of [RichText] and [SelectableText], defaults to [TextAlign.start].
+  final TextAlign? textAlign;
 
   /// The textDirection of [RichText] and [SelectableText].
   final TextDirection? textDirection;
 
-  /// The textScaleFactor of [RichText] and [SelectableText].
-  final double textScaleFactor;
+  /// The textScaleFactor of [RichText] and [SelectableText], defaults to 1.0.
+  final double? textScaleFactor;
 
-  /// The textWidthBasis of [RichText] and [SelectableText].
-  final TextWidthBasis textWidthBasis;
+  /// The textWidthBasis of [RichText] and [SelectableText], defaults to [TextWidthBasis.parent].
+  final TextWidthBasis? textWidthBasis;
 
   /// The textHeightBehavior of [RichText] and [SelectableText].
   final TextHeightBehavior? textHeightBehavior;
 
   // RichText
 
-  /// The softWrap of [RichText] when [selectable] is false.
-  final bool softWrap;
+  /// The softWrap of [RichText] when [selectable] is false, defaults to true.
+  final bool? softWrap;
 
-  /// The overflow of [RichText] when [selectable] is false.
-  final TextOverflow overflow;
+  /// The overflow of [RichText] when [selectable] is false, defaults to [TextOverflow.clip].
+  final TextOverflow? overflow;
 
   // SelectableText
 
@@ -137,8 +141,8 @@ class TextGroup extends StatefulWidget {
   /// The toolbarOptions of [SelectableText] when [selectable] is true.
   final ToolbarOptions? toolbarOptions;
 
-  /// The cursorWidth of [SelectableText] when [selectable] is true.
-  final double cursorWidth;
+  /// The cursorWidth of [SelectableText] when [selectable] is true, defaults to 2.0.
+  final double? cursorWidth;
 
   /// The cursorHeight of [SelectableText] when [selectable] is true.
   final double? cursorHeight;
@@ -149,8 +153,8 @@ class TextGroup extends StatefulWidget {
   /// The cursorColor of [SelectableText] when [selectable] is true.
   final Color? cursorColor;
 
-  /// The dragStartBehavior of [SelectableText] when [selectable] is true.
-  final DragStartBehavior dragStartBehavior;
+  /// The dragStartBehavior of [SelectableText] when [selectable] is true, defaults to [DragStartBehavior.start].
+  final DragStartBehavior? dragStartBehavior;
 
   /// The minLines of [SelectableText] when [selectable] is true.
   final int? minLines;
@@ -186,7 +190,7 @@ class _TextGroupState extends State<TextGroup> {
                 ? TextStyle(color: textColor, decoration: TextDecoration.none)
                 : TextStyle(
                     color: Colors.transparent,
-                    shadows: [Shadow(color: textColor ?? Colors.black, offset: Offset(0, -1))], // offset -1
+                    shadows: [Shadow(color: textColor ?? Colors.black, offset: const Offset(0, -1))], // offset -1
                     decoration: TextDecoration.underline,
                     decorationColor: textColor ?? Colors.black,
                   ));
@@ -212,24 +216,24 @@ class _TextGroupState extends State<TextGroup> {
     var textSpan = TextSpan(
       text: '',
       style: widget.style ?? DefaultTextStyle.of(context).style,
-      children: spans..add(TextSpan(text: ' ')), // final textSpan
+      children: spans..add(const TextSpan(text: ' ')), // final textSpan
     );
 
-    if (!widget.selectable) {
+    if (!(widget.selectable ?? false)) {
       // RichText
       return RichText(
         text: textSpan,
         // both
         maxLines: widget.maxLines,
         strutStyle: widget.strutStyle,
-        textAlign: widget.textAlign,
+        textAlign: widget.textAlign ?? TextAlign.start,
         textDirection: widget.textDirection,
-        textScaleFactor: widget.textScaleFactor,
-        textWidthBasis: widget.textWidthBasis,
+        textScaleFactor: widget.textScaleFactor ?? 1.0,
+        textWidthBasis: widget.textWidthBasis ?? TextWidthBasis.parent,
         textHeightBehavior: widget.textHeightBehavior,
         // only
-        softWrap: widget.softWrap,
-        overflow: widget.overflow,
+        softWrap: widget.softWrap ?? true,
+        overflow: widget.overflow ?? TextOverflow.clip,
         // locale: widget.locale,
       );
     } else {
@@ -239,19 +243,19 @@ class _TextGroupState extends State<TextGroup> {
         // both
         maxLines: widget.maxLines,
         strutStyle: widget.strutStyle,
-        textAlign: widget.textAlign,
+        textAlign: widget.textAlign ?? TextAlign.start,
         textDirection: widget.textDirection,
-        textScaleFactor: widget.textScaleFactor,
-        textWidthBasis: widget.textWidthBasis,
+        textScaleFactor: widget.textScaleFactor ?? 1.0,
+        textWidthBasis: widget.textWidthBasis ?? TextWidthBasis.parent,
         textHeightBehavior: widget.textHeightBehavior,
         // only
         focusNode: widget.focusNode,
-        toolbarOptions: widget.toolbarOptions ?? ToolbarOptions(selectAll: true, copy: true),
-        cursorWidth: widget.cursorWidth,
+        toolbarOptions: widget.toolbarOptions ?? const ToolbarOptions(selectAll: true, copy: true),
+        cursorWidth: widget.cursorWidth ?? 2.0,
         cursorHeight: widget.cursorHeight,
         cursorRadius: widget.cursorRadius,
         cursorColor: widget.cursorColor,
-        dragStartBehavior: widget.dragStartBehavior,
+        dragStartBehavior: widget.dragStartBehavior ?? DragStartBehavior.start,
         minLines: widget.minLines,
         // showCursor: widget.showCursor,
         // autofocus: widget.autofocus,

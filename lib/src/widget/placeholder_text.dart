@@ -31,7 +31,7 @@ class PlaceholderSetting {
     // style
     this.textStyle = const TextStyle(fontSize: 20),
     this.buttonTextStyle = const TextStyle(fontSize: 14),
-    this.buttonStyle = const ButtonStyle(),
+    this.buttonStyle = const ButtonStyle(), // TODO
     // this.buttonBorderSide = const BorderSide(style: BorderStyle.solid, color: Color(0xFFD7D7D7)),
     this.iconSize = 50,
     this.iconColor = Colors.grey,
@@ -322,7 +322,7 @@ class _PlaceholderTextState extends State<PlaceholderText> {
                       widget.onRefresh?.call();
                       if (mounted) setState(() {});
                     },
-                    style: widget.setting.buttonStyle,
+                    style: widget.setting.buttonStyle, // TODO
                     // style: OutlinedButton.styleFrom(
                     //   side: widget.setting.buttonBorderSide,
                     // ),
@@ -370,7 +370,7 @@ class _PlaceholderTextState extends State<PlaceholderText> {
                       widget.onRefresh?.call();
                       if (mounted) setState(() {});
                     },
-                    style: widget.setting.buttonStyle,
+                    style: widget.setting.buttonStyle, // TODO
                     // style: OutlinedButton.styleFrom(
                     //   side: widget.setting.buttonBorderSide,
                     // ),
@@ -383,7 +383,7 @@ class _PlaceholderTextState extends State<PlaceholderText> {
       // unreachable
       ////////////////////////////////////////////////////////////////
       default:
-        return Container(); // dummy
+        return const SizedBox(height: 0); // dummy
     }
   }
 }

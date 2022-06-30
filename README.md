@@ -6,7 +6,7 @@
 [![License](https://img.shields.io/badge/license-mit-blue.svg)](./LICENSE)
 
 + A personal flutter library, contains some useful widgets and utils.
-+ See package in https://pub.dev/packages/flutter_ahlib.
++ Visit package details in https://pub.dev/packages/flutter_ahlib.
 
 ### Usage
 
@@ -23,38 +23,43 @@ import 'package:flutter_ahlib/flutter_ahlib.dart'; // the whole library
 ### Library contents
 
 + widget.dart:
-    + `PlaceholderText`
+    + `AnimatedFab` `ScrollAnimatedFab` `AnimatedFabController`
     + `DrawerListView`
     + `IconText`
-    + `showPopupListMenu`
-    + `AnimatedFab` `ScrollAnimatedFab` `AnimatedFabController`
-    + `SliverAppBarDelegate` `SliverAppBarSizedDelegate` `SliverSeparatedListDelegate` `SliverSeparatedListBuilderDelegate`
-    + `TextGroup`
     + `LazyIndexedStack`
+    + `PlaceholderText`
+    + `MenuItem` `TextMenuItem` `IconTextMenuItem` `showPopupListMenu`
+    + `SliverAppBarDelegate` `SliverAppBarSizedDelegate` `SliverSeparatedListDelegate` `SliverSeparatedListBuilderDelegate`
     + `TabInPageNotification`
+    + `NormalGroupText` `LinkGroupText` `TextGroup`
 + list.dart:
     + `AppendIndicator`
-    + `UpdatableDataView` `UpdatableDataViewController`
     + `RefreshableDataView` `RefreshableListView` `RefreshableSliverListView` `RefreshableStaggeredGridView`
     + `PaginationDataView` `PaginationListView` `PaginationSliverListView` `PaginationStaggeredGridView`
+    + `UpdatableDataView` `UpdatableDataViewController`
 + image.dart:
-    + `FileOrNetworkImageProvider`
+    + `LocalOrCachedNetworkImageProvider`
     + `MultiImageStreamCompleter`
 + util.dart:
     + `ActionController`
-    + `Tuple2` ~ `Tuple6`
-    + `hash2` ~ `hash6` `hashObjects`
     + `BoolExtension` `ListExtension`
-    + `StateExtension` `ScrollControllerExtension` `PageControllerExtension` `ScrollMetricsExtension`
     + `filesize`
-    + `NotifiableData`
+    + `StateExtension` `ScrollControllerExtension` `PageControllerExtension` `ScrollMetricsExtension`
+    + `hash2` ~ `hash6` `hashObjects`
+    + `Tuple2` ~ `Tuple6`
 
 ### Dependencies
 
-+ See [pubspec.yaml](./pubspec.yaml)
++ Visit [pubspec.yaml](./pubspec.yaml) for details.
 
 ```yaml
-flutter_staggered_grid_view: ^0.3.2
-flutter_cache_manager: ">=2.0.0 <3.0.0" # 2.0.0
-http: ^0.12.2
+environment:
+  sdk: ">=2.16.2 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_cache_manager: ^3.3.0
+  flutter_staggered_grid_view: ^0.6.1
+  http: ^0.13.4
 ```
