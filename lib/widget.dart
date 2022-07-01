@@ -1,6 +1,7 @@
 library flutter_ahlib_widget;
 
 export 'src/widget/animated_fab.dart';
+export 'src/widget/custom_ink_ripple.dart';
 export 'src/widget/drawer_list_view.dart';
 export 'src/widget/icon_text.dart';
 export 'src/widget/lazy_indexed_stack.dart';

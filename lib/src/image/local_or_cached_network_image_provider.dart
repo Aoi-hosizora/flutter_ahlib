@@ -25,7 +25,7 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
     this.headFirst,
     this.headers,
     this.cacheManager,
-    this.errorListener,
+    this.onError,
     this.onFileLoading,
     this.onUrlLoading,
     this.onFileLoaded,
@@ -59,8 +59,8 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
   /// The cache manager from which the image files are loaded.
   final BaseCacheManager? cacheManager;
 
-  /// The listener to be called when images fails to load.
-  final void Function()? errorListener;
+  /// The callback function to be called when images fails to load.
+  final void Function()? onError;
 
   /// The callback function to be called when the local image starts to
   /// load.
@@ -109,7 +109,7 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
 
     var file = await this.file();
     var url = await this.url();
-    assert(file == null || await file.exists());
+    assert(file == null || await file.exists()); // TODO
     assert(url == null || url.isNotEmpty);
     assert(file != null || url != null);
 
@@ -120,7 +120,7 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
         file,
         chunkEvents,
         decode,
-        errorListener,
+        onError,
       );
       onFileLoaded?.call();
     }
@@ -137,7 +137,7 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
         maxWidth,
         headFirst,
         headers,
-        errorListener,
+        onError,
         () => PaintingBinding.instance?.imageCache?.evict(key),
       );
       onUrlLoaded?.call();
@@ -157,7 +157,7 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
     } catch (e) {
       // chunkEvents.addError(e);
       errorListener?.call();
-      rethrow;
+      rethrow; // TODO
     } finally {
       await chunkEvents.close();
     }
@@ -235,7 +235,7 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
 
       // chunkEvents.addError(e);
       errorListener?.call();
-      rethrow;
+      rethrow; // TODO
     } finally {
       await chunkEvents.close();
     }

@@ -114,8 +114,8 @@ class AppendIndicatorState extends State<AppendIndicator> with TickerProviderSta
     // metrics is used to check if the indicator should start
     var metrics = notification.metrics;
 
-    // scroll update (directly)
-    if (notification is ScrollUpdateNotification && notification.dragDetails != null) {
+    // scroll update (when scroll to bottom directly)
+    if (notification is ScrollUpdateNotification) {
       if (metrics.extentAfter == 0.0 && metrics.maxScrollExtent > 0.0 && _mode == null) {
         _start();
         _show(); // show directly
@@ -123,7 +123,7 @@ class AppendIndicatorState extends State<AppendIndicator> with TickerProviderSta
       }
     }
 
-    // scroll start
+    // scroll start (start dragging)
     if (notification is ScrollStartNotification && notification.dragDetails != null) {
       if (metrics.extentAfter == 0.0 && _mode == null) {
         _start();

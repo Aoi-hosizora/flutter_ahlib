@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_ahlib/flutter_ahlib.dart';
 import 'package:flutter_ahlib_example/page/image/local_or_cached_network_image_provider.dart';
 import 'package:flutter_ahlib_example/page/list/append_indicator.dart';
 import 'package:flutter_ahlib_example/page/list/pagination_listview.dart';
@@ -38,16 +39,19 @@ class _IndexPageState extends State<IndexPage> {
   }
 
   Widget _button(String title, Widget page, [RouteSettings? settings]) {
-    return OutlinedButton(
+    return ElevatedButton(
       child: Text(title),
       onPressed: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (c) => page,
-            settings: settings,
-          ),
-        );
+        // Navigator.of(context).push(
+        //   MaterialPageRoute(
+        //     builder: (c) => page,
+        //     settings: settings,
+        //   ),
+        // );
       },
+      style: ElevatedButton.styleFrom(
+        splashFactory: InkRipple.splashFactory,
+      ),
     );
   }
 
@@ -58,10 +62,14 @@ class _IndexPageState extends State<IndexPage> {
         title: const Text('Flutter Ahlib Example'),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: ListView(
+          padding: const EdgeInsets.all(6),
+          shrinkWrap: true,
           children: [
-            _text('Widgets Example'),
+            Align(
+              alignment: Alignment.center,
+              child: _text('Widgets Example'),
+            ),
             Wrap(
               alignment: WrapAlignment.center,
               spacing: 8,
@@ -77,7 +85,10 @@ class _IndexPageState extends State<IndexPage> {
                 _button('TabInPageNotification', const TabInPageNotificationPage()),
               ],
             ),
-            _text('Lists Example'),
+            Align(
+              alignment: Alignment.center,
+              child: _text('Lists Example'),
+            ),
             Wrap(
               alignment: WrapAlignment.center,
               spacing: 8,
@@ -91,14 +102,108 @@ class _IndexPageState extends State<IndexPage> {
                 _button('PaginationMasonryGridView', const PaginationMasonryGridViewPage()),
               ],
             ),
-            _text('Images Example'),
+            Align(
+              alignment: Alignment.center,
+              child: _text('Images Example'),
+            ),
             Wrap(
               alignment: WrapAlignment.center,
               spacing: 8,
               children: [
-                _button('LocalOrCachedNetworkImageProvider', const LocalOrCachedNetworkImageProviderPage()),
+                _button('清除日志', const LocalOrCachedNetworkImageProviderPage()),
               ],
             ),
+            Align(
+              alignment: Alignment.center,
+              child: _text('Temp'),
+            ),
+            Card(
+              child: InkWell(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Text(
+                    'CustomInkRipple',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.subtitle1!,
+                  ),
+                ),
+                onTap: () {},
+                splashFactory: CustomInkRipple.splashFactory,
+              ),
+            ),
+            Card(
+              child: InkWell(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Text(
+                    'InkRipple',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.subtitle1!,
+                  ),
+                ),
+                onTap: () {},
+                splashFactory: InkRipple.splashFactory,
+              ),
+            ),
+            Card(
+              child: InkWell(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Text(
+                    'InkSplash',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.subtitle1!,
+                  ),
+                ),
+                onTap: () {},
+                splashFactory: InkSplash.splashFactory,
+              ),
+            ),
+            ListTile(
+              title: Text(
+                'xxx',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.subtitle1!,
+              ),
+              onTap: () {},
+            ),
+            ListTile(
+              title: Text(
+                'xxx',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.subtitle1!,
+              ),
+              onTap: () => showDialog(
+                context: context,
+                builder: (c) => AlertDialog(
+                  title: const Text('TITLE'),
+                  content: const Text('CONTENT'),
+                  actions: [
+                    TextButton(
+                      child: const Text('CustomInkRipple'),
+                      onPressed: () {},
+                      style: TextButton.styleFrom(
+                        splashFactory: CustomInkRipple.splashFactory,
+                      ),
+                    ),
+                    TextButton(
+                      child: const Text('InkRipple'),
+                      onPressed: () {},
+                      style: TextButton.styleFrom(
+                        splashFactory: InkRipple.splashFactory,
+                      ),
+                    ),
+                    TextButton(
+                      child: const Text('InkSplash'),
+                      onPressed: () {},
+                      style: TextButton.styleFrom(
+                        splashFactory: InkSplash.splashFactory,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
           ],
         ),
       ),
