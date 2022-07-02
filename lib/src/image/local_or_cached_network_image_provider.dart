@@ -10,58 +10,114 @@ import 'local_or_cached_network_image_provider.dart' as image_provider;
 import 'multi_image_stream_completer.dart';
 import 'package:http/http.dart' as http show head;
 
+// Note: The file is based on Baseflow/flutter_cached_network_image, and is modified by Aoi-hosizora (GitHub: @Aoi-hosizora).
+//
 // Refers to:
 // https://github.com/Baseflow/flutter_cached_network_image/blob/v3.1.0/cached_network_image/lib/src/image_provider/cached_network_image_provider.dart
 // https://github.com/Baseflow/flutter_cached_network_image/blob/v3.1.0/cached_network_image/lib/src/image_provider/_image_loader.dart
 
+// ignore_for_file: prefer_initializing_formals
+
 /// An [ImageProvider] for loading image from local file or network using a cache.
-///
-/// If given [file] function returns a not-null File, than this provider will load
-/// image from given file, whether the file exists or not, otherwise this provider
-/// will load image from the returned not-null url from given [url] function.
 class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.LocalOrCachedNetworkImageProvider> {
+  /// Creates [LocalOrCachedNetworkImageProvider] with nullable [file] and [url].
+  ///
+  /// If given [file] is not null, then this provider will load image from this file,
+  /// whether the file exists or not, otherwise this provider will load image from
+  /// given [url], so [file] and [url] must at lease have one non-null value.
   const LocalOrCachedNetworkImageProvider({
     this.key,
-    required this.file,
-    required this.url,
+    required io.File? file,
+    required String? url,
     this.scale = 1.0,
     this.maxHeight,
     this.maxWidth,
-    this.headFirst,
+    this.asyncHeadFirst,
     this.headers,
     this.cacheManager,
-    this.onError,
     this.onFileLoading,
     this.onUrlLoading,
+    this.onFileError,
+    this.onUrlError,
     this.onFileLoaded,
     this.onUrlLoaded,
   })  : _useFn = false,
+        file = file,
+        url = url,
         fileFn = null,
         urlFn = null,
         assert(file != null || url != null);
 
-  LocalOrCachedNetworkImageProvider.fn({
+  /// Creates [LocalOrCachedNetworkImageProvider] with non-null [fileFn] and [urlFn].
+  ///
+  /// If given [fileFn] function returns a not-null File, then this provider will load
+  /// image from given file, whether the file exists or not, otherwise this provider
+  /// will load image from the returned not-null url from given [urlFn] function.
+  const LocalOrCachedNetworkImageProvider.fn({
     this.key,
     required Future<io.File?> Function() fileFn,
     required Future<String?> Function() urlFn,
     this.scale = 1.0,
     this.maxHeight,
     this.maxWidth,
-    this.headFirst,
+    this.asyncHeadFirst,
     this.headers,
     this.cacheManager,
-    this.onError,
     this.onFileLoading,
     this.onUrlLoading,
+    this.onFileError,
+    this.onUrlError,
     this.onFileLoaded,
     this.onUrlLoaded,
   })  : _useFn = true,
-        // ignore: prefer_initializing_formals
-        fileFn = fileFn,
-        // ignore: prefer_initializing_formals
-        urlFn = urlFn,
         file = null,
-        url = null;
+        url = null,
+        fileFn = fileFn,
+        urlFn = urlFn;
+
+  /// Creates [LocalOrCachedNetworkImageProvider] with non-null [url] only.
+  const LocalOrCachedNetworkImageProvider.fromNetwork({
+    this.key,
+    required String url,
+    this.scale = 1.0,
+    this.maxHeight,
+    this.maxWidth,
+    this.asyncHeadFirst,
+    this.headers,
+    this.cacheManager,
+    this.onUrlLoading,
+    this.onUrlError,
+    this.onUrlLoaded,
+  })  : _useFn = false,
+        file = null,
+        url = url,
+        fileFn = null,
+        urlFn = null,
+        onFileLoading = null,
+        onFileError = null,
+        onFileLoaded = null;
+
+  /// Creates [LocalOrCachedNetworkImageProvider] with non-null [file] only.
+  const LocalOrCachedNetworkImageProvider.fromLocal({
+    this.key,
+    required io.File file,
+    this.scale = 1.0,
+    this.onFileLoading,
+    this.onFileError,
+    this.onFileLoaded,
+  })  : _useFn = false,
+        file = file,
+        url = null,
+        fileFn = null,
+        urlFn = null,
+        maxHeight = null,
+        maxWidth = null,
+        asyncHeadFirst = null,
+        headers = null,
+        cacheManager = null,
+        onUrlLoading = null,
+        onUrlError = null,
+        onUrlLoaded = null;
 
   /// The key that can be used to reload the image in force.
   final Key? key;
@@ -81,8 +137,8 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
   /// The web url function of the image to load.
   final Future<String?> Function()? urlFn;
 
-  /// The scale of the image.
-  final double scale;
+  /// The scale of the image, defaults to 1.0.
+  final double? scale;
 
   /// The maximum height of the loaded image. If not null and using an
   /// [ImageCacheManager] the image is resized on disk to fit the height.
@@ -93,17 +149,14 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
   final int? maxWidth;
 
   /// The flag for loading image from network, is used to check if need to
-  /// send head request to get its real size.
-  final bool? headFirst;
+  /// send head request in asynchronous to get its real size.
+  final bool? asyncHeadFirst;
 
   /// The headers for the image provider, for example for authentication.
   final Map<String, String>? headers;
 
   /// The cache manager from which the image files are loaded.
   final BaseCacheManager? cacheManager;
-
-  /// The callback function to be called when images fails to load.
-  final void Function(dynamic)? onError;
 
   /// The callback function to be called when the local image starts to
   /// load.
@@ -112,6 +165,14 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
   /// The callback function to be called when the network image starts to
   /// load or download.
   final Function()? onUrlLoading;
+
+  /// The callback function to be called when the local image failed to
+  /// load.
+  final void Function(dynamic e)? onFileError;
+
+  /// The callback function to be called when the network image failed to
+  /// load.
+  final void Function(dynamic e)? onUrlError;
 
   /// The callback function to be called when the local image finished
   /// loading.
@@ -132,7 +193,7 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
     return MultiImageStreamCompleter(
       codec: _loadAsync(key, chunkEvents, decode),
       chunkEvents: chunkEvents.stream,
-      scale: key.scale,
+      scale: key.scale ?? 1.0,
       informationCollector: () sync* {
         yield DiagnosticsProperty<ImageProvider>(
           'Image provider: $this \n Image key: $key',
@@ -169,7 +230,7 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
         file,
         chunkEvents,
         decode,
-        onError,
+        onFileError,
       );
       onFileLoaded?.call();
     }
@@ -184,9 +245,9 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
         cacheManager ?? DefaultCacheManager(),
         maxHeight,
         maxWidth,
-        headFirst,
+        asyncHeadFirst,
         headers,
-        onError,
+        onUrlError,
         () => PaintingBinding.instance?.imageCache?.evict(key),
       );
       onUrlLoaded?.call();
@@ -250,7 +311,7 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
     BaseCacheManager cacheManager,
     int? maxHeight,
     int? maxWidth,
-    bool? headFirst,
+    bool? asyncHeadFirst,
     Map<String, String>? headers,
     Function(dynamic)? onError,
     Function() evictImage,
@@ -278,7 +339,7 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
 
       // get real size from http head request
       int? imageSize;
-      if (headFirst ?? false) {
+      if (asyncHeadFirst ?? false) {
         var uriUrl = Uri.parse(url);
         http.head(uriUrl, headers: {
           'Accept': '*/*',
@@ -324,7 +385,7 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
   @override
   bool operator ==(dynamic other) {
     if (other is LocalOrCachedNetworkImageProvider) {
-      if (!(key == other.key && scale == other.scale && maxHeight == other.maxHeight && maxWidth == other.maxWidth)) {
+      if (!(key == other.key && _useFn == other._useFn && scale == other.scale && maxHeight == other.maxHeight && maxWidth == other.maxWidth)) {
         return false;
       }
 
@@ -342,7 +403,12 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
   }
 
   @override
-  int get hashCode => hashValues(key, file, url, scale, maxHeight, maxWidth);
+  int get hashCode {
+    if (_useFn) {
+      return hashValues(key, fileFn, urlFn, scale, maxHeight, maxWidth);
+    }
+    return hashValues(key, file, url, scale, maxHeight, maxWidth);
+  }
 
   @override
   String toString() => 'LocalOrCachedNetworkImageProvider(...)';

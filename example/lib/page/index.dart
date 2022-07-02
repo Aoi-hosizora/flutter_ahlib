@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib_example/page/image/local_or_cached_network_image_provider.dart';
+import 'package:flutter_ahlib_example/page/image/reloadable_photo_view_gallery.dart';
 import 'package:flutter_ahlib_example/page/list/append_indicator.dart';
 import 'package:flutter_ahlib_example/page/list/pagination_listview.dart';
 import 'package:flutter_ahlib_example/page/list/pagination_sliver_listview.dart';
@@ -109,6 +110,7 @@ class _IndexPageState extends State<IndexPage> {
               spacing: 8,
               children: [
                 _button('LocalOrCachedNetworkImageProvider', const LocalOrCachedNetworkImageProviderPage()),
+                _button('ReloadablePhotoViewGallery', const ReloadablePhotoViewGalleryPage()),
               ],
             ),
           ],

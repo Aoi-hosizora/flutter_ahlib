@@ -35,13 +35,14 @@ import 'package:flutter_ahlib/flutter_ahlib.dart'; // the whole library
     + `TabInPageNotification`
     + `TextGroup`
 + list.dart:
-    + `AppendIndicator`
+    + `AppendIndicator` `AppendIndicatorState`
     + `RefreshableDataView` `RefreshableListView` `RefreshableSliverListView` `RefreshableMasonryGridView`
     + `PaginationDataView` `PaginationListView` `PaginationSliverListView` `PaginationMasonryGridView`
     + `UpdatableDataView` `UpdatableDataViewController`
 + image.dart:
     + `LocalOrCachedNetworkImageProvider`
     + `MultiImageStreamCompleter`
+    + `ReloadablePhotoViewGallery` `ReloadablePhotoViewGalleryState`
 + util.dart:
     + `ActionController`
     + `BoolExtension` `ListExtension`
@@ -64,4 +65,5 @@ dependencies:
   flutter_cache_manager: ^3.3.0
   flutter_staggered_grid_view: ^0.6.1
   http: ^0.13.4
+  photo_view: ^0.14.0
 ```
