@@ -56,10 +56,10 @@ class CustomInkRippleSetting {
   /// The preferred [CustomInkRipple] setting by Aoi-hosizora :)
   static const CustomInkRippleSetting preferredSetting = CustomInkRippleSetting(
     unconfirmedRippleDuration: Duration(milliseconds: 250) /* 1000 -> 250 */,
-    unconfirmedFadeInDuration: Duration(milliseconds: 85) /* 75 -> 85 */,
-    confirmedRippleDuration: Duration(milliseconds: 275) /* 225 -> 275 */,
-    confirmedFadeoutDuration: Duration(milliseconds: 125) /* 150 -> 125 */,
-    confirmedFadeoutInterval: Duration(milliseconds: 185) /* 225 -> 185 */,
+    unconfirmedFadeInDuration: Duration(milliseconds: 75) /* 75 -> 75 */,
+    confirmedRippleDuration: Duration(milliseconds: 250) /* 225 -> 250 */,
+    confirmedFadeoutDuration: Duration(milliseconds: 150) /* 150 -> 150 */,
+    confirmedFadeoutInterval: Duration(milliseconds: 200) /* 225 -> 200 */,
     canceledFadeOutDuration: Duration(milliseconds: 75),
   );
 

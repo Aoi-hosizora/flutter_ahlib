@@ -15,8 +15,13 @@ import 'package:http/http.dart' as http show head;
 // https://github.com/Baseflow/flutter_cached_network_image/blob/v3.1.0/cached_network_image/lib/src/image_provider/_image_loader.dart
 
 /// An [ImageProvider] for loading image from local file or network using a cache.
+///
+/// If given [file] function returns a not-null File, than this provider will load
+/// image from given file, whether the file exists or not, otherwise this provider
+/// will load image from the returned not-null url from given [url] function.
 class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.LocalOrCachedNetworkImageProvider> {
   const LocalOrCachedNetworkImageProvider({
+    this.key,
     required this.file,
     required this.url,
     this.scale = 1.0,
@@ -30,13 +35,51 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
     this.onUrlLoading,
     this.onFileLoaded,
     this.onUrlLoaded,
-  });
+  })  : _useFn = false,
+        fileFn = null,
+        urlFn = null,
+        assert(file != null || url != null);
+
+  LocalOrCachedNetworkImageProvider.fn({
+    this.key,
+    required Future<io.File?> Function() fileFn,
+    required Future<String?> Function() urlFn,
+    this.scale = 1.0,
+    this.maxHeight,
+    this.maxWidth,
+    this.headFirst,
+    this.headers,
+    this.cacheManager,
+    this.onError,
+    this.onFileLoading,
+    this.onUrlLoading,
+    this.onFileLoaded,
+    this.onUrlLoaded,
+  })  : _useFn = true,
+        // ignore: prefer_initializing_formals
+        fileFn = fileFn,
+        // ignore: prefer_initializing_formals
+        urlFn = urlFn,
+        file = null,
+        url = null;
+
+  /// The key that can be used to reload the image in force.
+  final Key? key;
+
+  /// The flag that describes if fn parameters used or not.
+  final bool _useFn;
 
   /// The local file of the image to load.
-  final Future<io.File?> Function() file;
+  final io.File? file;
 
   /// The web url of the image to load.
-  final Future<String?> Function() url;
+  final String? url;
+
+  /// The local file function of the image to load.
+  final Future<io.File?> Function()? fileFn;
+
+  /// The web url function of the image to load.
+  final Future<String?> Function()? urlFn;
 
   /// The scale of the image.
   final double scale;
@@ -60,7 +103,7 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
   final BaseCacheManager? cacheManager;
 
   /// The callback function to be called when images fails to load.
-  final void Function()? onError;
+  final void Function(dynamic)? onError;
 
   /// The callback function to be called when the local image starts to
   /// load.
@@ -107,11 +150,17 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
   ) async* {
     assert(key == this);
 
-    var file = await this.file();
-    var url = await this.url();
-    assert(file == null || await file.exists()); // TODO
-    assert(url == null || url.isNotEmpty);
-    assert(file != null || url != null);
+    io.File? file;
+    String? url;
+    if (!_useFn) {
+      file = this.file;
+      url = this.url;
+    } else {
+      assert(fileFn != null && urlFn != null);
+      file = await fileFn!();
+      url = await urlFn!();
+      assert(file != null || url != null);
+    }
 
     // load local image
     if (file != null) {
@@ -148,16 +197,47 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
     io.File file,
     StreamController<ImageChunkEvent> chunkEvents,
     DecoderCallback decode,
-    Function()? errorListener,
+    Function(dynamic)? onError,
   ) async* {
     try {
+      if (!await file.exists()) {
+        throw Exception('Image file "${file.path}" is not found.');
+      }
+
       var bytes = await file.readAsBytes();
       var decoded = await decode(bytes);
       yield decoded;
     } catch (e) {
+      onError?.call(e);
+
       // chunkEvents.addError(e);
-      errorListener?.call();
-      rethrow; // TODO
+      // =>
+      // ══╡ EXCEPTION CAUGHT BY IMAGE RESOURCE SERVICE ╞════════════════════════════════════════════════════
+      // The following _Exception was thrown loading an image:
+      // Exception: Image file "/sdcard/DCIM/testx.jpg" is not found.
+      //
+      // When the exception was thrown, this was the stack:
+      //
+      // Image provider: LocalOrCachedNetworkImageProvider(...)
+      //  Image key: LocalOrCachedNetworkImageProvider(...):
+      //   LocalOrCachedNetworkImageProvider(...)
+      // ════════════════════════════════════════════════════════════════════════════════════════════════════
+
+      rethrow; // <<< use rethrow is better than chunkEvents.addError
+      // =>
+      // ══╡ EXCEPTION CAUGHT BY IMAGE RESOURCE SERVICE ╞════════════════════════════════════════════════════
+      // The following _Exception was thrown resolving an image codec:
+      // Exception: Image file "/sdcard/DCIM/testx.jpg" is not found.
+      //
+      // When the exception was thrown, this was the stack:
+      // #0      LocalOrCachedNetworkImageProvider._loadLocalImageAsync
+      // (package:flutter_ahlib/src/image/local_or_cached_network_image_provider.dart:157:9)
+      // <asynchronous suspension>
+      //
+      // Image provider: LocalOrCachedNetworkImageProvider(...)
+      //  Image key: LocalOrCachedNetworkImageProvider(...):
+      //   LocalOrCachedNetworkImageProvider(...)
+      // ════════════════════════════════════════════════════════════════════════════════════════════════════
     } finally {
       await chunkEvents.close();
     }
@@ -172,7 +252,7 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
     int? maxWidth,
     bool? headFirst,
     Map<String, String>? headers,
-    Function()? errorListener,
+    Function(dynamic)? onError,
     Function() evictImage,
   ) async* {
     try {
@@ -233,9 +313,9 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
         evictImage();
       });
 
+      onError?.call(e);
       // chunkEvents.addError(e);
-      errorListener?.call();
-      rethrow; // TODO
+      rethrow; // <<< use rethrow is better than chunkEvents.addError
     } finally {
       await chunkEvents.close();
     }
@@ -244,14 +324,26 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
   @override
   bool operator ==(dynamic other) {
     if (other is LocalOrCachedNetworkImageProvider) {
-      // ATTENTION: url and file are both functions, so for the same image, you
-      // must use the previous url and file parameter, to avoid ImageProvider's
-      // '==' operator returning false.
-      return file == other.file && url == other.url && scale == other.scale && maxHeight == other.maxHeight && maxWidth == other.maxWidth;
+      if (!(key == other.key && scale == other.scale && maxHeight == other.maxHeight && maxWidth == other.maxWidth)) {
+        return false;
+      }
+
+      if (_useFn) {
+        // ATTENTION: fileFn and urlFn are both functions, so for the same image,
+        // you must use the previous fileFn and urlFn (you have to save these two
+        // parameters first), to avoid ImageProvider's '==' operator returning
+        // false and reload the image incorrectly.
+        return fileFn == other.fileFn && urlFn == other.urlFn;
+      }
+
+      return (file == other.file || (file != null && other.file != null && file!.path == other.file!.path)) && url == other.url;
     }
     return false;
   }
 
   @override
-  int get hashCode => hashValues(file, url, scale, maxHeight, maxWidth);
+  int get hashCode => hashValues(key, file, url, scale, maxHeight, maxWidth);
+
+  @override
+  String toString() => 'LocalOrCachedNetworkImageProvider(...)';
 }
