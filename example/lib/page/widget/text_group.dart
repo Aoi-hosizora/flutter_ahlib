@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/flutter_ahlib.dart';
+import 'package:flutter_ahlib_example/main.dart';
 
 class TextGroupPage extends StatefulWidget {
   const TextGroupPage({Key? key}) : super(key: key);
@@ -29,20 +30,20 @@ class _TextGroupPageState extends State<TextGroupPage> {
                 const NormalGroupText(text: 'test2'),
                 LinkGroupText(
                   text: '|LinkGroupText1|',
-                  onTap: () => print('tapped 1'),
+                  onTap: () => printLog('tapped 1'),
                   normalColor: Theme.of(context).primaryColor,
                   pressedColor: Colors.red,
                 ),
                 const NormalGroupText(text: 'test3'),
                 LinkGroupText(
                   text: '|LinkGroupText2|',
-                  onTap: () => print('tapped 2'),
+                  onTap: () => printLog('tapped 2'),
                   pressedColor: Theme.of(context).primaryColor,
                 ),
                 const NormalGroupText(text: 'test4'),
                 LinkGroupText(
                   text: '|LinkGroupText3|',
-                  onTap: () => print('tapped 3'),
+                  onTap: () => printLog('tapped 3'),
                   normalColor: Theme.of(context).primaryColor,
                   showUnderline: false,
                 ),
@@ -60,20 +61,20 @@ class _TextGroupPageState extends State<TextGroupPage> {
                 const NormalGroupText(text: 'test2'),
                 LinkGroupText(
                   text: '|LinkGroupText1|',
-                  onTap: () => print('tapped 1'),
+                  onTap: () => printLog('tapped 1'),
                   normalColor: Theme.of(context).primaryColor,
                   pressedColor: Colors.red,
                 ),
                 const NormalGroupText(text: 'test3'),
                 LinkGroupText(
                   text: '|LinkGroupText2|',
-                  onTap: () => print('tapped 2'),
+                  onTap: () => printLog('tapped 2'),
                   pressedColor: Theme.of(context).primaryColor,
                 ),
                 const NormalGroupText(text: 'test4'),
                 LinkGroupText(
                   text: '|LinkGroupText3|',
-                  onTap: () => print('tapped 3'),
+                  onTap: () => printLog('tapped 3'),
                   normalColor: Theme.of(context).primaryColor,
                   showUnderline: false,
                 ),

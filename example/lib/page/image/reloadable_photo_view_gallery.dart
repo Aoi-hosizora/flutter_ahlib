@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/flutter_ahlib.dart';
+import 'package:flutter_ahlib_example/main.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 class ReloadablePhotoViewGalleryPage extends StatefulWidget {
@@ -34,7 +35,7 @@ class _ReloadablePhotoViewGalleryPageState extends State<ReloadablePhotoViewGall
         }
         await _cache.emptyCache();
         PaintingBinding.instance?.imageCache?.clear();
-        print('emptyCache');
+        printLog('emptyCache');
         return true;
       },
       child: Scaffold(
@@ -100,9 +101,9 @@ class _ReloadablePhotoViewGalleryPageState extends State<ReloadablePhotoViewGall
                     key: key,
                     url: _urls[index],
                     cacheManager: _cache,
-                    onUrlLoading: () => print('onUrlLoading ${index + 1}'),
-                    onUrlError: (e) => print('onError ${index + 1}: $e'),
-                    onUrlLoaded: () => print('onUrlLoaded ${index + 1}'),
+                    onUrlLoading: () => printLog('onUrlLoading ${index + 1}'),
+                    onUrlError: (e) => printLog('onError ${index + 1}: $e'),
+                    onUrlLoaded: () => printLog('onUrlLoaded ${index + 1}'),
                   ),
                   loadingBuilder: (_, ev) => Center(
                     child: CircularProgressIndicator(

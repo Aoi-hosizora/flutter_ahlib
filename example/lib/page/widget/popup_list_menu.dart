@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/flutter_ahlib.dart';
+import 'package:flutter_ahlib_example/main.dart';
 
 class PopupListMenuPage extends StatefulWidget {
   const PopupListMenuPage({Key? key}) : super(key: key);
@@ -28,11 +29,11 @@ class _PopupListMenuPageState extends State<PopupListMenuPage> {
                 items: [
                   IconTextMenuItem(
                     iconText: IconText.simple(Icons.chevron_right, 'test1'),
-                    action: () => print('test1'),
+                    action: () => printLog('test1'),
                   ),
                   IconTextMenuItem(
                     iconText: IconText.simple(Icons.chevron_right, 'test2'),
-                    action: () => print('test2'),
+                    action: () => printLog('test2'),
                   ),
                 ],
               ),
@@ -46,11 +47,11 @@ class _PopupListMenuPageState extends State<PopupListMenuPage> {
                 items: [
                   TextMenuItem(
                     text: const Text('test3'),
-                    action: () => print('test3'),
+                    action: () => printLog('test3'),
                   ),
                   TextMenuItem(
                     text: const Text('test4'),
-                    action: () => print('test4'),
+                    action: () => printLog('test4'),
                   ),
                 ],
               ),
@@ -66,7 +67,7 @@ class _PopupListMenuPageState extends State<PopupListMenuPage> {
                     text: const Text('test5'),
                     action: () async {
                       await Future.delayed(const Duration(milliseconds: 500));
-                      print('test5');
+                      printLog('test5');
                     },
                     dismissBehavior: DismissBehavior.before,
                   ),
@@ -74,13 +75,13 @@ class _PopupListMenuPageState extends State<PopupListMenuPage> {
                     iconText: IconText.simple(Icons.chevron_right, 'test6'),
                     action: () async {
                       await Future.delayed(const Duration(milliseconds: 500));
-                      print('test6');
+                      printLog('test6');
                     },
                     dismissBehavior: DismissBehavior.after,
                   ),
                   MenuItem(
                     child: const Text('test7'),
-                    action: () => print('test7'),
+                    action: () => printLog('test7'),
                     dismissBehavior: DismissBehavior.never,
                   ),
                 ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/flutter_ahlib.dart';
+import 'package:flutter_ahlib_example/main.dart';
 
 class AnimatedFabPage extends StatefulWidget {
   const AnimatedFabPage({Key? key}) : super(key: key);
@@ -59,7 +60,7 @@ class _AnimatedFabPageState extends State<AnimatedFabPage> {
                     } else if (idx == 8) {
                       _fabController.hide();
                     } else {
-                      print('Item $idx');
+                      printLog('Item $idx');
                     }
                   },
                 ),

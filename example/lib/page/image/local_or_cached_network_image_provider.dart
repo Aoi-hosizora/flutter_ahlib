@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/flutter_ahlib.dart';
+import 'package:flutter_ahlib_example/main.dart';
 
 class LocalOrCachedNetworkImageProviderPage extends StatefulWidget {
   const LocalOrCachedNetworkImageProviderPage({Key? key}) : super(key: key);
@@ -27,21 +28,21 @@ class _LocalOrCachedNetworkImageProviderPageState extends State<LocalOrCachedNet
           IconButton(
             icon: const Text('Reload 1'),
             onPressed: () {
-              print('Reload network image');
+              printLog('Reload network image');
               _vn1.value = DateTime.now().microsecondsSinceEpoch.toString();
             },
           ),
           IconButton(
             icon: const Text('Reload 2'),
             onPressed: () {
-              print('Reload local image');
+              printLog('Reload local image');
               _vn2.value = DateTime.now().microsecondsSinceEpoch.toString();
             },
           ),
           IconButton(
             icon: const Text('setState'),
             onPressed: () {
-              print('setState directly');
+              printLog('setState directly');
               if (mounted) setState(() {});
             },
           ),
@@ -64,12 +65,12 @@ class _LocalOrCachedNetworkImageProviderPageState extends State<LocalOrCachedNet
                       key: ValueKey(k),
                       file: null,
                       url: 'https://neilpatel.com/wp-content/uploads/2017/08/colors.jpg',
-                      onFileLoading: () => print('(url) onFileLoading'),
-                      onFileLoaded: () => print('(url) onFileLoaded'),
-                      onFileError: (_) => print('(url) onError'),
-                      onUrlLoading: () => print('(url) onUrlLoading'),
-                      onUrlError: (_) => print('(url) onError'),
-                      onUrlLoaded: () => print('(url) onUrlLoaded'),
+                      onFileLoading: () => printLog('(url) onFileLoading'),
+                      onFileLoaded: () => printLog('(url) onFileLoaded'),
+                      onFileError: (_) => printLog('(url) onError'),
+                      onUrlLoading: () => printLog('(url) onUrlLoading'),
+                      onUrlError: (_) => printLog('(url) onError'),
+                      onUrlLoaded: () => printLog('(url) onUrlLoaded'),
                     ),
                     errorBuilder: (_, e, __) => Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -92,12 +93,12 @@ class _LocalOrCachedNetworkImageProviderPageState extends State<LocalOrCachedNet
                       key: ValueKey(k),
                       file: _correctFile ? File('/sdcard/DCIM/test.jpg') : File('/sdcard/DCIM/testx.jpg'),
                       url: null,
-                      onFileLoading: () => print('(file) onFileLoading'),
-                      onFileLoaded: () => print('(file) onFileLoaded'),
-                      onFileError: (_) => print('(file) onError'),
-                      onUrlLoading: () => print('(file) onUrlLoading'),
-                      onUrlError: (_) => print('(file) onError'),
-                      onUrlLoaded: () => print('(file) onUrlLoaded'),
+                      onFileLoading: () => printLog('(file) onFileLoading'),
+                      onFileLoaded: () => printLog('(file) onFileLoaded'),
+                      onFileError: (_) => printLog('(file) onError'),
+                      onUrlLoading: () => printLog('(file) onUrlLoading'),
+                      onUrlError: (_) => printLog('(file) onError'),
+                      onUrlLoaded: () => printLog('(file) onUrlLoaded'),
                     ),
                     errorBuilder: (_, e, __) => Column(
                       mainAxisAlignment: MainAxisAlignment.center,

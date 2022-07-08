@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/flutter_ahlib.dart';
+import 'package:flutter_ahlib_example/main.dart';
 
 class PlaceholderTextPage extends StatefulWidget {
   const PlaceholderTextPage({Key? key}) : super(key: key);
@@ -41,8 +42,8 @@ class _PlaceholderTextPageState extends State<PlaceholderTextPage> {
       ),
       body: PlaceholderText(
         state: _state,
-        onRefresh: () => print('onRefresh'),
-        onChanged: (_, __) => print('onChanged'),
+        onRefresh: () => printLog('onRefresh'),
+        onChanged: (_, __) => printLog('onChanged'),
         childBuilder: (_) => Column(
           children: [
             Expanded(
@@ -54,8 +55,8 @@ class _PlaceholderTextPageState extends State<PlaceholderTextPage> {
                 childBuilder: (_) => const Center(
                   child: Icon(Icons.check),
                 ),
-                onRefresh: () => print('onRefresh2'),
-                onChanged: (_, __) => print('onChanged2'),
+                onRefresh: () => printLog('onRefresh2'),
+                onChanged: (_, __) => printLog('onChanged2'),
               ),
             ),
             Center(

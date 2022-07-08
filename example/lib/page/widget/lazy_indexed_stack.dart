@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/flutter_ahlib.dart';
+import 'package:flutter_ahlib_example/main.dart';
 
 class LazyIndexedStackPage extends StatefulWidget {
   const LazyIndexedStackPage({Key? key}) : super(key: key);
@@ -52,7 +53,7 @@ class __PageAState extends State<_PageA> {
   @override
   void initState() {
     super.initState();
-    print('initState: A');
+    printLog('initState: A');
   }
 
   @override
@@ -70,7 +71,7 @@ class __PageBState extends State<_PageB> {
   @override
   void initState() {
     super.initState();
-    print('initState: B');
+    printLog('initState: B');
   }
 
   @override
@@ -88,7 +89,7 @@ class __PageCState extends State<_PageC> {
   @override
   void initState() {
     super.initState();
-    print('initState: C');
+    printLog('initState: C');
   }
 
   @override

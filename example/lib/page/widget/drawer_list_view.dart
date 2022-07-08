@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/flutter_ahlib.dart';
+import 'package:flutter_ahlib_example/main.dart';
 
 class DrawerListViewPage extends StatefulWidget {
   const DrawerListViewPage({Key? key}) : super(key: key);
@@ -142,21 +143,21 @@ class _MyDrawerState extends State<MyDrawer> {
       DrawerActionItem(
         title: const Text('ActionA'),
         leading: const Icon(Icons.cached),
-        action: () => print('ActionA'),
-        longPressAction: () => print('ActionA2'),
+        action: () => printLog('ActionA'),
+        longPressAction: () => printLog('ActionA2'),
         autoCloseWhenTapped: true,
         autoCloseWhenLongPressed: false,
       ),
       DrawerActionItem(
         title: const Text('ActionB'),
         leading: const Icon(Icons.feedback),
-        action: () => print('ActionB'),
+        action: () => printLog('ActionB'),
       ),
       DrawerActionItem(
         title: const Text('ActionC'),
         leading: const Icon(Icons.info),
-        action: () => print('ActionC'),
-        longPressAction: () => print('ActionC2'),
+        action: () => printLog('ActionC'),
+        longPressAction: () => printLog('ActionC2'),
         autoCloseWhenTapped: false,
         autoCloseWhenLongPressed: true,
       ),

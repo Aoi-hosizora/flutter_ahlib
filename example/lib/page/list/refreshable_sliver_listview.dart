@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/flutter_ahlib.dart';
+import 'package:flutter_ahlib_example/main.dart';
 
 class RefreshableSliverListViewPage extends StatefulWidget {
   const RefreshableSliverListViewPage({Key? key}) : super(key: key);
@@ -80,12 +81,12 @@ class _RefreshableSliverListViewPageState extends State<RefreshableSliverListVie
                 clearWhenError: true,
                 clearWhenRefresh: true,
                 onStateChanged: (_, __) => _fabController.hide(),
-                onStartLoading: () => print('onStartLoading'),
-                onStopLoading: () => print('onStopLoading'),
-                onStartRefreshing: () => print('onStartRefreshing'),
-                onStopRefreshing: () => print('onStopRefreshing'),
-                onAppend: (l) => print('onAppend: ${l.length}'),
-                onError: (e) => print('onError: $e'),
+                onStartLoading: () => printLog('onStartLoading'),
+                onStopLoading: () => printLog('onStopLoading'),
+                onStartRefreshing: () => printLog('onStartRefreshing'),
+                onStopRefreshing: () => printLog('onStopRefreshing'),
+                onAppend: (l) => printLog('onAppend: ${l.length}'),
+                onError: (e) => printLog('onError: $e'),
               ),
               itemBuilder: (_, item) => ListTile(
                 title: Text(item),

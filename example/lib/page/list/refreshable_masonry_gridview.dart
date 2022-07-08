@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/flutter_ahlib.dart';
+import 'package:flutter_ahlib_example/main.dart';
 
 class RefreshableMasonryGridViewPage extends StatefulWidget {
   const RefreshableMasonryGridViewPage({Key? key}) : super(key: key);
@@ -57,12 +58,12 @@ class _RefreshableMasonryGridViewPageState extends State<RefreshableMasonryGridV
           clearWhenError: true,
           clearWhenRefresh: true,
           onStateChanged: (_, __) => _fabController.hide(),
-          onStartLoading: () => print('onStartLoading'),
-          onStopLoading: () => print('onStopLoading'),
-          onStartRefreshing: () => print('onStartRefreshing'),
-          onStopRefreshing: () => print('onStopRefreshing'),
-          onAppend: (l) => print('onAppend: ${l.length}'),
-          onError: (e) => print('onError: $e'),
+          onStartLoading: () => printLog('onStartLoading'),
+          onStopLoading: () => printLog('onStopLoading'),
+          onStartRefreshing: () => printLog('onStartRefreshing'),
+          onStopRefreshing: () => printLog('onStopRefreshing'),
+          onAppend: (l) => printLog('onAppend: ${l.length}'),
+          onError: (e) => printLog('onError: $e'),
         ),
         itemBuilder: (_, item) => Card(
           child: ListTile(
