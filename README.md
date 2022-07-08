@@ -43,6 +43,7 @@ import 'package:flutter_ahlib/flutter_ahlib.dart'; // the whole library
 + image.dart:
     + `LocalOrCachedNetworkImageProvider`
     + `MultiImageStreamCompleter`
+    + `PreloadablePageView`
     + `ReloadablePhotoViewGallery` `ReloadablePhotoViewGalleryState`
 + util.dart:
     + `ActionController`

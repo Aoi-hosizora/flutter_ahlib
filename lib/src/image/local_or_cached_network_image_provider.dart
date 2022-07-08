@@ -12,9 +12,9 @@ import 'package:http/http.dart' as http show head;
 
 // Note: The file is based on Baseflow/flutter_cached_network_image, and is modified by Aoi-hosizora (GitHub: @Aoi-hosizora).
 //
-// Refers to:
-// https://github.com/Baseflow/flutter_cached_network_image/blob/v3.1.0/cached_network_image/lib/src/image_provider/cached_network_image_provider.dart
-// https://github.com/Baseflow/flutter_cached_network_image/blob/v3.1.0/cached_network_image/lib/src/image_provider/_image_loader.dart
+// Some code in this file keeps the same as the following source codes:
+// - CachedNetworkImageProvider: https://github.com/Baseflow/flutter_cached_network_image/blob/v3.1.0/cached_network_image/lib/src/image_provider/cached_network_image_provider.dart
+// - ImageLoader: https://github.com/Baseflow/flutter_cached_network_image/blob/v3.1.0/cached_network_image/lib/src/image_provider/_image_loader.dart
 
 // ignore_for_file: prefer_initializing_formals
 

@@ -5,7 +5,8 @@
 import 'dart:math' as math;
 
 // Note: The file is based on Flutter's source code, and is modified by Aoi-hosizora (GitHub: @Aoi-hosizora).
-// Some code in this file keeps almost the same as the following source codes:
+//
+// Some code in this file keeps the same as the following source codes:
 // - InkRipple: https://github.com/flutter/flutter/blob/2.10.5/packages/flutter/lib/src/material/ink_ripple.dart
 // - InkSplash: https://github.com/flutter/flutter/blob/2.10.5/packages/flutter/lib/src/material/ink_splash.dart
 
@@ -281,7 +282,7 @@ class CustomInkRipple extends InteractiveInkFeature {
     _radius = _radiusController.drive(
       Tween<double>(
         begin: _targetRadius * 0.30,
-        end: _targetRadius + 5.0,
+        end: _targetRadius, // + 5.0
       ).chain(_easeCurveTween),
     );
 

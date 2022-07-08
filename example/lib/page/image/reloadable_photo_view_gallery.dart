@@ -18,94 +18,125 @@ class _ReloadablePhotoViewGalleryPageState extends State<ReloadablePhotoViewGall
     'https://99percentinvisible.org/app/uploads/2019/02/abstract-background-colors.jpg',
     'https://miuc.org/wp-content/uploads/2018/02/How-can-colours-help-you-in-your-everyday-life.jpg',
   ];
+  final _controller = PageController(viewportFraction: 1.08);
   final _key = GlobalKey<ReloadablePhotoViewGalleryState>();
-  final _cache = CacheManager(Config(DateTime.now().toString()));
+  final CacheManager _cache = DefaultCacheManager();
   var _currentIndex = 0;
   var _correctUrl = false;
-
-  @override
-  void initState() {
-    super.initState();
-  }
+  var _preloadCount = 0;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('ReloadablePhotoViewGallery Example'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () async {
-              // TODO
-              // await _cache.emptyCache();
-              await _cache.removeFile(_urls[_currentIndex]);
-              // PaintingBinding.instance?.imageCache?.clear();
-              _key.currentState?.reload(_currentIndex);
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.redo),
-            onPressed: () {
-              _correctUrl = !_correctUrl;
-              if (_correctUrl) {
-                _urls[0] = 'https://user-images.githubusercontent.com/31433480/139594297-c68369d4-32d9-4f8b-8727-ccaf2d1a53f6.jpg';
-              } else {
-                _urls[0] = 'https://userxxx-images.githubusercontent.com/31433480/139594297-c68369d4-32d9-4f8b-8727-ccaf2d1a53f6.jpg';
-              }
-            },
-          ),
-        ],
-      ),
-      body: Container(
-        color: Colors.black,
-        child: Stack(
-          children: [
-            ReloadablePhotoViewGallery.builder(
-              key: _key,
-              itemCount: 6,
-              backgroundDecoration: const BoxDecoration(color: Colors.black),
-              builder: (c, index) => ReloadablePhotoViewGalleryPageOptions(
-                imageProviderBuilder: (key) => LocalOrCachedNetworkImageProvider.fromNetwork(
-                  key: key,
-                  url: _urls[index],
-                  cacheManager: _cache,
-                  onUrlLoading: () => print('onUrlLoading $index'),
-                  onUrlError: (e) => print('onError $index: $e'),
-                  onUrlLoaded: () => print('onUrlLoaded $index'),
-                ),
-                loadingBuilder: (_, ev) => Center(
-                  child: CircularProgressIndicator(
-                    value: (ev == null || ev.expectedTotalBytes == null) ? null : ev.cumulativeBytesLoaded / ev.expectedTotalBytes!,
-                  ),
-                ),
-                errorBuilder: (_, __, ___) => Center(
-                  child: ElevatedButton(
-                    child: const Text('Reload'),
-                    onPressed: () {
-                      _key.currentState?.reload(index);
-                    },
-                  ),
-                ),
-              ),
-              onPageChanged: (i) {
-                _currentIndex = i;
+    return WillPopScope(
+      onWillPop: () async {
+        for (var u in _urls) {
+          await _cache.removeFile(u.replaceAll('userxxx', 'user'));
+        }
+        await _cache.emptyCache();
+        PaintingBinding.instance?.imageCache?.clear();
+        print('emptyCache');
+        return true;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('ReloadablePhotoViewGallery Example'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              tooltip: 'Reload',
+              onPressed: () async {
+                // await _cache.emptyCache();
+                await _cache.removeFile(_urls[_currentIndex]);
+                // PaintingBinding.instance?.imageCache?.clear();
+                _key.currentState?.reload(_currentIndex);
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.redo),
+              tooltip: 'Update url',
+              onPressed: () {
+                _correctUrl = !_correctUrl;
+                if (_correctUrl) {
+                  _urls[0] = 'https://user-images.githubusercontent.com/31433480/139594297-c68369d4-32d9-4f8b-8727-ccaf2d1a53f6.jpg';
+                } else {
+                  _urls[0] = 'https://userxxx-images.githubusercontent.com/31433480/139594297-c68369d4-32d9-4f8b-8727-ccaf2d1a53f6.jpg';
+                }
+              },
+            ),
+            IconButton(
+              icon: _preloadCount == 0
+                  ? const Icon(Icons.close)
+                  : _preloadCount == 1
+                      ? const Icon(Icons.done)
+                      : const Icon(Icons.done_all),
+              tooltip: _preloadCount == 0
+                  ? 'no preload'
+                  : _preloadCount == 1
+                      ? 'preload one page'
+                      : 'preload two pages',
+              onPressed: () {
+                _preloadCount = _preloadCount == 0
+                    ? 1
+                    : _preloadCount == 1
+                        ? 2
+                        : 0;
                 if (mounted) setState(() {});
               },
             ),
-            Positioned(
-              top: 10,
-              left: 0,
-              right: 0,
-              child: Align(
-                alignment: Alignment.center,
-                child: Text(
-                  '${_currentIndex + 1} / ${_key.currentState?.itemCount ?? '?'}',
-                  style: Theme.of(context).textTheme.subtitle1!.copyWith(color: Colors.white),
+          ],
+        ),
+        body: Container(
+          color: Colors.black,
+          child: Stack(
+            children: [
+              ReloadablePhotoViewGallery.builder(
+                key: _key,
+                itemCount: 6,
+                backgroundDecoration: const BoxDecoration(color: Colors.black),
+                pageController: _controller,
+                preloadPagesCount: _preloadCount,
+                builder: (c, index) => ReloadablePhotoViewGalleryPageOptions(
+                  imageProviderBuilder: (key) => LocalOrCachedNetworkImageProvider.fromNetwork(
+                    key: key,
+                    url: _urls[index],
+                    cacheManager: _cache,
+                    onUrlLoading: () => print('onUrlLoading ${index + 1}'),
+                    onUrlError: (e) => print('onError ${index + 1}: $e'),
+                    onUrlLoaded: () => print('onUrlLoaded ${index + 1}'),
+                  ),
+                  loadingBuilder: (_, ev) => Center(
+                    child: CircularProgressIndicator(
+                      value: (ev == null || ev.expectedTotalBytes == null) ? null : ev.cumulativeBytesLoaded / ev.expectedTotalBytes!,
+                    ),
+                  ),
+                  errorBuilder: (_, __, ___) => Center(
+                    child: ElevatedButton(
+                      child: const Text('Reload'),
+                      onPressed: () {
+                        _key.currentState?.reload(index);
+                      },
+                    ),
+                  ),
+                ),
+                onPageChanged: (i) {
+                  _currentIndex = i;
+                  if (mounted) setState(() {});
+                },
+              ),
+              Positioned(
+                top: 10,
+                left: 0,
+                right: 0,
+                child: Align(
+                  alignment: Alignment.center,
+                  child: Text(
+                    '${_currentIndex + 1} / ${_key.currentState?.itemCount ?? '?'}',
+                    style: Theme.of(context).textTheme.subtitle1!.copyWith(color: Colors.white),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
