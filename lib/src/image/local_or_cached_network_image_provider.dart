@@ -411,5 +411,18 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
   }
 
   @override
-  String toString() => 'LocalOrCachedNetworkImageProvider(...)';
+  String toString() {
+    if (_useFn) {
+      return '$runtimeType(fileFn: <function>, urlFn: <function>, scale: $scale, ...)';
+    }
+    var path = 'null';
+    if (file?.path != null) {
+      path = '"${file?.path ?? '?'}"';
+    }
+    var url = 'null';
+    if (this.url != null) {
+      url = '"${this.url ?? '?'}"';
+    }
+    return '$runtimeType(file: $path, url: $url, scale: $scale, ...)';
+  }
 }

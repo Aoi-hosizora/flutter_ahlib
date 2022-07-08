@@ -13,14 +13,19 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'flutter_ahlib_example',
-      theme: themeDataWithSplashFactory(
-        ThemeData(
-          primarySwatch: Colors.blue,
-          visualDensity: VisualDensity.adaptivePlatformDensity,
-        ),
-        CustomInkRipple.preferredSplashFactory,
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+        splashFactory: CustomInkRipple.preferredSplashFactory,
+        elevatedButtonTheme: ElevatedButtonThemeData(style: ElevatedButton.styleFrom(splashFactory: CustomInkRipple.preferredSplashFactory)),
+        outlinedButtonTheme: OutlinedButtonThemeData(style: OutlinedButton.styleFrom(splashFactory: CustomInkRipple.preferredSplashFactory)),
+        textButtonTheme: TextButtonThemeData(style: TextButton.styleFrom(splashFactory: CustomInkRipple.preferredSplashFactory)),
       ),
       home: const IndexPage(),
     );
   }
 }
+
+// TODO OutlineButton, OutlinedButton, https://docs.google.com/document/d/1yohSuYrvyya5V1hB6j9pJskavCdVq9sVeTqSoEPsWH0/edit
+// TODO ThemeData, splashFactory
+// TODO flutter_localizations, Locale

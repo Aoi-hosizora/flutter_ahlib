@@ -8,7 +8,7 @@ import 'package:flutter_ahlib_example/page/list/pagination_masonry_gridview.dart
 import 'package:flutter_ahlib_example/page/list/refreshable_listview.dart';
 import 'package:flutter_ahlib_example/page/list/refreshable_sliver_listview.dart';
 import 'package:flutter_ahlib_example/page/list/refreshable_masonry_gridview.dart';
-import 'package:flutter_ahlib_example/page/widget/custom_ink_ripple.dart';
+import 'package:flutter_ahlib_example/page/widget/custom_ink_feature.dart';
 import 'package:flutter_ahlib_example/page/widget/drawer_list_view.dart';
 import 'package:flutter_ahlib_example/page/widget/icon_text.dart';
 import 'package:flutter_ahlib_example/page/widget/lazy_indexed_stack.dart';
@@ -81,7 +81,7 @@ class _IndexPageState extends State<IndexPage> {
                 _button('SliverDelegate', const SliverDelegatePage()),
                 _button('TextGroup', const TextGroupPage()),
                 _button('TabInPageNotification', const TabInPageNotificationPage()),
-                _button('CustomInkRipplePage', const CustomInkRipplePage()),
+                _button('CustomInkFeature', const CustomInkFeaturePage()),
               ],
             ),
             Align(

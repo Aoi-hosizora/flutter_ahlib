@@ -6,7 +6,8 @@ import 'package:photo_view/photo_view.dart';
 // Refers to:
 // https://github.com/bluefireteam/photo_view/blob/master/lib/photo_view_gallery.dart
 
-/// A [StatefulWidget] that shows multiple [PhotoView] widgets in a [PageView]
+/// A [StatefulWidget] that shows multiple [PhotoView] widgets in a [PageView], which is modified from [PhotoViewGallery], and is used to make a reloadable
+/// [PhotoViewGallery] through [ReloadablePhotoViewGalleryState.reload].
 ///
 /// Some of [PhotoView] constructor options are passed direct to [ReloadablePhotoViewGallery] constructor. Those options will affect the gallery in a whole.
 ///
