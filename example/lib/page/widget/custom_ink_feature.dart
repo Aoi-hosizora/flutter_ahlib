@@ -9,10 +9,14 @@ class CustomInkFeaturePage extends StatefulWidget {
 }
 
 class _CustomInkFeaturePageState extends State<CustomInkFeaturePage> {
-  static const rDef = CustomInkRippleSetting.defaultSetting;
-  static const rPre = CustomInkRippleSetting.preferredSetting;
-  static const sDef = CustomInkSplashSetting.defaultSetting;
-  static const sPre = CustomInkSplashSetting.preferredSetting;
+  static get rDef => CustomInkRippleSetting.defaultSetting;
+
+  static get rPre => CustomInkRippleSetting.preferredSetting;
+
+  static get sDef => CustomInkSplashSetting.defaultSetting;
+
+  static get sPre => CustomInkSplashSetting.preferredSetting;
+
   var useRipple = true;
 
   // parameters for CustomInkRippleSetting
@@ -75,24 +79,32 @@ class _CustomInkFeaturePageState extends State<CustomInkFeaturePage> {
     );
   }
 
-  InteractiveInkFeatureFactory get factory => useRipple
-      ? CustomInkRippleFactory(
-          setting: CustomInkRippleSetting.copyWith(
-            unconfirmedRippleDuration: unconfirmedRippleDuration,
-            unconfirmedFadeInDuration: unconfirmedFadeInDuration,
-            confirmedRippleDuration: confirmedRippleDuration,
-            confirmedFadeoutDuration: confirmedFadeoutDuration,
-            confirmedFadeoutInterval: confirmedFadeoutInterval,
-            canceledFadeOutDuration: canceledFadeOutDuration,
-          ),
-        )
-      : CustomInkSplashFactory(
-          setting: CustomInkSplashSetting.copyWith(
-            unconfirmedSplashDuration: unconfirmedSplashDuration,
-            splashFadeDuration: splashFadeDuration,
-            splashConfirmedVelocity: splashConfirmedVelocity,
-          ),
-        );
+  ThemeData get themeData {
+    var factory = useRipple
+        ? CustomInkRippleFactory(
+            setting: CustomInkRippleSetting.copyWith(
+              unconfirmedRippleDuration: unconfirmedRippleDuration,
+              unconfirmedFadeInDuration: unconfirmedFadeInDuration,
+              confirmedRippleDuration: confirmedRippleDuration,
+              confirmedFadeoutDuration: confirmedFadeoutDuration,
+              confirmedFadeoutInterval: confirmedFadeoutInterval,
+              canceledFadeOutDuration: canceledFadeOutDuration,
+            ),
+          )
+        : CustomInkSplashFactory(
+            setting: CustomInkSplashSetting.copyWith(
+              unconfirmedSplashDuration: unconfirmedSplashDuration,
+              splashFadeDuration: splashFadeDuration,
+              splashConfirmedVelocity: splashConfirmedVelocity,
+            ),
+          );
+    return ThemeData(
+      splashFactory: factory,
+      outlinedButtonTheme: OutlinedButtonThemeData(style: OutlinedButton.styleFrom(splashFactory: factory)),
+      elevatedButtonTheme: ElevatedButtonThemeData(style: ElevatedButton.styleFrom(splashFactory: factory)),
+      textButtonTheme: TextButtonThemeData(style: TextButton.styleFrom(splashFactory: factory)),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -103,82 +115,6 @@ class _CustomInkFeaturePageState extends State<CustomInkFeaturePage> {
       body: ListView(
         padding: const EdgeInsets.all(10),
         children: [
-          Theme(
-            data: ThemeData(
-              splashFactory: factory,
-              outlinedButtonTheme: OutlinedButtonThemeData(style: OutlinedButton.styleFrom(splashFactory: factory)),
-              elevatedButtonTheme: ElevatedButtonThemeData(style: ElevatedButton.styleFrom(splashFactory: factory)),
-              textButtonTheme: TextButtonThemeData(style: TextButton.styleFrom(splashFactory: factory)),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _row(
-                  OutlinedButton(child: const Text('OutlinedButton'), onPressed: () {}),
-                  OutlinedButton(child: const Text('Short'), onPressed: () {}),
-                ),
-                _row(
-                  OutlineButton(child: const Text('OutlineButton'), onPressed: () {}), // ignore: deprecated_member_use
-                  OutlineButton(child: const Text('Short'), onPressed: () {}), // ignore: deprecated_member_use
-                ),
-                _row(
-                  ElevatedButton(child: const Text('ElevatedButton'), onPressed: () {}),
-                  ElevatedButton(child: const Text('Short'), onPressed: () {}),
-                ),
-                _row(
-                  RaisedButton(child: const Text('RaisedButton'), onPressed: () {}), // ignore: deprecated_member_use
-                  RaisedButton(child: const Text('Short'), onPressed: () {}), // ignore: deprecated_member_use
-                ),
-                _row(
-                  TextButton(child: const Text('TextButton'), onPressed: () {}),
-                  TextButton(child: const Text('Short'), onPressed: () {}),
-                ),
-                _row(
-                  FlatButton(child: const Text('FlatButton'), onPressed: () {}), // ignore: deprecated_member_use
-                  FlatButton(child: const Text('Short'), onPressed: () {}), // ignore: deprecated_member_use
-                ),
-                _row(
-                  IconButton(icon: const Text('IconButton'), onPressed: () {}),
-                  IconButton(icon: const Icon(Icons.check), onPressed: () {}),
-                ),
-                _row(
-                  MaterialButton(child: const Text('MaterialButton'), onPressed: () {}),
-                  MaterialButton(child: const Text('Short'), onPressed: () {}),
-                ),
-                _row(
-                  InkWell(child: const Padding(padding: EdgeInsets.all(10), child: Text('InkWell')), onTap: () {}),
-                  InkWell(child: const Padding(padding: EdgeInsets.all(10), child: Text('Short')), onTap: () {}),
-                ),
-                _row(
-                  InkResponse(child: Container(margin: const EdgeInsets.all(10), child: const Text('InkResponse')), onTap: () {}),
-                  InkResponse(child: Container(margin: const EdgeInsets.all(10), child: const Text('Short')), onTap: () {}),
-                ),
-                ListTile(title: const Text('ListTile', textAlign: TextAlign.center), onTap: () {}),
-                ListTile(
-                  title: const Text('AlertDialog', textAlign: TextAlign.center),
-                  onTap: () => showDialog(
-                    context: context,
-                    builder: (c) => Theme(
-                      data: ThemeData(
-                        splashFactory: factory,
-                        textButtonTheme: TextButtonThemeData(style: TextButton.styleFrom(splashFactory: factory)),
-                      ),
-                      child: AlertDialog(
-                        title: const Text('Title'),
-                        content: const Text('content content content ...'),
-                        actions: [
-                          TextButton(child: const Text('Yes'), onPressed: () {}),
-                          TextButton(child: const Text('No'), onPressed: () {}),
-                          TextButton(child: const Text('Cancel'), onPressed: () {}),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const Divider(),
           CheckboxListTile(
             title: const Text('Use Ripple?'),
             controlAffinity: ListTileControlAffinity.leading,
@@ -227,7 +163,7 @@ class _CustomInkFeaturePageState extends State<CustomInkFeaturePage> {
                   }
                   if (mounted) setState(() {});
                 },
-              )
+              ),
             ],
           ),
           const Divider(),
@@ -250,6 +186,87 @@ class _CustomInkFeaturePageState extends State<CustomInkFeaturePage> {
                 _sliderDouble(sDef.splashConfirmedVelocity, () => splashConfirmedVelocity, (v) => splashConfirmedVelocity = v, 'splashConfirmedVelocity'),
               ],
             ),
+          const Divider(),
+          Theme(
+            data: themeData,
+            child: Builder(
+              builder: (c) => Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _row(
+                    OutlinedButton(child: const Text('OutlinedButton'), onPressed: () {}),
+                    OutlinedButton(child: const Text('Short'), onPressed: () {}),
+                  ),
+                  _row(
+                    OutlineButton(child: const Text('OutlineButton'), onPressed: () {}), // ignore: deprecated_member_use
+                    OutlineButton(child: const Text('Short'), onPressed: () {}), // ignore: deprecated_member_use
+                  ),
+                  _row(
+                    ElevatedButton(child: const Text('ElevatedButton'), onPressed: () {}),
+                    ElevatedButton(child: const Text('Short'), onPressed: () {}),
+                  ),
+                  _row(
+                    RaisedButton(child: const Text('RaisedButton'), onPressed: () {}), // ignore: deprecated_member_use
+                    RaisedButton(child: const Text('Short'), onPressed: () {}), // ignore: deprecated_member_use
+                  ),
+                  _row(
+                    TextButton(child: const Text('TextButton'), onPressed: () {}),
+                    TextButton(child: const Text('Short'), onPressed: () {}),
+                  ),
+                  _row(
+                    FlatButton(child: const Text('FlatButton'), onPressed: () {}), // ignore: deprecated_member_use
+                    FlatButton(child: const Text('Short'), onPressed: () {}), // ignore: deprecated_member_use
+                  ),
+                  _row(
+                    IconButton(icon: const Text('IconButton'), onPressed: () {}),
+                    IconButton(icon: const Icon(Icons.check), onPressed: () {}),
+                  ),
+                  _row(
+                    MaterialButton(child: const Text('MaterialButton'), onPressed: () {}),
+                    MaterialButton(child: const Text('Short'), onPressed: () {}),
+                  ),
+                  _row(
+                    InkWell(child: const Padding(padding: EdgeInsets.all(15), child: Text('InkWell')), onTap: () {}),
+                    InkWell(child: const Padding(padding: EdgeInsets.all(15), child: Text('Short')), onTap: () {}),
+                  ),
+                  _row(
+                    InkResponse(child: Container(margin: const EdgeInsets.all(15), child: const Text('InkResponse')), onTap: () {}),
+                    InkResponse(child: Container(margin: const EdgeInsets.all(15), child: const Text('Short')), onTap: () {}),
+                  ),
+                  _row(
+                    Expanded(flex: 3, child: ListTile(title: const Text('ListTile', textAlign: TextAlign.center), onTap: () {})),
+                    Expanded(flex: 1, child: Card(child: ListTile(title: const Text('Card', textAlign: TextAlign.center), onTap: () {}))),
+                  ),
+                  ListTile(
+                    title: const Text('AlertDialog', textAlign: TextAlign.center),
+                    onTap: () => showDialog(
+                      context: c,
+                      builder: (c) => AlertDialog(
+                        title: const Text('Title'),
+                        content: const Text('content content content ...'),
+                        actions: [
+                          Row(
+                            children: [
+                              TextButton(child: const Text('Yes'), onPressed: () {}),
+                              TextButton(child: const Text('No'), onPressed: () {}),
+                              TextButton(child: const Text('Cancel'), onPressed: () {}),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              FlatButton(child: const Text('Yes'), onPressed: () {}), // ignore: deprecated_member_use
+                              FlatButton(child: const Text('No'), onPressed: () {}), // ignore: deprecated_member_use
+                              FlatButton(child: const Text('Cancel'), onPressed: () {}), // ignore: deprecated_member_use
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );

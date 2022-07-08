@@ -2,12 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:math' as math;
+
 // Note: The file is based on Flutter's source code, and is modified by Aoi-hosizora (GitHub: @Aoi-hosizora).
-// Some of this code of the file keeps almost the same as the following source codes:
+// Some code in this file keeps almost the same as the following source codes:
 // - InkRipple: https://github.com/flutter/flutter/blob/2.10.5/packages/flutter/lib/src/material/ink_ripple.dart
 // - InkSplash: https://github.com/flutter/flutter/blob/2.10.5/packages/flutter/lib/src/material/ink_splash.dart
-
-import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
@@ -116,8 +116,8 @@ class CustomInkSplashSetting {
   /// The preferred [CustomInkSplash] setting by Aoi-hosizora :)
   static const CustomInkSplashSetting preferredSetting = CustomInkSplashSetting(
     unconfirmedSplashDuration: Duration(milliseconds: 300) /* 1000 -> 300 */,
-    splashFadeDuration: Duration(milliseconds: 150) /* 200 -> 150 */,
-    splashConfirmedVelocity: 1.0,
+    splashFadeDuration: Duration(milliseconds: 400) /* 200 -> 400 */,
+    splashConfirmedVelocity: 0.4, // 1.0 -> 0.4
   );
 
   /// Creates a copy of this [CustomInkSplashSetting] but with the given fields
@@ -467,9 +467,9 @@ class CustomInkSplash extends InteractiveInkFeature {
   /// for an [InkWell], [InkResponse], material [Theme], or [ButtonStyle].
   static const InteractiveInkFeatureFactory splashFactory = CustomInkSplashFactory(setting: CustomInkSplashSetting.defaultSetting);
 
-  // /// Used to specify this type of ink splash with [CustomInkSplashSetting.preferredSetting]
-  // /// for an [InkWell], [InkResponse], material [Theme], or [ButtonStyle].
-  // static const InteractiveInkFeatureFactory preferredSplashFactory = CustomInkSplashFactory(setting: CustomInkSplashSetting.preferredSetting);
+  /// Used to specify this type of ink splash with [CustomInkSplashSetting.preferredSetting]
+  /// for an [InkWell], [InkResponse], material [Theme], or [ButtonStyle].
+  static const InteractiveInkFeatureFactory preferredSplashFactory = CustomInkSplashFactory(setting: CustomInkSplashSetting.preferredSetting);
 
   @override
   void confirm() {

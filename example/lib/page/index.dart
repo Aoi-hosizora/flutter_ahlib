@@ -12,6 +12,7 @@ import 'package:flutter_ahlib_example/page/widget/custom_ink_feature.dart';
 import 'package:flutter_ahlib_example/page/widget/drawer_list_view.dart';
 import 'package:flutter_ahlib_example/page/widget/icon_text.dart';
 import 'package:flutter_ahlib_example/page/widget/lazy_indexed_stack.dart';
+import 'package:flutter_ahlib_example/page/widget/new_button_style.dart';
 import 'package:flutter_ahlib_example/page/widget/placeholder_text.dart';
 import 'package:flutter_ahlib_example/page/widget/popup_list_menu.dart';
 import 'package:flutter_ahlib_example/page/widget/animated_fab.dart';
@@ -82,6 +83,7 @@ class _IndexPageState extends State<IndexPage> {
                 _button('TextGroup', const TextGroupPage()),
                 _button('TabInPageNotification', const TabInPageNotificationPage()),
                 _button('CustomInkFeature', const CustomInkFeaturePage()),
+                _button('NewButtonStyle', const NewButtonThemePage()),
               ],
             ),
             Align(

@@ -29,6 +29,7 @@ import 'package:flutter_ahlib/flutter_ahlib.dart'; // the whole library
     + `DrawerListView`
     + `IconText`
     + `LazyIndexedStack`
+    + `flatButtonStyle` `raisedButtonStyle` `outlineButtonStyle`
     + `PlaceholderText`
     + `showPopupListMenu`
     + `SliverAppBarDelegate` `SliverAppBarSizedDelegate` `SliverSeparatedListDelegate` `SliverSeparatedListBuilderDelegate`
