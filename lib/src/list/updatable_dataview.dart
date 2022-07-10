@@ -20,6 +20,12 @@ abstract class UpdatableDataView<T> extends StatefulWidget {
 
   /// The itemBuilder for [ScrollView].
   Widget Function(BuildContext, T) get itemBuilder;
+
+  /// The separator for [ScrollView].
+  Widget? get separator;
+
+  /// The extra widgets around [ScrollView].
+  UpdatableDataViewExtraWidgets? get extra;
 }
 
 /// A list of behavior and display settings for [UpdatableDataView].
@@ -130,71 +136,53 @@ class UpdatableDataViewSetting<T> {
 ///
 /// Widgets order:
 /// ```
-/// outerTopWidget
-/// outerTopDivider
-/// innerTopWidget
-/// innerTopDivider
-/// ==========
-/// inListTopWidgets
-/// ... (with separator)
-/// inListBottomWidgets
-/// ==========
-/// innerBottomDivider
-/// innerBottomWidget
-/// outerBottomDivider
-/// outerBottomWidget
+/// outerTopWidgets
+/// ================== (PlaceholderText)
+/// innerTopWidgets
+/// ================== (ScrollView)
+/// listTopWidgets
+/// ...                (with separator)
+/// listBottomWidgets
+/// ================== (ScrollView)
+/// innerBottomWidgets
+/// ================== (PlaceholderText)
+/// outerBottomWidgets
 /// ```
 class UpdatableDataViewExtraWidgets {
   const UpdatableDataViewExtraWidgets({
-    this.innerCrossAxisAlignment = CrossAxisAlignment.center,
     this.outerCrossAxisAlignment = CrossAxisAlignment.center,
-    this.innerTopWidget,
-    this.innerBottomWidget,
-    this.outerTopWidget,
-    this.outerBottomWidget,
-    this.inListTopWidgets,
-    this.inListBottomWidgets,
-    this.innerTopDivider,
-    this.innerBottomDivider,
-    this.outerTopDivider,
-    this.outerBottomDivider,
+    this.innerCrossAxisAlignment = CrossAxisAlignment.center,
+    this.outerTopWidgets,
+    this.innerTopWidgets,
+    this.listTopWidgets,
+    this.listBottomWidgets,
+    this.innerBottomWidgets,
+    this.outerBottomWidgets,
   });
-
-  /// The crossAxisAlignment for inner [Column] inside [PlaceholderText], defaults to [CrossAxisAlignment.center].
-  final CrossAxisAlignment? innerCrossAxisAlignment;
 
   /// The crossAxisAlignment for outer [Column] outside [PlaceholderText], defaults to [CrossAxisAlignment.center].
   final CrossAxisAlignment? outerCrossAxisAlignment;
 
-  /// The widget before [ScrollView] inside [PlaceholderText].
-  final Widget? innerTopWidget;
+  /// The crossAxisAlignment for inner [Column] inside [PlaceholderText], defaults to [CrossAxisAlignment.center].
+  final CrossAxisAlignment? innerCrossAxisAlignment;
 
-  /// The widget after [ScrollView] inside [PlaceholderText].
-  final Widget? innerBottomWidget;
+  /// The widget before [ScrollView] and outside [PlaceholderText].
+  final List<Widget>? outerTopWidgets;
 
-  /// The widget before [ScrollView] outside [PlaceholderText].
-  final Widget? outerTopWidget;
+  /// The widget before [ScrollView] and inside [PlaceholderText].
+  final List<Widget>? innerTopWidgets;
 
-  /// The widget after [ScrollView] outside [PlaceholderText].
-  final Widget? outerBottomWidget;
+  /// The widgets in the top of [ScrollView], and there is no separator between widgets.
+  final List<Widget>? listTopWidgets;
 
-  /// The widgets in the top of [ScrollView], that will have no separator between items.
-  final List<Widget>? inListTopWidgets;
+  /// The widgets in the bottom of [ScrollView], and there is no separator between widgets.
+  final List<Widget>? listBottomWidgets;
 
-  /// The widgets in the bottom of [ScrollView], that will have no separator between items.
-  final List<Widget>? inListBottomWidgets;
+  /// The widget after [ScrollView] and inside [PlaceholderText].
+  final List<Widget>? innerBottomWidgets;
 
-  /// The divider before [ScrollView] inside [PlaceholderText], if null, do not show it.
-  final Widget? innerTopDivider;
-
-  /// The divider after [ScrollView] inside [PlaceholderText], if null, do not show it.
-  final Widget? innerBottomDivider;
-
-  /// The divider before [ScrollView] outside [PlaceholderText], if null, do not show it.
-  final Widget? outerTopDivider;
-
-  /// The divider after [ScrollView] outside [PlaceholderText], if null, do not show it.
-  final Widget? outerBottomDivider;
+  /// The widget after [ScrollView] and outside [PlaceholderText].
+  final List<Widget>? outerBottomWidgets;
 }
 
 /// A controller for [UpdatableDataView], uses two [GlobalKey]-s to control [RefreshIndicator] and [AppendIndicator], and includes [refresh] and [append] methods.

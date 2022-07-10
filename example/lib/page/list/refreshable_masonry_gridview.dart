@@ -30,7 +30,7 @@ class _RefreshableMasonryGridViewPageState extends State<RefreshableMasonryGridV
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('RefreshableStaggeredGridView Example'),
+        title: const Text('RefreshableMasonryGridView Example'),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -76,18 +76,28 @@ class _RefreshableMasonryGridViewPageState extends State<RefreshableMasonryGridV
         ),
         crossAxisCount: 4,
         extra: UpdatableDataViewExtraWidgets(
-          innerTopWidget: const Align(alignment: Alignment.centerLeft, child: Padding(padding: EdgeInsets.fromLTRB(10, 8, 0, 8), child: Text('inner top widget'))),
-          innerBottomWidget: const Align(alignment: Alignment.centerLeft, child: Padding(padding: EdgeInsets.fromLTRB(10, 8, 0, 8), child: Text('inner bottom widget'))),
-          outerTopWidget: const Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('outer top widget'))),
-          outerBottomWidget: const Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('outer bottom widget'))),
-          inListTopWidgets: [const Center(child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 0, 8), child: Text('in list top widget')))].repeat(3),
-          // ignore
-          inListBottomWidgets: [const Center(child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 0, 8), child: Text('in list bottom widget')))].repeat(3),
-          // ignore
-          innerTopDivider: const Divider(thickness: 1, height: 1),
-          innerBottomDivider: const Divider(thickness: 1, height: 1),
-          outerTopDivider: const Divider(thickness: 1, height: 1),
-          outerBottomDivider: const Divider(thickness: 1, height: 1),
+          outerTopWidgets: [
+            const Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('outer top widget'))),
+            const Divider(thickness: 1, height: 1),
+          ],
+          innerTopWidgets: [
+            const Align(alignment: Alignment.centerLeft, child: Padding(padding: EdgeInsets.fromLTRB(10, 8, 0, 8), child: Text('inner top widget'))),
+            const Divider(thickness: 1, height: 1),
+          ],
+          innerBottomWidgets: [
+            const Divider(thickness: 1, height: 1),
+            const Align(alignment: Alignment.centerLeft, child: Padding(padding: EdgeInsets.fromLTRB(10, 8, 0, 8), child: Text('inner bottom widget'))),
+          ],
+          outerBottomWidgets: [
+            const Divider(thickness: 1, height: 1),
+            const Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('outer bottom widget'))),
+          ],
+          listTopWidgets: [
+            const Center(child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 0, 8), child: Text('in list top widget'))), // ignored
+          ].repeat(3),
+          listBottomWidgets: [
+            const Center(child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 0, 8), child: Text('in list bottom widget'))), // ignored
+          ].repeat(3),
         ),
       ),
       floatingActionButton: ScrollAnimatedFab(
@@ -97,7 +107,7 @@ class _RefreshableMasonryGridViewPageState extends State<RefreshableMasonryGridV
         fab: FloatingActionButton(
           child: const Icon(Icons.vertical_align_top),
           onPressed: () => _scrollController.scrollToTop(),
-          heroTag: 'RefreshableStaggeredGridView',
+          heroTag: 'RefreshableMasonryGridViewPage',
         ),
       ),
     );

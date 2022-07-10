@@ -24,16 +24,16 @@ class _RefreshableListViewPageState extends State<RefreshableListViewPage> {
     return List.generate(50, (i) => 'Item ${i + 1}');
   }
 
-  var _innerTopW = true;
-  var _innerBottomW = true;
   var _outerTopW = true;
-  var _outerBottomW = true;
-  var _inListTopW = true;
-  var _inListBottomW = true;
-  var _innerTopD = true;
-  var _innerBottomD = true;
   var _outerTopD = true;
+  var _innerTopW = true;
+  var _innerTopD = true;
+  var _listTopW = true;
+  var _listBottomW = true;
+  var _innerBottomD = true;
+  var _innerBottomW = true;
   var _outerBottomD = true;
+  var _outerBottomW = true;
 
   @override
   Widget build(BuildContext context) {
@@ -54,51 +54,51 @@ class _RefreshableListViewPageState extends State<RefreshableListViewPage> {
           ),
           PopupMenuButton<String>(
             onSelected: (s) {
-              switch (s) {
-                case 'innerTopW':
-                  _innerTopW = !_innerTopW;
-                  break;
-                case 'innerBottomW':
-                  _innerBottomW = !_innerBottomW;
-                  break;
+              switch (s.split(' ')[0]) {
                 case 'outerTopW':
                   _outerTopW = !_outerTopW;
-                  break;
-                case 'outerBottomW':
-                  _outerBottomW = !_outerBottomW;
-                  break;
-                case 'inListTopW':
-                  _inListTopW = !_inListTopW;
-                  break;
-                case 'inListBottomW':
-                  _inListBottomW = !_inListBottomW;
-                  break;
-                case 'innerTopD':
-                  _innerTopD = !_innerTopD;
-                  break;
-                case 'innerBottomD':
-                  _innerBottomD = !_innerBottomD;
                   break;
                 case 'outerTopD':
                   _outerTopD = !_outerTopD;
                   break;
+                case 'innerTopW':
+                  _innerTopW = !_innerTopW;
+                  break;
+                case 'innerTopD':
+                  _innerTopD = !_innerTopD;
+                  break;
+                case 'listTopW':
+                  _listTopW = !_listTopW;
+                  break;
+                case 'listBottomW':
+                  _listBottomW = !_listBottomW;
+                  break;
+                case 'innerBottomD':
+                  _innerBottomD = !_innerBottomD;
+                  break;
+                case 'innerBottomW':
+                  _innerBottomW = !_innerBottomW;
+                  break;
                 case 'outerBottomD':
                   _outerBottomD = !_outerBottomD;
+                  break;
+                case 'outerBottomW':
+                  _outerBottomW = !_outerBottomW;
                   break;
               }
               if (mounted) setState(() {});
             },
             itemBuilder: (_) => [
-              'outerTopW',
-              'outerTopD',
-              'innerTopW',
-              'innerTopD',
-              'inListTopW',
-              'inListBottomW',
-              'innerBottomD',
-              'innerBottomW',
-              'outerBottomD',
-              'outerBottomW',
+              'outerTopW ' + (_outerTopW ? 'on' : 'off'),
+              'outerTopD ' + (_outerTopD ? 'on' : 'off'),
+              'innerTopW ' + (_innerTopW ? 'on' : 'off'),
+              'innerTopD ' + (_innerTopD ? 'on' : 'off'),
+              'listTopW ' + (_listTopW ? 'on' : 'off'),
+              'listBottomW ' + (_listBottomW ? 'on' : 'off'),
+              'innerBottomD ' + (_innerBottomD ? 'on' : 'off'),
+              'innerBottomW ' + (_innerBottomW ? 'on' : 'off'),
+              'outerBottomD ' + (_outerBottomD ? 'on' : 'off'),
+              'outerBottomW ' + (_outerBottomW ? 'on' : 'off'),
             ].map((s) => PopupMenuItem(value: s, child: Text(s))).toList(),
           ),
         ],
@@ -129,16 +129,32 @@ class _RefreshableListViewPageState extends State<RefreshableListViewPage> {
         ),
         separator: const Divider(height: 1, thickness: 1),
         extra: UpdatableDataViewExtraWidgets(
-          innerTopWidget: _innerTopW ? const Align(alignment: Alignment.centerLeft, child: Padding(padding: EdgeInsets.fromLTRB(10, 8, 0, 8), child: Text('inner top widget'))) : null,
-          innerBottomWidget: _innerBottomW ? const Align(alignment: Alignment.centerLeft, child: Padding(padding: EdgeInsets.fromLTRB(10, 8, 0, 8), child: Text('inner bottom widget'))) : null,
-          outerTopWidget: _outerTopW ? const Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('outer top widget'))) : null,
-          outerBottomWidget: _outerBottomW ? const Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('outer bottom widget'))) : null,
-          inListTopWidgets: _inListTopW ? [const Center(child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 0, 8), child: Text('in list top widget')))].repeat(3) : null,
-          inListBottomWidgets: _inListBottomW ? [const Center(child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 0, 8), child: Text('in list bottom widget')))].repeat(3) : null,
-          innerTopDivider: _innerTopD ? const Divider(thickness: 1, height: 1) : null,
-          innerBottomDivider: _innerBottomD ? const Divider(thickness: 1, height: 1) : null,
-          outerTopDivider: _outerTopD ? const Divider(thickness: 1, height: 1) : null,
-          outerBottomDivider: _outerBottomD ? const Divider(thickness: 1, height: 1) : null,
+          outerTopWidgets: [
+            if (_outerTopW) const Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('outer top widget'))),
+            if (_outerTopD) const Divider(thickness: 1, height: 1),
+          ],
+          innerTopWidgets: [
+            if (_innerTopW) const Align(alignment: Alignment.centerLeft, child: Padding(padding: EdgeInsets.fromLTRB(10, 8, 0, 8), child: Text('inner top widget'))),
+            if (_innerTopD) const Divider(thickness: 1, height: 1),
+          ],
+          innerBottomWidgets: [
+            if (_innerBottomD) const Divider(thickness: 1, height: 1),
+            if (_innerBottomW) const Align(alignment: Alignment.centerLeft, child: Padding(padding: EdgeInsets.fromLTRB(10, 8, 0, 8), child: Text('inner bottom widget'))),
+          ],
+          outerBottomWidgets: [
+            if (_outerBottomD) const Divider(thickness: 1, height: 1),
+            if (_outerBottomW) const Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('outer bottom widget'))),
+          ],
+          listTopWidgets: _listTopW
+              ? [
+                  const Center(child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 0, 8), child: Text('list top widget'))),
+                ].repeat(3)
+              : null,
+          listBottomWidgets: _listBottomW
+              ? [
+                  const Center(child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 0, 8), child: Text('list bottom widget'))),
+                ].repeat(3)
+              : null,
         ),
       ),
       floatingActionButton: ScrollAnimatedFab(

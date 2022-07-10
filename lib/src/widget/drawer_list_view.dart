@@ -49,7 +49,7 @@ class DrawerPageItem<T> extends DrawerItem {
   DrawerPageItem.simple(String title, IconData? icon, Widget page, T selection)
       : this(
           title: Text(title),
-          leading: icon != null ? null : Icon(icon),
+          leading: icon == null ? null : Icon(icon),
           page: page,
           selection: selection,
         );

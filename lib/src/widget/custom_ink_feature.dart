@@ -3,14 +3,13 @@
 // found in the LICENSE file.
 
 import 'dart:math' as math;
+import 'package:flutter/material.dart';
 
 // Note: The file is based on Flutter's source code, and is modified by Aoi-hosizora (GitHub: @Aoi-hosizora).
 //
 // Some code in this file keeps the same as the following source codes:
 // - InkRipple: https://github.com/flutter/flutter/blob/2.10.5/packages/flutter/lib/src/material/ink_ripple.dart
 // - InkSplash: https://github.com/flutter/flutter/blob/2.10.5/packages/flutter/lib/src/material/ink_splash.dart
-
-import 'package:flutter/material.dart';
 
 /// The setting for [CustomInkRipple], this class contains some durations options
 /// for ripple effect and color fading.
@@ -60,10 +59,10 @@ class CustomInkRippleSetting {
   static const CustomInkRippleSetting preferredSetting = CustomInkRippleSetting(
     unconfirmedRippleDuration: Duration(milliseconds: 300) /* 1000 -> 300 */,
     unconfirmedFadeInDuration: Duration(milliseconds: 75) /* 75 -> 75 */,
-    confirmedRippleDuration: Duration(milliseconds: 250) /* 225 -> 250 */,
+    confirmedRippleDuration: Duration(milliseconds: 200) /* 225 -> 200 */,
     confirmedFadeoutDuration: Duration(milliseconds: 150) /* 150 -> 150 */,
-    confirmedFadeoutInterval: Duration(milliseconds: 125) /* 225 -> 125 */,
-    canceledFadeOutDuration: Duration(milliseconds: 75),
+    confirmedFadeoutInterval: Duration(milliseconds: 150) /* 225 -> 150 */,
+    canceledFadeOutDuration: Duration(milliseconds: 125) /* 75 -> 125 */,
   );
 
   /// Creates a copy of this [CustomInkRippleSetting] but with the given fields
