@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/flutter_ahlib.dart';
+import 'package:flutter_ahlib_example/main.dart';
 
 class CustomInkFeaturePage extends StatefulWidget {
   const CustomInkFeaturePage({Key? key}) : super(key: key);
@@ -66,7 +67,7 @@ class _CustomInkFeaturePageState extends State<CustomInkFeaturePage> {
         Expanded(
           child: Slider(
             min: 0,
-            max: defaultValue == 0 ? 1 : defaultValue * 5, // 500%
+            max: defaultValue * 5, // 500%
             value: getter(),
             onChanged: (v) {
               setter(v);
@@ -246,6 +247,7 @@ class _CustomInkFeaturePageState extends State<CustomInkFeaturePage> {
                         content: const Text('content content content ...'),
                         actions: [
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
                             children: [
                               TextButton(child: const Text('Yes'), onPressed: () {}),
                               TextButton(child: const Text('No'), onPressed: () {}),
@@ -253,6 +255,7 @@ class _CustomInkFeaturePageState extends State<CustomInkFeaturePage> {
                             ],
                           ),
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
                             children: [
                               FlatButton(child: const Text('Yes'), onPressed: () {}), // ignore: deprecated_member_use
                               FlatButton(child: const Text('No'), onPressed: () {}), // ignore: deprecated_member_use
@@ -262,6 +265,48 @@ class _CustomInkFeaturePageState extends State<CustomInkFeaturePage> {
                         ],
                       ),
                     ),
+                  ),
+                  const Divider(),
+                  Builder(
+                    builder: (c) {
+                      var key = GlobalKey();
+                      var tableWidth = MediaQuery.of(c).size.width - MediaQuery.of(c).padding.horizontal - 20;
+                      var padding = const EdgeInsets.symmetric(horizontal: 10, vertical: 8);
+                      return Table(
+                        key: key,
+                        columnWidths: const {0: FractionColumnWidth(0.3)},
+                        border: const TableBorder(
+                          horizontalInside: BorderSide(width: 1, color: Colors.grey),
+                        ),
+                        children: [
+                          TableRow(
+                            children: [
+                              Padding(padding: padding, child: const Text('Key', style: TextStyle(color: Colors.grey))),
+                              Padding(padding: padding, child: const Text('Value', style: TextStyle(color: Colors.grey))),
+                            ],
+                          ),
+                          for (int i = 0; i < 5; i++)
+                            TableRow(
+                              children: [
+                                CustomInkWell(
+                                  child: Padding(padding: padding, child: const Text('ABC')),
+                                  onTap: () => printLog('$tableWidth <-> ${key.currentContext?.size?.width}'),
+                                  radius: tableWidth,
+                                  rectCallback: (box) => getTableRowRect(box),
+                                ),
+                                CustomInkResponse(
+                                  child: Padding(padding: padding, child: const Text('abcdefg')),
+                                  onTap: () => printLog('$tableWidth <-> ${key.currentContext?.size?.width}'),
+                                  radius: tableWidth,
+                                  rectCallback: (box) => getTableRowRect(box),
+                                  containedInkWell: true, // <<<
+                                  highlightShape: BoxShape.rectangle, // <<<
+                                ),
+                              ],
+                            ),
+                        ],
+                      );
+                    },
                   ),
                 ],
               ),

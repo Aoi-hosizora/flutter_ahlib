@@ -11,3 +11,4 @@ export 'src/widget/popup_list_menu.dart';
 export 'src/widget/sliver_delegate.dart';
 export 'src/widget/tab_in_page_notification.dart';
 export 'src/widget/text_group.dart';
+export 'src/widget/text_selection_config.dart';

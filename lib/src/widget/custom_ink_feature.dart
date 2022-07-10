@@ -61,7 +61,7 @@ class CustomInkRippleSetting {
     unconfirmedFadeInDuration: Duration(milliseconds: 75) /* 75 -> 75 */,
     confirmedRippleDuration: Duration(milliseconds: 200) /* 225 -> 200 */,
     confirmedFadeoutDuration: Duration(milliseconds: 150) /* 150 -> 150 */,
-    confirmedFadeoutInterval: Duration(milliseconds: 150) /* 225 -> 150 */,
+    confirmedFadeoutInterval: Duration(milliseconds: 200) /* 225 -> 200 */,
     canceledFadeOutDuration: Duration(milliseconds: 125) /* 75 -> 125 */,
   );
 
@@ -518,4 +518,154 @@ class CustomInkSplash extends InteractiveInkFeature {
       clipCallback: _clipCallback,
     );
   }
+}
+
+/// An custom [InkResponse] with custom required [rectCallback] and [radius] for ink feature.
+class CustomInkResponse extends InkResponse {
+  const CustomInkResponse({
+    Key? key,
+    required Widget child,
+    required GestureTapCallback? onTap,
+    GestureTapCallback? onDoubleTap,
+    GestureLongPressCallback? onLongPress,
+    GestureTapDownCallback? onTapDown,
+    GestureTapCancelCallback? onTapCancel,
+    ValueChanged<bool>? onHighlightChanged,
+    ValueChanged<bool>? onHover,
+    MouseCursor? mouseCursor,
+    bool containedInkWell = false,
+    BoxShape highlightShape = BoxShape.circle,
+    Color? focusColor,
+    Color? hoverColor,
+    Color? highlightColor,
+    MaterialStateProperty<Color?>? overlayColor,
+    Color? splashColor,
+    InteractiveInkFeatureFactory? splashFactory,
+    required double? radius,
+    BorderRadius? borderRadius,
+    ShapeBorder? customBorder,
+    bool? enableFeedback = true,
+    bool excludeFromSemantics = false,
+    FocusNode? focusNode,
+    bool canRequestFocus = true,
+    ValueChanged<bool>? onFocusChange,
+    bool autofocus = false,
+    required this.rectCallback,
+  }) : super(
+          key: key,
+          child: child,
+          onTap: onTap,
+          onDoubleTap: onDoubleTap,
+          onLongPress: onLongPress,
+          onTapDown: onTapDown,
+          onTapCancel: onTapCancel,
+          onHighlightChanged: onHighlightChanged,
+          onHover: onHover,
+          mouseCursor: mouseCursor,
+          containedInkWell: containedInkWell,
+          highlightShape: highlightShape,
+          focusColor: focusColor,
+          hoverColor: hoverColor,
+          highlightColor: highlightColor,
+          overlayColor: overlayColor,
+          splashColor: splashColor,
+          splashFactory: splashFactory,
+          radius: radius,
+          borderRadius: borderRadius,
+          customBorder: customBorder,
+          enableFeedback: enableFeedback ?? true,
+          excludeFromSemantics: excludeFromSemantics,
+          focusNode: focusNode,
+          canRequestFocus: canRequestFocus,
+          onFocusChange: onFocusChange,
+          autofocus: autofocus,
+        );
+
+  /// The [Rect] callback with [RenderBox] for [getRectCallback].
+  final Rect Function(RenderBox referenceBox) rectCallback;
+
+  /// The rectangle to use for the highlight effect and for clipping the splash effects if
+  /// [containedInkWell] is true. Visit [InkResponse.getRectCallback] for details.
+  @override
+  RectCallback getRectCallback(RenderBox referenceBox) {
+    return () => rectCallback(referenceBox);
+  }
+}
+
+/// An custom [InkWell] with custom required [rectCallback] and [radius] for ink feature.
+class CustomInkWell extends InkResponse {
+  const CustomInkWell({
+    Key? key,
+    required Widget child,
+    required GestureTapCallback? onTap,
+    GestureTapCallback? onDoubleTap,
+    GestureLongPressCallback? onLongPress,
+    GestureTapDownCallback? onTapDown,
+    GestureTapCancelCallback? onTapCancel,
+    ValueChanged<bool>? onHighlightChanged,
+    ValueChanged<bool>? onHover,
+    MouseCursor? mouseCursor,
+    Color? focusColor,
+    Color? hoverColor,
+    Color? highlightColor,
+    MaterialStateProperty<Color?>? overlayColor,
+    Color? splashColor,
+    InteractiveInkFeatureFactory? splashFactory,
+    required double? radius,
+    BorderRadius? borderRadius,
+    ShapeBorder? customBorder,
+    bool? enableFeedback = true,
+    bool excludeFromSemantics = false,
+    FocusNode? focusNode,
+    bool canRequestFocus = true,
+    ValueChanged<bool>? onFocusChange,
+    bool autofocus = false,
+    required this.rectCallback,
+  }) : super(
+          key: key,
+          child: child,
+          onTap: onTap,
+          onDoubleTap: onDoubleTap,
+          onLongPress: onLongPress,
+          onTapDown: onTapDown,
+          onTapCancel: onTapCancel,
+          onHighlightChanged: onHighlightChanged,
+          onHover: onHover,
+          mouseCursor: mouseCursor,
+          containedInkWell: true,
+          highlightShape: BoxShape.rectangle,
+          focusColor: focusColor,
+          hoverColor: hoverColor,
+          highlightColor: highlightColor,
+          overlayColor: overlayColor,
+          splashColor: splashColor,
+          splashFactory: splashFactory,
+          radius: radius,
+          borderRadius: borderRadius,
+          customBorder: customBorder,
+          enableFeedback: enableFeedback ?? true,
+          excludeFromSemantics: excludeFromSemantics,
+          focusNode: focusNode,
+          canRequestFocus: canRequestFocus,
+          onFocusChange: onFocusChange,
+          autofocus: autofocus,
+        );
+
+  /// The [Rect] callback with [RenderBox] for [getRectCallback].
+  final Rect Function(RenderBox referenceBox) rectCallback;
+
+  /// The rectangle to use for the highlight effect and for clipping the splash effects if
+  /// [containedInkWell] is true. Visit [InkResponse.getRectCallback] for details.
+  @override
+  RectCallback getRectCallback(RenderBox referenceBox) {
+    return () => rectCallback(referenceBox);
+  }
+}
+
+/// Returns the [Rect] of [TableRow] with given [RenderBox]. This is a helper function for
+/// [CustomInkWell] and [CustomInkResponse], which is used to fix bug in [TableRowInkWell].
+Rect getTableRowRect(RenderBox referenceBox) {
+  var helper = const TableRowInkWell();
+  var callback = helper.getRectCallback(referenceBox);
+  return callback();
 }

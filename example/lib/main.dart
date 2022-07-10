@@ -9,9 +9,9 @@ void main() {
 final _logger = ValueNotifier<String>('Logger:');
 final _controller = ScrollController();
 
-void printLog(String s) {
+void printLog(Object? s) {
   print(s);
-  _logger.value += '\n[log] ' + s;
+  _logger.value += '\n[log] ' + (s?.toString() ?? '<null>');
   Future.delayed(const Duration(milliseconds: 20), () => _controller.scrollToBottom());
 }
 

@@ -35,6 +35,7 @@ import 'package:flutter_ahlib/flutter_ahlib.dart'; // the whole library
     + `SliverAppBarDelegate` `SliverAppBarSizedDelegate` `SliverSeparatedListDelegate` `SliverSeparatedListBuilderDelegate`
     + `TabInPageNotification`
     + `TextGroup`
+    + `TextSelectionConfig` `TextSelectionWithColorHandle`
 + list.dart:
     + `AppendIndicator` `AppendIndicatorState`
     + `RefreshableDataView` `RefreshableListView` `RefreshableSliverListView` `RefreshableMasonryGridView`
