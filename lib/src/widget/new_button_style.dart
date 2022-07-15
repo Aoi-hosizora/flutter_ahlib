@@ -17,6 +17,7 @@ ButtonStyle flatButtonStyle({
   Color? onSurface,
   Color? backgroundColor,
   Color? shadowColor,
+  Color? splashColor,
   double? elevation,
   TextStyle? textStyle,
   EdgeInsetsGeometry? padding,
@@ -34,14 +35,11 @@ ButtonStyle flatButtonStyle({
   AlignmentGeometry? alignment,
   InteractiveInkFeatureFactory? splashFactory,
 }) {
-  return TextButton.styleFrom(
+  var style = TextButton.styleFrom(
     // fields for FlatButton
     primary: primary ?? Colors.black87,
     padding: padding ?? const EdgeInsets.symmetric(horizontal: 16.0),
-    shape: shape ??
-        const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(2.0)),
-        ),
+    shape: shape ?? const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(2.0))),
     // fields for TextButton
     onSurface: onSurface,
     backgroundColor: backgroundColor,
@@ -61,6 +59,15 @@ ButtonStyle flatButtonStyle({
     alignment: alignment,
     splashFactory: splashFactory,
   );
+  if (splashColor != null) {
+    // add extra splashColor style
+    style = style.copyWith(
+      overlayColor: MaterialStateProperty.resolveWith(
+        (s) => s.contains(MaterialState.pressed) ? splashColor : null,
+      ),
+    );
+  }
+  return style;
 }
 
 /// Returns a [ButtonStyle] that is used to make a [ElevatedButton] look like a deprecated [RaisedButton],
@@ -70,6 +77,7 @@ ButtonStyle raisedButtonStyle({
   Color? onPrimary,
   Color? onSurface,
   Color? shadowColor,
+  Color? splashColor,
   double? elevation,
   TextStyle? textStyle,
   EdgeInsetsGeometry? padding,
@@ -87,15 +95,12 @@ ButtonStyle raisedButtonStyle({
   AlignmentGeometry? alignment,
   InteractiveInkFeatureFactory? splashFactory,
 }) {
-  return ElevatedButton.styleFrom(
+  var style = ElevatedButton.styleFrom(
     // fields for RaisedButton
     onPrimary: onPrimary ?? Colors.black87,
     primary: primary ?? Colors.grey[300],
     padding: padding ?? const EdgeInsets.symmetric(horizontal: 16.0),
-    shape: shape ??
-        const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(2.0)),
-        ),
+    shape: shape ?? const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(2.0))),
     // fields for ElevatedButton
     onSurface: onSurface,
     shadowColor: shadowColor,
@@ -114,6 +119,15 @@ ButtonStyle raisedButtonStyle({
     alignment: alignment,
     splashFactory: splashFactory,
   );
+  if (splashColor != null) {
+    // add extra splashColor style
+    style = style.copyWith(
+      overlayColor: MaterialStateProperty.resolveWith(
+        (s) => s.contains(MaterialState.pressed) ? splashColor : null,
+      ),
+    );
+  }
+  return style;
 }
 
 /// Returns a [ButtonStyle] that is used to make a [OutlinedButton] look like a deprecated [OutlineButton],
@@ -124,6 +138,7 @@ ButtonStyle outlineButtonStyle(
   Color? onSurface,
   Color? backgroundColor,
   Color? shadowColor,
+  Color? splashColor,
   double? elevation,
   TextStyle? textStyle,
   EdgeInsetsGeometry? padding,
@@ -145,10 +160,7 @@ ButtonStyle outlineButtonStyle(
     // fields for OutlineButton
     primary: primary ?? Colors.black87,
     padding: padding ?? const EdgeInsets.symmetric(horizontal: 16.0),
-    shape: shape ??
-        const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(2.0)),
-        ),
+    shape: shape ?? const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(2.0))),
     // fields for OutlinedButton
     onSurface: onSurface,
     backgroundColor: backgroundColor,
@@ -168,22 +180,31 @@ ButtonStyle outlineButtonStyle(
     alignment: alignment,
     splashFactory: splashFactory,
   );
-  if (side != null) {
-    return style;
+  if (splashColor != null) {
+    // add extra splashColor style
+    style = style.copyWith(
+      overlayColor: MaterialStateProperty.resolveWith(
+        (s) => s.contains(MaterialState.pressed) ? splashColor : null,
+      ),
+    );
   }
-  return style.copyWith(
-    side: MaterialStateProperty.resolveWith<BorderSide?>(
-      (Set<MaterialState> states) {
-        if (states.contains(MaterialState.pressed)) {
-          return BorderSide(
-            color: Theme.of(context).colorScheme.primary,
-            width: 1,
-          );
-        }
-        return null; // Defer to the widget's default.
-      },
-    ),
-  );
+  if (side == null) {
+    // use default side style
+    style = style.copyWith(
+      side: MaterialStateProperty.resolveWith<BorderSide?>(
+        (Set<MaterialState> states) {
+          if (states.contains(MaterialState.pressed)) {
+            return BorderSide(
+              color: Theme.of(context).colorScheme.primary,
+              width: 1,
+            );
+          }
+          return null; // Defer to the widget's default.
+        },
+      ),
+    );
+  }
+  return style;
 }
 
 /// An extension for [ThemeData].

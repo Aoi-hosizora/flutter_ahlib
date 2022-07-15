@@ -24,7 +24,6 @@ class MyApp extends StatelessWidget {
       title: 'flutter_ahlib_example',
       theme: ThemeData(
         primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
       ).withSplashFactory(CustomInkRipple.preferredSplashFactory),
       home: const IndexPage(),
       builder: (context, child) => Scaffold(

@@ -36,17 +36,17 @@ class _NewButtonThemePageState extends State<NewButtonThemePage> {
     );
   }
 
-  Widget _row(Widget w1, Widget w2, Widget w3, Widget w4) {
+  Widget _row(Widget w1, Widget w2, [Widget? w3, Widget? w4]) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         w1,
-        const SizedBox(width: 12),
+        const SizedBox(width: 8),
         w2,
-        const SizedBox(width: 12),
-        w3,
-        const SizedBox(width: 12),
-        w4,
+        if (w3 != null) const SizedBox(width: 8),
+        if (w3 != null) w3,
+        if (w4 != null) const SizedBox(width: 8),
+        if (w4 != null) w4,
       ],
     );
   }
@@ -72,6 +72,8 @@ class _NewButtonThemePageState extends State<NewButtonThemePage> {
 
   @override
   Widget build(BuildContext context) {
+    final primary = Theme.of(context).colorScheme.primary;
+    final onPrimary = Theme.of(context).colorScheme.onPrimary;
     return Scaffold(
       appBar: AppBar(
         title: const Text('NewButtonStylePage'),
@@ -93,41 +95,47 @@ class _NewButtonThemePageState extends State<NewButtonThemePage> {
                   _row(
                     OutlinedButton(child: const Text('Outlined'), onPressed: () {}),
                     OutlineButton(child: const Text('Outline'), onPressed: () {}), // ignore: deprecated_member_use
-                    OutlinedButton(child: const Text('Styled 1'), onPressed: () {}, style: outlineButtonStyle(c)),
-                    OutlinedButton(
-                      child: const Text('Styled 2'),
-                      onPressed: () {},
-                      style: outlineButtonStyle(
-                        c,
-                        primary: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
+                    OutlineButton(child: const Text('Outline NoHl'), onPressed: () {}, highlightColor: Colors.transparent), // ignore: deprecated_member_use
                   ),
+                  _row(
+                    OutlinedButton(child: const Text('Styled 1'), onPressed: () {}, style: outlineButtonStyle(c)), // -> 0.12
+                    OutlinedButton(child: const Text('Styled 1 Middle'), onPressed: () {}, style: outlineButtonStyle(c, splashColor: Colors.black.withOpacity(0.19))), // 0.19
+                    OutlinedButton(child: const Text('Styled 1 Darker'), onPressed: () {}, style: outlineButtonStyle(c, splashColor: Colors.black26)), // 0.26
+                  ),
+                  _row(
+                    OutlinedButton(child: const Text('Styled 2'), onPressed: () {}, style: outlineButtonStyle(c, primary: primary)), // 0.12
+                    OutlinedButton(child: const Text('Styled 2 Middle'), onPressed: () {}, style: outlineButtonStyle(c, primary: primary, splashColor: primary.withOpacity(0.19))), // 0.19
+                    OutlinedButton(child: const Text('Styled 2 Darker'), onPressed: () {}, style: outlineButtonStyle(c, primary: primary, splashColor: primary.withOpacity(0.26))), // 0.26
+                  ),
+                  const Divider(),
                   _row(
                     ElevatedButton(child: const Text('Elevated'), onPressed: () {}),
                     RaisedButton(child: const Text('Raised'), onPressed: () {}), // ignore: deprecated_member_use
-                    ElevatedButton(child: const Text('Styled 1'), onPressed: () {}, style: raisedButtonStyle()),
-                    ElevatedButton(
-                      child: const Text('Styled 2'),
-                      onPressed: () {},
-                      style: raisedButtonStyle(
-                        onPrimary: Theme.of(context).colorScheme.onPrimary,
-                        primary: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
+                    RaisedButton(child: const Text('Raised NoHl'), onPressed: () {}, highlightColor: Colors.transparent), // ignore: deprecated_member_use
                   ),
+                  _row(
+                    ElevatedButton(child: const Text('Styled 1'), onPressed: () {}, style: raisedButtonStyle()),
+                    ElevatedButton(child: const Text('Styled 2'), onPressed: () {}, style: raisedButtonStyle(onPrimary: onPrimary, primary: primary)), // 0.24
+                    ElevatedButton(child: const Text('Styled 2 Middle'), onPressed: () {}, style: raisedButtonStyle(onPrimary: onPrimary, primary: primary, splashColor: Colors.white30)), // 0.30
+                    ElevatedButton(child: const Text('Styled 2 Lighter'), onPressed: () {}, style: raisedButtonStyle(onPrimary: onPrimary, primary: primary, splashColor: Colors.white38)), // 0.38
+                  ),
+                  const Divider(),
                   _row(
                     TextButton(child: const Text('Text'), onPressed: () {}),
                     FlatButton(child: const Text('Flat'), onPressed: () {}), // ignore: deprecated_member_use
-                    TextButton(child: const Text('Styled 1'), onPressed: () {}, style: flatButtonStyle()),
-                    TextButton(
-                      child: const Text('Styled 2'),
-                      onPressed: () {},
-                      style: flatButtonStyle(
-                        primary: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
+                    FlatButton(child: const Text('Flat NoHl'), onPressed: () {}, highlightColor: Colors.transparent), // ignore: deprecated_member_use
                   ),
+                  _row(
+                    TextButton(child: const Text('Styled 1'), onPressed: () {}, style: flatButtonStyle()), // 0.12
+                    TextButton(child: const Text('Styled 1 Middle'), onPressed: () {}, style: flatButtonStyle(splashColor: Colors.black.withOpacity(0.19))), // 0.19
+                    TextButton(child: const Text('Styled 1 Darker'), onPressed: () {}, style: flatButtonStyle(splashColor: Colors.black26)), // 0.26
+                  ),
+                  _row(
+                    TextButton(child: const Text('Styled 2'), onPressed: () {}, style: flatButtonStyle(primary: primary)), // 0.12
+                    TextButton(child: const Text('Styled 2 Middle'), onPressed: () {}, style: flatButtonStyle(primary: primary, splashColor: primary.withOpacity(0.19))), // 0.19
+                    TextButton(child: const Text('Styled 2 Darker'), onPressed: () {}, style: flatButtonStyle(primary: primary, splashColor: primary.withOpacity(0.26))), // 0.26
+                  ),
+                  const Divider(),
                   ListTile(
                     title: const Text('ListTile', textAlign: TextAlign.center),
                     onTap: () {},

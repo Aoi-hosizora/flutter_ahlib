@@ -10,33 +10,28 @@ class CustomInkFeaturePage extends StatefulWidget {
 }
 
 class _CustomInkFeaturePageState extends State<CustomInkFeaturePage> {
-  static get rDef => CustomInkRippleSetting.defaultSetting;
+  CustomInkRippleSetting get rDef => CustomInkRippleSetting.defaultSetting;
 
-  static get rPre => CustomInkRippleSetting.preferredSetting;
+  CustomInkRippleSetting get rPre => CustomInkRippleSetting.preferredSetting;
 
-  static get sDef => CustomInkSplashSetting.defaultSetting;
+  CustomInkSplashSetting get sDef => CustomInkSplashSetting.defaultSetting;
 
-  static get sPre => CustomInkSplashSetting.preferredSetting;
+  CustomInkSplashSetting get sPre => CustomInkSplashSetting.preferredSetting;
 
   var useRipple = true;
+  late CustomInkRippleSetting _r = rDef;
+  late CustomInkSplashSetting _s = sDef;
 
-  // parameters for CustomInkRippleSetting
-  Duration unconfirmedRippleDuration = rDef.unconfirmedRippleDuration;
-  Duration unconfirmedFadeInDuration = rDef.unconfirmedFadeInDuration;
-  Duration confirmedRippleDuration = rDef.confirmedRippleDuration;
-  Duration confirmedFadeoutDuration = rDef.confirmedFadeoutDuration;
-  Duration confirmedFadeoutInterval = rDef.confirmedFadeoutInterval;
-  Duration canceledFadeOutDuration = rDef.canceledFadeOutDuration;
-
-  // parameters for CustomInkSplashSetting
-  Duration unconfirmedSplashDuration = sDef.unconfirmedSplashDuration;
-  Duration splashFadeDuration = sDef.splashFadeDuration;
-  double splashConfirmedVelocity = sDef.splashConfirmedVelocity;
-
-  Widget _row(Widget w1, Widget w2) {
+  Widget _row(Widget w1, Widget w2, [Widget? w3]) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: [w1, const SizedBox(width: 12), w2],
+      children: [
+        w1,
+        const SizedBox(width: 12),
+        w2,
+        if (w3 != null) const SizedBox(width: 12),
+        if (w3 != null) w3,
+      ],
     );
   }
 
@@ -47,7 +42,7 @@ class _CustomInkFeaturePageState extends State<CustomInkFeaturePage> {
         Expanded(
           child: Slider(
             min: 0,
-            max: defaultValue.inMilliseconds * 5, // 500%
+            max: defaultValue.inMilliseconds == 0 ? 500 : defaultValue.inMilliseconds * 5, // 500%
             value: getter().inMilliseconds.toDouble(),
             onChanged: (v) {
               setter(Duration(milliseconds: v.toInt()));
@@ -56,6 +51,26 @@ class _CustomInkFeaturePageState extends State<CustomInkFeaturePage> {
           ),
         ),
         Text('${getter().inMilliseconds.toInt()}ms'),
+      ],
+    );
+  }
+
+  Widget _sliderBool(bool defaultValue, bool Function() getter, void Function(bool) setter, String name) {
+    return Row(
+      children: [
+        Text(name),
+        Expanded(
+          child: Slider(
+            min: 0,
+            max: 1,
+            value: getter() ? 1 : 0,
+            onChanged: (v) {
+              setter(v != 0);
+              if (mounted) setState(() {});
+            },
+          ),
+        ),
+        Text(getter() ? 'true' : 'false'),
       ],
     );
   }
@@ -81,24 +96,7 @@ class _CustomInkFeaturePageState extends State<CustomInkFeaturePage> {
   }
 
   ThemeData get themeData {
-    var factory = useRipple
-        ? CustomInkRippleFactory(
-            setting: CustomInkRippleSetting.copyWith(
-              unconfirmedRippleDuration: unconfirmedRippleDuration,
-              unconfirmedFadeInDuration: unconfirmedFadeInDuration,
-              confirmedRippleDuration: confirmedRippleDuration,
-              confirmedFadeoutDuration: confirmedFadeoutDuration,
-              confirmedFadeoutInterval: confirmedFadeoutInterval,
-              canceledFadeOutDuration: canceledFadeOutDuration,
-            ),
-          )
-        : CustomInkSplashFactory(
-            setting: CustomInkSplashSetting.copyWith(
-              unconfirmedSplashDuration: unconfirmedSplashDuration,
-              splashFadeDuration: splashFadeDuration,
-              splashConfirmedVelocity: splashConfirmedVelocity,
-            ),
-          );
+    var factory = useRipple ? CustomInkRippleFactory(setting: _r) : CustomInkSplashFactory(setting: _s);
     return ThemeData(
       splashFactory: factory,
       outlinedButtonTheme: OutlinedButtonThemeData(style: OutlinedButton.styleFrom(splashFactory: factory)),
@@ -129,38 +127,24 @@ class _CustomInkFeaturePageState extends State<CustomInkFeaturePage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ElevatedButton(
-                child: const Text('Default'),
+                child: const Text('To default'),
                 onPressed: () {
                   if (useRipple) {
-                    unconfirmedRippleDuration = rDef.unconfirmedRippleDuration;
-                    unconfirmedFadeInDuration = rDef.unconfirmedFadeInDuration;
-                    confirmedRippleDuration = rDef.confirmedRippleDuration;
-                    confirmedFadeoutDuration = rDef.confirmedFadeoutDuration;
-                    confirmedFadeoutInterval = rDef.confirmedFadeoutInterval;
-                    canceledFadeOutDuration = rDef.canceledFadeOutDuration;
+                    _r = rDef;
                   } else {
-                    unconfirmedSplashDuration = sDef.unconfirmedSplashDuration;
-                    splashFadeDuration = sDef.splashFadeDuration;
-                    splashConfirmedVelocity = sDef.splashConfirmedVelocity;
+                    _s = sDef;
                   }
                   if (mounted) setState(() {});
                 },
               ),
               const SizedBox(width: 12),
               ElevatedButton(
-                child: const Text('Preferred'),
+                child: const Text('To preferred'),
                 onPressed: () {
                   if (useRipple) {
-                    unconfirmedRippleDuration = rPre.unconfirmedRippleDuration;
-                    unconfirmedFadeInDuration = rPre.unconfirmedFadeInDuration;
-                    confirmedRippleDuration = rPre.confirmedRippleDuration;
-                    confirmedFadeoutDuration = rPre.confirmedFadeoutDuration;
-                    confirmedFadeoutInterval = rPre.confirmedFadeoutInterval;
-                    canceledFadeOutDuration = rPre.canceledFadeOutDuration;
+                    _r = rPre;
                   } else {
-                    unconfirmedSplashDuration = sPre.unconfirmedSplashDuration;
-                    splashFadeDuration = sPre.splashFadeDuration;
-                    splashConfirmedVelocity = sPre.splashConfirmedVelocity;
+                    _s = sPre;
                   }
                   if (mounted) setState(() {});
                 },
@@ -171,20 +155,22 @@ class _CustomInkFeaturePageState extends State<CustomInkFeaturePage> {
           if (useRipple)
             Column(
               children: [
-                _sliderDuration(rDef.unconfirmedRippleDuration, () => unconfirmedRippleDuration, (v) => unconfirmedRippleDuration = v, 'unconfirmedRippleDuration'),
-                _sliderDuration(rDef.unconfirmedFadeInDuration, () => unconfirmedFadeInDuration, (v) => unconfirmedFadeInDuration = v, 'unconfirmedFadeInDuration'),
-                _sliderDuration(rDef.confirmedRippleDuration, () => confirmedRippleDuration, (v) => confirmedRippleDuration = v, 'confirmedRippleDuration'),
-                _sliderDuration(rDef.confirmedFadeoutDuration, () => confirmedFadeoutDuration, (v) => confirmedFadeoutDuration = v, 'confirmedFadeoutDuration'),
-                _sliderDuration(rDef.confirmedFadeoutInterval, () => confirmedFadeoutInterval, (v) => confirmedFadeoutInterval = v, 'confirmedFadeoutInterval'),
-                _sliderDuration(rDef.canceledFadeOutDuration, () => canceledFadeOutDuration, (v) => canceledFadeOutDuration = v, 'canceledFadeOutDuration'),
+                _sliderDuration(rDef.unconfirmedRippleDuration, () => _r.unconfirmedRippleDuration, (v) => _r = _r.copyWith(unconfirmedRippleDuration: v), 'unconfirmedRippleDuration'),
+                _sliderDuration(rDef.unconfirmedFadeInDuration, () => _r.unconfirmedFadeInDuration, (v) => _r = _r.copyWith(unconfirmedFadeInDuration: v), 'unconfirmedFadeInDuration'),
+                _sliderDuration(rDef.confirmedRippleDuration, () => _r.confirmedRippleDuration, (v) => _r = _r.copyWith(confirmedRippleDuration: v), 'confirmedRippleDuration'),
+                _sliderDuration(rDef.confirmedFadeOutDuration, () => _r.confirmedFadeOutDuration, (v) => _r = _r.copyWith(confirmedFadeOutDuration: v), 'confirmedFadeOutDuration'),
+                _sliderDuration(rDef.confirmedFadeOutInterval, () => _r.confirmedFadeOutInterval, (v) => _r = _r.copyWith(confirmedFadeOutInterval: v), 'confirmedFadeOutInterval'),
+                _sliderDuration(rDef.canceledFadeOutDuration, () => _r.canceledFadeOutDuration, (v) => _r = _r.copyWith(canceledFadeOutDuration: v), 'canceledFadeOutDuration'),
+                _sliderBool(rDef.confirmedFadeOutWaitForForwarding, () => _r.confirmedFadeOutWaitForForwarding, (v) => _r = _r.copyWith(confirmedFadeOutWaitForForwarding: v), 'confirmedFadeOutWaitForForwarding'),
               ],
             ),
           if (!useRipple)
             Column(
               children: [
-                _sliderDuration(sDef.unconfirmedSplashDuration, () => unconfirmedSplashDuration, (v) => unconfirmedSplashDuration = v, 'unconfirmedSplashDuration'),
-                _sliderDuration(sDef.splashFadeDuration, () => splashFadeDuration, (v) => splashFadeDuration = v, 'splashFadeDuration'),
-                _sliderDouble(sDef.splashConfirmedVelocity, () => splashConfirmedVelocity, (v) => splashConfirmedVelocity = v, 'splashConfirmedVelocity'),
+                _sliderDuration(sDef.unconfirmedSplashDuration, () => _s.unconfirmedSplashDuration, (v) => _s = _s.copyWith(unconfirmedSplashDuration: v), 'unconfirmedSplashDuration'),
+                _sliderDouble(sDef.confirmedSplashVelocity, () => _s.confirmedSplashVelocity, (v) => _s = _s.copyWith(confirmedSplashVelocity: v), 'confirmedSplashVelocity'),
+                _sliderDuration(sDef.confirmedFadeOutDuration, () => _s.confirmedFadeOutDuration, (v) => _s = _s.copyWith(confirmedFadeOutDuration: v), 'confirmedFadeOutDuration'),
+                _sliderDuration(sDef.confirmedFadeOutInterval, () => _s.confirmedFadeOutInterval, (v) => _s = _s.copyWith(confirmedFadeOutInterval: v), 'confirmedFadeOutInterval'),
               ],
             ),
           const Divider(),
@@ -199,40 +185,47 @@ class _CustomInkFeaturePageState extends State<CustomInkFeaturePage> {
                     OutlinedButton(child: const Text('Short'), onPressed: () {}),
                   ),
                   _row(
-                    OutlineButton(child: const Text('OutlineButton'), onPressed: () {}), // ignore: deprecated_member_use
-                    OutlineButton(child: const Text('Short'), onPressed: () {}), // ignore: deprecated_member_use
+                    OutlineButton(child: const Text('OutlineButton'), onPressed: () {}), // ignore_for_file: deprecated_member_use
+                    OutlineButton(child: const Text('Short'), onPressed: () {}),
+                    OutlineButton(child: const Text('No HlColor'), onPressed: () {}, highlightColor: Colors.transparent),
                   ),
                   _row(
                     ElevatedButton(child: const Text('ElevatedButton'), onPressed: () {}),
                     ElevatedButton(child: const Text('Short'), onPressed: () {}),
                   ),
                   _row(
-                    RaisedButton(child: const Text('RaisedButton'), onPressed: () {}), // ignore: deprecated_member_use
-                    RaisedButton(child: const Text('Short'), onPressed: () {}), // ignore: deprecated_member_use
+                    RaisedButton(child: const Text('RaisedButton'), onPressed: () {}),
+                    RaisedButton(child: const Text('Short'), onPressed: () {}),
+                    RaisedButton(child: const Text('No HlColor'), onPressed: () {}, highlightColor: Colors.transparent),
                   ),
                   _row(
                     TextButton(child: const Text('TextButton'), onPressed: () {}),
                     TextButton(child: const Text('Short'), onPressed: () {}),
                   ),
                   _row(
-                    FlatButton(child: const Text('FlatButton'), onPressed: () {}), // ignore: deprecated_member_use
-                    FlatButton(child: const Text('Short'), onPressed: () {}), // ignore: deprecated_member_use
+                    FlatButton(child: const Text('FlatButton'), onPressed: () {}),
+                    FlatButton(child: const Text('Short'), onPressed: () {}),
+                    FlatButton(child: const Text('No HlColor'), onPressed: () {}, highlightColor: Colors.transparent),
                   ),
                   _row(
                     IconButton(icon: const Text('IconButton'), onPressed: () {}),
                     IconButton(icon: const Icon(Icons.check), onPressed: () {}),
+                    IconButton(icon: const Icon(Icons.done_all), onPressed: () {}, highlightColor: Colors.transparent),
                   ),
                   _row(
                     MaterialButton(child: const Text('MaterialButton'), onPressed: () {}),
                     MaterialButton(child: const Text('Short'), onPressed: () {}),
+                    MaterialButton(child: const Text('No HlColor'), onPressed: () {}, highlightColor: Colors.transparent),
                   ),
                   _row(
                     InkWell(child: const Padding(padding: EdgeInsets.all(15), child: Text('InkWell')), onTap: () {}),
                     InkWell(child: const Padding(padding: EdgeInsets.all(15), child: Text('Short')), onTap: () {}),
+                    InkWell(child: const Padding(padding: EdgeInsets.all(15), child: Text('No HlColor')), onTap: () {}, highlightColor: Colors.transparent),
                   ),
                   _row(
                     InkResponse(child: Container(margin: const EdgeInsets.all(15), child: const Text('InkResponse')), onTap: () {}),
                     InkResponse(child: Container(margin: const EdgeInsets.all(15), child: const Text('Short')), onTap: () {}),
+                    InkResponse(child: Container(margin: const EdgeInsets.all(15), child: const Text('No HlColor')), onTap: () {}, highlightColor: Colors.transparent),
                   ),
                   _row(
                     Expanded(flex: 3, child: ListTile(title: const Text('ListTile', textAlign: TextAlign.center), onTap: () {})),
@@ -257,9 +250,9 @@ class _CustomInkFeaturePageState extends State<CustomInkFeaturePage> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
-                              FlatButton(child: const Text('Yes'), onPressed: () {}), // ignore: deprecated_member_use
-                              FlatButton(child: const Text('No'), onPressed: () {}), // ignore: deprecated_member_use
-                              FlatButton(child: const Text('Cancel'), onPressed: () {}), // ignore: deprecated_member_use
+                              FlatButton(child: const Text('Yes'), onPressed: () {}, highlightColor: Colors.transparent),
+                              FlatButton(child: const Text('No'), onPressed: () {}, highlightColor: Colors.transparent),
+                              FlatButton(child: const Text('Cancel'), onPressed: () {}, highlightColor: Colors.transparent),
                             ],
                           ),
                         ],
@@ -299,8 +292,8 @@ class _CustomInkFeaturePageState extends State<CustomInkFeaturePage> {
                                   onTap: () => printLog('$tableWidth <-> ${key.currentContext?.size?.width}'),
                                   radius: tableWidth,
                                   rectCallback: (box) => getTableRowRect(box),
-                                  containedInkWell: true, // <<<
-                                  highlightShape: BoxShape.rectangle, // <<<
+                                  containedInkWell: true,
+                                  highlightShape: BoxShape.rectangle,
                                 ),
                               ],
                             ),
