@@ -145,69 +145,6 @@ class CustomInkRippleSetting {
     );
   }
 }
-/// The setting for [CustomInkSplash], this class contains some durations options
-/// for ripple effect and color fading.
-class CustomInkSplashSetting {
-  // const Duration _kUnconfirmedSplashDuration = Duration(seconds: 1);
-  // const Duration _kSplashFadeDuration = Duration(milliseconds: 200);
-  //
-  // const double _kSplashInitialSize = 0.0; // logical pixels
-  // const double _kSplashConfirmedVelocity = 1.0; // logical pixels per millisecond
-
-  const CustomInkSplashSetting({
-    this.unconfirmedSplashDuration = const Duration(milliseconds: 1000),
-    this.confirmedSplashVelocity = 1.0,
-    this.confirmedFadeOutDuration = const Duration(milliseconds: 200),
-    this.confirmedFadeOutInterval = const Duration(milliseconds: 0),
-  });
-
-  /// The radius-splash duration when ink is unconfirmed or canceled, which
-  /// equals to original _kUnconfirmedSplashDuration.
-  final Duration unconfirmedSplashDuration;
-
-  /// The radius-splash velocity (logical pixels per millisecond) when ink is confirmed,
-  /// which influences splash duration, and equals to original _kSplashConfirmedVelocity.
-  final double confirmedSplashVelocity;
-
-  /// The fade-out duration when ink is confirmed or canceled, which equals to original
-  /// _kSplashFadeDuration.
-  final Duration confirmedFadeOutDuration;
-
-  /// The fade-out interval when ink is confirmed, which defaults to 0 in [defaultSetting].
-  final Duration confirmedFadeOutInterval;
-
-  /// The default, or said, the original settings of [InkSplash] in Flutter.
-  static const CustomInkSplashSetting defaultSetting = CustomInkSplashSetting(
-    unconfirmedSplashDuration: Duration(milliseconds: 1000),
-    confirmedSplashVelocity: 1.0,
-    confirmedFadeOutDuration: Duration(milliseconds: 200),
-    confirmedFadeOutInterval: Duration(milliseconds: 0),
-  );
-
-  /// The preferred [CustomInkSplash] setting by Aoi-hosizora :)
-  static const CustomInkSplashSetting preferredSetting = CustomInkSplashSetting(
-    unconfirmedSplashDuration: Duration(milliseconds: 300) /* 1000 -> 300 */,
-    confirmedSplashVelocity: 0.5, // 1.0 -> 0.5
-    confirmedFadeOutDuration: Duration(milliseconds: 200) /* 200 -> 200 */,
-    confirmedFadeOutInterval: Duration(milliseconds: 125) /* 0 -> 125 */,
-  );
-
-  /// Creates a copy of this [CustomInkSplashSetting] but with the given fields
-  /// replaced with the new values.
-  CustomInkSplashSetting copyWith({
-    Duration? unconfirmedSplashDuration,
-    double? confirmedSplashVelocity,
-    Duration? confirmedFadeOutDuration,
-    Duration? confirmedFadeOutInterval,
-  }) {
-    return CustomInkSplashSetting(
-      unconfirmedSplashDuration: unconfirmedSplashDuration ?? this.unconfirmedSplashDuration,
-      confirmedSplashVelocity: confirmedSplashVelocity ?? this.confirmedSplashVelocity,
-      confirmedFadeOutDuration: confirmedFadeOutDuration ?? this.confirmedFadeOutDuration,
-      confirmedFadeOutInterval: confirmedFadeOutInterval ?? this.confirmedFadeOutInterval,
-    );
-  }
-}
 
 /// The factory of [CustomInkRipple], you can use [CustomInkRipple.splashFactory]
 /// to create a default [CustomInkRipple], you can also use this class with [setting]
@@ -215,25 +152,11 @@ class CustomInkSplashSetting {
 class CustomInkRippleFactory extends InteractiveInkFeatureFactory {
   const CustomInkRippleFactory({
     this.setting = CustomInkRippleSetting.defaultSetting,
-  })  : _targetRadiusFn = null,
-        _clipRectFn = null;
-
-  /// This private constructor is only used for [CustomInkResponse] and
-  /// [CustomInkWell].
-  const CustomInkRippleFactory._internal(
-    this.setting,
-    this._targetRadiusFn,
-    this._clipRectFn,
-  );
+  });
 
   /// Some settings for [CustomInkRipple].
   final CustomInkRippleSetting setting;
 
-  // Some hack fields for CustomInkResponse and CustomInkWell, note that these
-  // values have more priority than fields passed to `create` method.
-  final double? Function(RenderBox referenceBox, RectCallback? rectCallback, Offset position)? _targetRadiusFn;
-  final Rect? Function(RenderBox referenceBox)? _clipRectFn;
-
   @override
   InteractiveInkFeature create({
     required MaterialInkController controller,
@@ -248,55 +171,7 @@ class CustomInkRippleFactory extends InteractiveInkFeatureFactory {
     double? radius,
     VoidCallback? onRemoved,
   }) {
-    Rect? rect = _clipRectFn?.call(referenceBox);
     return CustomInkRipple(
-      controller: controller,
-      referenceBox: referenceBox,
-      position: position,
-      color: color,
-      containedInkWell: containedInkWell,
-      // Note: rectCallback passed to `create` method must be null
-      // when containedInkWell is false, so here we use _clipRectFn
-      // to restore this callback for InkFeature.
-      rectCallback: (rect == null ? null : () => rect) /* for InkFeature */ ?? rectCallback /* for InkHighlight */,
-      borderRadius: borderRadius,
-      customBorder: customBorder,
-      // Note: radius passed to `create` method is a single value,
-      // and it is also used to InkHighlight, but here we still use
-      // _targetRadiusFn to set a dynamic radius for InkFeature.
-      radius: _targetRadiusFn?.call(referenceBox, rectCallback, position) /* for InkFeature */ ?? radius /* for InkHighlight */,
-      onRemoved: onRemoved,
-      textDirection: textDirection,
-      setting: setting,
-    );
-  }
-}
-
-/// The factory of [CustomInkSplash], you can use [CustomInkSplash.splashFactory]
-/// to create a default [CustomInkSplash], you can also use this class with [setting]
-/// field to create a custom [CustomInkSplash].
-class CustomInkSplashFactory extends InteractiveInkFeatureFactory {
-  const CustomInkSplashFactory({
-    this.setting = CustomInkSplashSetting.defaultSetting,
-  });
-
-  final CustomInkSplashSetting setting;
-
-  @override
-  InteractiveInkFeature create({
-    required MaterialInkController controller,
-    required RenderBox referenceBox,
-    required Offset position,
-    required Color color,
-    required TextDirection textDirection,
-    bool containedInkWell = false,
-    RectCallback? rectCallback,
-    BorderRadius? borderRadius,
-    ShapeBorder? customBorder,
-    double? radius,
-    VoidCallback? onRemoved,
-  }) {
-    return CustomInkSplash(
       controller: controller,
       referenceBox: referenceBox,
       position: position,
@@ -313,8 +188,8 @@ class CustomInkSplashFactory extends InteractiveInkFeatureFactory {
   }
 }
 
-// For CustomInkSplash.
-RectCallback? _getClipCallbackForSplash(RenderBox referenceBox, bool containedInkWell, RectCallback? rectCallback) {
+// For CustomInkRipple.
+RectCallback? _getClipCallbackForRipple(RenderBox referenceBox, bool containedInkWell, RectCallback? rectCallback) {
   if (rectCallback != null) {
     assert(containedInkWell);
     return rectCallback;
@@ -322,41 +197,6 @@ RectCallback? _getClipCallbackForSplash(RenderBox referenceBox, bool containedIn
   if (containedInkWell) {
     return () => Offset.zero & referenceBox.size;
   }
-  return null;
-}
-
-// For CustomInkSplash.
-double _getTargetRadiusForSplash(RenderBox referenceBox, bool containedInkWell, RectCallback? rectCallback, Offset position) {
-  if (containedInkWell) {
-    final Size size = rectCallback != null ? rectCallback().size : referenceBox.size;
-    return _getSplashRadiusForPositionInSize(size, position);
-  }
-  return Material.defaultSplashRadius;
-}
-
-// For CustomInkSplash.
-double _getSplashRadiusForPositionInSize(Size bounds, Offset position) {
-  final double d1 = (position - bounds.topLeft(Offset.zero)).distance;
-  final double d2 = (position - bounds.topRight(Offset.zero)).distance;
-  final double d3 = (position - bounds.bottomLeft(Offset.zero)).distance;
-  final double d4 = (position - bounds.bottomRight(Offset.zero)).distance;
-  return math.max(math.max(d1, d2), math.max(d3, d4)).ceilToDouble();
-}
-
-
-// For CustomInkRipple.
-RectCallback? _getClipCallbackForRipple(RenderBox referenceBox, bool containedInkWell, RectCallback? rectCallback) {
-  if (rectCallback != null) {
-    // Note: in default, passed rectCallback must be null when
-    // containedInkWell is false, but here we remove this restriction.
-    // assert(containedInkWell);
-    return rectCallback;
-  }
-  if (containedInkWell) {
-    return () => Offset.zero & referenceBox.size;
-  }
-
-  // always return null when containedInkWell is true
   return null;
 }
 
@@ -392,7 +232,6 @@ class CustomInkRipple extends InteractiveInkFeature {
         _borderRadius = borderRadius ?? BorderRadius.zero,
         _customBorder = customBorder,
         _textDirection = textDirection,
-        _containedInkWell = containedInkWell,
         _targetRadius = radius ?? _getTargetRadiusForRipple(referenceBox, containedInkWell, rectCallback, position),
         _clipCallback = _getClipCallbackForRipple(referenceBox, containedInkWell, rectCallback),
         _setting = setting,
@@ -438,7 +277,6 @@ class CustomInkRipple extends InteractiveInkFeature {
   final Offset _position;
   final BorderRadius _borderRadius;
   final ShapeBorder? _customBorder;
-  final bool _containedInkWell;
   final double _targetRadius;
   final RectCallback? _clipCallback;
   final TextDirection _textDirection;
@@ -521,9 +359,145 @@ class CustomInkRipple extends InteractiveInkFeature {
       radius: _radius.value,
       customBorder: _customBorder,
       borderRadius: _borderRadius,
-      clipCallback: _containedInkWell ? _clipCallback : null,
+      clipCallback:  _clipCallback ,
     );
   }
+}
+
+/// The setting for [CustomInkSplash], this class contains some durations options
+/// for ripple effect and color fading.
+class CustomInkSplashSetting {
+  // const Duration _kUnconfirmedSplashDuration = Duration(seconds: 1);
+  // const Duration _kSplashFadeDuration = Duration(milliseconds: 200);
+  //
+  // const double _kSplashInitialSize = 0.0; // logical pixels
+  // const double _kSplashConfirmedVelocity = 1.0; // logical pixels per millisecond
+
+  const CustomInkSplashSetting({
+    this.unconfirmedSplashDuration = const Duration(milliseconds: 1000),
+    this.confirmedSplashVelocity = 1.0,
+    this.confirmedFadeOutDuration = const Duration(milliseconds: 200),
+    this.confirmedFadeOutInterval = const Duration(milliseconds: 0),
+  });
+
+  /// The radius-splash duration when ink is unconfirmed or canceled, which
+  /// equals to original _kUnconfirmedSplashDuration.
+  final Duration unconfirmedSplashDuration;
+
+  /// The radius-splash velocity (logical pixels per millisecond) when ink is confirmed,
+  /// which influences splash duration, and equals to original _kSplashConfirmedVelocity.
+  final double confirmedSplashVelocity;
+
+  /// The fade-out duration when ink is confirmed or canceled, which equals to original
+  /// _kSplashFadeDuration.
+  final Duration confirmedFadeOutDuration;
+
+  /// The fade-out interval when ink is confirmed, which defaults to 0 in [defaultSetting].
+  final Duration confirmedFadeOutInterval;
+
+  /// The default, or said, the original settings of [InkSplash] in Flutter.
+  static const CustomInkSplashSetting defaultSetting = CustomInkSplashSetting(
+    unconfirmedSplashDuration: Duration(milliseconds: 1000),
+    confirmedSplashVelocity: 1.0,
+    confirmedFadeOutDuration: Duration(milliseconds: 200),
+    confirmedFadeOutInterval: Duration(milliseconds: 0),
+  );
+
+  /// The preferred [CustomInkSplash] setting by Aoi-hosizora :)
+  static const CustomInkSplashSetting preferredSetting = CustomInkSplashSetting(
+    unconfirmedSplashDuration: Duration(milliseconds: 300) /* 1000 -> 300 */,
+    confirmedSplashVelocity: 0.5, // 1.0 -> 0.5
+    confirmedFadeOutDuration: Duration(milliseconds: 200) /* 200 -> 200 */,
+    confirmedFadeOutInterval: Duration(milliseconds: 125) /* 0 -> 125 */,
+  );
+
+  /// Creates a copy of this [CustomInkSplashSetting] but with the given fields
+  /// replaced with the new values.
+  CustomInkSplashSetting copyWith({
+    Duration? unconfirmedSplashDuration,
+    double? confirmedSplashVelocity,
+    Duration? confirmedFadeOutDuration,
+    Duration? confirmedFadeOutInterval,
+  }) {
+    return CustomInkSplashSetting(
+      unconfirmedSplashDuration: unconfirmedSplashDuration ?? this.unconfirmedSplashDuration,
+      confirmedSplashVelocity: confirmedSplashVelocity ?? this.confirmedSplashVelocity,
+      confirmedFadeOutDuration: confirmedFadeOutDuration ?? this.confirmedFadeOutDuration,
+      confirmedFadeOutInterval: confirmedFadeOutInterval ?? this.confirmedFadeOutInterval,
+    );
+  }
+}
+
+/// The factory of [CustomInkSplash], you can use [CustomInkSplash.splashFactory]
+/// to create a default [CustomInkSplash], you can also use this class with [setting]
+/// field to create a custom [CustomInkSplash].
+class CustomInkSplashFactory extends InteractiveInkFeatureFactory {
+  const CustomInkSplashFactory({
+    this.setting = CustomInkSplashSetting.defaultSetting,
+  });
+
+  /// Some settings for [CustomInkSplash].
+  final CustomInkSplashSetting setting;
+
+  @override
+  InteractiveInkFeature create({
+    required MaterialInkController controller,
+    required RenderBox referenceBox,
+    required Offset position,
+    required Color color,
+    required TextDirection textDirection,
+    bool containedInkWell = false,
+    RectCallback? rectCallback,
+    BorderRadius? borderRadius,
+    ShapeBorder? customBorder,
+    double? radius,
+    VoidCallback? onRemoved,
+  }) {
+    return CustomInkSplash(
+      controller: controller,
+      referenceBox: referenceBox,
+      position: position,
+      color: color,
+      containedInkWell: containedInkWell,
+      rectCallback: rectCallback,
+      borderRadius: borderRadius,
+      customBorder: customBorder,
+      radius: radius,
+      onRemoved: onRemoved,
+      textDirection: textDirection,
+      setting: setting,
+    );
+  }
+}
+
+// For CustomInkSplash.
+RectCallback? _getClipCallbackForSplash(RenderBox referenceBox, bool containedInkWell, RectCallback? rectCallback) {
+  if (rectCallback != null) {
+    assert(containedInkWell);
+    return rectCallback;
+  }
+  if (containedInkWell) {
+    return () => Offset.zero & referenceBox.size;
+  }
+  return null;
+}
+
+// For CustomInkSplash.
+double _getTargetRadiusForSplash(RenderBox referenceBox, bool containedInkWell, RectCallback? rectCallback, Offset position) {
+  if (containedInkWell) {
+    final Size size = rectCallback != null ? rectCallback().size : referenceBox.size;
+    return _getSplashRadiusForPositionInSize(size, position);
+  }
+  return Material.defaultSplashRadius;
+}
+
+// For CustomInkSplash.
+double _getSplashRadiusForPositionInSize(Size bounds, Offset position) {
+  final double d1 = (position - bounds.topLeft(Offset.zero)).distance;
+  final double d2 = (position - bounds.topRight(Offset.zero)).distance;
+  final double d3 = (position - bounds.bottomLeft(Offset.zero)).distance;
+  final double d4 = (position - bounds.bottomRight(Offset.zero)).distance;
+  return math.max(math.max(d1, d2), math.max(d3, d4)).ceilToDouble();
 }
 
 /// A visual reaction on a piece of [Material] to user input, similar to
@@ -648,107 +622,4 @@ class CustomInkSplash extends InteractiveInkFeature {
       clipCallback: _clipCallback,
     );
   }
-}
-
-/// A custom [InkResponse] with required targetRadius, staticRadius and
-/// clipRect for ink feature./ Note that only [CustomInkRipple] is
-/// supported to implement these custom effects.
-///
-/// Note that you can set [containedInkWell] to true and [highlightShape]
-/// to [BoxShape.rectangle] to get a custom [InkWell].
-class CustomInkResponse extends InkResponse {
-  CustomInkResponse({
-    Key? key,
-    required Widget child,
-    required GestureTapCallback? onTap,
-    GestureTapCallback? onDoubleTap,
-    GestureLongPressCallback? onLongPress,
-    GestureTapDownCallback? onTapDown,
-    GestureTapCancelCallback? onTapCancel,
-    ValueChanged<bool>? onHighlightChanged,
-    ValueChanged<bool>? onHover,
-    MouseCursor? mouseCursor,
-    bool containedInkWell = false,
-    BoxShape highlightShape = BoxShape.circle,
-    Color? focusColor,
-    Color? hoverColor,
-    Color? highlightColor,
-    MaterialStateProperty<Color?>? overlayColor,
-    Color? splashColor,
-    InteractiveInkFeatureFactory? splashFactory,
-    BorderRadius? borderRadius,
-    ShapeBorder? customBorder,
-    bool? enableFeedback = true,
-    bool excludeFromSemantics = false,
-    FocusNode? focusNode,
-    bool canRequestFocus = true,
-    ValueChanged<bool>? onFocusChange,
-    bool autofocus = false,
-    required this.targetRadiusFn,
-    required this.highlightRadius,
-    required this.clipRectFn,
-  }) : super(
-          key: key,
-          child: child,
-          onTap: onTap,
-          onDoubleTap: onDoubleTap,
-          onLongPress: onLongPress,
-          onTapDown: onTapDown,
-          onTapCancel: onTapCancel,
-          onHighlightChanged: onHighlightChanged,
-          onHover: onHover,
-          mouseCursor: mouseCursor,
-          containedInkWell: containedInkWell,
-          highlightShape: highlightShape,
-          focusColor: focusColor,
-          hoverColor: hoverColor,
-          highlightColor: highlightColor,
-          overlayColor: overlayColor,
-          splashColor: splashColor,
-          splashFactory: splashFactory is CustomInkRippleFactory
-              ? CustomInkRippleFactory._internal(
-                  splashFactory.setting,
-                  targetRadiusFn /* for InkFeature */,
-                  clipRectFn /* for InkFeature */,
-                )
-              : splashFactory,
-          radius: highlightRadius /* for InkHighlight */,
-          borderRadius: borderRadius,
-          customBorder: customBorder,
-          enableFeedback: enableFeedback ?? true,
-          excludeFromSemantics: excludeFromSemantics,
-          focusNode: focusNode,
-          canRequestFocus: canRequestFocus,
-          onFocusChange: onFocusChange,
-          autofocus: autofocus,
-        );
-
-  /// The target radius getter function for ink ripple with [RenderBox], which can said,
-  /// almost defaults to [_getTargetRadiusForRipple].
-  final double? Function(RenderBox referenceBox, RectCallback? rectCallback, Offset position)? targetRadiusFn;
-
-  /// The highlight radius which is used to pass to [InkResponse] directly, and will be used by
-  /// [InkHighlight], note that this radius value can be different with [targetRadiusFn].
-  final double? highlightRadius;
-
-  /// The clip rect getter function for ink highlight with [RenderBox] for [getRectCallback], which
-  /// can said, defaults to "(box) => Offset.zero & box.size".
-  final Rect? Function(RenderBox referenceBox)? clipRectFn;
-
-  /// The rectangle to use for the highlight effect and for clipping the splash effects
-  /// if [containedInkWell] is true. Visit [InkResponse.getRectCallback] for details.
-  @override
-  RectCallback? getRectCallback(RenderBox referenceBox) {
-    var rect = clipRectFn?.call(referenceBox);
-    return rect == null ? null : () => rect; // for InkHighlight
-  }
-}
-
-/// Returns the [Rect] of [TableRow] with given [RenderBox]. This is a helper function for
-/// [CustomInkWell.clipRectFn] and [CustomInkResponse.clipRectFn], which is
-/// used to fix ink effect bug in [TableRowInkWell].
-Rect getTableRowRect(RenderBox referenceBox) {
-  const helper = TableRowInkWell();
-  var callback = helper.getRectCallback(referenceBox);
-  return callback();
 }
