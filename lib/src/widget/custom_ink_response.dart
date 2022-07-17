@@ -91,15 +91,6 @@ class CustomInkResponse extends StatefulWidget {
   State<CustomInkResponse> createState() => _CustomInkResponseState();
 }
 
-/// Returns the [Rect] of [TableRow] with given [RenderBox]. This is a helper
-/// function for [CustomInkWell.clipRectFn] and [CustomInkResponse.clipRectFn],
-/// which is used to fix ink effect bug in [TableRowInkWell].
-Rect getTableRowRect(RenderBox referenceBox) {
-  const helper = TableRowInkWell();
-  var callback = helper.getRectCallback(referenceBox);
-  return callback();
-}
-
 abstract class _ParentInkResponseState {
   void markChildInkResponsePressed(_ParentInkResponseState childState, bool value);
 }
@@ -529,5 +520,101 @@ class _CustomInkResponseState extends State<CustomInkResponse> with AutomaticKee
         ),
       ),
     );
+  }
+}
+
+/// Returns the [Rect] of [TableRow] with given [RenderBox]. This is a helper
+/// function for [CustomInkResponse.getRect], which is used to fix ink effect
+/// bug of [TableRowInkWell].
+Rect getTableRowRect(RenderBox referenceBox) {
+  const helper = TableRowInkWell();
+  var callback = helper.getRectCallback(referenceBox);
+  return callback();
+}
+
+/// A helper class for [TableCell], and is used to decide which [TableCell] to
+/// fill the whole [TableRow] in vertical direction, which is not implemented
+/// by flutter yet.
+///
+/// Example:
+/// ```
+/// // in State class
+/// final _helper = TableCellHelper(9, 2); // 9x2
+///
+/// // in initState method
+/// WidgetsBinding.instance!.addPostFrameCallback((_) {
+///   _helper.searchHighestTableCells();
+///   if (mounted) setState(() {});
+/// });
+///
+/// // in Table constructor
+/// Table(
+///   children: [
+///     for (int i = 0; i < 9; i++)
+///       TableRow(
+///         children: [
+///           for (int j = 0; j < 2; j++)
+///             TableCell(
+///               key: _helper.getCellKey(i, j)
+///               verticalAlignment: _helper.determineAlignment(i, j, TableCellVerticalAlignment.top),
+///               child: Text('item ($i, $j)'),
+///             ),
+///         ],
+///       ),
+///   ],
+/// )
+/// ```
+class TableCellHelper {
+  TableCellHelper(this._rows, this._columns)
+      : assert(_rows > 0 && _columns > 0),
+        _keys = List.generate(_rows, (_) => List.generate(_columns, (_) => GlobalKey())),
+        _highests = <int>[];
+
+  final int _rows;
+  final int _columns;
+  final List<List<GlobalKey>> _keys;
+  final List<int> _highests;
+
+  /// Returns the [TableCell]'s [GlobalKey] for given index.
+  GlobalKey getCellKey(int i, int j) {
+    assert(i < _rows && j < _columns);
+    return _keys[i][j];
+  }
+
+  /// Searches the highest [TableCell] indices in multiple [TableRow].
+  bool searchHighestTableCells({bool force = false}) {
+    if (force) {
+      _highests.clear();
+    } else if (_highests.isNotEmpty) {
+      return true;
+    }
+    for (int i = 0; i < _rows; i++) {
+      var max = 0;
+      for (int j = 1; j < _columns; j++) {
+        var curHeight = _keys[i][j].currentContext?.size?.height;
+        var maxHeight = _keys[i][max].currentContext?.size?.height;
+        if (curHeight == null || maxHeight == null) {
+          _highests.clear();
+          return false;
+        }
+        if (curHeight > maxHeight) {
+          max = j;
+        }
+      }
+      _highests.add(max);
+    }
+    return true;
+  }
+
+  /// Determines the [TableCellVerticalAlignment] with given index.
+  TableCellVerticalAlignment? determineAlignment(int i, int j, [TableCellVerticalAlignment? initialValue]) {
+    assert(i < _rows && j < _columns);
+    if (_highests.isEmpty) {
+      return initialValue;
+    }
+    if (_highests[i] == j) {
+      return TableCellVerticalAlignment.top;
+    }
+    return TableCellVerticalAlignment.fill;
   }
 }

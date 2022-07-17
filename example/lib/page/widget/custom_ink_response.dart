@@ -11,10 +11,18 @@ class CustomInkResponsePage extends StatefulWidget {
   State<CustomInkResponsePage> createState() => _CustomInkResponsePageState();
 }
 
-// const printLog = print;
-
 class _CustomInkResponsePageState extends State<CustomInkResponsePage> {
-  final key = GlobalKey();
+  final _key = GlobalKey();
+  final _helper = TableCellHelper(9, 2);
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      _helper.searchHighestTableCells();
+      if (mounted) setState(() {});
+    });
+  }
 
   // 1 ink feature & ink highlight
   var rippleLongDuration = true;
@@ -97,7 +105,7 @@ class _CustomInkResponsePageState extends State<CustomInkResponsePage> {
           _checkBox('defaultRect', () => defaultRect, (v) => defaultRect = v),
           const Divider(),
           Table(
-            key: key,
+            key: _key,
             columnWidths: const {0: FractionColumnWidth(0.3)},
             border: const TableBorder(
               horizontalInside: BorderSide(width: 1, color: Colors.grey),
@@ -113,7 +121,8 @@ class _CustomInkResponsePageState extends State<CustomInkResponsePage> {
                 TableRow(
                   children: [
                     TableCell(
-                      verticalAlignment: TableCellVerticalAlignment.top,
+                      key: _helper.getCellKey(i, 0),
+                      verticalAlignment: _helper.determineAlignment(i, 0, TableCellVerticalAlignment.top),
                       child: CustomInkResponse(
                         child: Padding(
                           padding: padding,
@@ -126,7 +135,7 @@ class _CustomInkResponsePageState extends State<CustomInkResponsePage> {
                           ),
                         ),
                         onTap: () {
-                          printLog('onTap, tableWidth = $tableWidth <-> ${key.currentContext?.size?.width}');
+                          printLog('onTap, tableWidth = $tableWidth <-> ${_key.currentContext?.size?.width}');
                         },
                         containedInkWell: containedInkWell,
                         highlightShape: rectangleHighlight ? BoxShape.rectangle : BoxShape.circle,
@@ -154,7 +163,8 @@ class _CustomInkResponsePageState extends State<CustomInkResponsePage> {
                       ),
                     ),
                     TableCell(
-                      verticalAlignment: TableCellVerticalAlignment.top,
+                      key: _helper.getCellKey(i, 1),
+                      verticalAlignment: _helper.determineAlignment(i, 1, TableCellVerticalAlignment.top),
                       child: CustomInkResponse(
                         child: Padding(
                           padding: padding,
@@ -167,7 +177,7 @@ class _CustomInkResponsePageState extends State<CustomInkResponsePage> {
                           ),
                         ),
                         onTap: () {
-                          printLog('onTap, tableWidth = $tableWidth <-> ${key.currentContext?.size?.width}');
+                          printLog('onTap, tableWidth = $tableWidth <-> ${_key.currentContext?.size?.width}');
                         },
                         containedInkWell: containedInkWell,
                         highlightShape: rectangleHighlight ? BoxShape.rectangle : BoxShape.circle,
