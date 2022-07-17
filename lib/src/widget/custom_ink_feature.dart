@@ -74,7 +74,7 @@ class CustomInkRippleSetting {
 
   /// The getter function for radius center in canvas, which defaults to
   /// `(box, _, __) => Box.size.center(Offset.zero)` in [defaultSetting].
-  final Offset Function(RenderBox referenceBox, RectCallback? rectCallback, double targetRadius)? radiusCanvasCenterFn;
+  final Offset Function(RenderBox referenceBox, double targetRadius)? radiusCanvasCenterFn;
 
   /// This duration equals to the sum of fade-out duration and fade-out interval,
   /// which equals to original _kFadeOutDuration.
@@ -115,7 +115,7 @@ class CustomInkRippleSetting {
 
   /// A static function for [CustomInkRippleSetting.radiusCanvasCenterFn], which is
   /// used in [preferredSetting].
-  static Offset _radiusCanvasCenterFn(RenderBox referenceBox, RectCallback? rectCallback, double targetRadius) => referenceBox.size.center(Offset.zero);
+  static Offset _radiusCanvasCenterFn(RenderBox referenceBox, double targetRadius) => referenceBox.size.center(Offset.zero);
 
   /// Creates a copy of this [CustomInkRippleSetting] but with the given fields
   /// replaced with the new values.
@@ -129,7 +129,7 @@ class CustomInkRippleSetting {
     Duration? canceledFadeOutDuration,
     double Function(double targetRadius)? radiusAnimationBeginFn,
     double Function(double targetRadius)? radiusAnimationEndFn,
-    Offset Function(RenderBox referenceBox, RectCallback? rectCallback, double targetRadius)? radiusCanvasCenterFn,
+    Offset Function(RenderBox referenceBox, double targetRadius)? radiusCanvasCenterFn,
   }) {
     return CustomInkRippleSetting(
       unconfirmedRippleDuration: unconfirmedRippleDuration ?? this.unconfirmedRippleDuration,
@@ -188,8 +188,8 @@ class CustomInkRippleFactory extends InteractiveInkFeatureFactory {
   }
 }
 
-// For CustomInkRipple.
-RectCallback? _getClipCallbackForRipple(RenderBox referenceBox, bool containedInkWell, RectCallback? rectCallback) {
+// For CustomInkRipple and CustomInkSplash.
+RectCallback? _getClipCallback(RenderBox referenceBox, bool containedInkWell, RectCallback? rectCallback) {
   if (rectCallback != null) {
     assert(containedInkWell);
     return rectCallback;
@@ -233,7 +233,7 @@ class CustomInkRipple extends InteractiveInkFeature {
         _customBorder = customBorder,
         _textDirection = textDirection,
         _targetRadius = radius ?? _getTargetRadiusForRipple(referenceBox, containedInkWell, rectCallback, position),
-        _clipCallback = _getClipCallbackForRipple(referenceBox, containedInkWell, rectCallback),
+        _clipCallback = _getClipCallback(referenceBox, containedInkWell, rectCallback),
         _setting = setting,
         super(controller: controller, referenceBox: referenceBox, color: color, onRemoved: onRemoved) {
     // Immediately begin fading-in the initial splash.
@@ -347,7 +347,7 @@ class CustomInkRipple extends InteractiveInkFeature {
     // Splash moves to the center of the reference box.
     final Offset center = Offset.lerp(
       _position,
-      _setting.radiusCanvasCenterFn?.call(referenceBox, _clipCallback, _targetRadius) ?? referenceBox.size.center(Offset.zero),
+      _setting.radiusCanvasCenterFn?.call(referenceBox, _targetRadius) ?? referenceBox.size.center(Offset.zero),
       Curves.ease.transform(_radiusController.value),
     )!;
     paintInkCircle(
@@ -359,7 +359,7 @@ class CustomInkRipple extends InteractiveInkFeature {
       radius: _radius.value,
       customBorder: _customBorder,
       borderRadius: _borderRadius,
-      clipCallback:  _clipCallback ,
+      clipCallback: _clipCallback,
     );
   }
 }
@@ -471,18 +471,6 @@ class CustomInkSplashFactory extends InteractiveInkFeatureFactory {
 }
 
 // For CustomInkSplash.
-RectCallback? _getClipCallbackForSplash(RenderBox referenceBox, bool containedInkWell, RectCallback? rectCallback) {
-  if (rectCallback != null) {
-    assert(containedInkWell);
-    return rectCallback;
-  }
-  if (containedInkWell) {
-    return () => Offset.zero & referenceBox.size;
-  }
-  return null;
-}
-
-// For CustomInkSplash.
 double _getTargetRadiusForSplash(RenderBox referenceBox, bool containedInkWell, RectCallback? rectCallback, Offset position) {
   if (containedInkWell) {
     final Size size = rectCallback != null ? rectCallback().size : referenceBox.size;
@@ -523,7 +511,7 @@ class CustomInkSplash extends InteractiveInkFeature {
         _borderRadius = borderRadius ?? BorderRadius.zero,
         _customBorder = customBorder,
         _targetRadius = radius ?? _getTargetRadiusForSplash(referenceBox, containedInkWell, rectCallback, position!),
-        _clipCallback = _getClipCallbackForSplash(referenceBox, containedInkWell, rectCallback),
+        _clipCallback = _getClipCallback(referenceBox, containedInkWell, rectCallback),
         _repositionToReferenceBox = !containedInkWell,
         _textDirection = textDirection,
         _setting = setting,

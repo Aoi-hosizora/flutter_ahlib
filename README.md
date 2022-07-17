@@ -25,7 +25,8 @@ import 'package:flutter_ahlib/flutter_ahlib.dart'; // the whole library
 
 + widget.dart:
     + `AnimatedFab` `ScrollAnimatedFab` `AnimatedFabController`
-    + `CustomInkRipple` `CustomInkSplash` `CustomInkResponse`
+    + `CustomInkRipple` `CustomInkSplash`
+    + `CustomInkResponse`
     + `DrawerListView`
     + `IconText`
     + `LazyIndexedStack`

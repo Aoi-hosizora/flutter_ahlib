@@ -76,7 +76,7 @@ class _NewButtonThemePageState extends State<NewButtonThemePage> {
     final onPrimary = Theme.of(context).colorScheme.onPrimary;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('NewButtonStylePage'),
+        title: const Text('NewButtonStyle Example'),
       ),
       body: ListView(
         padding: const EdgeInsets.all(10),

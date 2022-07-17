@@ -1,8 +1,5 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/flutter_ahlib.dart';
-import 'package:flutter_ahlib_example/main.dart';
 
 class CustomInkFeaturePage extends StatefulWidget {
   const CustomInkFeaturePage({Key? key}) : super(key: key);
@@ -260,72 +257,6 @@ class _CustomInkFeaturePageState extends State<CustomInkFeaturePage> {
                         ],
                       ),
                     ),
-                  ),
-                  const Divider(),
-                  Builder(
-                    builder: (c) {
-                      var key = GlobalKey();
-                      var tableWidth = MediaQuery.of(c).size.width - MediaQuery.of(c).padding.horizontal - 20;
-                      var padding = const EdgeInsets.symmetric(horizontal: 10, vertical: 8);
-                      return Table(
-                        key: key,
-                        columnWidths: const {0: FractionColumnWidth(0.3)},
-                        border: const TableBorder(
-                          horizontalInside: BorderSide(width: 1, color: Colors.grey),
-                        ),
-                        children: [
-                          TableRow(
-                            children: [
-                              Padding(padding: padding, child: const Text('Key', style: TextStyle(color: Colors.grey))),
-                              Padding(padding: padding, child: const Text('Value', style: TextStyle(color: Colors.grey))),
-                            ],
-                          ),
-                          for (int i = 0; i < 8; i++)
-                            TableRow(
-                              children: [
-                                CustomInkResponse(
-                                  child: Padding(padding: padding, child: Text(i % 4 == 0 || i % 4 == 1 ? 'ABCD' : 'ABCD\nEFGH')),
-                                  onTap: () => printLog('tableWidth: $tableWidth <-> ${key.currentContext?.size?.width}'),
-                                  // containedInkWell: true,
-                                  // highlightShape: BoxShape.rectangle,
-                                  // highlightColor: Colors.transparent,
-                                  // splashColor: Colors.black.withOpacity(0.19),
-                                  splashFactory: CustomInkRippleFactory(
-                                    setting: _r.copyWith(
-                                      radiusCanvasCenterFn: (box, _, __) => Offset(tableWidth / 2, box.size.height / 2),
-                                    ),
-                                  ),
-                                  highlightRadius: math.sqrt(tableWidth * tableWidth + 32 * 32) / 2,
-                                  targetRadiusFn: (box, _, __) {
-                                    print('targetRadiusFn: ${box.size}');
-                                    return math.sqrt(tableWidth * tableWidth + box.size.height * box.size.height) / 2;
-                                  },
-                                  clipRectFn: (box) => getTableRowRect(box),
-                                ),
-                                CustomInkResponse(
-                                  child: Padding(padding: padding, child: Text(i % 4 == 0 || i % 4 == 2 ? 'abcdefg' : 'abcdefg\nhijklmn')),
-                                  onTap: () => printLog('tableWidth: $tableWidth <-> ${key.currentContext?.size?.width}'),
-                                  // containedInkWell: true,
-                                  // highlightShape: BoxShape.rectangle,
-                                  // highlightColor: Colors.transparent,
-                                  // splashColor: Colors.black.withOpacity(0.19),
-                                  splashFactory: CustomInkRippleFactory(
-                                    setting: _r.copyWith(
-                                      radiusCanvasCenterFn: (box, _, __) => Offset(tableWidth / 2 - tableWidth * 0.3, box.size.height / 2),
-                                    ),
-                                  ),
-                                  highlightRadius: math.sqrt(tableWidth * tableWidth + 32 * 32) / 2,
-                                  targetRadiusFn: (box, _, __) {
-                                    print('targetRadiusFn: ${box.size}');
-                                    return math.sqrt(tableWidth * tableWidth + box.size.height * box.size.height) / 2;
-                                  },
-                                  clipRectFn: (box) => getTableRowRect(box),
-                                ),
-                              ],
-                            ),
-                        ],
-                      );
-                    },
                   ),
                 ],
               ),
