@@ -18,16 +18,12 @@ class _CustomInkResponsePageState extends State<CustomInkResponsePage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
-      _helper.searchHighestTableCells();
-      if (mounted) setState(() {});
-    });
   }
 
   // 1 ink feature & ink highlight
   var rippleLongDuration = true;
-  var rippleNoFadeOut = true;
-  var highlightNoFadeOut = true;
+  var rippleNoFadeOut = false;
+  var highlightNoFadeOut = false;
   var rippleZeroRadius = false;
 
   // 2 ink response
@@ -104,105 +100,114 @@ class _CustomInkResponsePageState extends State<CustomInkResponsePage> {
           _checkBox('defaultRadius', () => defaultRadius, (v) => defaultRadius = v),
           _checkBox('defaultRect', () => defaultRect, (v) => defaultRect = v),
           const Divider(),
-          Table(
-            key: _key,
-            columnWidths: const {0: FractionColumnWidth(0.3)},
-            border: const TableBorder(
-              horizontalInside: BorderSide(width: 1, color: Colors.grey),
-            ),
-            children: [
-              TableRow(
-                children: [
-                  Padding(padding: padding, child: const Text('Key', style: TextStyle(color: Colors.grey))),
-                  Padding(padding: padding, child: const Text('Value', style: TextStyle(color: Colors.grey))),
-                ],
+          StatefulBuilderWithCallback(
+            postFrameCallbackForDidUpdateWidget: () {
+              print('postFrameCallbackForDidUpdateWidget');
+              if (_helper.searchForHighestCells()) {
+                print('postFrameCallbackForDidUpdateWidget setState');
+                if (mounted) setState(() {}); // <<<
+              }
+            },
+            builder: (_, __) => Table(
+              key: _key,
+              columnWidths: const {0: FractionColumnWidth(0.3)},
+              border: const TableBorder(
+                horizontalInside: BorderSide(width: 1, color: Colors.grey),
               ),
-              for (int i = 0; i < 9; i++)
+              children: [
                 TableRow(
                   children: [
-                    TableCell(
-                      key: _helper.getCellKey(i, 0),
-                      verticalAlignment: _helper.determineAlignment(i, 0, TableCellVerticalAlignment.top),
-                      child: CustomInkResponse(
-                        child: Padding(
-                          padding: padding,
-                          child: Text(
-                            i % 9 == 0 || i % 9 == 1 || i % 9 == 2
-                                ? 'ABC'
-                                : i % 9 == 3 || i % 9 == 4 || i % 9 == 5
-                                    ? 'ABC\nDEF'
-                                    : 'ABC\nDEF\nGHI',
-                          ),
-                        ),
-                        onTap: () {
-                          printLog('onTap, tableWidth = $tableWidth <-> ${_key.currentContext?.size?.width}');
-                        },
-                        containedInkWell: containedInkWell,
-                        highlightShape: rectangleHighlight ? BoxShape.rectangle : BoxShape.circle,
-                        highlightColor: showHighlightEffect ? null : Colors.transparent,
-                        splashColor: showRippleEffect ? null : Colors.transparent,
-                        highlightFadeDuration: highlightFadeDuration,
-                        splashFactory: CustomInkRippleFactory(
-                          setting: rippleSetting.copyWith(
-                            radiusCanvasCenterFn: defaultCanvasCenter ? null : (box, _) => Offset(tableWidth / 2, box.size.height / 2),
-                          ),
-                        ),
-                        getRadius: (box) {
-                          printLog('getRadius, box size = ${box.size}');
-                          return defaultRadius ? null : math.sqrt(tableWidth * tableWidth + box.size.height * box.size.height) / 2;
-                        },
-                        getRect: (box) {
-                          final rect = getTableRowRect(box);
-                          // printLog('getRect, row rect size = ${rect.size}'); // ???
-                          // The following assertion was thrown while dispatching notifications for ValueNotifier<String>:
-                          // Build scheduled during frame.
-                          // While the widget tree was being built, laid out, and painted, a new frame was scheduled to rebuild
-                          // the widget tree.
-                          return defaultRect ? null : rect;
-                        },
-                      ),
-                    ),
-                    TableCell(
-                      key: _helper.getCellKey(i, 1),
-                      verticalAlignment: _helper.determineAlignment(i, 1, TableCellVerticalAlignment.top),
-                      child: CustomInkResponse(
-                        child: Padding(
-                          padding: padding,
-                          child: Text(
-                            i % 9 == 0 || i % 9 == 3 || i % 9 == 6
-                                ? 'abcdefg'
-                                : i % 9 == 1 || i % 9 == 4 || i % 9 == 7
-                                    ? 'abcdefg\nhijklmn'
-                                    : 'abcdefg\nhijklmn\nopqrstu',
-                          ),
-                        ),
-                        onTap: () {
-                          printLog('onTap, tableWidth = $tableWidth <-> ${_key.currentContext?.size?.width}');
-                        },
-                        containedInkWell: containedInkWell,
-                        highlightShape: rectangleHighlight ? BoxShape.rectangle : BoxShape.circle,
-                        highlightColor: showHighlightEffect ? null : Colors.transparent,
-                        splashColor: showRippleEffect ? null : Colors.transparent,
-                        highlightFadeDuration: highlightFadeDuration,
-                        splashFactory: CustomInkRippleFactory(
-                          setting: rippleSetting.copyWith(
-                            radiusCanvasCenterFn: defaultCanvasCenter ? null : (box, _) => Offset(tableWidth / 2 - tableWidth * 0.3, box.size.height / 2),
-                          ),
-                        ),
-                        getRadius: (box) {
-                          printLog('getRadius, box size = ${box.size}');
-                          return defaultRadius ? null : math.sqrt(tableWidth * tableWidth + box.size.height * box.size.height) / 2;
-                        },
-                        getRect: (box) {
-                          final rect = getTableRowRect(box);
-                          // printLog('getRect, row rect size = ${rect.size}');
-                          return defaultRect ? null : rect;
-                        },
-                      ),
-                    ),
+                    Padding(padding: padding, child: const Text('Key', style: TextStyle(color: Colors.grey))),
+                    Padding(padding: padding, child: const Text('Value', style: TextStyle(color: Colors.grey))),
                   ],
                 ),
-            ],
+                for (int i = 0; i < 9; i++)
+                  TableRow(
+                    children: [
+                      TableCell(
+                        key: _helper.getCellKey(i, 0),
+                        verticalAlignment: _helper.determineCellAlignment(i, 0, TableCellVerticalAlignment.top),
+                        child: CustomInkResponse(
+                          child: Padding(
+                            padding: padding,
+                            child: Text(
+                              i % 9 == 0 || i % 9 == 1 || i % 9 == 2
+                                  ? 'ABC'
+                                  : i % 9 == 3 || i % 9 == 4 || i % 9 == 5
+                                      ? 'ABC\nDEF'
+                                      : 'ABC\nDEF\nGHI',
+                            ),
+                          ),
+                          onTap: () {
+                            printLog('onTap, tableWidth = $tableWidth <-> ${_key.currentContext?.size?.width}');
+                          },
+                          containedInkWell: containedInkWell,
+                          highlightShape: rectangleHighlight ? BoxShape.rectangle : BoxShape.circle,
+                          highlightColor: showHighlightEffect ? null : Colors.transparent,
+                          splashColor: showRippleEffect ? null : Colors.transparent,
+                          highlightFadeDuration: highlightFadeDuration,
+                          splashFactory: CustomInkRippleFactory(
+                            setting: rippleSetting.copyWith(
+                              radiusCanvasCenterFn: defaultCanvasCenter ? null : (box, _) => Offset(tableWidth / 2, box.size.height / 2),
+                            ),
+                          ),
+                          getRadius: (box) {
+                            printLog('getRadius, box size = ${box.size}');
+                            return defaultRadius ? null : math.sqrt(tableWidth * tableWidth + box.size.height * box.size.height) / 2;
+                          },
+                          getRect: (box) {
+                            final rect = getTableRowRect(box);
+                            // printLog('getRect, row rect size = ${rect.size}'); // ???
+                            // The following assertion was thrown while dispatching notifications for ValueNotifier<String>:
+                            // Build scheduled during frame.
+                            // While the widget tree was being built, laid out, and painted, a new frame was scheduled to rebuild
+                            // the widget tree.
+                            return defaultRect ? null : rect;
+                          },
+                        ),
+                      ),
+                      TableCell(
+                        key: _helper.getCellKey(i, 1),
+                        verticalAlignment: _helper.determineCellAlignment(i, 1, TableCellVerticalAlignment.top),
+                        child: CustomInkResponse(
+                          child: Padding(
+                            padding: padding,
+                            child: Text(
+                              i % 9 == 0 || i % 9 == 3 || i % 9 == 6
+                                  ? 'abcdefg'
+                                  : i % 9 == 1 || i % 9 == 4 || i % 9 == 7
+                                      ? 'abcdefg\nhijklmn'
+                                      : 'abcdefg\nhijklmn\nopqrstu',
+                            ),
+                          ),
+                          onTap: () {
+                            printLog('onTap, tableWidth = $tableWidth <-> ${_key.currentContext?.size?.width}');
+                          },
+                          containedInkWell: containedInkWell,
+                          highlightShape: rectangleHighlight ? BoxShape.rectangle : BoxShape.circle,
+                          highlightColor: showHighlightEffect ? null : Colors.transparent,
+                          splashColor: showRippleEffect ? null : Colors.transparent,
+                          highlightFadeDuration: highlightFadeDuration,
+                          splashFactory: CustomInkRippleFactory(
+                            setting: rippleSetting.copyWith(
+                              radiusCanvasCenterFn: defaultCanvasCenter ? null : (box, _) => Offset(tableWidth / 2 - tableWidth * 0.3, box.size.height / 2),
+                            ),
+                          ),
+                          getRadius: (box) {
+                            printLog('getRadius, box size = ${box.size}');
+                            return defaultRadius ? null : math.sqrt(tableWidth * tableWidth + box.size.height * box.size.height) / 2;
+                          },
+                          getRect: (box) {
+                            final rect = getTableRowRect(box);
+                            // printLog('getRect, row rect size = ${rect.size}');
+                            return defaultRect ? null : rect;
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
           ),
         ],
       ),

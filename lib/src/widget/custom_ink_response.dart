@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:math' as math;
 import 'dart:collection';
 
 import 'package:flutter/foundation.dart';
@@ -13,10 +14,73 @@ import 'package:flutter/material.dart';
 // Some code in this file keeps the same as the following source codes:
 // - InkResponse: https://github.com/flutter/flutter/blob/2.10.5/packages/flutter/lib/src/material/ink_well.dart
 
+/// A custom [InkWell] with [getRadius], [getRect] for ink feature.
+class CustomInkWell extends CustomInkResponse {
+  const CustomInkWell({
+    Widget? child,
+    GestureTapCallback? onTap,
+    GestureTapDownCallback? onTapDown,
+    GestureTapCallback? onTapCancel,
+    GestureTapCallback? onDoubleTap,
+    GestureLongPressCallback? onLongPress,
+    ValueChanged<bool>? onHighlightChanged,
+    ValueChanged<bool>? onHover,
+    MouseCursor? mouseCursor,
+    BorderRadius? borderRadius,
+    ShapeBorder? customBorder,
+    Color? focusColor,
+    Color? hoverColor,
+    Color? highlightColor,
+    MaterialStateProperty<Color?>? overlayColor,
+    Color? splashColor,
+    InteractiveInkFeatureFactory? splashFactory,
+    bool enableFeedback = true,
+    bool excludeFromSemantics = false,
+    FocusNode? focusNode,
+    bool canRequestFocus = true,
+    ValueChanged<bool>? onFocusChange,
+    bool autofocus = false,
+    Key? key,
+    Duration? Function(HighlightType type)? highlightFadeDuration,
+    double? Function(RenderBox referenceBox)? getRadius,
+    Rect? Function(RenderBox referenceBox)? getRect,
+  }) : super(
+          key: key,
+          child: child,
+          onTap: onTap,
+          onTapDown: onTapDown,
+          onTapCancel: onTapCancel,
+          onDoubleTap: onDoubleTap,
+          onLongPress: onLongPress,
+          onHighlightChanged: onHighlightChanged,
+          onHover: onHover,
+          mouseCursor: mouseCursor,
+          containedInkWell: true,
+          highlightShape: BoxShape.rectangle,
+          borderRadius: borderRadius,
+          customBorder: customBorder,
+          focusColor: focusColor,
+          hoverColor: hoverColor,
+          highlightColor: highlightColor,
+          overlayColor: overlayColor,
+          splashColor: splashColor,
+          splashFactory: splashFactory,
+          enableFeedback: enableFeedback,
+          excludeFromSemantics: excludeFromSemantics,
+          onFocusChange: onFocusChange,
+          autofocus: autofocus,
+          focusNode: focusNode,
+          canRequestFocus: canRequestFocus,
+          highlightFadeDuration: highlightFadeDuration,
+          getRadius: getRadius,
+          getRect: getRect,
+        );
+}
+
 /// A custom [InkResponse] with [getRadius], [getRect] for ink feature.
 ///
-/// Note that you can set [containedInkWell] to true and [highlightShape] to
-/// [BoxShape.rectangle] to get a custom [InkWell].
+/// Note that you can set [containedInkWell] to true and set [highlightShape]
+/// to [BoxShape.rectangle] to get a custom [InkWell], or said, [CustomInkWell].
 class CustomInkResponse extends StatefulWidget {
   const CustomInkResponse({
     Key? key,
@@ -41,10 +105,10 @@ class CustomInkResponse extends StatefulWidget {
     this.splashFactory,
     this.enableFeedback = true,
     this.excludeFromSemantics = false,
-    this.focusNode,
-    this.canRequestFocus = true,
     this.onFocusChange,
     this.autofocus = false,
+    this.focusNode,
+    this.canRequestFocus = true,
     this.highlightFadeDuration, // <<<
     this.getRadius, // <<<
     this.getRect, // <<<
@@ -532,22 +596,22 @@ Rect getTableRowRect(RenderBox referenceBox) {
   return callback();
 }
 
-/// A helper class for [TableCell], and is used to decide which [TableCell] to
-/// fill the whole [TableRow] in vertical direction, which is not implemented
-/// by flutter yet.
+/// A helper class for [TableCell], and is used to decide which [TableCell] to fill
+/// the whole [TableRow] in vertical direction, which is not implemented by flutter.
 ///
 /// Example:
 /// ```
 /// // in State class
 /// final _helper = TableCellHelper(9, 2); // 9x2
 ///
-/// // in initState method
+/// // in didUpdateWidget method (or use StatefulWidgetWithCallback)
 /// WidgetsBinding.instance!.addPostFrameCallback((_) {
-///   _helper.searchHighestTableCells();
-///   if (mounted) setState(() {});
+///   if (_helper.searchForHighestCells()) {
+///     if (mounted) setState(() {});
+///   }
 /// });
 ///
-/// // in Table constructor
+/// // Table constructor in build method
 /// Table(
 ///   children: [
 ///     for (int i = 0; i < 9; i++)
@@ -556,7 +620,7 @@ Rect getTableRowRect(RenderBox referenceBox) {
 ///           for (int j = 0; j < 2; j++)
 ///             TableCell(
 ///               key: _helper.getCellKey(i, j)
-///               verticalAlignment: _helper.determineAlignment(i, j, TableCellVerticalAlignment.top),
+///               verticalAlignment: _helper.determineCellAlignment(i, j, TableCellVerticalAlignment.top),
 ///               child: Text('item ($i, $j)'),
 ///             ),
 ///         ],
@@ -566,55 +630,83 @@ Rect getTableRowRect(RenderBox referenceBox) {
 /// ```
 class TableCellHelper {
   TableCellHelper(this._rows, this._columns)
-      : assert(_rows > 0 && _columns > 0),
+      : assert(_rows >= 0 && _columns >= 0),
         _keys = List.generate(_rows, (_) => List.generate(_columns, (_) => GlobalKey())),
         _highests = <int>[];
 
-  final int _rows;
-  final int _columns;
-  final List<List<GlobalKey>> _keys;
-  final List<int> _highests;
+  int _rows;
+  int _columns;
+  List<List<GlobalKey>> _keys;
+  List<int> _highests;
+
+  /// Resets the [TableCellHelper] with new rows and columns, which should be used
+  /// when [TableRow] count or [TableCell] content was changed, following [setState].
+  void reset(int rows, int columns) {
+    assert(_rows >= 0 && _columns >= 0);
+    _rows = rows;
+    _columns = columns;
+    _keys = List.generate(_rows, (_) => List.generate(_columns, (_) => GlobalKey()));
+    _highests = <int>[];
+  }
 
   /// Returns the [TableCell]'s [GlobalKey] for given index.
   GlobalKey getCellKey(int i, int j) {
+    assert(_rows > 0 && _columns > 0);
     assert(i < _rows && j < _columns);
     return _keys[i][j];
   }
 
-  /// Searches the highest [TableCell] indices in multiple [TableRow].
-  bool searchHighestTableCells({bool force = false}) {
-    if (force) {
-      _highests.clear();
-    } else if (_highests.isNotEmpty) {
-      return true;
-    }
-    for (int i = 0; i < _rows; i++) {
-      var max = 0;
-      for (int j = 1; j < _columns; j++) {
-        var curHeight = _keys[i][j].currentContext?.size?.height;
-        var maxHeight = _keys[i][max].currentContext?.size?.height;
-        if (curHeight == null || maxHeight == null) {
-          _highests.clear();
-          return false;
-        }
-        if (curHeight > maxHeight) {
-          max = j;
-        }
-      }
-      _highests.add(max);
-    }
-    return true;
-  }
-
-  /// Determines the [TableCellVerticalAlignment] with given index.
-  TableCellVerticalAlignment? determineAlignment(int i, int j, [TableCellVerticalAlignment? initialValue]) {
+  /// Determines the [TableCell]'s [TableCellVerticalAlignment] with given index.
+  TableCellVerticalAlignment? determineCellAlignment(int i, int j, [TableCellVerticalAlignment? initialValue]) {
+    assert(_rows > 0 && _columns > 0);
     assert(i < _rows && j < _columns);
     if (_highests.isEmpty) {
       return initialValue;
     }
     if (_highests[i] == j) {
-      return TableCellVerticalAlignment.top;
+      return TableCellVerticalAlignment.top; // highest -> top
     }
-    return TableCellVerticalAlignment.fill;
+    return TableCellVerticalAlignment.fill; // others -> fill
   }
+
+  /// Searches the highest [TableCell] in multiple [TableRow] and this function
+  /// returns true if the highests list is regenerated.
+  bool searchForHighestCells() {
+    if (_rows == 0 || _columns == 0) {
+      return false; // there is no cell
+    }
+    if (_highests.isNotEmpty) {
+      return false; // search has been already done
+    }
+
+    var newHighests = <int>[];
+    for (int i = 0; i < _rows; i++) {
+      var max = 0, maxHeight = -1.0;
+      for (int j = 0; j < _columns; j++) {
+        var curHeight = _keys[i][j].currentContext?.size?.height;
+        if (curHeight == null) {
+          return false; // there are some rendered cells
+        }
+        if (curHeight > maxHeight) {
+          max = j;
+          maxHeight = curHeight;
+        }
+      }
+      newHighests.add(max);
+    }
+
+    _highests = newHighests;
+    return true; // highests list is regenerated
+  }
+}
+
+
+/// This function is the same as [math.sqrt].
+num calcSqrt(num n) {
+  return math.sqrt(n);
+}
+
+/// This function can be used to calculate the diagonal of given width and height.
+num calcDiagonal(num width, num height) {
+  return math.sqrt(width * width + height * height);
 }
