@@ -30,9 +30,9 @@ class MyApp extends StatelessWidget {
         body: Column(
           children: [
             Expanded(child: child!),
-            const Divider(thickness: 0, height: 0),
+            const Divider(thickness: 1, height: 1),
             Container(
-              height: (MediaQuery.of(context).size.height - MediaQuery.of(context).padding.vertical) / 7,
+              height: (MediaQuery.of(context).size.height - MediaQuery.of(context).padding.vertical) / 5,
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
               child: Stack(

@@ -1,7 +1,7 @@
 library flutter_ahlib_widget;
 
 export 'src/widget/animated_fab.dart';
-export 'src/widget/builder_with_callback.dart';
+export 'src/widget/widget_with_callback.dart';
 export 'src/widget/custom_ink_feature.dart';
 export 'src/widget/custom_ink_response.dart';
 export 'src/widget/drawer_list_view.dart';

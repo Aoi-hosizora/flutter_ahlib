@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/flutter_ahlib.dart';
 import 'package:flutter_ahlib_example/main.dart';
@@ -13,7 +11,7 @@ class CustomInkResponsePage extends StatefulWidget {
 
 class _CustomInkResponsePageState extends State<CustomInkResponsePage> {
   final _key = GlobalKey();
-  final _helper = TableCellHelper(9, 2);
+  final _helper = TableCellHelper(9, 3);
 
   @override
   void initState() {
@@ -37,6 +35,9 @@ class _CustomInkResponsePageState extends State<CustomInkResponsePage> {
   var defaultRadius = false;
   var defaultRect = false;
 
+  // * table
+  var rowCount = 9;
+
   Widget _checkBox(String title, bool Function() getter, void Function(bool) setter) {
     return CheckboxListTile(
       title: Text(title),
@@ -57,8 +58,8 @@ class _CustomInkResponsePageState extends State<CustomInkResponsePage> {
     var rippleSetting = CustomInkRippleSetting.preferredSetting;
     if (rippleLongDuration) {
       rippleSetting = rippleSetting.copyWith(
-        unconfirmedRippleDuration: const Duration(milliseconds: 1500),
-        confirmedRippleDuration: const Duration(milliseconds: 1500),
+        unconfirmedRippleDuration: const Duration(milliseconds: 800),
+        confirmedRippleDuration: const Duration(milliseconds: 800),
       );
     }
     if (rippleNoFadeOut) {
@@ -100,17 +101,34 @@ class _CustomInkResponsePageState extends State<CustomInkResponsePage> {
           _checkBox('defaultRadius', () => defaultRadius, (v) => defaultRadius = v),
           _checkBox('defaultRect', () => defaultRect, (v) => defaultRect = v),
           const Divider(),
-          StatefulBuilderWithCallback(
-            postFrameCallbackForDidUpdateWidget: () {
-              print('postFrameCallbackForDidUpdateWidget');
+          StatefulWidgetWithCallback(
+            // postFrameCallbackForInitState: () {
+            //   printLog('postFrameCallbackForInitState');
+            //   if (_helper.searchForHighestCells()) {
+            //     printLog('postFrameCallbackForInitState setState');
+            //     if (mounted) setState(() {});
+            //   }
+            // },
+            // postFrameCallbackForDidUpdateWidget: () {
+            //   printLog('postFrameCallbackForDidUpdateWidget');
+            //   if (_helper.searchForHighestCells()) {
+            //     printLog('postFrameCallbackForDidUpdateWidget setState');
+            //     if (mounted) setState(() {});
+            //   }
+            // },
+            postFrameCallbackForBuild: () {
+              printLog('postFrameCallbackForBuild');
               if (_helper.searchForHighestCells()) {
-                print('postFrameCallbackForDidUpdateWidget setState');
-                if (mounted) setState(() {}); // <<<
+                printLog('postFrameCallbackForBuild setState');
+                if (mounted) setState(() {});
               }
             },
-            builder: (_, __) => Table(
+            child: Table(
               key: _key,
-              columnWidths: const {0: FractionColumnWidth(0.3)},
+              columnWidths: const {
+                0: FractionColumnWidth(0.3),
+                2: FractionColumnWidth(0.08),
+              },
               border: const TableBorder(
                 horizontalInside: BorderSide(width: 1, color: Colors.grey),
               ),
@@ -119,9 +137,10 @@ class _CustomInkResponsePageState extends State<CustomInkResponsePage> {
                   children: [
                     Padding(padding: padding, child: const Text('Key', style: TextStyle(color: Colors.grey))),
                     Padding(padding: padding, child: const Text('Value', style: TextStyle(color: Colors.grey))),
+                    Padding(padding: padding, child: const Text('#', style: TextStyle(color: Colors.grey))),
                   ],
                 ),
-                for (int i = 0; i < 9; i++)
+                for (int i = 0; i < rowCount; i++)
                   TableRow(
                     children: [
                       TableCell(
@@ -153,7 +172,7 @@ class _CustomInkResponsePageState extends State<CustomInkResponsePage> {
                           ),
                           getRadius: (box) {
                             printLog('getRadius, box size = ${box.size}');
-                            return defaultRadius ? null : math.sqrt(tableWidth * tableWidth + box.size.height * box.size.height) / 2;
+                            return defaultRadius ? null : calcDiagonal(tableWidth, box.size.height) / 2;
                           },
                           getRect: (box) {
                             final rect = getTableRowRect(box);
@@ -195,7 +214,7 @@ class _CustomInkResponsePageState extends State<CustomInkResponsePage> {
                           ),
                           getRadius: (box) {
                             printLog('getRadius, box size = ${box.size}');
-                            return defaultRadius ? null : math.sqrt(tableWidth * tableWidth + box.size.height * box.size.height) / 2;
+                            return defaultRadius ? null : calcDiagonal(tableWidth, box.size.height) / 2;
                           },
                           getRect: (box) {
                             final rect = getTableRowRect(box);
@@ -204,12 +223,44 @@ class _CustomInkResponsePageState extends State<CustomInkResponsePage> {
                           },
                         ),
                       ),
+                      TableCell(
+                        key: _helper.getCellKey(i, 2),
+                        verticalAlignment: _helper.determineCellAlignment(i, 2, TableCellVerticalAlignment.middle), // => top
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            border: Border(
+                              left: BorderSide(width: 1, color: Colors.grey),
+                            ),
+                          ),
+                          child: CustomInkWell(
+                            child: Padding(padding: padding, child: Text('$i')),
+                            onTap: () {},
+                            splashFactory: CustomInkRippleFactory(
+                              setting: CustomInkRippleSetting.preferredSetting.copyWith(
+                                radiusCanvasCenterFn: defaultCanvasCenter ? null : (box, _) => Offset(tableWidth / 2 - tableWidth * (1 - 0.08), box.size.height / 2),
+                              ),
+                            ),
+                            highlightColor: Colors.transparent,
+                            splashColor: Colors.black.withOpacity(0.19),
+                            getRadius: (box) => calcDiagonal(tableWidth, box.size.height) / 2,
+                            getRect: (box) => getTableRowRect(box),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
               ],
             ),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.add),
+        onPressed: () {
+          rowCount += 9;
+          _helper.reset(rowCount, 3);
+          if (mounted) setState(() {});
+        },
       ),
     );
   }

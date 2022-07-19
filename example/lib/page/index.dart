@@ -21,6 +21,7 @@ import 'package:flutter_ahlib_example/page/widget/sliver_delegate.dart';
 import 'package:flutter_ahlib_example/page/widget/tab_in_page_notification.dart';
 import 'package:flutter_ahlib_example/page/widget/text_group.dart';
 import 'package:flutter_ahlib_example/page/widget/text_selection_config.dart';
+import 'package:flutter_ahlib_example/page/widget/widget_with_callback.dart';
 
 class IndexPage extends StatefulWidget {
   const IndexPage({Key? key}) : super(key: key);
@@ -85,9 +86,10 @@ class _IndexPageState extends State<IndexPage> {
                 _button('TextGroup', const TextGroupPage()),
                 _button('TabInPageNotification', const TabInPageNotificationPage()),
                 _button('CustomInkFeature', const CustomInkFeaturePage()),
-                _button('CustomInkResponse', const CustomInkResponsePage()),
                 _button('NewButtonStyle', const NewButtonThemePage()),
                 _button('TextSelectionConfig', const TextSelectionConfigPage()),
+                _button('CustomInkResponse', const CustomInkResponsePage()),
+                _button('WidgetWithCallback', const WidgetWithCallbackPage()),
               ],
             ),
             Align(
