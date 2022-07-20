@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_ahlib/src/widget/custom_ink_feature.dart';
 
 // Refers to: https://docs.google.com/document/d/1yohSuYrvyya5V1hB6j9pJskavCdVq9sVeTqSoEPsWH0.
 //
@@ -133,7 +134,7 @@ ButtonStyle raisedButtonStyle({
 /// Returns a [ButtonStyle] that is used to make a [OutlinedButton] look like a deprecated [OutlineButton],
 /// but with given styles.
 ButtonStyle outlineButtonStyle(
-  BuildContext context, {
+  ColorScheme colorScheme, {
   Color? primary,
   Color? onSurface,
   Color? backgroundColor,
@@ -195,7 +196,7 @@ ButtonStyle outlineButtonStyle(
         (Set<MaterialState> states) {
           if (states.contains(MaterialState.pressed)) {
             return BorderSide(
-              color: Theme.of(context).colorScheme.primary,
+              color: colorScheme.primary,
               width: 1,
             );
           }
@@ -207,16 +208,67 @@ ButtonStyle outlineButtonStyle(
   return style;
 }
 
+/// The preferred splash color for [TextButton], [OutlinedButton], [InkWell], [InkResponse], etc by Aoi-hosizora :)
+const double preferredSplashColorOpacity = 0.20;
+
+/// The preferred splash color for light [ElevatedButton] by Aoi-hosizora :)
+const double preferredSplashColorOpacityForLightElevated = 0.26;
+
+/// The preferred splash color for dark [ElevatedButton] by Aoi-hosizora :)
+const double preferredSplashColorOpacityForDarkElevated = 0.40;
+
+/// Returns the preferred [TextButton]'s [ButtonStyle] by Aoi-hosizora :)
+ButtonStyle preferredTextButtonStyle(
+  ColorScheme colorScheme, [
+  double splashColorOpacity = preferredSplashColorOpacity,
+]) =>
+    flatButtonStyle(
+      primary: colorScheme.primary,
+      splashColor: colorScheme.primary.withOpacity(splashColorOpacity), // <<<
+      splashFactory: CustomInkRipple.preferredSplashFactory,
+    );
+
+/// Returns the preferred [ElevatedButton]'s [ButtonStyle] by Aoi-hosizora :)
+ButtonStyle preferredElevatedButtonStyle(
+  ColorScheme colorScheme, [
+  double splashColorOpacityForLight = preferredSplashColorOpacityForLightElevated,
+  double splashColorOpacityForDark = preferredSplashColorOpacityForDarkElevated,
+]) =>
+    raisedButtonStyle(
+      primary: colorScheme.primary,
+      onPrimary: colorScheme.onPrimary,
+      splashColor: colorScheme.onPrimary.computeLuminance() < 0.5 ? colorScheme.onPrimary.withOpacity(splashColorOpacityForLight) : colorScheme.onPrimary.withOpacity(splashColorOpacityForDark), // <<<
+      splashFactory: CustomInkRipple.preferredSplashFactory,
+    );
+
+/// Returns the preferred [OutlinedButton]'s [ButtonStyle] by Aoi-hosizora :)
+ButtonStyle preferredOutlinedButtonStyle(
+  ColorScheme colorScheme, [
+  double splashColorOpacity = preferredSplashColorOpacity,
+]) =>
+    outlineButtonStyle(
+      colorScheme,
+      primary: colorScheme.primary,
+      splashColor: colorScheme.primary.withOpacity(splashColorOpacity), // <<<
+      splashFactory: CustomInkRipple.preferredSplashFactory,
+    );
+
 /// An extension for [ThemeData].
 extension ThemeDataExtension on ThemeData {
   /// Creates a copy of [ThemeData] but with given [InteractiveInkFeatureFactory] for splash factory of
   /// normal widgets and some kinds of button widgets.
-  ThemeData withSplashFactory(InteractiveInkFeatureFactory factory) {
-    return copyWith(
-      splashFactory: factory,
-      elevatedButtonTheme: ElevatedButtonThemeData(style: ElevatedButton.styleFrom(splashFactory: factory)),
-      outlinedButtonTheme: OutlinedButtonThemeData(style: OutlinedButton.styleFrom(splashFactory: factory)),
-      textButtonTheme: TextButtonThemeData(style: TextButton.styleFrom(splashFactory: factory)),
-    );
-  }
+  ThemeData withSplashFactory(InteractiveInkFeatureFactory factory) => copyWith(
+        splashFactory: factory,
+        elevatedButtonTheme: ElevatedButtonThemeData(style: ElevatedButton.styleFrom(splashFactory: factory)),
+        outlinedButtonTheme: OutlinedButtonThemeData(style: OutlinedButton.styleFrom(splashFactory: factory)),
+        textButtonTheme: TextButtonThemeData(style: TextButton.styleFrom(splashFactory: factory)),
+      );
+
+  /// Creates a copy of [ThemeData] but with referred [ButtonStyle] for [ElevatedButton], [OutlinedButton]
+  /// and [TextButton].
+  ThemeData withPreferredButtonStyles() => copyWith(
+        elevatedButtonTheme: ElevatedButtonThemeData(style: preferredElevatedButtonStyle(colorScheme)),
+        outlinedButtonTheme: OutlinedButtonThemeData(style: preferredOutlinedButtonStyle(colorScheme)),
+        textButtonTheme: TextButtonThemeData(style: preferredTextButtonStyle(colorScheme)),
+      );
 }

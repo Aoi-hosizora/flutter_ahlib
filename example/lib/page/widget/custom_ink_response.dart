@@ -241,7 +241,7 @@ class _CustomInkResponsePageState extends State<CustomInkResponsePage> {
                               ),
                             ),
                             highlightColor: Colors.transparent,
-                            splashColor: Colors.black.withOpacity(0.19),
+                            splashColor: Colors.black.withOpacity(preferredSplashColorOpacity),
                             getRadius: (box) => calcDiagonal(tableWidth, box.size.height) / 2,
                             getRect: (box) => getTableRowRect(box),
                           ),

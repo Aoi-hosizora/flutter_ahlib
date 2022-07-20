@@ -15,6 +15,8 @@ enum InkFeature {
   preferredInkSplash,
 }
 
+// ignore_for_file: deprecated_member_use
+
 class _NewButtonThemePageState extends State<NewButtonThemePage> {
   InkFeature? _inkFeature = InkFeature.defaultInkRipple;
 
@@ -70,6 +72,24 @@ class _NewButtonThemePageState extends State<NewButtonThemePage> {
     return Theme.of(context).withSplashFactory(factory);
   }
 
+  Widget _testPreferred(Color primaryColor, bool light) {
+    return Theme(
+      data: Theme.of(context)
+          .copyWith(
+            colorScheme: Theme.of(context).colorScheme.copyWith(
+                  primary: primaryColor,
+                  onPrimary: light ? Colors.black : Colors.white,
+                ),
+          )
+          .withPreferredButtonStyles(),
+      child: _row(
+        OutlinedButton(child: Text('Preferred (${light ? 'light' : 'dark'})'), onPressed: () {}),
+        ElevatedButton(child: Text('Preferred (${light ? 'light' : 'dark'})'), onPressed: () {}),
+        TextButton(child: Text('Preferred (${light ? 'light' : 'dark'})'), onPressed: () {}),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final primary = Theme.of(context).colorScheme.primary;
@@ -88,67 +108,69 @@ class _NewButtonThemePageState extends State<NewButtonThemePage> {
           const Divider(),
           Theme(
             data: themeData,
-            child: Builder(
-              builder: (c) => Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _row(
-                    OutlinedButton(child: const Text('Outlined'), onPressed: () {}),
-                    OutlineButton(child: const Text('Outline'), onPressed: () {}), // ignore: deprecated_member_use
-                    OutlineButton(child: const Text('Outline NoHl'), onPressed: () {}, highlightColor: Colors.transparent), // ignore: deprecated_member_use
-                  ),
-                  _row(
-                    OutlinedButton(child: const Text('Styled 1'), onPressed: () {}, style: outlineButtonStyle(c)), // -> 0.12
-                    OutlinedButton(child: const Text('Styled 1 Middle'), onPressed: () {}, style: outlineButtonStyle(c, splashColor: Colors.black.withOpacity(0.19))), // 0.19
-                    OutlinedButton(child: const Text('Styled 1 Darker'), onPressed: () {}, style: outlineButtonStyle(c, splashColor: Colors.black26)), // 0.26
-                  ),
-                  _row(
-                    OutlinedButton(child: const Text('Styled 2'), onPressed: () {}, style: outlineButtonStyle(c, primary: primary)), // 0.12
-                    OutlinedButton(child: const Text('Styled 2 Middle'), onPressed: () {}, style: outlineButtonStyle(c, primary: primary, splashColor: primary.withOpacity(0.19))), // 0.19
-                    OutlinedButton(child: const Text('Styled 2 Darker'), onPressed: () {}, style: outlineButtonStyle(c, primary: primary, splashColor: primary.withOpacity(0.26))), // 0.26
-                  ),
-                  const Divider(),
-                  _row(
-                    ElevatedButton(child: const Text('Elevated'), onPressed: () {}),
-                    RaisedButton(child: const Text('Raised'), onPressed: () {}), // ignore: deprecated_member_use
-                    RaisedButton(child: const Text('Raised NoHl'), onPressed: () {}, highlightColor: Colors.transparent), // ignore: deprecated_member_use
-                  ),
-                  _row(
-                    ElevatedButton(child: const Text('Styled 1'), onPressed: () {}, style: raisedButtonStyle()),
-                    ElevatedButton(child: const Text('Styled 2'), onPressed: () {}, style: raisedButtonStyle(onPrimary: onPrimary, primary: primary)), // 0.24
-                    ElevatedButton(child: const Text('Styled 2 Middle'), onPressed: () {}, style: raisedButtonStyle(onPrimary: onPrimary, primary: primary, splashColor: Colors.white30)), // 0.30
-                    ElevatedButton(child: const Text('Styled 2 Lighter'), onPressed: () {}, style: raisedButtonStyle(onPrimary: onPrimary, primary: primary, splashColor: Colors.white38)), // 0.38
-                  ),
-                  const Divider(),
-                  _row(
-                    TextButton(child: const Text('Text'), onPressed: () {}),
-                    FlatButton(child: const Text('Flat'), onPressed: () {}), // ignore: deprecated_member_use
-                    FlatButton(child: const Text('Flat NoHl'), onPressed: () {}, highlightColor: Colors.transparent), // ignore: deprecated_member_use
-                  ),
-                  _row(
-                    TextButton(child: const Text('Styled 1'), onPressed: () {}, style: flatButtonStyle()), // 0.12
-                    TextButton(child: const Text('Styled 1 Middle'), onPressed: () {}, style: flatButtonStyle(splashColor: Colors.black.withOpacity(0.19))), // 0.19
-                    TextButton(child: const Text('Styled 1 Darker'), onPressed: () {}, style: flatButtonStyle(splashColor: Colors.black26)), // 0.26
-                  ),
-                  _row(
-                    TextButton(child: const Text('Styled 2'), onPressed: () {}, style: flatButtonStyle(primary: primary)), // 0.12
-                    TextButton(child: const Text('Styled 2 Middle'), onPressed: () {}, style: flatButtonStyle(primary: primary, splashColor: primary.withOpacity(0.19))), // 0.19
-                    TextButton(child: const Text('Styled 2 Darker'), onPressed: () {}, style: flatButtonStyle(primary: primary, splashColor: primary.withOpacity(0.26))), // 0.26
-                  ),
-                  const Divider(),
-                  ListTile(
-                    title: const Text('ListTile', textAlign: TextAlign.center),
-                    onTap: () {},
-                  ),
-                  Card(
-                    elevation: 2,
-                    child: ListTile(
-                      title: const Text('Card with ListTile', textAlign: TextAlign.center),
-                      onTap: () {},
-                    ),
-                  ),
-                ],
-              ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _row(
+                  OutlineButton(child: const Text('Outline'), onPressed: () {}),
+                  OutlineButton(child: const Text('Outline NoHl'), onPressed: () {}, highlightColor: Colors.transparent),
+                  OutlinedButton(child: const Text('Outlined'), onPressed: () {}),
+                ),
+                _row(
+                  OutlinedButton(child: const Text('Styled 1 Default'), onPressed: () {}, style: outlineButtonStyle(themeData.colorScheme)), // 0.12
+                  OutlinedButton(child: const Text('Styled 1 Old'), onPressed: () {}, style: outlineButtonStyle(themeData.colorScheme, splashColor: Colors.black.withOpacity(0.26))), // 0.26
+                  OutlinedButton(child: const Text('Styled 1 Preferred'), onPressed: () {}, style: outlineButtonStyle(themeData.colorScheme, splashColor: Colors.black.withOpacity(0.20))), // 0.20
+                ),
+                _row(
+                  OutlinedButton(child: const Text('Styled 2 Default'), onPressed: () {}, style: outlineButtonStyle(themeData.colorScheme, primary: primary)), // 0.12
+                  OutlinedButton(child: const Text('Styled 2 Old'), onPressed: () {}, style: outlineButtonStyle(themeData.colorScheme, primary: primary, splashColor: primary.withOpacity(0.26))), // 0.26
+                  OutlinedButton(child: const Text('Styled 2 Preferred'), onPressed: () {}, style: outlineButtonStyle(themeData.colorScheme, primary: primary, splashColor: primary.withOpacity(0.20))), // 0.20
+                ),
+                const Divider(),
+                _row(
+                  RaisedButton(child: const Text('Raised'), onPressed: () {}),
+                  RaisedButton(child: const Text('Raised NoHl'), onPressed: () {}, highlightColor: Colors.transparent),
+                  ElevatedButton(child: const Text('Elevated'), onPressed: () {}),
+                ),
+                _row(
+                  ElevatedButton(child: const Text('Styled 1 Default'), onPressed: () {}, style: raisedButtonStyle()), // 0.24
+                  ElevatedButton(child: const Text('Styled 2 Old/For Light'), onPressed: () {}, style: raisedButtonStyle(splashColor: Colors.black.withOpacity(0.26))), // 0.26
+                  ElevatedButton(child: const Text('Styled 2 For Dark'), onPressed: () {}, style: raisedButtonStyle(splashColor: Colors.black.withOpacity(0.40))), // 0.40
+                ),
+                _row(
+                  ElevatedButton(child: const Text('Styled 2 Default'), onPressed: () {}, style: raisedButtonStyle(onPrimary: onPrimary, primary: primary)), // 0.24
+                  ElevatedButton(child: const Text('Styled 2 For Light'), onPressed: () {}, style: raisedButtonStyle(onPrimary: onPrimary, primary: primary, splashColor: onPrimary.withOpacity(0.26))), // 0.26
+                  ElevatedButton(child: const Text('Styled 2 For Dark'), onPressed: () {}, style: raisedButtonStyle(onPrimary: onPrimary, primary: primary, splashColor: onPrimary.withOpacity(0.40))), // 0.40
+                ),
+                const Divider(),
+                _row(
+                  FlatButton(child: const Text('Flat'), onPressed: () {}),
+                  FlatButton(child: const Text('Flat NoHl'), onPressed: () {}, highlightColor: Colors.transparent),
+                  TextButton(child: const Text('Text'), onPressed: () {}),
+                ),
+                _row(
+                  TextButton(child: const Text('Styled 1 Default'), onPressed: () {}, style: flatButtonStyle()), // 0.12
+                  TextButton(child: const Text('Styled 1 Old'), onPressed: () {}, style: flatButtonStyle(splashColor: Colors.black.withOpacity(0.26))), // 0.26
+                  TextButton(child: const Text('Styled 1 Preferred'), onPressed: () {}, style: flatButtonStyle(splashColor: Colors.black.withOpacity(0.20))), // 0.20
+                ),
+                _row(
+                  TextButton(child: const Text('Styled 2 Default'), onPressed: () {}, style: flatButtonStyle(primary: primary)), // 0.12
+                  TextButton(child: const Text('Styled 2 Old'), onPressed: () {}, style: flatButtonStyle(primary: primary, splashColor: primary.withOpacity(0.26))), // 0.26
+                  TextButton(child: const Text('Styled 2 Preferred'), onPressed: () {}, style: flatButtonStyle(primary: primary, splashColor: primary.withOpacity(0.20))), // 0.20
+                ),
+                const Divider(),
+                _testPreferred(Colors.blue, false), // -> 0.20 / 0.26 / 0.20
+                _testPreferred(Colors.purple, false),
+                _testPreferred(Colors.deepOrange, false),
+                _testPreferred(Colors.teal, false),
+                _testPreferred(Colors.indigo, false),
+                const Divider(),
+                _testPreferred(Colors.grey[300]!, true),  // -> 0.20 / 0.40 / 0.20
+                _testPreferred(Colors.cyanAccent, true),
+                _testPreferred(Colors.amber, true),
+                _testPreferred(Colors.lightGreen, true),
+                _testPreferred(Colors.deepPurple[200]!, true),
+              ],
             ),
           ),
         ],
