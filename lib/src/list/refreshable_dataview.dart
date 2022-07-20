@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/src/list/updatable_dataview.dart';
 import 'package:flutter_ahlib/src/widget/placeholder_text.dart';
+import 'package:flutter_ahlib/src/widget/scrollbar_with_more.dart';
 import 'package:flutter_ahlib/src/widget/sliver_delegate.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
@@ -164,11 +165,13 @@ class _RefreshableListViewState<T> extends State<RefreshableListView<T>> with Au
                   if (widget.extra?.innerTopWidgets != null) ...(widget.extra?.innerTopWidgets)!,
                   Expanded(
                     child: widget.setting.showScrollbar ?? true
-                        ? Scrollbar(
+                        ? ScrollbarWithMore(
                             interactive: widget.setting.scrollbarInteractive ?? false,
                             isAlwaysShown: widget.setting.alwaysShowScrollbar ?? false,
                             radius: widget.setting.scrollbarRadius,
                             thickness: widget.setting.scrollbarThickness,
+                            mainAxisMargin: widget.setting.scrollbarMainAxisMargin,
+                            crossAxisMargin: widget.setting.scrollbarCrossAxisMargin,
                             controller: widget.scrollController,
                             child: view,
                           )
@@ -355,11 +358,13 @@ class _RefreshableSliverListViewState<T> extends State<RefreshableSliverListView
                   if (widget.extra?.innerTopWidgets != null) ...(widget.extra?.innerTopWidgets)!,
                   Expanded(
                     child: widget.setting.showScrollbar ?? true
-                        ? Scrollbar(
+                        ? ScrollbarWithMore(
                             interactive: widget.setting.scrollbarInteractive ?? false,
                             isAlwaysShown: widget.setting.alwaysShowScrollbar ?? false,
                             radius: widget.setting.scrollbarRadius,
                             thickness: widget.setting.scrollbarThickness,
+                            mainAxisMargin: widget.setting.scrollbarMainAxisMargin,
+                            crossAxisMargin: widget.setting.scrollbarCrossAxisMargin,
                             controller: widget.scrollController,
                             child: view,
                           )
@@ -520,11 +525,13 @@ class _RefreshableMasonryGridView<T> extends State<RefreshableMasonryGridView<T>
                   if (widget.extra?.innerTopWidgets != null) ...(widget.extra?.innerTopWidgets)!,
                   Expanded(
                     child: widget.setting.showScrollbar ?? true
-                        ? Scrollbar(
+                        ? ScrollbarWithMore(
                             interactive: widget.setting.scrollbarInteractive ?? false,
                             isAlwaysShown: widget.setting.alwaysShowScrollbar ?? false,
                             radius: widget.setting.scrollbarRadius,
                             thickness: widget.setting.scrollbarThickness,
+                            mainAxisMargin: widget.setting.scrollbarMainAxisMargin,
+                            crossAxisMargin: widget.setting.scrollbarCrossAxisMargin,
                             controller: widget.scrollController,
                             child: view,
                           )

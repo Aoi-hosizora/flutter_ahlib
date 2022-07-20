@@ -33,6 +33,7 @@ import 'package:flutter_ahlib/flutter_ahlib.dart'; // the whole library
     + `flatButtonStyle` `raisedButtonStyle` `outlineButtonStyle`
     + `PlaceholderText`
     + `showPopupListMenu`
+    + `ScrollbarWithMore`
     + `SliverAppBarDelegate` `SliverAppBarSizedDelegate` `SliverSeparatedListDelegate` `SliverSeparatedListBuilderDelegate`
     + `TabInPageNotification`
     + `TextGroup`

@@ -19,7 +19,7 @@ class _CustomInkResponsePageState extends State<CustomInkResponsePage> {
   }
 
   // 1 ink feature & ink highlight
-  var rippleLongDuration = true;
+  var rippleLongDuration = false;
   var rippleNoFadeOut = false;
   var highlightNoFadeOut = false;
   var rippleZeroRadius = false;
@@ -27,13 +27,13 @@ class _CustomInkResponsePageState extends State<CustomInkResponsePage> {
   // 2 ink response
   var showHighlightEffect = true;
   var showRippleEffect = true;
-  var containedInkWell = false;
-  var rectangleHighlight = false;
+  var containedInkWell = true;
+  var rectangleHighlight = true;
 
   // 3 custom ink response
-  var defaultCanvasCenter = false;
-  var defaultRadius = false;
-  var defaultRect = false;
+  var nullCanvasCenter = false;
+  var nullRadius = false;
+  var nullRect = false;
 
   // * table
   var rowCount = 9;
@@ -97,9 +97,9 @@ class _CustomInkResponsePageState extends State<CustomInkResponsePage> {
           _checkBox('containedInkWell', () => containedInkWell, (v) => containedInkWell = v),
           _checkBox('rectangleHighlight', () => rectangleHighlight, (v) => rectangleHighlight = v),
           const Divider(),
-          _checkBox('defaultCanvasCenter', () => defaultCanvasCenter, (v) => defaultCanvasCenter = v),
-          _checkBox('defaultRadius', () => defaultRadius, (v) => defaultRadius = v),
-          _checkBox('defaultRect', () => defaultRect, (v) => defaultRect = v),
+          _checkBox('nullCanvasCenter', () => nullCanvasCenter, (v) => nullCanvasCenter = v),
+          _checkBox('nullRadius', () => nullRadius, (v) => nullRadius = v),
+          _checkBox('nullRect', () => nullRect, (v) => nullRect = v),
           const Divider(),
           StatefulWidgetWithCallback(
             // postFrameCallbackForInitState: () {
@@ -116,13 +116,15 @@ class _CustomInkResponsePageState extends State<CustomInkResponsePage> {
             //     if (mounted) setState(() {});
             //   }
             // },
-            postFrameCallbackForBuild: () {
-              printLog('postFrameCallbackForBuild');
-              if (_helper.searchForHighestCells()) {
-                printLog('postFrameCallbackForBuild setState');
-                if (mounted) setState(() {});
-              }
-            },
+            postFrameCallbackForBuild: _helper.hasSearched()
+                ? null
+                : () {
+                    printLog('postFrameCallbackForBuild');
+                    if (_helper.searchForHighestCells()) {
+                      printLog('postFrameCallbackForBuild setState');
+                      if (mounted) setState(() {});
+                    }
+                  },
             child: Table(
               key: _key,
               columnWidths: const {
@@ -167,12 +169,12 @@ class _CustomInkResponsePageState extends State<CustomInkResponsePage> {
                           highlightFadeDuration: highlightFadeDuration,
                           splashFactory: CustomInkRippleFactory(
                             setting: rippleSetting.copyWith(
-                              radiusCanvasCenterFn: defaultCanvasCenter ? null : (box, _) => Offset(tableWidth / 2, box.size.height / 2),
+                              radiusCanvasCenterFn: nullCanvasCenter ? null : (box, _) => Offset(tableWidth / 2, box.size.height / 2),
                             ),
                           ),
                           getRadius: (box) {
                             printLog('getRadius, box size = ${box.size}');
-                            return defaultRadius ? null : calcDiagonal(tableWidth, box.size.height) / 2;
+                            return nullRadius ? null : calcDiagonal(tableWidth, box.size.height) / 2;
                           },
                           getRect: (box) {
                             final rect = getTableRowRect(box);
@@ -181,7 +183,7 @@ class _CustomInkResponsePageState extends State<CustomInkResponsePage> {
                             // Build scheduled during frame.
                             // While the widget tree was being built, laid out, and painted, a new frame was scheduled to rebuild
                             // the widget tree.
-                            return defaultRect ? null : rect;
+                            return nullRect ? null : rect;
                           },
                         ),
                       ),
@@ -209,17 +211,17 @@ class _CustomInkResponsePageState extends State<CustomInkResponsePage> {
                           highlightFadeDuration: highlightFadeDuration,
                           splashFactory: CustomInkRippleFactory(
                             setting: rippleSetting.copyWith(
-                              radiusCanvasCenterFn: defaultCanvasCenter ? null : (box, _) => Offset(tableWidth / 2 - tableWidth * 0.3, box.size.height / 2),
+                              radiusCanvasCenterFn: nullCanvasCenter ? null : (box, _) => Offset(tableWidth / 2 - tableWidth * 0.3, box.size.height / 2),
                             ),
                           ),
                           getRadius: (box) {
                             printLog('getRadius, box size = ${box.size}');
-                            return defaultRadius ? null : calcDiagonal(tableWidth, box.size.height) / 2;
+                            return nullRadius ? null : calcDiagonal(tableWidth, box.size.height) / 2;
                           },
                           getRect: (box) {
                             final rect = getTableRowRect(box);
                             // printLog('getRect, row rect size = ${rect.size}');
-                            return defaultRect ? null : rect;
+                            return nullRect ? null : rect;
                           },
                         ),
                       ),
@@ -237,7 +239,7 @@ class _CustomInkResponsePageState extends State<CustomInkResponsePage> {
                             onTap: () {},
                             splashFactory: CustomInkRippleFactory(
                               setting: CustomInkRippleSetting.preferredSetting.copyWith(
-                                radiusCanvasCenterFn: defaultCanvasCenter ? null : (box, _) => Offset(tableWidth / 2 - tableWidth * (1 - 0.08), box.size.height / 2),
+                                radiusCanvasCenterFn: nullCanvasCenter ? null : (box, _) => Offset(tableWidth / 2 - tableWidth * (1 - 0.08), box.size.height / 2),
                               ),
                             ),
                             highlightColor: Colors.transparent,

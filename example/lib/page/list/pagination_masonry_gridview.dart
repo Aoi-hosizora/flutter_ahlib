@@ -63,8 +63,9 @@ class _PaginationMasonryGridViewPageState extends State<PaginationMasonryGridVie
         ),
         setting: UpdatableDataViewSetting(
           showScrollbar: true,
-          scrollbarInteractive: true,
           alwaysShowScrollbar: true,
+          scrollbarInteractive: true,
+          scrollbarCrossAxisMargin: 2,
           refreshFirst: true,
           clearWhenError: true,
           clearWhenRefresh: true,

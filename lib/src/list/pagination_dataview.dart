@@ -3,6 +3,7 @@ import 'package:flutter_ahlib/src/list/append_indicator.dart';
 import 'package:flutter_ahlib/src/list/updatable_dataview.dart';
 import 'package:flutter_ahlib/src/util/flutter_extension.dart';
 import 'package:flutter_ahlib/src/widget/placeholder_text.dart';
+import 'package:flutter_ahlib/src/widget/scrollbar_with_more.dart';
 import 'package:flutter_ahlib/src/widget/sliver_delegate.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
@@ -228,11 +229,13 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
                       child: NotificationListener<ScrollNotification>(
                         onNotification: (s) => _onScroll(s),
                         child: widget.setting.showScrollbar ?? true
-                            ? Scrollbar(
+                            ? ScrollbarWithMore(
                                 interactive: widget.setting.scrollbarInteractive ?? false,
                                 isAlwaysShown: widget.setting.alwaysShowScrollbar ?? false,
                                 radius: widget.setting.scrollbarRadius,
                                 thickness: widget.setting.scrollbarThickness,
+                                mainAxisMargin: widget.setting.scrollbarMainAxisMargin,
+                                crossAxisMargin: widget.setting.scrollbarCrossAxisMargin,
                                 controller: widget.scrollController,
                                 child: view,
                               )
@@ -448,11 +451,13 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
                       child: NotificationListener<ScrollNotification>(
                         onNotification: (s) => _onScroll(s),
                         child: widget.setting.showScrollbar ?? true
-                            ? Scrollbar(
+                            ? ScrollbarWithMore(
                                 interactive: widget.setting.scrollbarInteractive ?? false,
                                 isAlwaysShown: widget.setting.alwaysShowScrollbar ?? false,
                                 radius: widget.setting.scrollbarRadius,
                                 thickness: widget.setting.scrollbarThickness,
+                                mainAxisMargin: widget.setting.scrollbarMainAxisMargin,
+                                crossAxisMargin: widget.setting.scrollbarCrossAxisMargin,
                                 controller: widget.scrollController,
                                 child: view,
                               )
@@ -642,11 +647,13 @@ class _PaginationMasonryGridView<T> extends State<PaginationMasonryGridView<T>> 
                       child: NotificationListener<ScrollNotification>(
                         onNotification: (s) => _onScroll(s),
                         child: widget.setting.showScrollbar ?? true
-                            ? Scrollbar(
+                            ? ScrollbarWithMore(
                                 interactive: widget.setting.scrollbarInteractive ?? false,
                                 isAlwaysShown: widget.setting.alwaysShowScrollbar ?? false,
                                 radius: widget.setting.scrollbarRadius,
                                 thickness: widget.setting.scrollbarThickness,
+                                mainAxisMargin: widget.setting.scrollbarMainAxisMargin,
+                                crossAxisMargin: widget.setting.scrollbarCrossAxisMargin,
                                 controller: widget.scrollController,
                                 child: view,
                               )

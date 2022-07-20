@@ -41,6 +41,8 @@ class UpdatableDataViewSetting<T> {
     this.scrollbarInteractive = false,
     this.scrollbarRadius,
     this.scrollbarThickness,
+    this.scrollbarMainAxisMargin,
+    this.scrollbarCrossAxisMargin,
     this.placeholderSetting = const PlaceholderSetting(),
     this.onStateChanged,
     this.wantKeepAlive = true,
@@ -86,6 +88,12 @@ class UpdatableDataViewSetting<T> {
 
   /// The thickness for [Scrollbar].
   final double? scrollbarThickness;
+
+  /// The mainAxisMargin for [Scrollbar].
+  final double? scrollbarMainAxisMargin;
+
+  /// The crossAxisMargin for [Scrollbar].
+  final double? scrollbarCrossAxisMargin;
 
   /// The setting for [PlaceholderText], defaults to PlaceholderSetting().
   final PlaceholderSetting? placeholderSetting;

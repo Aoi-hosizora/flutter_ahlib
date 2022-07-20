@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 // - InkRipple: https://github.com/flutter/flutter/blob/2.10.5/packages/flutter/lib/src/material/ink_ripple.dart
 // - InkSplash: https://github.com/flutter/flutter/blob/2.10.5/packages/flutter/lib/src/material/ink_splash.dart
 
-/// The setting for [CustomInkRipple], this class contains some durations options
+/// A setting class for [CustomInkRipple], this class contains some durations options
 /// for ripple effect and color fading.
 class CustomInkRippleSetting {
   // const Duration _kUnconfirmedRippleDuration = Duration(milliseconds: 1000); // unconfirmed ripple
@@ -154,7 +154,7 @@ class CustomInkRippleFactory extends InteractiveInkFeatureFactory {
     this.setting = CustomInkRippleSetting.defaultSetting,
   });
 
-  /// Some settings for [CustomInkRipple].
+  /// The settings for [CustomInkRipple].
   final CustomInkRippleSetting setting;
 
   @override
@@ -293,11 +293,11 @@ class CustomInkRipple extends InteractiveInkFeature {
   late AnimationController _fadeOutController;
   late final Animatable<double> _fadeOutIntervalTween; // CurveTween(curve: const Interval(_kFadeOutIntervalStart, 1.0))
 
-  /// Used to specify this type of ink splash with [CustomInkRippleSetting.defaultSetting]
+  /// The factory used to specify this type of ink splash with [CustomInkRippleSetting.defaultSetting]
   /// for an [InkWell], [InkResponse], material [Theme], or [ButtonStyle].
   static const InteractiveInkFeatureFactory splashFactory = CustomInkRippleFactory(setting: CustomInkRippleSetting.defaultSetting);
 
-  /// Used to specify this type of ink splash with [CustomInkRippleSetting.preferredSetting]
+  /// The factory used to specify this type of ink splash with [CustomInkRippleSetting.preferredSetting]
   /// for an [InkWell], [InkResponse], material [Theme], or [ButtonStyle].
   static const InteractiveInkFeatureFactory preferredSplashFactory = CustomInkRippleFactory(setting: CustomInkRippleSetting.preferredSetting);
 
@@ -364,7 +364,7 @@ class CustomInkRipple extends InteractiveInkFeature {
   }
 }
 
-/// The setting for [CustomInkSplash], this class contains some durations options
+/// A setting class for [CustomInkSplash], this class contains some durations options
 /// for ripple effect and color fading.
 class CustomInkSplashSetting {
   // const Duration _kUnconfirmedSplashDuration = Duration(seconds: 1);
@@ -436,7 +436,7 @@ class CustomInkSplashFactory extends InteractiveInkFeatureFactory {
     this.setting = CustomInkSplashSetting.defaultSetting,
   });
 
-  /// Some settings for [CustomInkSplash].
+  /// The settings for [CustomInkSplash].
   final CustomInkSplashSetting setting;
 
   @override
@@ -549,11 +549,11 @@ class CustomInkSplash extends InteractiveInkFeature {
   late Animation<int> _alpha;
   AnimationController? _alphaController;
 
-  /// Used to specify this type of ink splash with [CustomInkSplashSetting.defaultSetting]
+  /// The factory used to specify this type of ink splash with [CustomInkSplashSetting.defaultSetting]
   /// for an [InkWell], [InkResponse], material [Theme], or [ButtonStyle].
   static const InteractiveInkFeatureFactory splashFactory = CustomInkSplashFactory(setting: CustomInkSplashSetting.defaultSetting);
 
-  /// Used to specify this type of ink splash with [CustomInkSplashSetting.preferredSetting]
+  /// The factory used to specify this type of ink splash with [CustomInkSplashSetting.preferredSetting]
   /// for an [InkWell], [InkResponse], material [Theme], or [ButtonStyle].
   static const InteractiveInkFeatureFactory preferredSplashFactory = CustomInkSplashFactory(setting: CustomInkSplashSetting.preferredSetting);
 

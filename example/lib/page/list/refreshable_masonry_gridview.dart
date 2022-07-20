@@ -52,8 +52,9 @@ class _RefreshableMasonryGridViewPageState extends State<RefreshableMasonryGridV
         scrollController: _scrollController,
         setting: UpdatableDataViewSetting(
           showScrollbar: true,
-          scrollbarInteractive: true,
           alwaysShowScrollbar: true,
+          scrollbarInteractive: true,
+          scrollbarCrossAxisMargin: 2,
           refreshFirst: true,
           clearWhenError: true,
           clearWhenRefresh: true,

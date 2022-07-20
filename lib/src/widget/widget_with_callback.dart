@@ -302,6 +302,9 @@ class TableCellHelper {
     return TableCellVerticalAlignment.fill; // others -> fill
   }
 
+  /// Returns true if [searchForHighestCells] has already been invoked to search.
+  bool hasSearched() => _highests.isNotEmpty;
+
   /// Searches the highest [TableCell] in multiple [TableRow] and this function
   /// returns true if the highests list is regenerated.
   bool searchForHighestCells() {
