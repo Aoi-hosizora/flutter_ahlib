@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'dart:math' as math;
 import 'dart:collection';
 
 import 'package:flutter/foundation.dart';
@@ -41,9 +40,9 @@ class CustomInkWell extends CustomInkResponse {
     ValueChanged<bool>? onFocusChange,
     bool autofocus = false,
     Key? key,
-    Duration? Function(HighlightType type)? highlightFadeDuration,
-    double? Function(RenderBox referenceBox)? getRadius,
-    Rect? Function(RenderBox referenceBox)? getRect,
+    Duration? Function(HighlightType type)? highlightFadeDuration, // <<<
+    double? Function(RenderBox referenceBox)? getRadius, // <<<
+    Rect? Function(RenderBox referenceBox)? getRect, // <<<
   }) : super(
           key: key,
           child: child,
@@ -71,9 +70,9 @@ class CustomInkWell extends CustomInkResponse {
           autofocus: autofocus,
           focusNode: focusNode,
           canRequestFocus: canRequestFocus,
-          highlightFadeDuration: highlightFadeDuration,
-          getRadius: getRadius,
-          getRect: getRect,
+          highlightFadeDuration: highlightFadeDuration /* <<< */,
+          getRadius: getRadius /* <<< */,
+          getRect: getRect /* <<< */,
         );
 }
 
@@ -298,6 +297,7 @@ class _CustomInkResponseState extends State<CustomInkResponse> with AutomaticKee
     if (value) {
       if (highlight == null) {
         final RenderBox referenceBox = context.findRenderObject()! as RenderBox;
+        final returnedRect = widget.getRect?.call(referenceBox);
         _highlights[type] = InkHighlight(
           controller: Material.of(context)!,
           referenceBox: referenceBox,
@@ -306,7 +306,7 @@ class _CustomInkResponseState extends State<CustomInkResponse> with AutomaticKee
           radius: widget.getRadius?.call(referenceBox) /* <<< */,
           borderRadius: widget.borderRadius,
           customBorder: widget.customBorder,
-          rectCallback: widget.getRect?.call(referenceBox) == null ? null : () => widget.getRect!.call(referenceBox)! /* <<< */,
+          rectCallback: returnedRect == null ? null : () => returnedRect /* <<< */,
           onRemoved: handleInkRemoval,
           textDirection: Directionality.of(context),
           fadeDuration: widget.highlightFadeDuration?.call(type) ?? getFadeDurationForType(type) /* <<< */,
@@ -342,11 +342,13 @@ class _CustomInkResponseState extends State<CustomInkResponse> with AutomaticKee
     const Set<MaterialState> pressed = <MaterialState>{MaterialState.pressed};
     final Color color = widget.overlayColor?.resolve(pressed) ?? widget.splashColor ?? Theme.of(context).splashColor;
     final double? radius = widget.getRadius?.call(referenceBox); // <<<
-    final RectCallback? rectCallback = !widget.containedInkWell
-        ? null
-        : widget.getRect?.call(referenceBox) == null
-            ? null
-            : () => widget.getRect!.call(referenceBox)!; // <<<
+    RectCallback? rectCallback;
+    if (widget.containedInkWell) {
+      final Rect? returnedRect = widget.getRect?.call(referenceBox);
+      if (returnedRect != null) {
+        rectCallback = () => returnedRect; // <<<
+      }
+    }
     final BorderRadius? borderRadius = widget.borderRadius;
     final ShapeBorder? customBorder = widget.customBorder;
 
@@ -585,23 +587,4 @@ class _CustomInkResponseState extends State<CustomInkResponse> with AutomaticKee
       ),
     );
   }
-}
-
-/// Returns the [Rect] of [TableRow] with given [RenderBox]. This is a helper
-/// function for [CustomInkResponse.getRect], which is used to fix ink effect
-/// bug of [TableRowInkWell].
-Rect getTableRowRect(RenderBox referenceBox) {
-  const helper = TableRowInkWell();
-  var callback = helper.getRectCallback(referenceBox);
-  return callback();
-}
-
-/// This function is the same as [math.sqrt].
-num calcSqrt(num n) {
-  return math.sqrt(n);
-}
-
-/// This function can be used to calculate the diagonal of given width and height.
-num calcDiagonal(num width, num height) {
-  return math.sqrt(width * width + height * height);
 }

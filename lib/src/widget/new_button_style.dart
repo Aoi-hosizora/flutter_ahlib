@@ -211,6 +211,9 @@ ButtonStyle outlineButtonStyle(
 /// The preferred splash color for [TextButton], [OutlinedButton], [InkWell], [InkResponse], etc by Aoi-hosizora :)
 const double preferredSplashColorOpacity = 0.20;
 
+/// The preferred splash color for [Table] by Aoi-hosizora :)
+const double preferredSplashColorOpacityForTable = 0.16;
+
 /// The preferred splash color for light [ElevatedButton] by Aoi-hosizora :)
 const double preferredSplashColorOpacityForLightElevated = 0.26;
 

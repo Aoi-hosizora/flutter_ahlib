@@ -26,7 +26,7 @@ import 'package:flutter_ahlib/flutter_ahlib.dart'; // the whole library
 + widget.dart:
     + `AnimatedFab` `ScrollAnimatedFab` `AnimatedFabController`
     + `CustomInkRipple` `CustomInkSplash`
-    + `CustomInkWell` `CustomInkResponse` `getTableRowRect`
+    + `CustomInkWell` `CustomInkResponse`
     + `DrawerListView`
     + `IconText`
     + `LazyIndexedStack`
@@ -36,9 +36,10 @@ import 'package:flutter_ahlib/flutter_ahlib.dart'; // the whole library
     + `ScrollbarWithMore`
     + `SliverAppBarDelegate` `SliverAppBarSizedDelegate` `SliverSeparatedListDelegate` `SliverSeparatedListBuilderDelegate`
     + `TabInPageNotification`
+    + `getTableRowRect` `TableCellHelper`
     + `TextGroup`
     + `TextSelectionConfig` `TextSelectionWithColorHandle`
-    + `StatelessWidgetWithCallback` `StatefulWidgetWithCallback` `TableCellHelper`
+    + `StatelessWidgetWithCallback` `StatefulWidgetWithCallback`
 + list.dart:
     + `AppendIndicator` `AppendIndicatorState`
     + `RefreshableDataView` `RefreshableListView` `RefreshableSliverListView` `RefreshableMasonryGridView`

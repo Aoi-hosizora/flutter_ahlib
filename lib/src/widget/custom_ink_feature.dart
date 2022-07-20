@@ -73,7 +73,7 @@ class CustomInkRippleSetting {
   final double Function(double targetRadius)? radiusAnimationEndFn;
 
   /// The getter function for radius center in canvas, which defaults to
-  /// `(box, _, __) => Box.size.center(Offset.zero)` in [defaultSetting].
+  /// `(box, _) => Box.size.center(Offset.zero)` in [defaultSetting].
   final Offset Function(RenderBox referenceBox, double targetRadius)? radiusCanvasCenterFn;
 
   /// This duration equals to the sum of fade-out duration and fade-out interval,

@@ -8,15 +8,17 @@ class CustomInkFeaturePage extends StatefulWidget {
   State<CustomInkFeaturePage> createState() => _CustomInkFeaturePageState();
 }
 
+CustomInkRippleSetting get rDef => CustomInkRippleSetting.defaultSetting;
+
+CustomInkRippleSetting get rPre => CustomInkRippleSetting.preferredSetting;
+
+CustomInkSplashSetting get sDef => CustomInkSplashSetting.defaultSetting;
+
+CustomInkSplashSetting get sPre => CustomInkSplashSetting.preferredSetting;
+
+// ignore_for_file: deprecated_member_use
+
 class _CustomInkFeaturePageState extends State<CustomInkFeaturePage> {
-  CustomInkRippleSetting get rDef => CustomInkRippleSetting.defaultSetting;
-
-  CustomInkRippleSetting get rPre => CustomInkRippleSetting.preferredSetting;
-
-  CustomInkSplashSetting get sDef => CustomInkSplashSetting.defaultSetting;
-
-  CustomInkSplashSetting get sPre => CustomInkSplashSetting.preferredSetting;
-
   var useRipple = true;
   late CustomInkRippleSetting _r = rDef;
   late CustomInkSplashSetting _s = sDef;
@@ -34,14 +36,14 @@ class _CustomInkFeaturePageState extends State<CustomInkFeaturePage> {
     );
   }
 
-  Widget _sliderDuration(Duration defaultValue, Duration Function() getter, void Function(Duration) setter, String name) {
+  Widget _sliderDuration(Duration defaultValue, Duration Function() getter, void Function(Duration) setter, String name, {double? min, double? max}) {
     return Row(
       children: [
         Text(name),
         Expanded(
           child: Slider(
-            min: 0,
-            max: defaultValue.inMilliseconds == 0 ? 500 : defaultValue.inMilliseconds * 5, // 500%
+            min: min ?? 0,
+            max: max ?? defaultValue.inMilliseconds * 5,
             value: getter().inMilliseconds.toDouble(),
             onChanged: (v) {
               setter(Duration(milliseconds: v.toInt()));
@@ -74,14 +76,14 @@ class _CustomInkFeaturePageState extends State<CustomInkFeaturePage> {
     );
   }
 
-  Widget _sliderDouble(double defaultValue, double Function() getter, void Function(double) setter, String name) {
+  Widget _sliderDouble(double defaultValue, double Function() getter, void Function(double) setter, String name, {double? min, double? max}) {
     return Row(
       children: [
         Text(name),
         Expanded(
           child: Slider(
-            min: 0,
-            max: defaultValue * 5, // 500%
+            min: min ?? 0,
+            max: max ?? defaultValue * 5,
             value: getter(),
             onChanged: (v) {
               setter(v);
@@ -154,22 +156,24 @@ class _CustomInkFeaturePageState extends State<CustomInkFeaturePage> {
           if (useRipple)
             Column(
               children: [
-                _sliderDuration(rDef.unconfirmedRippleDuration, () => _r.unconfirmedRippleDuration, (v) => _r = _r.copyWith(unconfirmedRippleDuration: v), 'unconfirmedRippleDuration'),
-                _sliderDuration(rDef.unconfirmedFadeInDuration, () => _r.unconfirmedFadeInDuration, (v) => _r = _r.copyWith(unconfirmedFadeInDuration: v), 'unconfirmedFadeInDuration'),
-                _sliderDuration(rDef.confirmedRippleDuration, () => _r.confirmedRippleDuration, (v) => _r = _r.copyWith(confirmedRippleDuration: v), 'confirmedRippleDuration'),
-                _sliderDuration(rDef.confirmedFadeOutDuration, () => _r.confirmedFadeOutDuration, (v) => _r = _r.copyWith(confirmedFadeOutDuration: v), 'confirmedFadeOutDuration'),
-                _sliderDuration(rDef.confirmedFadeOutInterval, () => _r.confirmedFadeOutInterval, (v) => _r = _r.copyWith(confirmedFadeOutInterval: v), 'confirmedFadeOutInterval'),
-                _sliderDuration(rDef.canceledFadeOutDuration, () => _r.canceledFadeOutDuration, (v) => _r = _r.copyWith(canceledFadeOutDuration: v), 'canceledFadeOutDuration'),
-                _sliderBool(rDef.confirmedFadeOutWaitForForwarding, () => _r.confirmedFadeOutWaitForForwarding, (v) => _r = _r.copyWith(confirmedFadeOutWaitForForwarding: v), 'confirmedFadeOutWaitForForwarding'),
+                _sliderDuration(rDef.unconfirmedRippleDuration, () => _r.unconfirmedRippleDuration, (v) => _r = _r.copyWith(unconfirmedRippleDuration: v), 'unconfirmedRippleDuration', max: 2500), // 1000 -> 300
+                _sliderDuration(rDef.unconfirmedFadeInDuration, () => _r.unconfirmedFadeInDuration, (v) => _r = _r.copyWith(unconfirmedFadeInDuration: v), 'unconfirmedFadeInDuration'), // 75 -> 75
+                _sliderDuration(rDef.confirmedRippleDuration, () => _r.confirmedRippleDuration, (v) => _r = _r.copyWith(confirmedRippleDuration: v), 'confirmedRippleDuration'), // 225 -> 200
+                _sliderDuration(rDef.confirmedFadeOutDuration, () => _r.confirmedFadeOutDuration, (v) => _r = _r.copyWith(confirmedFadeOutDuration: v), 'confirmedFadeOutDuration'), // 150 -> 150
+                _sliderDuration(rDef.confirmedFadeOutInterval, () => _r.confirmedFadeOutInterval, (v) => _r = _r.copyWith(confirmedFadeOutInterval: v), 'confirmedFadeOutInterval'), // 225 -> 20
+                _sliderBool(rDef.confirmedFadeOutWaitForForwarding, () => _r.confirmedFadeOutWaitForForwarding, (v) => _r = _r.copyWith(confirmedFadeOutWaitForForwarding: v), 'confirmedFadeOutWaitForForwarding'), // false -> true
+                _sliderDuration(rDef.canceledFadeOutDuration, () => _r.canceledFadeOutDuration, (v) => _r = _r.copyWith(canceledFadeOutDuration: v), 'canceledFadeOutDuration'), // 75 -> 125
+                _sliderDouble(0.3, () => (_r.radiusAnimationBeginFn ?? (r) => r * 0.3)(1), (v) => _r = _r.copyWith(radiusAnimationBeginFn: (r) => r * v), 'radiusAnimationBegin (*)', max: 0.5), // r * 0.3 -> r * 0.15
+                _sliderDouble(5.0, () => (_r.radiusAnimationEndFn ?? (r) => r + 5.0)(0), (v) => _r = _r.copyWith(radiusAnimationEndFn: (r) => r + v), 'radiusAnimationEnd (+)', min: -10, max: 10), // r + 5.0 -> r
               ],
             ),
           if (!useRipple)
             Column(
               children: [
-                _sliderDuration(sDef.unconfirmedSplashDuration, () => _s.unconfirmedSplashDuration, (v) => _s = _s.copyWith(unconfirmedSplashDuration: v), 'unconfirmedSplashDuration'),
-                _sliderDouble(sDef.confirmedSplashVelocity, () => _s.confirmedSplashVelocity, (v) => _s = _s.copyWith(confirmedSplashVelocity: v), 'confirmedSplashVelocity'),
-                _sliderDuration(sDef.confirmedFadeOutDuration, () => _s.confirmedFadeOutDuration, (v) => _s = _s.copyWith(confirmedFadeOutDuration: v), 'confirmedFadeOutDuration'),
-                _sliderDuration(sDef.confirmedFadeOutInterval, () => _s.confirmedFadeOutInterval, (v) => _s = _s.copyWith(confirmedFadeOutInterval: v), 'confirmedFadeOutInterval'),
+                _sliderDuration(sDef.unconfirmedSplashDuration, () => _s.unconfirmedSplashDuration, (v) => _s = _s.copyWith(unconfirmedSplashDuration: v), 'unconfirmedSplashDuration', max: 2500), // 1000 -> 300
+                _sliderDouble(sDef.confirmedSplashVelocity, () => _s.confirmedSplashVelocity, (v) => _s = _s.copyWith(confirmedSplashVelocity: v), 'confirmedSplashVelocity'), // 1.0 -> 0.5
+                _sliderDuration(sDef.confirmedFadeOutDuration, () => _s.confirmedFadeOutDuration, (v) => _s = _s.copyWith(confirmedFadeOutDuration: v), 'confirmedFadeOutDuration'), // 200 -> 200
+                _sliderDuration(sDef.confirmedFadeOutInterval, () => _s.confirmedFadeOutInterval, (v) => _s = _s.copyWith(confirmedFadeOutInterval: v), 'confirmedFadeOutInterval', max: 500), // 0 -> 125
               ],
             ),
           const Divider(),
@@ -184,7 +188,7 @@ class _CustomInkFeaturePageState extends State<CustomInkFeaturePage> {
                     OutlinedButton(child: const Text('Short'), onPressed: () {}),
                   ),
                   _row(
-                    OutlineButton(child: const Text('OutlineButton'), onPressed: () {}), // ignore_for_file: deprecated_member_use
+                    OutlineButton(child: const Text('OutlineButton'), onPressed: () {}),
                     OutlineButton(child: const Text('Short'), onPressed: () {}),
                     OutlineButton(child: const Text('No HlColor'), onPressed: () {}, highlightColor: Colors.transparent),
                   ),
@@ -221,11 +225,17 @@ class _CustomInkFeaturePageState extends State<CustomInkFeaturePage> {
                     InkWell(child: const Padding(padding: EdgeInsets.all(15), child: Text('Short')), onTap: () {}),
                     InkWell(child: const Padding(padding: EdgeInsets.all(15), child: Text('No HlColor')), onTap: () {}, highlightColor: Colors.transparent),
                   ),
+                  const Divider(height: 1, thickness: 1),
+                  SizedBox(width: double.infinity, child: InkWell(child: const Padding(padding: EdgeInsets.all(3), child: Text('Thin InkWell', textAlign: TextAlign.center)), onTap: () {})),
+                  const Divider(height: 0, thickness: 1),
                   _row(
                     InkResponse(child: Container(margin: const EdgeInsets.all(15), child: const Text('InkResponse')), onTap: () {}),
                     InkResponse(child: Container(margin: const EdgeInsets.all(15), child: const Text('Short')), onTap: () {}),
                     InkResponse(child: Container(margin: const EdgeInsets.all(15), child: const Text('No HlColor')), onTap: () {}, highlightColor: Colors.transparent),
                   ),
+                  const Divider(height: 1, thickness: 1),
+                  SizedBox(width: double.infinity, child: InkResponse(child: const Padding(padding: EdgeInsets.all(3), child: Text('Thin InkResponse', textAlign: TextAlign.center)), onTap: () {})),
+                  const Divider(height: 0, thickness: 1),
                   _row(
                     Expanded(flex: 3, child: ListTile(title: const Text('ListTile', textAlign: TextAlign.center), onTap: () {})),
                     Expanded(flex: 1, child: Card(child: ListTile(title: const Text('Card', textAlign: TextAlign.center), onTap: () {}))),

@@ -20,6 +20,7 @@ import 'package:flutter_ahlib_example/page/widget/animated_fab.dart';
 import 'package:flutter_ahlib_example/page/widget/scrollbar_with_more.dart';
 import 'package:flutter_ahlib_example/page/widget/sliver_delegate.dart';
 import 'package:flutter_ahlib_example/page/widget/tab_in_page_notification.dart';
+import 'package:flutter_ahlib_example/page/widget/table_related.dart';
 import 'package:flutter_ahlib_example/page/widget/text_group.dart';
 import 'package:flutter_ahlib_example/page/widget/text_selection_config.dart';
 import 'package:flutter_ahlib_example/page/widget/widget_with_callback.dart';
@@ -90,6 +91,7 @@ class _IndexPageState extends State<IndexPage> {
                 _button('NewButtonStyle', const NewButtonThemePage()),
                 _button('TextSelectionConfig', const TextSelectionConfigPage()),
                 _button('CustomInkResponse', const CustomInkResponsePage()),
+                _button('TableRelated', const TableRelatedPage()),
                 _button('WidgetWithCallback', const WidgetWithCallbackPage()),
                 _button('ScrollbarWithMore', const ScrollbarWithMorePage()),
               ],
