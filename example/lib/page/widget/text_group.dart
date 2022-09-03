@@ -20,63 +20,89 @@ class _TextGroupPageState extends State<TextGroupPage> {
         padding: const EdgeInsets.all(10),
         child: Column(
           children: [
+            Center(
+              child: Text(
+                'Non-selectable:',
+                style: Theme.of(context).textTheme.subtitle1,
+              ),
+            ),
+            const SizedBox(height: 5),
             TextGroup(
+              style: Theme.of(context).textTheme.bodyText2,
               texts: [
-                const NormalGroupText(text: 'test1'),
-                const NormalGroupText(
-                  text: '|NormalGroupTextNormalGroupTextNormalGroupTextNormalGroupTextNormalGroupTextNormalGroupText|',
+                const PlainTextItem(text: 'short_text'),
+                const PlainTextItem(
+                  text: 'long_text_long_text_long_text_long_text_long_text_long_text_long_text_long_text_long_text',
                   style: TextStyle(color: Colors.red),
                 ),
-                const NormalGroupText(text: 'test2'),
-                LinkGroupText(
-                  text: '|LinkGroupText1|',
+                const PlainTextItem(
+                  text: 'short_text\n',
+                  style: TextStyle(backgroundColor: Colors.yellow),
+                ),
+                const PlainTextItem(text: 'test1'),
+                LinkTextItem(
+                  text: '|LinkTextItem1|',
                   onTap: () => printLog('tapped 1'),
                   normalColor: Theme.of(context).primaryColor,
                   pressedColor: Colors.red,
                 ),
-                const NormalGroupText(text: 'test3'),
-                LinkGroupText(
-                  text: '|LinkGroupText2|',
+                const PlainTextItem(text: 'test2'),
+                LinkTextItem(
+                  text: '|LinkTextItem2|',
                   onTap: () => printLog('tapped 2'),
+                  basicStyle: Theme.of(context).textTheme.bodyText1,
                   pressedColor: Theme.of(context).primaryColor,
+                  showUnderline: false,
                 ),
-                const NormalGroupText(text: 'test4'),
-                LinkGroupText(
-                  text: '|LinkGroupText3|',
+                const PlainTextItem(text: 'test3'),
+                LinkTextItem(
+                  text: '|LinkTextItem3|',
                   onTap: () => printLog('tapped 3'),
                   normalColor: Theme.of(context).primaryColor,
-                  showUnderline: false,
+                  wrapperBuilder: (c, w) => WidgetSpan(child: InkWell(child: w, onTap: () {})),
                 ),
               ],
             ),
             const Divider(),
-            TextGroup(
-              selectable: true,
+            Center(
+              child: Text(
+                'Selectable:',
+                style: Theme.of(context).textTheme.subtitle1,
+              ),
+            ),
+            const SizedBox(height: 5),
+            TextGroup.selectable(
+              style: Theme.of(context).textTheme.bodyText1?.copyWith(fontStyle: FontStyle.italic),
               texts: [
-                const NormalGroupText(text: 'test1'),
-                const NormalGroupText(
-                  text: '|NormalGroupTextNormalGroupTextNormalGroupTextNormalGroupTextNormalGroupTextNormalGroupText|',
+                const PlainTextItem(text: 'short_text'),
+                const PlainTextItem(
+                  text: 'long_text_long_text_long_text_long_text_long_text_long_text_long_text_long_text_long_text',
                   style: TextStyle(color: Colors.red),
                 ),
-                const NormalGroupText(text: 'test2'),
-                LinkGroupText(
-                  text: '|LinkGroupText1|',
+                const PlainTextItem(
+                  text: 'short_text\n',
+                  style: TextStyle(backgroundColor: Colors.yellow),
+                ),
+                const PlainTextItem(text: 'test1'),
+                LinkTextItem.style(
+                  text: '|LinkTextItem1|',
                   onTap: () => printLog('tapped 1'),
-                  normalColor: Theme.of(context).primaryColor,
-                  pressedColor: Colors.red,
+                  normalStyle: TextStyle(color: Theme.of(context).primaryColor),
+                  pressedStyle: const TextStyle(color: Colors.red, fontWeight: FontWeight.normal),
                 ),
-                const NormalGroupText(text: 'test3'),
-                LinkGroupText(
-                  text: '|LinkGroupText2|',
+                const PlainTextItem(text: 'test2'),
+                LinkTextItem.style(
+                  text: '|LinkTextItem2|',
                   onTap: () => printLog('tapped 2'),
-                  pressedColor: Theme.of(context).primaryColor,
+                  normalStyle: const TextStyle(fontStyle: FontStyle.normal, fontWeight: FontWeight.normal),
+                  pressedStyle: TextStyle(color: Theme.of(context).primaryColor),
                 ),
-                const NormalGroupText(text: 'test4'),
-                LinkGroupText(
-                  text: '|LinkGroupText3|',
+                const PlainTextItem(text: 'test3'),
+                LinkTextItem.style(
+                  text: '|LinkTextItem3|',
                   onTap: () => printLog('tapped 3'),
-                  normalColor: Theme.of(context).primaryColor,
-                  showUnderline: false,
+                  normalStyle: TextStyle(color: Theme.of(context).primaryColor, decoration: TextDecoration.underline),
+                  wrapperBuilder: (c, w) => WidgetSpan(child: InkResponse(child: w, onTap: () {}, highlightColor: Colors.transparent)),
                 ),
               ],
             ),

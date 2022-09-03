@@ -59,8 +59,13 @@ class _RefreshableSliverListViewPageState extends State<RefreshableSliverListVie
               floating: true,
               delegate: SliverHeaderDelegate(
                 child: PreferredSize(
-                  preferredSize: const Size.fromHeight(15),
-                  child: Container(color: Colors.red),
+                  preferredSize: const Size.fromHeight(20),
+                  child: Container(
+                    color: Colors.red,
+                    child: const Center(
+                      child: Text('Pinned header'),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -95,7 +100,8 @@ class _RefreshableSliverListViewPageState extends State<RefreshableSliverListVie
                 onTap: () {},
               ),
               separator: const Divider(height: 1, thickness: 1),
-              useOverlapInjector: true, // TODO
+              useOverlapInjector: false,
+              overlapInjectorHeight: 15,
               extra: UpdatableDataViewExtraWidgets(
                 outerTopWidgets: [
                   const Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('outer top widget'))),

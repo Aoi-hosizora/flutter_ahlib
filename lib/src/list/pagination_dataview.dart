@@ -43,13 +43,14 @@ class PaginationSetting {
   const PaginationSetting({
     this.initialIndicator = 1,
     this.nothingIndicator,
-  });
+  }) : assert(initialIndicator != null);
 
   /// The initial indicator for pagination, default is 1 and not null. Notice that if you are
   /// using seek based pagination strategy, it is necessary to set this value to your own.
-  final int initialIndicator;
+  final dynamic initialIndicator;
 
   /// The indicator which means there is no data at this page, default value is null for no check.
+  /// Note that this checking will have no effect when resetting or refreshing the data view.
   final dynamic nothingIndicator;
 }
 
@@ -115,7 +116,7 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
   var _loading = false;
   var _errorMessage = '';
   var _downScrollable = false;
-  dynamic _nextIndicator;
+  dynamic _nextIndicator; // TODO expose to parent widget ???
 
   @override
   void initState() {
@@ -205,9 +206,11 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
     return AppendIndicator(
       key: _appendIndicatorKey,
       onAppend: () => _getData(reset: false),
+      notificationPredicate: widget.setting.appendNotificationPredicate ?? defaultScrollNotificationPredicate,
       child: RefreshIndicator(
         key: _refreshIndicatorKey,
         onRefresh: () => _getData(reset: true),
+        notificationPredicate: widget.setting.refreshNotificationPredicate ?? defaultScrollNotificationPredicate,
         child: Column(
           crossAxisAlignment: widget.extra?.outerCrossAxisAlignment ?? CrossAxisAlignment.center,
           children: [
@@ -255,6 +258,10 @@ class _PaginationListViewState<T> extends State<PaginationListView<T>> with Auto
   }
 }
 
+// TODO merge PaginationListView and PaginationSliverListView
+
+// TODO GridView and SliverGrid ???
+
 /// A [PaginationDataView] with [SliverList], includes [AppendIndicator], [RefreshIndicator], [PlaceholderText], [Scrollbar], [CustomScrollView] and [SliverList].
 class PaginationSliverListView<T> extends PaginationDataView<T> {
   const PaginationSliverListView({
@@ -270,6 +277,7 @@ class PaginationSliverListView<T> extends PaginationDataView<T> {
     this.extra,
     // ===================================
     this.useOverlapInjector = false,
+    this.overlapInjectorHeight = 0.0,
   }) : super(key: key);
 
   /// The list of data.
@@ -313,6 +321,9 @@ class PaginationSliverListView<T> extends PaginationDataView<T> {
   /// or you can manually set the padding in [UpdatableDataViewExtraWidgets] and just set this value to false. If set to true, you have to wrap
   /// this widget with [Builder] to get correct [SliverOverlapAbsorber] handler by [NestedScrollView.sliverOverlapAbsorberHandleFor].
   final bool? useOverlapInjector;
+
+  /// The height of overlap injector, which is used to replace [SliverOverlapInjector] and set padding out of [CustomScrollView]. TODO
+  final double? overlapInjectorHeight;
 
   @override
   _PaginationSliverListViewState<T> createState() => _PaginationSliverListViewState<T>();
@@ -424,53 +435,58 @@ class _PaginationSliverListViewState<T> extends State<PaginationSliverListView<T
       ],
     );
 
-    return AppendIndicator(
-      key: _appendIndicatorKey,
-      onAppend: () => _getData(reset: false),
-      child: RefreshIndicator(
-        key: _refreshIndicatorKey,
-        onRefresh: () => _getData(reset: true),
-        child: Column(
-          crossAxisAlignment: widget.extra?.outerCrossAxisAlignment ?? CrossAxisAlignment.center,
-          children: [
-            if (widget.extra?.outerTopWidgets != null) ...(widget.extra?.outerTopWidgets)!,
-            Expanded(
-              child: PlaceholderText.from(
-                onRefresh: () => _refreshIndicatorKey.currentState?.show(),
-                forceState: _forceState,
-                isLoading: _loading,
-                isEmpty: widget.data.isEmpty,
-                errorText: _errorMessage,
-                onChanged: widget.setting.onStateChanged,
-                setting: widget.setting.placeholderSetting ?? const PlaceholderSetting(),
-                childBuilder: (c) => Column(
-                  crossAxisAlignment: widget.extra?.innerCrossAxisAlignment ?? CrossAxisAlignment.center,
-                  children: [
-                    if (widget.extra?.innerTopWidgets != null) ...(widget.extra?.innerTopWidgets)!,
-                    Expanded(
-                      child: NotificationListener<ScrollNotification>(
-                        onNotification: (s) => _onScroll(s),
-                        child: widget.setting.showScrollbar ?? true
-                            ? ScrollbarWithMore(
-                                interactive: widget.setting.scrollbarInteractive ?? false,
-                                isAlwaysShown: widget.setting.alwaysShowScrollbar ?? false,
-                                radius: widget.setting.scrollbarRadius,
-                                thickness: widget.setting.scrollbarThickness,
-                                mainAxisMargin: widget.setting.scrollbarMainAxisMargin,
-                                crossAxisMargin: widget.setting.scrollbarCrossAxisMargin,
-                                controller: widget.scrollController,
-                                child: view,
-                              )
-                            : view,
+    return Padding(
+      padding: EdgeInsets.only(top: widget.overlapInjectorHeight ?? 0),
+      child: AppendIndicator(
+        key: _appendIndicatorKey,
+        onAppend: () => _getData(reset: false),
+        notificationPredicate: widget.setting.appendNotificationPredicate ?? defaultScrollNotificationPredicate,
+        child: RefreshIndicator(
+          key: _refreshIndicatorKey,
+          onRefresh: () => _getData(reset: true),
+          notificationPredicate: widget.setting.refreshNotificationPredicate ?? defaultScrollNotificationPredicate,
+          child: Column(
+            crossAxisAlignment: widget.extra?.outerCrossAxisAlignment ?? CrossAxisAlignment.center,
+            children: [
+              if (widget.extra?.outerTopWidgets != null) ...(widget.extra?.outerTopWidgets)!,
+              Expanded(
+                child: PlaceholderText.from(
+                  onRefresh: () => _refreshIndicatorKey.currentState?.show(),
+                  forceState: _forceState,
+                  isLoading: _loading,
+                  isEmpty: widget.data.isEmpty,
+                  errorText: _errorMessage,
+                  onChanged: widget.setting.onStateChanged,
+                  setting: widget.setting.placeholderSetting ?? const PlaceholderSetting(),
+                  childBuilder: (c) => Column(
+                    crossAxisAlignment: widget.extra?.innerCrossAxisAlignment ?? CrossAxisAlignment.center,
+                    children: [
+                      if (widget.extra?.innerTopWidgets != null) ...(widget.extra?.innerTopWidgets)!,
+                      Expanded(
+                        child: NotificationListener<ScrollNotification>(
+                          onNotification: (s) => _onScroll(s),
+                          child: widget.setting.showScrollbar ?? true
+                              ? ScrollbarWithMore(
+                                  interactive: widget.setting.scrollbarInteractive ?? false,
+                                  isAlwaysShown: widget.setting.alwaysShowScrollbar ?? false,
+                                  radius: widget.setting.scrollbarRadius,
+                                  thickness: widget.setting.scrollbarThickness,
+                                  mainAxisMargin: widget.setting.scrollbarMainAxisMargin,
+                                  crossAxisMargin: widget.setting.scrollbarCrossAxisMargin,
+                                  controller: widget.scrollController,
+                                  child: view,
+                                )
+                              : view,
+                        ),
                       ),
-                    ),
-                    if (widget.extra?.innerBottomWidgets != null) ...(widget.extra?.innerBottomWidgets)!,
-                  ],
+                      if (widget.extra?.innerBottomWidgets != null) ...(widget.extra?.innerBottomWidgets)!,
+                    ],
+                  ),
                 ),
               ),
-            ),
-            if (widget.extra?.outerBottomWidgets != null) ...(widget.extra?.outerBottomWidgets)!,
-          ],
+              if (widget.extra?.outerBottomWidgets != null) ...(widget.extra?.outerBottomWidgets)!,
+            ],
+          ),
         ),
       ),
     );
@@ -623,9 +639,11 @@ class _PaginationMasonryGridView<T> extends State<PaginationMasonryGridView<T>> 
     return AppendIndicator(
       key: _appendIndicatorKey,
       onAppend: () => _getData(reset: false),
+      notificationPredicate: widget.setting.appendNotificationPredicate ?? defaultScrollNotificationPredicate,
       child: RefreshIndicator(
         key: _refreshIndicatorKey,
         onRefresh: () => _getData(reset: true),
+        notificationPredicate: widget.setting.refreshNotificationPredicate ?? defaultScrollNotificationPredicate,
         child: Column(
           crossAxisAlignment: widget.extra?.outerCrossAxisAlignment ?? CrossAxisAlignment.center,
           children: [
@@ -673,6 +691,8 @@ class _PaginationMasonryGridView<T> extends State<PaginationMasonryGridView<T>> 
   }
 }
 
+// TODO PaginationSliverMasonryGridView
+
 /// The getData inner implementation, used in [PaginationListView._getData], [PaginationListView._getData] and [PaginationMasonryGridView._getData].
 Future<void> _getDataCore<T>({
   required bool reset,
@@ -704,17 +724,21 @@ Future<void> _getDataCore<T>({
     if (setting.clearWhenRefresh ?? false) {
       data.clear();
     }
-    setting.onStartRefreshing?.call(); // start refreshing
+    setting.onStartRefreshing?.call(); // start refreshing callback
   }
-  setting.onStartLoading?.call(); // start loading
+  setting.onStartLoading?.call(); // start loading callback
   doSetState();
 
   // nothing
-  if (nextIndicator == paginationSetting.nothingIndicator) {
+  if (!reset && nextIndicator == paginationSetting.nothingIndicator) {
     return Future.delayed(_kNothingRefreshDuration).then((_) {
       setErrorMessage('');
       setting.onAppend?.call([]);
-      setting.onStopLoading?.call(); // stop loading
+      setLoading(false);
+      setting.onStopLoading?.call(); // stop loading callback
+      if (reset) {
+        setting.onStopRefreshing?.call(); // stop refreshing callback
+      }
       doSetState();
     });
   }
@@ -756,9 +780,9 @@ Future<void> _getDataCore<T>({
   }).whenComplete(() {
     // finish loading and setState
     setLoading(false);
-    setting.onStopLoading?.call(); // stop loading
+    setting.onStopLoading?.call(); // stop loading callback
     if (reset) {
-      setting.onStopRefreshing?.call(); // stop refreshing
+      setting.onStopRefreshing?.call(); // stop refreshing callback
     }
     doSetState();
   });

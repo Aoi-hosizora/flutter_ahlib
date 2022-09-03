@@ -43,6 +43,8 @@ class UpdatableDataViewSetting<T> {
     this.scrollbarThickness,
     this.scrollbarMainAxisMargin,
     this.scrollbarCrossAxisMargin,
+    this.refreshNotificationPredicate = defaultScrollNotificationPredicate,
+    this.appendNotificationPredicate = defaultScrollNotificationPredicate,
     this.placeholderSetting = const PlaceholderSetting(),
     this.onStateChanged,
     this.wantKeepAlive = true,
@@ -94,6 +96,12 @@ class UpdatableDataViewSetting<T> {
 
   /// The crossAxisMargin for [Scrollbar].
   final double? scrollbarCrossAxisMargin;
+
+  /// The notificationPredicate for [RefreshIndicator], default to [defaultScrollNotificationPredicate]..
+  final ScrollNotificationPredicate? refreshNotificationPredicate;
+
+  /// The notificationPredicate for [AppendIndicator], default to [defaultScrollNotificationPredicate], used for pagination.
+  final ScrollNotificationPredicate? appendNotificationPredicate;
 
   /// The setting for [PlaceholderText], defaults to PlaceholderSetting().
   final PlaceholderSetting? placeholderSetting;

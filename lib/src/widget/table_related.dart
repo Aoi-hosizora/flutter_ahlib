@@ -2,25 +2,6 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-/// Returns the [Rect] of [TableRow] with given [RenderBox]. This is a helper
-/// function for [CustomInkResponse.getRect], which is used to fix ink effect
-/// bug of [TableRowInkWell].
-Rect getTableRowRect(RenderBox referenceBox) {
-  const helper = TableRowInkWell();
-  var callback = helper.getRectCallback(referenceBox);
-  return callback();
-}
-
-/// This function is the same as [math.sqrt].
-num calcSqrt(num n) {
-  return math.sqrt(n);
-}
-
-/// This function is used to calculate diagonal of given [Rect]'s width and height.
-num calcDiagonal(num width, num height) {
-  return math.sqrt(width * width + height * height);
-}
-
 /// A helper class for [TableCell], and is used to decide which [TableCell] to fill
 /// the whole [TableRow] in vertical direction, which is not implemented by flutter.
 ///
@@ -132,4 +113,23 @@ class TableCellHelper {
     _highests = newHighests;
     return true; // highests list is regenerated
   }
+}
+
+/// Returns the [Rect] of [TableRow] with given [RenderBox]. This is a helper
+/// function for [CustomInkResponse.getRect], which is used to fix ink effect
+/// bug of [TableRowInkWell].
+Rect getTableRowRect(RenderBox referenceBox) {
+  const helper = TableRowInkWell();
+  var callback = helper.getRectCallback(referenceBox);
+  return callback();
+}
+
+/// This function is the same as [math.sqrt].
+num calcSqrt(num n) {
+  return math.sqrt(n);
+}
+
+/// This function is used to calculate diagonal of given [Rect]'s width and height.
+num calcDiagonal(num width, num height) {
+  return math.sqrt(width * width + height * height);
 }

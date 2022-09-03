@@ -36,7 +36,7 @@ import 'package:flutter_ahlib/flutter_ahlib.dart'; // the whole library
     + `ScrollbarWithMore`
     + `SliverHeaderDelegate` `SliverSeparatedListDelegate` `SliverSeparatedListBuilderDelegate`
     + `TabInPageNotification`
-    + `getTableRowRect` `TableCellHelper`
+    + `TableCellHelper` `getTableRowRect`
     + `TextGroup`
     + `TextSelectionConfig` `TextSelectionWithColorHandle`
     + `StatelessWidgetWithCallback` `StatefulWidgetWithCallback`

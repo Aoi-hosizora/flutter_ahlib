@@ -146,6 +146,7 @@ class _RefreshableListViewState<T> extends State<RefreshableListView<T>> with Au
     return RefreshIndicator(
       key: _refreshIndicatorKey,
       onRefresh: () => _getData(),
+      notificationPredicate: widget.setting.refreshNotificationPredicate ?? defaultScrollNotificationPredicate,
       child: Column(
         crossAxisAlignment: widget.extra?.outerCrossAxisAlignment ?? CrossAxisAlignment.center,
         children: [
@@ -189,6 +190,10 @@ class _RefreshableListViewState<T> extends State<RefreshableListView<T>> with Au
   }
 }
 
+// TODO merge RefreshableListView and RefreshableSliverListView
+
+// TODO GridView and SliverGrid ???
+
 /// A [RefreshableDataView] with [SliverList], includes [RefreshIndicator], [PlaceholderText], [Scrollbar], [CustomScrollView] and [SliverList].
 class RefreshableSliverListView<T> extends RefreshableDataView<T> {
   const RefreshableSliverListView({
@@ -203,6 +208,7 @@ class RefreshableSliverListView<T> extends RefreshableDataView<T> {
     this.extra,
     // ===================================
     this.useOverlapInjector = false,
+    this.overlapInjectorHeight = 0.0,
   }) : super(key: key);
 
   /// The list of data.
@@ -242,6 +248,9 @@ class RefreshableSliverListView<T> extends RefreshableDataView<T> {
   /// or you can manually set the padding in [UpdatableDataViewExtraWidgets] and just set this value to false. If set to true, you have to wrap
   /// this widget with [Builder] to get correct [SliverOverlapAbsorber] handler by [NestedScrollView.sliverOverlapAbsorberHandleFor].
   final bool? useOverlapInjector;
+
+  /// The height of overlap injector, which is used to replace [SliverOverlapInjector] and set padding out of [CustomScrollView]. TODO
+  final double? overlapInjectorHeight;
 
   @override
   _RefreshableSliverListViewState<T> createState() => _RefreshableSliverListViewState<T>();
@@ -336,47 +345,51 @@ class _RefreshableSliverListViewState<T> extends State<RefreshableSliverListView
       ],
     );
 
-    return RefreshIndicator(
-      key: _refreshIndicatorKey,
-      onRefresh: () => _getData(),
-      child: Column(
-        crossAxisAlignment: widget.extra?.outerCrossAxisAlignment ?? CrossAxisAlignment.center,
-        children: [
-          if (widget.extra?.outerTopWidgets != null) ...(widget.extra?.outerTopWidgets)!,
-          Expanded(
-            child: PlaceholderText.from(
-              onRefresh: () => _refreshIndicatorKey.currentState?.show(),
-              forceState: _forceState,
-              isLoading: _loading,
-              isEmpty: widget.data.isEmpty,
-              errorText: _errorMessage,
-              onChanged: widget.setting.onStateChanged,
-              setting: widget.setting.placeholderSetting ?? const PlaceholderSetting(),
-              childBuilder: (c) => Column(
-                crossAxisAlignment: widget.extra?.innerCrossAxisAlignment ?? CrossAxisAlignment.center,
-                children: [
-                  if (widget.extra?.innerTopWidgets != null) ...(widget.extra?.innerTopWidgets)!,
-                  Expanded(
-                    child: widget.setting.showScrollbar ?? true
-                        ? ScrollbarWithMore(
-                            interactive: widget.setting.scrollbarInteractive ?? false,
-                            isAlwaysShown: widget.setting.alwaysShowScrollbar ?? false,
-                            radius: widget.setting.scrollbarRadius,
-                            thickness: widget.setting.scrollbarThickness,
-                            mainAxisMargin: widget.setting.scrollbarMainAxisMargin,
-                            crossAxisMargin: widget.setting.scrollbarCrossAxisMargin,
-                            controller: widget.scrollController,
-                            child: view,
-                          )
-                        : view,
-                  ),
-                  if (widget.extra?.innerBottomWidgets != null) ...(widget.extra?.innerBottomWidgets)!,
-                ],
+    return Padding(
+      padding: EdgeInsets.only(top: widget.overlapInjectorHeight ?? 0),
+      child: RefreshIndicator(
+        key: _refreshIndicatorKey,
+        onRefresh: () => _getData(),
+        notificationPredicate: widget.setting.refreshNotificationPredicate ?? defaultScrollNotificationPredicate,
+        child: Column(
+          crossAxisAlignment: widget.extra?.outerCrossAxisAlignment ?? CrossAxisAlignment.center,
+          children: [
+            if (widget.extra?.outerTopWidgets != null) ...(widget.extra?.outerTopWidgets)!,
+            Expanded(
+              child: PlaceholderText.from(
+                onRefresh: () => _refreshIndicatorKey.currentState?.show(),
+                forceState: _forceState,
+                isLoading: _loading,
+                isEmpty: widget.data.isEmpty,
+                errorText: _errorMessage,
+                onChanged: widget.setting.onStateChanged,
+                setting: widget.setting.placeholderSetting ?? const PlaceholderSetting(),
+                childBuilder: (c) => Column(
+                  crossAxisAlignment: widget.extra?.innerCrossAxisAlignment ?? CrossAxisAlignment.center,
+                  children: [
+                    if (widget.extra?.innerTopWidgets != null) ...(widget.extra?.innerTopWidgets)!,
+                    Expanded(
+                      child: widget.setting.showScrollbar ?? true
+                          ? ScrollbarWithMore(
+                              interactive: widget.setting.scrollbarInteractive ?? false,
+                              isAlwaysShown: widget.setting.alwaysShowScrollbar ?? false,
+                              radius: widget.setting.scrollbarRadius,
+                              thickness: widget.setting.scrollbarThickness,
+                              mainAxisMargin: widget.setting.scrollbarMainAxisMargin,
+                              crossAxisMargin: widget.setting.scrollbarCrossAxisMargin,
+                              controller: widget.scrollController,
+                              child: view,
+                            )
+                          : view,
+                    ),
+                    if (widget.extra?.innerBottomWidgets != null) ...(widget.extra?.innerBottomWidgets)!,
+                  ],
+                ),
               ),
             ),
-          ),
-          if (widget.extra?.outerBottomWidgets != null) ...(widget.extra?.outerBottomWidgets)!,
-        ],
+            if (widget.extra?.outerBottomWidgets != null) ...(widget.extra?.outerBottomWidgets)!,
+          ],
+        ),
       ),
     );
   }
@@ -506,6 +519,7 @@ class _RefreshableMasonryGridView<T> extends State<RefreshableMasonryGridView<T>
     return RefreshIndicator(
       key: _refreshIndicatorKey,
       onRefresh: () => _getData(),
+      notificationPredicate: widget.setting.refreshNotificationPredicate ?? defaultScrollNotificationPredicate,
       child: Column(
         crossAxisAlignment: widget.extra?.outerCrossAxisAlignment ?? CrossAxisAlignment.center,
         children: [
@@ -548,6 +562,8 @@ class _RefreshableMasonryGridView<T> extends State<RefreshableMasonryGridView<T>
     );
   }
 }
+
+// TODO RefreshableSliverMasonryGridView
 
 /// The getData inner implementation, used in [RefreshableListView._getData], [RefreshableListView._getData] and [RefreshableMasonryGridView._getData].
 Future<void> _getDataCore<T>({
