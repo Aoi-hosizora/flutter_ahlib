@@ -46,7 +46,8 @@ class IconText extends StatelessWidget {
   /// The padding of this widget's icon, default to zero.
   final EdgeInsets? iconPadding;
 
-  /// The padding of this widget's text, default to zero.
+  /// The padding of this widget's text, default to zero. Note that if you want to wrap [text]
+  /// with [Flexible], you should set [textPadding] to [EdgeInsets.zero].
   final EdgeInsets? textPadding;
 
   /// The alignment of the icon and the text, defaults to [IconTextAlignment.l2r].
@@ -66,8 +67,8 @@ class IconText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var pIcon = Padding(padding: iconPadding ?? EdgeInsets.zero, child: icon);
-    var pText = Padding(padding: textPadding ?? EdgeInsets.zero, child: text);
+    var pIcon = (iconPadding == null || iconPadding == EdgeInsets.zero) ? icon : Padding(padding: iconPadding!, child: icon);
+    var pText = (textPadding == null || textPadding == EdgeInsets.zero) ? text : Padding(padding: textPadding!, child: text);
     var mainAxisAlignment = this.mainAxisAlignment ?? MainAxisAlignment.start;
     var mainAxisSize = this.mainAxisSize ?? MainAxisSize.max;
     var crossAxisAlignment = this.crossAxisAlignment ?? CrossAxisAlignment.center;

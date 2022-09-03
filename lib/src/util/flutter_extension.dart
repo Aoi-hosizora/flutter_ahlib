@@ -80,7 +80,7 @@ extension ScrollMetricsExtension on ScrollMetrics {
 
   /// Checks if the current scroll position is in the bottom of the parent.
   bool isInBottom() {
-    // return pixels >= maxScrollExtent && !outOfRange;
-    return extentAfter == 0.0;
+    return pixels >= maxScrollExtent && !outOfRange;
+    // return extentAfter == 0.0 && !outOfRange; // extentAfter => math.max(maxScrollExtent - pixels, 0.0)
   }
 }

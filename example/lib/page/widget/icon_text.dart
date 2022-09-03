@@ -72,6 +72,29 @@ class _IconTextPageState extends State<IconTextPage> {
               ),
             ),
             const Divider(),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 5),
+              child: InkWell(
+                onTap: () {},
+                child: Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: IconText(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    icon: const Icon(Icons.check),
+                    text: Flexible(
+                      child: Text(
+                        'Check' * 75,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    textPadding: EdgeInsets.zero,
+                    alignment: IconTextAlignment.l2r,
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),

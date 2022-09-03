@@ -34,7 +34,7 @@ import 'package:flutter_ahlib/flutter_ahlib.dart'; // the whole library
     + `PlaceholderText`
     + `showPopupListMenu`
     + `ScrollbarWithMore`
-    + `SliverAppBarDelegate` `SliverAppBarSizedDelegate` `SliverSeparatedListDelegate` `SliverSeparatedListBuilderDelegate`
+    + `SliverHeaderDelegate` `SliverSeparatedListDelegate` `SliverSeparatedListBuilderDelegate`
     + `TabInPageNotification`
     + `getTableRowRect` `TableCellHelper`
     + `TextGroup`

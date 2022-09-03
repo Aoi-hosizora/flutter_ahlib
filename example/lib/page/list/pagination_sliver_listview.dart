@@ -64,10 +64,11 @@ class _PaginationSliverListViewPageState extends State<PaginationSliverListViewP
             sliver: SliverPersistentHeader(
               pinned: true,
               floating: true,
-              delegate: SliverAppBarSizedDelegate(
-                minHeight: 15,
-                maxHeight: 15,
-                child: Container(color: Colors.red),
+              delegate: SliverHeaderDelegate(
+                child: PreferredSize(
+                  preferredSize: const Size.fromHeight(15),
+                  child: Container(color: Colors.red),
+                ),
               ),
             ),
           ),
@@ -105,7 +106,7 @@ class _PaginationSliverListViewPageState extends State<PaginationSliverListViewP
                 onTap: () {},
               ),
               separator: const Divider(height: 1, thickness: 1),
-              useOverlapInjector: false,
+              useOverlapInjector: true, // TODO
               extra: UpdatableDataViewExtraWidgets(
                 outerTopWidgets: [
                   const Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('outer top widget'))),

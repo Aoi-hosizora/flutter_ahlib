@@ -158,6 +158,7 @@ class _ScrollAnimatedFabState extends State<ScrollAnimatedFab> with TickerProvid
       canShow = widget.scrollController.offset >= (widget.offset ?? _kDefaultScrollOffset);
     } else if (widget.condition == ScrollAnimatedCondition.direction) {
       var pos = widget.scrollController.position;
+      // var pos = widget.scrollController.positions.last;
       canShow = pos.extentBefore > 0 && pos.userScrollDirection == ScrollDirection.forward;
     }
 
