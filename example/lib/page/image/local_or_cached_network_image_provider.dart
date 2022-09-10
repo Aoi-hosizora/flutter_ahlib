@@ -11,7 +11,6 @@ class LocalOrCachedNetworkImageProviderPage extends StatefulWidget {
   _LocalOrCachedNetworkImageProviderPageState createState() => _LocalOrCachedNetworkImageProviderPageState();
 }
 
-// ignore_for_file: prefer_function_declarations_over_variables
 class _LocalOrCachedNetworkImageProviderPageState extends State<LocalOrCachedNetworkImageProviderPage> {
   // https://github.com/Baseflow/flutter_cached_network_image/issues/468#issuecomment-789757758
   // https://github.com/Baseflow/flutter_cached_network_image/issues/468#issuecomment-1153510183

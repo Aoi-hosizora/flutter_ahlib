@@ -5,28 +5,22 @@ import 'package:flutter_ahlib/src/util/dart_extension.dart';
 // Header related
 // ==============
 
-// ignore_for_file: prefer_initializing_formals
-
 /// An implementation of [SliverPersistentHeaderDelegate] with [PreferredSizeWidget] child with size settings,
 /// can be used in [SliverPersistentHeader]..
 class SliverHeaderDelegate extends SliverPersistentHeaderDelegate {
   /// Creates [SliverHeaderDelegate] with given [PreferredSizeWidget].
   const SliverHeaderDelegate({
-    required PreferredSizeWidget child,
+    required PreferredSizeWidget this.child,
     this.minHeight,
     this.maxHeight,
-  })  : builder = null,
-        child = child;
+  }) : builder = null;
 
   /// Creates [SliverHeaderDelegate] with given [PreferredSizeWidget] builder and required size settings.
   const SliverHeaderDelegate.builder({
-    required PreferredSizeWidget Function(BuildContext context, double shrinkOffset, bool overlapsContent) builder,
-    required double minHeight,
-    required double maxHeight,
-  })  : child = null,
-        builder = builder,
-        minHeight = minHeight,
-        maxHeight = maxHeight;
+    required PreferredSizeWidget Function(BuildContext context, double shrinkOffset, bool overlapsContent) this.builder,
+    required double this.minHeight,
+    required double this.maxHeight,
+  }) : child = null;
 
   /// The preferred sized child of this widget.
   final PreferredSizeWidget? child;

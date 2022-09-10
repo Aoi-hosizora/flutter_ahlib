@@ -27,7 +27,7 @@ class _TextGroupPageState extends State<TextGroupPage> {
               ),
             ),
             const SizedBox(height: 5),
-            TextGroup(
+            TextGroup.nonSelectable(
               style: Theme.of(context).textTheme.bodyText2,
               texts: [
                 const PlainTextItem(text: 'short_text'),
@@ -59,7 +59,15 @@ class _TextGroupPageState extends State<TextGroupPage> {
                   text: '|LinkTextItem3|',
                   onTap: () => printLog('tapped 3'),
                   normalColor: Theme.of(context).primaryColor,
-                  wrapperBuilder: (c, w) => WidgetSpan(child: InkWell(child: w, onTap: () {})),
+                  wrapperBuilder: (c, w, o) => WidgetSpan(
+                    child: InkWell(
+                      child: Container(
+                        child: w,
+                        color: !o ? Colors.grey : Colors.transparent,
+                      ),
+                      onTap: () {},
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -102,7 +110,15 @@ class _TextGroupPageState extends State<TextGroupPage> {
                   text: '|LinkTextItem3|',
                   onTap: () => printLog('tapped 3'),
                   normalStyle: TextStyle(color: Theme.of(context).primaryColor, decoration: TextDecoration.underline),
-                  wrapperBuilder: (c, w) => WidgetSpan(child: InkResponse(child: w, onTap: () {}, highlightColor: Colors.transparent)),
+                  wrapperBuilder: (c, w, o) => WidgetSpan(
+                    child: InkWell(
+                      child: Container(
+                        child: w,
+                        color: !o ? Colors.grey : Colors.transparent,
+                      ),
+                      onTap: () {},
+                    ),
+                  ),
                 ),
               ],
             ),

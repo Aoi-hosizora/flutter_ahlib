@@ -101,9 +101,9 @@ class LinkTextItem extends TextGroupItem {
   /// The text style when this item is pressed down.
   final TextStyle? pressedStyle;
 
-  /// The [WidgetSpan] wrapper builder. If this is not null, than returned [WidgetSpan]
+  /// The [WidgetSpan] wrapper builder. If this value is set, than returned [WidgetSpan]
   /// will be used as [TextGroup]'s texts.
-  final WidgetSpan Function(BuildContext context, Widget t)? wrapperBuilder;
+  final WidgetSpan Function(BuildContext context, Widget t, bool tapped)? wrapperBuilder;
 
   /// Builds [InlineSpan] for [LinkTextItem], but actually this function is just a
   /// dummy. [buildSpanForLinkText] should be used for building [InlineSpan].
@@ -151,15 +151,13 @@ class LinkTextItem extends TextGroupItem {
     return wrapperBuilder!(
       context,
       GestureDetector(
-        child: Text(
-          text,
-          style: textStyle,
-        ),
+        child: Text(text, style: textStyle),
         onTap: recognizer.onTap,
         onTapDown: recognizer.onTapDown,
         onTapUp: recognizer.onTapUp,
         onTapCancel: recognizer.onTapCancel,
       ),
+      tappedGetter(),
     );
   }
 }
@@ -171,6 +169,7 @@ class TextGroup extends StatefulWidget {
   const TextGroup({
     Key? key,
     required this.texts,
+    required this.selectable,
     this.style,
     this.outerSpanBuilder,
     // both
@@ -178,7 +177,42 @@ class TextGroup extends StatefulWidget {
     this.strutStyle,
     this.textAlign = TextAlign.start,
     this.textDirection,
-    this.textScaleFactor = 1.0,
+    this.textScaleFactor,
+    this.textWidthBasis = TextWidthBasis.parent,
+    this.textHeightBehavior,
+    // RichText only
+    this.softWrap = true,
+    this.overflow = TextOverflow.clip,
+    this.locale,
+    // SelectableText only
+    this.focusNode,
+    this.showCursor = false,
+    this.autofocus = false,
+    this.enableInteractiveSelection = true,
+    this.toolbarOptions = const ToolbarOptions(selectAll: true, copy: true),
+    this.cursorWidth = 2.0,
+    this.cursorHeight,
+    this.cursorRadius,
+    this.cursorColor,
+    this.dragStartBehavior = DragStartBehavior.start,
+    this.minLines,
+  })  : assert(texts.length > 0),
+        assert(maxLines == null || maxLines > 0),
+        assert(minLines == null || minLines > 0),
+        super(key: key);
+
+  /// Creates a [TextGroup] which wraps [RichText] to show [TextGroupItem] list.
+  const TextGroup.nonSelectable({
+    Key? key,
+    required this.texts,
+    this.style,
+    this.outerSpanBuilder,
+    // both
+    this.maxLines,
+    this.strutStyle,
+    this.textAlign = TextAlign.start,
+    this.textDirection,
+    this.textScaleFactor,
     this.textWidthBasis = TextWidthBasis.parent,
     this.textHeightBehavior,
     // RichText only
@@ -213,7 +247,7 @@ class TextGroup extends StatefulWidget {
     this.strutStyle,
     this.textAlign = TextAlign.start,
     this.textDirection,
-    this.textScaleFactor = 1.0,
+    this.textScaleFactor,
     this.textWidthBasis = TextWidthBasis.parent,
     this.textHeightBehavior,
     // SelectableText only
@@ -264,7 +298,7 @@ class TextGroup extends StatefulWidget {
   /// The textDirection of [RichText] and [SelectableText].
   final TextDirection? textDirection;
 
-  /// The textScaleFactor of [RichText] and [SelectableText], defaults to 1.0.
+  /// The textScaleFactor of [RichText] and [SelectableText], defaults to [MediaQuery.of(context).textScaleFactor].
   final double? textScaleFactor;
 
   /// The textWidthBasis of [RichText] and [SelectableText], defaults to
@@ -379,7 +413,7 @@ class _TextGroupState extends State<TextGroup> {
         strutStyle: widget.strutStyle,
         textAlign: widget.textAlign ?? TextAlign.start,
         textDirection: widget.textDirection,
-        textScaleFactor: widget.textScaleFactor ?? 1.0,
+        textScaleFactor: widget.textScaleFactor ?? MediaQuery.of(context).textScaleFactor,
         textWidthBasis: widget.textWidthBasis ?? TextWidthBasis.parent,
         textHeightBehavior: widget.textHeightBehavior,
         // only
@@ -395,7 +429,7 @@ class _TextGroupState extends State<TextGroup> {
         strutStyle: widget.strutStyle,
         textAlign: widget.textAlign ?? TextAlign.start,
         textDirection: widget.textDirection,
-        textScaleFactor: widget.textScaleFactor ?? 1.0,
+        textScaleFactor: widget.textScaleFactor ?? MediaQuery.of(context).textScaleFactor,
         textWidthBasis: widget.textWidthBasis ?? TextWidthBasis.parent,
         textHeightBehavior: widget.textHeightBehavior,
         // only
