@@ -9,6 +9,7 @@ import 'package:flutter_ahlib_example/page/list/refreshable_sliver_dataview.dart
 import 'package:flutter_ahlib_example/page/widget/custom_ink_feature.dart';
 import 'package:flutter_ahlib_example/page/widget/custom_ink_response.dart';
 import 'package:flutter_ahlib_example/page/widget/drawer_list_view.dart';
+import 'package:flutter_ahlib_example/page/widget/extended_nested_scroll_view.dart';
 import 'package:flutter_ahlib_example/page/widget/icon_text.dart';
 import 'package:flutter_ahlib_example/page/widget/lazy_indexed_stack.dart';
 import 'package:flutter_ahlib_example/page/widget/new_button_style.dart';
@@ -92,6 +93,7 @@ class _IndexPageState extends State<IndexPage> {
                 _button('TableRelated', const TableRelatedPage()),
                 _button('WidgetWithCallback', const WidgetWithCallbackPage()),
                 _button('ScrollbarWithMore', const ScrollbarWithMorePage()),
+                _button('ExtendedNestedScrollView', const ExtendedNestedScrollViewPage()),
               ],
             ),
             Align(

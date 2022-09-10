@@ -54,6 +54,15 @@ extension ScrollControllerExtension on ScrollController {
   Future<void> scrollUp({double scrollOffset = _kAnimatedScrollOffset, Curve curve = _kAnimatedLocalScrollCurve, Duration duration = _kAnimatedLocalScrollDuration}) {
     return scrollWithAnimate(offset - scrollOffset, curve: curve, duration: duration);
   }
+
+  /// Checks whether given [ScrollPosition] has been attached, and detaches it.
+  bool checkAndDetach(ScrollPosition position) {
+    if (positions.contains(position)) {
+      detach(position);
+      return true;
+    }
+    return false;
+  }
 }
 
 /// Default [Curve] value for [defaultAnimateToPage].

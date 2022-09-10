@@ -5,6 +5,7 @@ export 'src/widget/widget_with_callback.dart';
 export 'src/widget/custom_ink_feature.dart';
 export 'src/widget/custom_ink_response.dart';
 export 'src/widget/drawer_list_view.dart';
+export 'src/widget/extended_nested_scroll_view.dart';
 export 'src/widget/icon_text.dart';
 export 'src/widget/lazy_indexed_stack.dart';
 export 'src/widget/new_button_style.dart';
