@@ -42,9 +42,9 @@ import 'package:flutter_ahlib/flutter_ahlib.dart'; // the whole library
     + `StatelessWidgetWithCallback` `StatefulWidgetWithCallback`
 + list.dart:
     + `AppendIndicator` `AppendIndicatorState`
-    + `RefreshableDataView` `RefreshableListView` `RefreshableSliverListView` `RefreshableMasonryGridView`
-    + `PaginationDataView` `PaginationListView` `PaginationSliverListView` `PaginationMasonryGridView`
-    + `UpdatableDataView` `UpdatableDataViewController`
+    + `RefreshableDataView` `RefreshableDataViewState`
+    + `PaginationDataView` `PaginationDataViewState`
+    + `UpdatableDataView`
 + image.dart:
     + `LocalOrCachedNetworkImageProvider`
     + `MultiImageStreamCompleter`

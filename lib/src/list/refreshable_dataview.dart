@@ -5,258 +5,154 @@ import 'package:flutter_ahlib/src/widget/scrollbar_with_more.dart';
 import 'package:flutter_ahlib/src/widget/sliver_delegate.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
-/// The duration for flashing list after clear the data.
+/// The duration for refreshing list after clearing the data.
 const _kFlashListDuration = Duration(milliseconds: 50);
 
-/// An abstract [UpdatableDataView] for refreshable data view, implements by [RefreshableListView], [RefreshableSliverListView], [RefreshableMasonryGridView].
-abstract class RefreshableDataView<T> extends UpdatableDataView<T> {
-  const RefreshableDataView({Key? key}) : super(key: key);
-
-  /// The function to get list data.
-  Future<List<T>> Function() get getData;
-}
-
-/// A [RefreshableDataView] with [ListView], includes [RefreshIndicator], [PlaceholderText], [Scrollbar] and [ListView].
-class RefreshableListView<T> extends RefreshableDataView<T> {
-  const RefreshableListView({
+/// An implementation of [UpdatableDataView] for refreshable data, including [RefreshIndicator], [PlaceholderText], [Scrollbar] and some
+/// scroll views, such as [ListView], [SliverList] with [CustomScrollView], [MasonryGridView], [SliverMasonryGrid] with [CustomScrollView].
+class RefreshableDataView<T> extends UpdatableDataView<T> {
+  /// Creates a [RefreshableDataView] with given [style] and all properties.
+  const RefreshableDataView({
     Key? key,
     required this.data,
+    required this.style,
     required this.getData,
     this.setting = const UpdatableDataViewSetting(),
-    this.controller,
     this.scrollController,
     required this.itemBuilder,
-    this.separator,
     this.extra,
+    // ===================================
+    this.separator,
+    this.useOverlapInjector = false,
+    this.crossAxisCount = 2,
+    this.mainAxisSpacing = 0.0,
+    this.crossAxisSpacing = 0.0,
   }) : super(key: key);
 
-  /// The list of data.
-  @override
-  final List<T> data;
-
-  /// The function to get list data.
-  @override
-  final Future<List<T>> Function() getData;
-
-  /// The display and behavior setting.
-  @override
-  final UpdatableDataViewSetting<T> setting;
-
-  /// The controller for the behavior.
-  @override
-  final UpdatableDataViewController? controller;
-
-  /// The controller for [ListView].
-  @override
-  final ScrollController? scrollController;
-
-  /// The itemBuilder for [ListView].
-  @override
-  final Widget Function(BuildContext, T) itemBuilder;
-
-  /// The separator for [ListView].
-  @override
-  final Widget? separator;
-
-  /// The extra widgets around [ListView].
-  @override
-  final UpdatableDataViewExtraWidgets? extra;
-
-  @override
-  _RefreshableListViewState<T> createState() => _RefreshableListViewState<T>();
-}
-
-class _RefreshableListViewState<T> extends State<RefreshableListView<T>> with AutomaticKeepAliveClientMixin<RefreshableListView<T>> {
-  final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
-  PlaceholderState? _forceState = PlaceholderState.nothing;
-  var _loading = false;
-  var _errorMessage = '';
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.setting.refreshFirst ?? true) {
-      _forceState = PlaceholderState.loading;
-      WidgetsBinding.instance?.addPostFrameCallback((_) => _refreshIndicatorKey.currentState?.show());
-    } else {
-      _forceState = widget.data.isEmpty ? PlaceholderState.nothing : PlaceholderState.normal;
-    }
-    widget.controller?.attachRefresh(_refreshIndicatorKey);
-  }
-
-  @override
-  void dispose() {
-    widget.controller?.detachRefresh();
-    super.dispose();
-  }
-
-  Future<void> _getData() async {
-    _forceState = null;
-    return _getDataCore(
-      setLoading: (l) => _loading = l,
-      setErrorMessage: (e) => _errorMessage = e,
-      data: widget.data,
-      getData: widget.getData,
-      setting: widget.setting,
-      doSetState: () {
-        if (mounted) setState(() {});
-      },
-    );
-  }
-
-  @override
-  bool get wantKeepAlive => widget.setting.wantKeepAlive ?? true;
-
-  @override
-  Widget build(BuildContext context) {
-    super.build(context);
-
-    var top = widget.extra?.listTopWidgets ?? [];
-    var data = widget.data;
-    var bottom = widget.extra?.listBottomWidgets ?? [];
-    var tl = top.length, dl = data.length, bl = bottom.length;
-    var view = ListView.separated(
-      controller: widget.scrollController,
-      padding: widget.setting.padding,
-      physics: widget.setting.physics ?? const AlwaysScrollableScrollPhysics(),
-      reverse: widget.setting.reverse ?? false,
-      shrinkWrap: widget.setting.shrinkWrap ?? false,
-      // ===================================
-      separatorBuilder: (c, idx) {
-        if (idx < tl) {
-          return const SizedBox(height: 0);
-        } else if (idx < tl + dl - 1) {
-          return widget.separator ?? const SizedBox(height: 0);
-        } else {
-          return const SizedBox(height: 0);
-        }
-      },
-      itemCount: tl + dl + bl,
-      itemBuilder: (c, idx) {
-        if (idx < tl) {
-          return top[idx];
-        } else if (idx < tl + dl) {
-          return widget.itemBuilder(c, data[idx - tl]);
-        } else {
-          return bottom[idx - tl - dl];
-        }
-      },
-    );
-
-    return RefreshIndicator(
-      key: _refreshIndicatorKey,
-      onRefresh: () => _getData(),
-      notificationPredicate: widget.setting.refreshNotificationPredicate ?? defaultScrollNotificationPredicate,
-      child: Column(
-        crossAxisAlignment: widget.extra?.outerCrossAxisAlignment ?? CrossAxisAlignment.center,
-        children: [
-          if (widget.extra?.outerTopWidgets != null) ...(widget.extra?.outerTopWidgets)!,
-          Expanded(
-            child: PlaceholderText.from(
-              onRefresh: () => _refreshIndicatorKey.currentState?.show(),
-              forceState: _forceState,
-              isLoading: _loading,
-              isEmpty: widget.data.isEmpty,
-              errorText: _errorMessage,
-              onChanged: widget.setting.onStateChanged,
-              setting: widget.setting.placeholderSetting ?? const PlaceholderSetting(),
-              childBuilder: (c) => Column(
-                crossAxisAlignment: widget.extra?.innerCrossAxisAlignment ?? CrossAxisAlignment.center,
-                children: [
-                  if (widget.extra?.innerTopWidgets != null) ...(widget.extra?.innerTopWidgets)!,
-                  Expanded(
-                    child: widget.setting.showScrollbar ?? true
-                        ? ScrollbarWithMore(
-                            interactive: widget.setting.scrollbarInteractive ?? false,
-                            isAlwaysShown: widget.setting.alwaysShowScrollbar ?? false,
-                            radius: widget.setting.scrollbarRadius,
-                            thickness: widget.setting.scrollbarThickness,
-                            mainAxisMargin: widget.setting.scrollbarMainAxisMargin,
-                            crossAxisMargin: widget.setting.scrollbarCrossAxisMargin,
-                            controller: widget.scrollController,
-                            child: view,
-                          )
-                        : view,
-                  ),
-                  if (widget.extra?.innerBottomWidgets != null) ...(widget.extra?.innerBottomWidgets)!,
-                ],
-              ),
-            ),
-          ),
-          if (widget.extra?.outerBottomWidgets != null) ...(widget.extra?.outerBottomWidgets)!,
-        ],
-      ),
-    );
-  }
-}
-
-// TODO merge RefreshableListView and RefreshableSliverListView
-
-// TODO GridView and SliverGrid ???
-
-/// A [RefreshableDataView] with [SliverList], includes [RefreshIndicator], [PlaceholderText], [Scrollbar], [CustomScrollView] and [SliverList].
-class RefreshableSliverListView<T> extends RefreshableDataView<T> {
-  const RefreshableSliverListView({
+  /// Creates a [RefreshableDataView] with given [UpdatableDataViewStyle.listView].
+  const RefreshableDataView.listView({
     Key? key,
     required this.data,
     required this.getData,
     this.setting = const UpdatableDataViewSetting(),
-    this.controller,
     this.scrollController,
     required this.itemBuilder,
+    this.extra,
+    // ===================================
     this.separator,
+  })  : style = UpdatableDataViewStyle.listView,
+        useOverlapInjector = null,
+        crossAxisCount = null,
+        mainAxisSpacing = null,
+        crossAxisSpacing = null,
+        super(key: key);
+
+  /// Creates a [RefreshableDataView] with given [UpdatableDataViewStyle.sliverListView].
+  const RefreshableDataView.sliverListView({
+    Key? key,
+    required this.data,
+    required this.getData,
+    this.setting = const UpdatableDataViewSetting(),
+    this.scrollController,
+    required this.itemBuilder,
+    this.extra,
+    // ===================================
+    this.separator,
+    this.useOverlapInjector = false,
+  })  : style = UpdatableDataViewStyle.sliverListView,
+        crossAxisCount = null,
+        mainAxisSpacing = null,
+        crossAxisSpacing = null,
+        super(key: key);
+
+  /// Creates a [RefreshableDataView] with given [UpdatableDataViewStyle.masonryGridView].
+  const RefreshableDataView.masonryGridView({
+    Key? key,
+    required this.data,
+    required this.getData,
+    this.setting = const UpdatableDataViewSetting(),
+    this.scrollController,
+    required this.itemBuilder,
+    this.extra,
+    // ===================================
+    this.crossAxisCount = 2,
+    this.mainAxisSpacing = 0.0,
+    this.crossAxisSpacing = 0.0,
+  })  : style = UpdatableDataViewStyle.masonryGridView,
+        separator = null,
+        useOverlapInjector = null,
+        super(key: key);
+
+  /// Creates a [RefreshableDataView] with given [UpdatableDataViewStyle.sliverMasonryGridView].
+  const RefreshableDataView.sliverMasonryGridView({
+    Key? key,
+    required this.data,
+    required this.getData,
+    this.setting = const UpdatableDataViewSetting(),
+    this.scrollController,
+    required this.itemBuilder,
     this.extra,
     // ===================================
     this.useOverlapInjector = false,
-    this.overlapInjectorHeight = 0.0,
-  }) : super(key: key);
+    this.crossAxisCount = 2,
+    this.mainAxisSpacing = 0.0,
+    this.crossAxisSpacing = 0.0,
+  })  : style = UpdatableDataViewStyle.sliverMasonryGridView,
+        separator = null,
+        super(key: key);
+
+  // General properties
 
   /// The list of data.
   @override
   final List<T> data;
 
   /// The function to get list data.
-  @override
   final Future<List<T>> Function() getData;
+
+  /// The data display style.
+  @override
+  final UpdatableDataViewStyle style;
 
   /// The display and behavior setting.
   @override
   final UpdatableDataViewSetting<T> setting;
 
-  /// The controller for the behavior.
-  @override
-  final UpdatableDataViewController? controller;
-
-  /// The controller for [CustomScrollView], you have to wrap this widget with [Builder] and use [PrimaryScrollController.of] to get correct
-  /// [ScrollController] from [NestedScrollView], JUST NOT TO use [NestedScrollView]'s scrollController directly.
+  /// The controller for [ScrollView].
   @override
   final ScrollController? scrollController;
 
-  /// The itemBuilder for [SliverList].
+  /// The itemBuilder for [ScrollView].
   @override
-  final Widget Function(BuildContext, T) itemBuilder;
+  final Widget Function(BuildContext, int, T) itemBuilder;
 
-  /// The separator for [SliverList].
-  @override
-  final Widget? separator;
-
-  /// The extra widgets around [SliverList].
+  /// The extra widgets around [ScrollView].
   @override
   final UpdatableDataViewExtraWidgets? extra;
 
-  /// The switcher to use [SliverOverlapInjector], defaults to false. This is useful when outer [NestedScrollView] use [SliverOverlapAbsorber],
-  /// or you can manually set the padding in [UpdatableDataViewExtraWidgets] and just set this value to false. If set to true, you have to wrap
-  /// this widget with [Builder] to get correct [SliverOverlapAbsorber] handler by [NestedScrollView.sliverOverlapAbsorberHandleFor].
+  // Properties for specific data display style
+
+  /// The separator for [ListView] and [SliverList].
+  final Widget? separator;
+
+  /// The switcher to use [SliverOverlapInjector] in the top of sliver list for [SliverList], defaults to false.
   final bool? useOverlapInjector;
 
-  /// The height of overlap injector, which is used to replace [SliverOverlapInjector] and set padding out of [CustomScrollView]. TODO
-  final double? overlapInjectorHeight;
+  /// The crossAxisCount for [MasonryGridView] and [SliverMasonryGrid], defaults to 2.
+  final int? crossAxisCount;
+
+  /// The mainAxisSpacing for [MasonryGridView] and [SliverMasonryGrid], defaults to 0.0.
+  final double? mainAxisSpacing;
+
+  /// The crossAxisSpacing for [MasonryGridView] and [SliverMasonryGrid], defaults to 0.0.
+  final double? crossAxisSpacing;
 
   @override
-  _RefreshableSliverListViewState<T> createState() => _RefreshableSliverListViewState<T>();
+  RefreshableDataViewState<T> createState() => RefreshableDataViewState<T>();
 }
 
-class _RefreshableSliverListViewState<T> extends State<RefreshableSliverListView<T>> with AutomaticKeepAliveClientMixin<RefreshableSliverListView<T>> {
+/// The state of [RefreshableDataViewState], can be used to show the refresh indicator by [refresh] method.
+class RefreshableDataViewState<T> extends State<RefreshableDataView<T>> with AutomaticKeepAliveClientMixin<RefreshableDataView<T>> {
   final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
   PlaceholderState? _forceState = PlaceholderState.nothing;
   var _loading = false;
@@ -271,41 +167,99 @@ class _RefreshableSliverListViewState<T> extends State<RefreshableSliverListView
     } else {
       _forceState = widget.data.isEmpty ? PlaceholderState.nothing : PlaceholderState.normal;
     }
-    widget.controller?.attachRefresh(_refreshIndicatorKey);
   }
 
-  @override
-  void dispose() {
-    widget.controller?.detachRefresh();
-    super.dispose();
+  /// Shows the refresh indicator and runs the refresh callback as if it had been started interactively.
+  Future<void> refresh() {
+    return _refreshIndicatorKey.currentState?.show() ?? Future.value();
   }
 
   Future<void> _getData() async {
+    // start loading
     _forceState = null;
-    return _getDataCore(
-      setLoading: (l) => _loading = l,
-      setErrorMessage: (e) => _errorMessage = e,
-      data: widget.data,
-      getData: widget.getData,
-      setting: widget.setting,
-      doSetState: () {
+    _loading = true;
+    _errorMessage = '';
+    if (widget.setting.clearWhenRefresh ?? false) {
+      widget.data.clear();
+    }
+    widget.setting.onStartRefreshing?.call(); // start refreshing
+    widget.setting.onStartGettingData?.call(); // start loading
+    if (mounted) setState(() {});
+
+    // get data
+    final func = widget.getData(); // Future<List<T>>
+
+    // return future
+    return func.then((List<T> list) async {
+      // success to get data without error
+      _errorMessage = '';
+      if (widget.data.isNotEmpty) {
+        widget.data.clear();
         if (mounted) setState(() {});
-      },
-    );
+        await Future.delayed(_kFlashListDuration);
+      }
+      widget.data.addAll(list);
+      widget.setting.onAppend?.call(null, list);
+    }).catchError((e) {
+      // error aroused
+      _errorMessage = e.toString();
+      if (widget.setting.clearWhenError ?? false) {
+        widget.data.clear();
+      }
+      widget.setting.onError?.call(e);
+    }).whenComplete(() {
+      // finish loading and setState
+      _loading = false;
+      widget.setting.onStopGettingData?.call(); // stop loading
+      widget.setting.onStopRefreshing?.call(); // stop refreshing
+      if (mounted) setState(() {});
+    });
   }
 
   @override
   bool get wantKeepAlive => widget.setting.wantKeepAlive ?? true;
 
-  @override
-  Widget build(BuildContext context) {
-    super.build(context);
-
+  Widget _buildListView(BuildContext context, bool sliver) {
     var top = widget.extra?.listTopWidgets ?? [];
     var data = widget.data;
     var bottom = widget.extra?.listBottomWidgets ?? [];
     var tl = top.length, dl = data.length, bl = bottom.length;
-    var view = CustomScrollView(
+
+    Widget separatorBuilder(BuildContext c, int idx) {
+      if (idx < tl) {
+        return const SizedBox(height: 0);
+      } else if (idx < tl + dl - 1) {
+        return widget.separator ?? const SizedBox(height: 0);
+      } else {
+        return const SizedBox(height: 0);
+      }
+    }
+
+    Widget itemBuilder(BuildContext c, int idx) {
+      if (idx < tl) {
+        return top[idx];
+      } else if (idx < tl + dl) {
+        return widget.itemBuilder(c, idx - tl, data[idx - tl]);
+      } else {
+        return bottom[idx - tl - dl];
+      }
+    }
+
+    if (!sliver) {
+      return ListView.separated(
+        controller: widget.scrollController,
+        padding: widget.setting.padding,
+        physics: widget.setting.physics ?? const AlwaysScrollableScrollPhysics(),
+        reverse: widget.setting.reverse ?? false,
+        shrinkWrap: widget.setting.shrinkWrap ?? false,
+        // ===================================
+        separatorBuilder: separatorBuilder,
+        itemCount: tl + dl + bl,
+        itemBuilder: itemBuilder,
+      );
+    }
+
+    return CustomScrollView(
       controller: widget.scrollController,
       physics: widget.setting.physics ?? const AlwaysScrollableScrollPhysics(),
       reverse: widget.setting.reverse ?? false,
@@ -320,201 +274,77 @@ class _RefreshableSliverListViewState<T> extends State<RefreshableSliverListView
           padding: widget.setting.padding ?? MediaQuery.maybeOf(context)?.padding.copyWith(top: 0, bottom: 0) ?? EdgeInsets.zero,
           sliver: SliverList(
             delegate: SliverSeparatedListBuilderDelegate(
-              (c, idx) {
-                if (idx < tl) {
-                  return top[idx];
-                } else if (idx < tl + dl) {
-                  return widget.itemBuilder(c, data[idx - tl]);
-                } else {
-                  return bottom[idx - tl - dl];
-                }
-              },
+              itemBuilder,
               childCount: tl + dl + bl,
-              separatorBuilder: (c, idx) {
-                if (idx < tl) {
-                  return const SizedBox(height: 0);
-                } else if (idx < tl + dl - 1) {
-                  return widget.separator ?? const SizedBox(height: 0);
-                } else {
-                  return const SizedBox(height: 0);
-                }
-              },
+              separatorBuilder: separatorBuilder,
             ),
           ),
         ),
       ],
     );
-
-    return Padding(
-      padding: EdgeInsets.only(top: widget.overlapInjectorHeight ?? 0),
-      child: RefreshIndicator(
-        key: _refreshIndicatorKey,
-        onRefresh: () => _getData(),
-        notificationPredicate: widget.setting.refreshNotificationPredicate ?? defaultScrollNotificationPredicate,
-        child: Column(
-          crossAxisAlignment: widget.extra?.outerCrossAxisAlignment ?? CrossAxisAlignment.center,
-          children: [
-            if (widget.extra?.outerTopWidgets != null) ...(widget.extra?.outerTopWidgets)!,
-            Expanded(
-              child: PlaceholderText.from(
-                onRefresh: () => _refreshIndicatorKey.currentState?.show(),
-                forceState: _forceState,
-                isLoading: _loading,
-                isEmpty: widget.data.isEmpty,
-                errorText: _errorMessage,
-                onChanged: widget.setting.onStateChanged,
-                setting: widget.setting.placeholderSetting ?? const PlaceholderSetting(),
-                childBuilder: (c) => Column(
-                  crossAxisAlignment: widget.extra?.innerCrossAxisAlignment ?? CrossAxisAlignment.center,
-                  children: [
-                    if (widget.extra?.innerTopWidgets != null) ...(widget.extra?.innerTopWidgets)!,
-                    Expanded(
-                      child: widget.setting.showScrollbar ?? true
-                          ? ScrollbarWithMore(
-                              interactive: widget.setting.scrollbarInteractive ?? false,
-                              isAlwaysShown: widget.setting.alwaysShowScrollbar ?? false,
-                              radius: widget.setting.scrollbarRadius,
-                              thickness: widget.setting.scrollbarThickness,
-                              mainAxisMargin: widget.setting.scrollbarMainAxisMargin,
-                              crossAxisMargin: widget.setting.scrollbarCrossAxisMargin,
-                              controller: widget.scrollController,
-                              child: view,
-                            )
-                          : view,
-                    ),
-                    if (widget.extra?.innerBottomWidgets != null) ...(widget.extra?.innerBottomWidgets)!,
-                  ],
-                ),
-              ),
-            ),
-            if (widget.extra?.outerBottomWidgets != null) ...(widget.extra?.outerBottomWidgets)!,
-          ],
-        ),
-      ),
-    );
   }
-}
 
-/// A [RefreshableDataView] with [MasonryGridView], includes [RefreshIndicator], [PlaceholderText], [Scrollbar] and [MasonryGridView].
-class RefreshableMasonryGridView<T> extends RefreshableDataView<T> {
-  const RefreshableMasonryGridView({
-    Key? key,
-    required this.data,
-    required this.getData,
-    this.setting = const UpdatableDataViewSetting(),
-    this.controller,
-    this.scrollController,
-    required this.itemBuilder,
-    this.extra,
-    // ===================================
-    required this.crossAxisCount,
-    this.mainAxisSpacing = 0.0,
-    this.crossAxisSpacing = 0.0,
-  }) : super(key: key);
-
-  /// The list of data.
-  @override
-  final List<T> data;
-
-  /// The function to get list data.
-  @override
-  final Future<List<T>> Function() getData;
-
-  /// The display and behavior setting.
-  @override
-  final UpdatableDataViewSetting<T> setting;
-
-  /// The controller for the behavior.
-  @override
-  final UpdatableDataViewController? controller;
-
-  /// The controller for [MasonryGridView].
-  @override
-  final ScrollController? scrollController;
-
-  /// The itemBuilder for [MasonryGridView].
-  @override
-  final Widget Function(BuildContext, T) itemBuilder;
-
-  /// The dummy separator, which is not supported by [MasonryGridView] and is always null.
-  @override
-  Widget? get separator => null;
-
-  /// The extra widgets around [MasonryGridView], notice that the [listTopWidgets] and [listBottomWidgets] will be ignored.
-  @override
-  final UpdatableDataViewExtraWidgets? extra;
-
-  /// The crossAxisCount for [MasonryGridView].
-  final int crossAxisCount;
-
-  /// The mainAxisSpacing for [MasonryGridView], defaults to 0.
-  final double? mainAxisSpacing;
-
-  /// The crossAxisSpacing for [MasonryGridView], defaults to 0.
-  final double? crossAxisSpacing;
-
-  @override
-  _RefreshableMasonryGridView<T> createState() => _RefreshableMasonryGridView<T>();
-}
-
-class _RefreshableMasonryGridView<T> extends State<RefreshableMasonryGridView<T>> with AutomaticKeepAliveClientMixin<RefreshableMasonryGridView<T>> {
-  final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
-  PlaceholderState? _forceState = PlaceholderState.nothing;
-  var _loading = false;
-  var _errorMessage = '';
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.setting.refreshFirst ?? true) {
-      _forceState = PlaceholderState.loading;
-      WidgetsBinding.instance?.addPostFrameCallback((_) => _refreshIndicatorKey.currentState?.show());
-    } else {
-      _forceState = widget.data.isEmpty ? PlaceholderState.nothing : PlaceholderState.normal;
+  Widget _buildMasonryGridView(BuildContext context, bool sliver) {
+    if (!sliver) {
+      return MasonryGridView.count(
+        controller: widget.scrollController,
+        padding: widget.setting.padding,
+        physics: widget.setting.physics ?? const AlwaysScrollableScrollPhysics(),
+        reverse: widget.setting.reverse ?? false,
+        shrinkWrap: widget.setting.shrinkWrap ?? false,
+        // ===================================
+        crossAxisCount: widget.crossAxisCount ?? 2,
+        mainAxisSpacing: widget.mainAxisSpacing ?? 0.0,
+        crossAxisSpacing: widget.crossAxisSpacing ?? 0.0,
+        itemCount: widget.data.length,
+        itemBuilder: (c, idx) => widget.itemBuilder(c, idx, widget.data[idx]), // ignore extra listTopWidgets and listBottomWidgets
+      );
     }
-    widget.controller?.attachRefresh(_refreshIndicatorKey);
-  }
 
-  @override
-  void dispose() {
-    widget.controller?.detachRefresh();
-    super.dispose();
-  }
-
-  Future<void> _getData() async {
-    _forceState = null;
-    return _getDataCore(
-      setLoading: (l) => _loading = l,
-      setErrorMessage: (e) => _errorMessage = e,
-      data: widget.data,
-      getData: widget.getData,
-      setting: widget.setting,
-      doSetState: () {
-        if (mounted) setState(() {});
-      },
+    return CustomScrollView(
+      controller: widget.scrollController,
+      physics: widget.setting.physics ?? const AlwaysScrollableScrollPhysics(),
+      reverse: widget.setting.reverse ?? false,
+      shrinkWrap: widget.setting.shrinkWrap ?? false,
+      // ===================================
+      slivers: [
+        if (widget.useOverlapInjector ?? false)
+          SliverOverlapInjector(
+            handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
+          ),
+        SliverPadding(
+          padding: widget.setting.padding ?? MediaQuery.maybeOf(context)?.padding.copyWith(top: 0, bottom: 0) ?? EdgeInsets.zero,
+          sliver: SliverMasonryGrid.count(
+            crossAxisCount: widget.crossAxisCount ?? 2,
+            mainAxisSpacing: widget.mainAxisSpacing ?? 0,
+            crossAxisSpacing: widget.crossAxisSpacing ?? 0,
+            childCount: widget.data.length,
+            itemBuilder: (c, idx) => widget.itemBuilder(c, idx, widget.data[idx]), // ignore extra listTopWidgets and listBottomWidgets
+          ),
+        ),
+      ],
     );
   }
-
-  @override
-  bool get wantKeepAlive => widget.setting.wantKeepAlive ?? true;
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
 
-    var view = MasonryGridView.count(
-      controller: widget.scrollController,
-      padding: widget.setting.padding,
-      physics: widget.setting.physics ?? const AlwaysScrollableScrollPhysics(),
-      reverse: widget.setting.reverse ?? false,
-      shrinkWrap: widget.setting.shrinkWrap ?? false,
-      // ===================================
-      crossAxisCount: widget.crossAxisCount,
-      mainAxisSpacing: widget.mainAxisSpacing ?? 0,
-      crossAxisSpacing: widget.crossAxisSpacing ?? 0,
-      itemCount: widget.data.length,
-      itemBuilder: (c, idx) => widget.itemBuilder(c, widget.data[idx]), // ignore extra innerXXX and outerXXX
-    );
+    Widget view;
+    switch (widget.style) {
+      case UpdatableDataViewStyle.listView:
+        view = _buildListView(context, false);
+        break;
+      case UpdatableDataViewStyle.sliverListView:
+        view = _buildListView(context, true);
+        break;
+      case UpdatableDataViewStyle.masonryGridView:
+        view = _buildMasonryGridView(context, false);
+        break;
+      case UpdatableDataViewStyle.sliverMasonryGridView:
+        view = _buildMasonryGridView(context, true);
+        break;
+    }
 
     return RefreshIndicator(
       key: _refreshIndicatorKey,
@@ -531,16 +361,16 @@ class _RefreshableMasonryGridView<T> extends State<RefreshableMasonryGridView<T>
               isLoading: _loading,
               isEmpty: widget.data.isEmpty,
               errorText: _errorMessage,
-              onChanged: widget.setting.onStateChanged,
+              onChanged: widget.setting.onPlaceholderStateChanged,
               setting: widget.setting.placeholderSetting ?? const PlaceholderSetting(),
               childBuilder: (c) => Column(
                 crossAxisAlignment: widget.extra?.innerCrossAxisAlignment ?? CrossAxisAlignment.center,
                 children: [
                   if (widget.extra?.innerTopWidgets != null) ...(widget.extra?.innerTopWidgets)!,
                   Expanded(
-                    child: widget.setting.showScrollbar ?? true
+                    child: widget.setting.scrollbar ?? true
                         ? ScrollbarWithMore(
-                            interactive: widget.setting.scrollbarInteractive ?? false,
+                            interactive: widget.setting.interactiveScrollbar ?? false,
                             isAlwaysShown: widget.setting.alwaysShowScrollbar ?? false,
                             radius: widget.setting.scrollbarRadius,
                             thickness: widget.setting.scrollbarThickness,
@@ -563,55 +393,118 @@ class _RefreshableMasonryGridView<T> extends State<RefreshableMasonryGridView<T>
   }
 }
 
-// TODO RefreshableSliverMasonryGridView
+/// An implementation of [RefreshableDataView], which displays data in [ListView], only for backward compatibility.
+class RefreshableListView<T> extends RefreshableDataView<T> {
+  /// This constructor is the same as [RefreshableDataView.listView], only for backward compatibility.
+  const RefreshableListView({
+    Key? key,
+    required List<T> data,
+    required Future<List<T>> Function() getData,
+    UpdatableDataViewSetting<T> setting = const UpdatableDataViewSetting(),
+    ScrollController? scrollController,
+    required Widget Function(BuildContext, int, T) itemBuilder,
+    UpdatableDataViewExtraWidgets? extra,
+    // ===================================
+    Widget? separator,
+  }) : super.listView(
+          key: key,
+          data: data,
+          getData: getData,
+          setting: setting,
+          scrollController: scrollController,
+          itemBuilder: itemBuilder,
+          extra: extra,
+          // ===================================
+          separator: separator,
+        );
+}
 
-/// The getData inner implementation, used in [RefreshableListView._getData], [RefreshableListView._getData] and [RefreshableMasonryGridView._getData].
-Future<void> _getDataCore<T>({
-  required void Function(bool) setLoading,
-  required void Function(String) setErrorMessage,
-  // ===================================
-  required List<T> data,
-  required Future<List<T>> Function() getData,
-  required UpdatableDataViewSetting<T> setting,
-  // ===================================
-  required void Function() doSetState,
-}) async {
-  // start loading
-  setLoading(true);
-  setErrorMessage('');
-  if (setting.clearWhenRefresh ?? false) {
-    data.clear();
-  }
-  setting.onStartRefreshing?.call(); // start refreshing
-  setting.onStartLoading?.call(); // start loading
-  doSetState();
+/// An implementation of [RefreshableDataView], which displays data in [SliverList] with [CustomScrollView], only for backward compatibility.
+class RefreshableSliverListView<T> extends RefreshableDataView<T> {
+  /// This constructor is the same as [RefreshableDataView.sliverListView], only for backward compatibility.
+  const RefreshableSliverListView({
+    Key? key,
+    required List<T> data,
+    required Future<List<T>> Function() getData,
+    UpdatableDataViewSetting<T> setting = const UpdatableDataViewSetting(),
+    ScrollController? scrollController,
+    required Widget Function(BuildContext, int, T) itemBuilder,
+    UpdatableDataViewExtraWidgets? extra,
+    // ===================================
+    Widget? separator,
+    bool? useOverlapInjector = false,
+  }) : super.sliverListView(
+          key: key,
+          data: data,
+          getData: getData,
+          setting: setting,
+          scrollController: scrollController,
+          itemBuilder: itemBuilder,
+          extra: extra,
+          // ===================================
+          separator: separator,
+          useOverlapInjector: useOverlapInjector,
+        );
+}
 
-  // get data
-  final func = getData(); // Future<List<T>>
+/// An implementation of [RefreshableDataView], which displays data in [MasonryGridView], only for backward compatibility.
+class RefreshableMasonryGridView<T> extends RefreshableDataView<T> {
+  /// This constructor is the same as [RefreshableDataView.masonryGridView], only for backward compatibility.
+  const RefreshableMasonryGridView({
+    Key? key,
+    required List<T> data,
+    required Future<List<T>> Function() getData,
+    UpdatableDataViewSetting<T> setting = const UpdatableDataViewSetting(),
+    ScrollController? scrollController,
+    required Widget Function(BuildContext, int, T) itemBuilder,
+    UpdatableDataViewExtraWidgets? extra,
+    // ===================================
+    int? crossAxisCount = 2,
+    double? mainAxisSpacing = 0.0,
+    double? crossAxisSpacing = 0.0,
+  }) : super.masonryGridView(
+          key: key,
+          data: data,
+          getData: getData,
+          setting: setting,
+          scrollController: scrollController,
+          itemBuilder: itemBuilder,
+          extra: extra,
+          // ===================================
+          crossAxisCount: crossAxisCount,
+          mainAxisSpacing: mainAxisSpacing,
+          crossAxisSpacing: crossAxisSpacing,
+        );
+}
 
-  // return future
-  return func.then((List<T> list) async {
-    // success to get data without error
-    setErrorMessage('');
-    if (data.isNotEmpty) {
-      data.clear();
-      doSetState();
-      await Future.delayed(_kFlashListDuration);
-    }
-    data.addAll(list);
-    setting.onAppend?.call(list);
-  }).catchError((e) {
-    // error aroused
-    setErrorMessage(e.toString());
-    if (setting.clearWhenError ?? false) {
-      data.clear();
-    }
-    setting.onError?.call(e);
-  }).whenComplete(() {
-    // finish loading and setState
-    setLoading(false);
-    setting.onStopLoading?.call(); // stop loading
-    setting.onStopRefreshing?.call(); // stop refreshing
-    doSetState();
-  });
+/// An implementation of [RefreshableDataView], which displays data in [MasonryGridView] with [CustomScrollView], only for backward compatibility.
+class RefreshableSliverMasonryGridView<T> extends RefreshableDataView<T> {
+  /// This constructor is the same as [RefreshableDataView.sliverMasonryGridView], only for backward compatibility.
+  const RefreshableSliverMasonryGridView({
+    Key? key,
+    required List<T> data,
+    required Future<List<T>> Function() getData,
+    UpdatableDataViewSetting<T> setting = const UpdatableDataViewSetting(),
+    ScrollController? scrollController,
+    required Widget Function(BuildContext, int, T) itemBuilder,
+    UpdatableDataViewExtraWidgets? extra,
+    // ===================================
+    bool? useOverlapInjector = false,
+    int? crossAxisCount = 2,
+    double? mainAxisSpacing = 0.0,
+    double? crossAxisSpacing = 0.0,
+  }) : super.sliverMasonryGridView(
+          key: key,
+          data: data,
+          getData: getData,
+          setting: setting,
+          scrollController: scrollController,
+          itemBuilder: itemBuilder,
+          extra: extra,
+          // ===================================
+          useOverlapInjector: useOverlapInjector,
+          crossAxisCount: crossAxisCount,
+          mainAxisSpacing: mainAxisSpacing,
+          crossAxisSpacing: crossAxisSpacing,
+        );
 }
