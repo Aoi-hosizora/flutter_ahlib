@@ -10,7 +10,7 @@ class ExtendedNestedScrollViewPage extends StatefulWidget {
 
 class _ExtendedNestedScrollViewPageState extends State<ExtendedNestedScrollViewPage> with SingleTickerProviderStateMixin {
   final _scrollController = ScrollController();
-  late final _tabController = TabController(length: 2, vsync: this)
+  late final _tabController = TabController(length: 3, vsync: this)
     ..addListener(() {
       if (mounted) setState(() {});
     });
@@ -34,36 +34,41 @@ class _ExtendedNestedScrollViewPageState extends State<ExtendedNestedScrollViewP
                 tabs: const [
                   Tab(text: 'Page 0'),
                   Tab(text: 'Page 1'),
+                  Tab(text: 'Page 2'),
                 ],
               ),
             ),
           ),
         ],
-        body: Builder(
-          builder: (c) => Padding(
-            padding: const EdgeInsets.only(top: kToolbarHeight + kTextTabBarHeight),
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                // TODO ScrollController attached to multiple scroll views.
-                // TODO The provided ScrollController is currently attached to more than one ScrollPosition.
-                // TODO The provided ScrollController must be unique to a Scrollable widget.
-                _TestPage(
-                  title: 'Page 0',
-                  color: Colors.pink,
-                  outerScrollController: _scrollController,
-                  innerScrollController: PrimaryScrollController.of(c)!,
-                ),
-                _TestPage(
-                  title: 'Page 1',
-                  color: Colors.teal,
-                  outerScrollController: _scrollController,
-                  innerScrollController: PrimaryScrollController.of(c)!,
-                ),
-              ],
-            ),
-          ),
+        bodyBuilder: (c, pages) => TabBarView(
+          controller: _tabController,
+          children: pages,
+          // TODO ScrollController attached to multiple scroll views.
+          // TODO The provided ScrollController is currently attached to more than one ScrollPosition.
+          // TODO The provided ScrollController must be unique to a Scrollable widget.
         ),
+        independentPagesCount: _tabController.length,
+        activatedPageIndex: _tabController.index,
+        independentPagesBuilder: (c, index, controller) => index == 0
+            ? _TestPage(
+                title: 'Page 0',
+                color: Colors.pink,
+                outerScrollController: _scrollController,
+                innerScrollController: controller,
+              )
+            : index == 1
+                ? _TestPage(
+                    title: 'Page 1',
+                    color: Colors.teal,
+                    outerScrollController: _scrollController,
+                    innerScrollController: controller,
+                  )
+                : _TestPage(
+                    title: 'Page 2',
+                    color: Colors.lime,
+                    outerScrollController: _scrollController,
+                    innerScrollController: controller,
+                  ),
       ),
     );
   }
@@ -96,11 +101,15 @@ class _TestPageState extends State<_TestPage> with AutomaticKeepAliveClientMixin
     super.build(context);
     return Scaffold(
       body: Scrollbar(
+        isAlwaysShown: true, // TODO The provided ScrollController must be unique to a Scrollable widget.
         interactive: true,
-        controller: widget.innerScrollController,
+        controller: widget.innerScrollController, // TODO The provided ScrollController is currently attached to more than one ScrollPosition.
         child: CustomScrollView(
           controller: widget.innerScrollController,
           slivers: [
+            SliverOverlapInjector(
+              handle: ExtendedNestedScrollView.sliverOverlapAbsorberHandleFor(context),
+            ),
             SliverToBoxAdapter(
               child: Card(
                 child: Container(
@@ -112,22 +121,28 @@ class _TestPageState extends State<_TestPage> with AutomaticKeepAliveClientMixin
                 ),
               ),
             ),
-            SliverGrid(
-              delegate: SliverChildBuilderDelegate(
-                (c, i) => ListTile(
-                  title: Center(
-                    child: Text('${widget.title} - Item $i'),
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              sliver: SliverGrid(
+                delegate: SliverChildBuilderDelegate(
+                  (c, i) => ListTile(
+                    title: Center(
+                      child: Text('${widget.title} - Item $i'),
+                    ),
+                    onTap: () {},
                   ),
-                  onTap: () {},
+                  childCount: 8,
                 ),
-                childCount: 8,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  mainAxisSpacing: 2.0,
+                  crossAxisSpacing: 2.0,
+                  childAspectRatio: 2.3,
+                ),
               ),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                mainAxisSpacing: 2.0,
-                crossAxisSpacing: 2.0,
-                childAspectRatio: 2.3,
-              ),
+            ),
+            const SliverToBoxAdapter(
+              child: Divider(),
             ),
             SliverList(
               delegate: SliverChildBuilderDelegate(
@@ -142,10 +157,11 @@ class _TestPageState extends State<_TestPage> with AutomaticKeepAliveClientMixin
         ),
       ),
       floatingActionButton: ScrollAnimatedFab(
-        scrollController: widget.innerScrollController,
+        scrollController: widget.innerScrollController, // TODO ScrollController attached to multiple scroll views.
         condition: ScrollAnimatedCondition.direction,
         fab: FloatingActionButton(
           child: const Icon(Icons.vertical_align_top),
+          heroTag: null,
           onPressed: () => widget.outerScrollController.scrollToTop(),
         ),
       ),
