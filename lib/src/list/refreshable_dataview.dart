@@ -270,6 +270,7 @@ class RefreshableDataViewState<T> extends State<RefreshableDataView<T>> with Aut
           SliverOverlapInjector(
             handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
           ),
+        if (widget.extra?.listTopSlivers != null) ...(widget.extra?.listTopSlivers)!,
         SliverPadding(
           padding: widget.setting.padding ?? MediaQuery.maybeOf(context)?.padding.copyWith(top: 0, bottom: 0) ?? EdgeInsets.zero,
           sliver: SliverList(
@@ -280,6 +281,7 @@ class RefreshableDataViewState<T> extends State<RefreshableDataView<T>> with Aut
             ),
           ),
         ),
+        if (widget.extra?.listBottomSlivers != null) ...(widget.extra?.listBottomSlivers)!,
       ],
     );
   }
@@ -312,6 +314,7 @@ class RefreshableDataViewState<T> extends State<RefreshableDataView<T>> with Aut
           SliverOverlapInjector(
             handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
           ),
+        if (widget.extra?.listTopSlivers != null) ...(widget.extra?.listTopSlivers)!,
         SliverPadding(
           padding: widget.setting.padding ?? MediaQuery.maybeOf(context)?.padding.copyWith(top: 0, bottom: 0) ?? EdgeInsets.zero,
           sliver: SliverMasonryGrid.count(
@@ -322,6 +325,7 @@ class RefreshableDataViewState<T> extends State<RefreshableDataView<T>> with Aut
             itemBuilder: (c, idx) => widget.itemBuilder(c, idx, widget.data[idx]), // ignore extra listTopWidgets and listBottomWidgets
           ),
         ),
+        if (widget.extra?.listBottomSlivers != null) ...(widget.extra?.listBottomSlivers)!,
       ],
     );
   }
@@ -349,6 +353,10 @@ class RefreshableDataViewState<T> extends State<RefreshableDataView<T>> with Aut
     return RefreshIndicator(
       key: _refreshIndicatorKey,
       onRefresh: () => _getData(),
+      color: widget.setting.refreshIndicatorColor,
+      backgroundColor: widget.setting.refreshIndicatorBackgroundColor,
+      displacement: widget.setting.refreshIndicatorDisplacement ?? 40.0,
+      strokeWidth: widget.setting.refreshIndicatorStrokeWidth ?? RefreshProgressIndicator.defaultStrokeWidth,
       notificationPredicate: widget.setting.refreshNotificationPredicate ?? defaultScrollNotificationPredicate,
       child: Column(
         crossAxisAlignment: widget.extra?.outerCrossAxisAlignment ?? CrossAxisAlignment.center,

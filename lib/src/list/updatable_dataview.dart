@@ -125,28 +125,28 @@ class UpdatableDataViewSetting<T> {
   final double? scrollbarCrossAxisMargin;
 
   /// The color for [RefreshIndicator], defaults to [ColorScheme.primary].
-  final Color? refreshIndicatorColor; // TODO
+  final Color? refreshIndicatorColor;
 
   /// The background color for [RefreshIndicator], defaults to [ThemeData.canvasColor].
-  final Color? refreshIndicatorBackgroundColor; // TODO
+  final Color? refreshIndicatorBackgroundColor;
 
   /// The displacement for [RefreshIndicator], defaults to 40.0.
-  final double? refreshIndicatorDisplacement; // TODO
+  final double? refreshIndicatorDisplacement;
 
   /// The stroke width for [RefreshIndicator], defaults to [RefreshProgressIndicator.defaultStrokeWidth].
-  final double? refreshIndicatorStrokeWidth; // TODO
+  final double? refreshIndicatorStrokeWidth;
 
   /// The notificationPredicate for [RefreshIndicator], defaults to [defaultScrollNotificationPredicate]..
   final ScrollNotificationPredicate? refreshNotificationPredicate;
 
   /// The Color for [AppendIndicator], only used for pagination.
-  final Color? appendIndicatorColor; // TODO
+  final Color? appendIndicatorColor;
 
   /// The BackgroundColor for [AppendIndicator], only used for pagination.
-  final Color? appendIndicatorBackgroundColor; // TODO
+  final Color? appendIndicatorBackgroundColor;
 
   /// The MinHeight for [AppendIndicator], defaults to 5.0, only used for pagination.
-  final double? appendIndicatorMinHeight; // TODO
+  final double? appendIndicatorMinHeight;
 
   /// The notificationPredicate for [AppendIndicator], defaults to [defaultScrollNotificationPredicate], only used for pagination.
   final ScrollNotificationPredicate? appendNotificationPredicate;
@@ -193,21 +193,28 @@ class UpdatableDataViewSetting<T> {
   final void Function()? onNothing;
 }
 
-/// A list of extra widgets used in [UpdatableDataView], includes widget and divider lies before or after [ScrollView], inside or outside [PlaceholderText].
+/// A list of extra widgets which is used in [UpdatableDataView], including widgets lie before/after [ScrollView] and [CustomScrollView],
+/// or inside/outside [PlaceholderText].
 ///
 /// Widgets order:
 /// ```
+/// =================== (RefreshIndicator start)
 /// outerTopWidgets
-/// ================== (PlaceholderText)
+/// =================== (PlaceholderText start)
 /// innerTopWidgets
-/// ================== (ScrollView)
+/// =================== (CustomScrollView start)
+/// (listTopSlivers)
+/// =================== (ScrollView start)
 /// listTopWidgets
-/// ...                (with separator)
+/// ...
 /// listBottomWidgets
-/// ================== (ScrollView)
+/// =================== (ScrollView end)
+/// (listBottomSlivers)
+/// =================== (CustomScrollView end)
 /// innerBottomWidgets
-/// ================== (PlaceholderText)
+/// =================== (PlaceholderText end)
 /// outerBottomWidgets
+/// =================== (RefreshIndicator end)
 /// ```
 class UpdatableDataViewExtraWidgets {
   const UpdatableDataViewExtraWidgets({
@@ -215,8 +222,10 @@ class UpdatableDataViewExtraWidgets {
     this.innerCrossAxisAlignment = CrossAxisAlignment.center,
     this.outerTopWidgets,
     this.innerTopWidgets,
+    this.listTopSlivers,
     this.listTopWidgets,
     this.listBottomWidgets,
+    this.listBottomSlivers,
     this.innerBottomWidgets,
     this.outerBottomWidgets,
   });
@@ -233,11 +242,21 @@ class UpdatableDataViewExtraWidgets {
   /// The widget before [ScrollView] and inside [PlaceholderText].
   final List<Widget>? innerTopWidgets;
 
-  /// The widgets in the top of [ScrollView], and there is no separator between widgets.
+  /// The slivers in the top of [CustomScrollView]. Note that this is only available for [UpdatableDataViewStyle.sliverListView]
+  /// and [UpdatableDataViewStyle.sliverMasonryGridView].
+  final List<Widget>? listTopSlivers;
+
+  /// The widgets in the top of inner [ScrollView]. Note that there is no separator between these widgets, and this is unavailable
+  /// for [UpdatableDataViewStyle.masonryGridView] and [UpdatableDataViewStyle.sliverMasonryGridView].
   final List<Widget>? listTopWidgets;
 
-  /// The widgets in the bottom of [ScrollView], and there is no separator between widgets.
+  /// The widgets in the bottom of inner [ScrollView]. Note that there is no separator between these widgets, and this is unavailable
+  /// for [UpdatableDataViewStyle.masonryGridView] and [UpdatableDataViewStyle.sliverMasonryGridView].
   final List<Widget>? listBottomWidgets;
+
+  /// The slivers in the bottom of [CustomScrollView]. Note that this is only available for [UpdatableDataViewStyle.sliverListView]
+  /// and [UpdatableDataViewStyle.sliverMasonryGridView].
+  final List<Widget>? listBottomSlivers;
 
   /// The widget after [ScrollView] and inside [PlaceholderText].
   final List<Widget>? innerBottomWidgets;
