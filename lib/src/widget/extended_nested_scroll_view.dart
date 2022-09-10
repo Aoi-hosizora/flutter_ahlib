@@ -14,7 +14,13 @@ import 'package:flutter/scheduler.dart';
 //
 // Some code in this file keeps the same as the following source codes:
 // - NestedScrollView: https://github.com/flutter/flutter/blob/2.10.5/packages/flutter/lib/src/widget/nested_scroll_view.dart
+//
+// References:
+// - https://github.com/fluttercandies/extended_nested_scroll_view/blob/master/lib/src/extended_nested_scroll_view_part.dart
+// - https://juejin.cn/post/6844903713887223821
 
+/// This is an extended [NestedScrollView], mainly for [NestedScrollView] with a [TabBarView] or
+/// [PageView], which may use multiple [ScrollController].
 class ExtendedNestedScrollView extends StatefulWidget {
   const ExtendedNestedScrollView({
     Key? key,
@@ -23,31 +29,42 @@ class ExtendedNestedScrollView extends StatefulWidget {
     this.reverse = false,
     this.physics,
     required this.headerSliverBuilder,
-    required this.independentPagesCount,
-    required this.independentPagesBuilder,
+    required this.innerControllerCount,
+    required this.activeControllerIndex,
     required this.bodyBuilder,
-    required this.activatedPageIndex,
     this.dragStartBehavior = DragStartBehavior.start,
     this.floatHeaderSlivers = false,
     this.clipBehavior = Clip.hardEdge,
     this.restorationId,
     this.scrollBehavior,
-  }) : super(key: key);
+  })  : assert(innerControllerCount > 0),
+        assert(activeControllerIndex < innerControllerCount),
+        super(key: key);
 
   final ScrollController? controller;
   final Axis scrollDirection;
   final bool reverse;
   final ScrollPhysics? physics;
   final NestedScrollViewHeaderSliversBuilder headerSliverBuilder;
-  final int independentPagesCount;
-  final int activatedPageIndex;
-  final Widget Function(BuildContext context, int index, ScrollController controller) independentPagesBuilder;
-  final Widget Function(BuildContext context, List<Widget> pages) bodyBuilder;
   final DragStartBehavior dragStartBehavior;
   final bool floatHeaderSlivers;
   final Clip clipBehavior;
   final String? restorationId;
   final ScrollBehavior? scrollBehavior;
+
+  /// The inner scroll controller count (or page count) for [ExtendedNestedScrollView]. Note
+  /// that this value should be larger than zero.
+  final int innerControllerCount;
+
+  /// The current active inner scroll controller index. Note that only the active controller's
+  /// [ScrollPosition] will attach to [ExtendedNestedScrollView] outer nested scroll controller.
+  /// Note that this value should be larger than [innerControllerCount].
+  final int activeControllerIndex;
+
+  /// The body builder for [ExtendedNestedScrollView]. This builder passes all inner scroll
+  /// controllers as its second parameter, and it should be used for each page's scroll view.
+  /// And note that possibly you need to wrap some pages with [PrimaryScrollController].
+  final Widget Function(BuildContext context, List<ScrollController> innerControllers) bodyBuilder;
 
   static SliverOverlapAbsorberHandle sliverOverlapAbsorberHandleFor(BuildContext context) {
     final _InheritedNestedScrollView? target = context.dependOnInheritedWidgetOfExactType<_InheritedNestedScrollView>();
@@ -60,17 +77,10 @@ class ExtendedNestedScrollView extends StatefulWidget {
 
   // This method is modified by @Aoi-hosizora.
   List<Widget> _buildSlivers(BuildContext context, List<ScrollController> innerControllers, bool bodyIsScrolled) {
-    var pages = [
-      for (int i = 0; i < independentPagesCount; i++)
-        PrimaryScrollController(
-          controller: innerControllers[i], // TODO
-          child: independentPagesBuilder(context, i, innerControllers[i]), // TODO
-        ),
-    ];
     return <Widget>[
       ...headerSliverBuilder(context, bodyIsScrolled),
       SliverFillRemaining(
-        child: bodyBuilder(context, pages),
+        child: bodyBuilder(context, innerControllers),
       ),
     ];
   }
@@ -82,7 +92,7 @@ class ExtendedNestedScrollView extends StatefulWidget {
 class ExtendedNestedScrollViewState extends State<ExtendedNestedScrollView> {
   final SliverOverlapAbsorberHandle _absorberHandle = SliverOverlapAbsorberHandle();
 
-  List<ScrollController> get innerControllers => _coordinator!._innerControllers; // TODO
+  List<ScrollController> get innerControllers => _coordinator!._innerControllers; // <<<
 
   ScrollController get outerController => _coordinator!._outerController;
 
@@ -96,8 +106,8 @@ class ExtendedNestedScrollViewState extends State<ExtendedNestedScrollView> {
       widget.controller,
       _handleHasScrolledBodyChanged,
       widget.floatHeaderSlivers,
-      widget.independentPagesCount,
-      widget.activatedPageIndex,
+      widget.innerControllerCount,
+      widget.activeControllerIndex,
     );
   }
 
@@ -113,11 +123,11 @@ class ExtendedNestedScrollViewState extends State<ExtendedNestedScrollView> {
     if (oldWidget.controller != widget.controller) {
       _coordinator!.setParent(widget.controller);
     }
-    if (oldWidget.independentPagesCount != widget.independentPagesCount) {
-      _coordinator!.setInnerControllerCount(widget.independentPagesCount);
+    if (oldWidget.innerControllerCount != widget.innerControllerCount) {
+      _coordinator!._setInnerControllerCount(widget.innerControllerCount);
     }
-    if (oldWidget.activatedPageIndex != widget.activatedPageIndex) {
-      _coordinator!.setActivatedPageIndex(widget.activatedPageIndex);
+    if (oldWidget.activeControllerIndex != widget.activeControllerIndex) {
+      _coordinator!._setActivatedPageIndex(widget.activeControllerIndex);
     }
   }
 
@@ -162,7 +172,7 @@ class ExtendedNestedScrollViewState extends State<ExtendedNestedScrollView> {
             controller: _coordinator!._outerController,
             slivers: widget._buildSlivers(
               context,
-              _coordinator!._innerControllers, // TODO
+              _coordinator!._innerControllers, // <<<
               _lastHasScrolledBody!,
             ),
             handle: _absorberHandle,
@@ -304,7 +314,7 @@ class _ExtendedNestedScrollCoordinator implements ScrollActivityDelegate, Scroll
         this,
         debugLabel: 'inner',
       ),
-    ); // TODO
+    );
   }
 
   final ExtendedNestedScrollViewState _state;
@@ -315,19 +325,18 @@ class _ExtendedNestedScrollCoordinator implements ScrollActivityDelegate, Scroll
   int _innerControllerCount;
   int _activatedPageIndex;
   late _NestedScrollController _outerController;
-  late List<_NestedScrollController> _innerControllers; // TODO
+  late List<_NestedScrollController> _innerControllers;
 
   _NestedScrollPosition? get _outerPosition {
     if (!_outerController.hasClients) return null;
     return _outerController.nestedPositions.single;
   }
 
-  // TODO
   // This property is modified by @Aoi-hosizora.
   Iterable<_NestedScrollPosition> get _innerPositions {
     assert(_innerControllerCount > 0);
     assert(_activatedPageIndex < _innerControllerCount);
-    return _innerControllers[_activatedPageIndex].nestedPositions; // TODO
+    return _innerControllers[_activatedPageIndex].nestedPositions;
   }
 
   bool get canScrollBody {
@@ -338,7 +347,6 @@ class _ExtendedNestedScrollCoordinator implements ScrollActivityDelegate, Scroll
 
   bool get hasScrolledBody {
     for (final _NestedScrollPosition position in _innerPositions) {
-      // TODO
       if (!position.hasContentDimensions || !position.hasPixels) {
         // It's possible that NestedScrollView built twice before layout phase
         // in the same frame. This can happen when the FocusManager schedules a microTask
@@ -364,7 +372,6 @@ class _ExtendedNestedScrollCoordinator implements ScrollActivityDelegate, Scroll
     _userScrollDirection = value;
     _outerPosition!.didUpdateScrollDirection(value);
     for (final _NestedScrollPosition position in _innerPositions) {
-      // TODO
       position.didUpdateScrollDirection(value);
     }
   }
@@ -375,7 +382,6 @@ class _ExtendedNestedScrollCoordinator implements ScrollActivityDelegate, Scroll
     _outerPosition!.beginActivity(newOuterActivity);
     bool scrolling = newOuterActivity.isScrolling;
     for (final _NestedScrollPosition position in _innerPositions) {
-      // TODO
       final ScrollActivity newInnerActivity = innerActivityGetter(position);
       position.beginActivity(newInnerActivity);
       scrolling = scrolling && newInnerActivity.isScrolling;
@@ -428,7 +434,6 @@ class _ExtendedNestedScrollCoordinator implements ScrollActivityDelegate, Scroll
     _NestedScrollPosition? innerPosition;
     if (velocity != 0.0) {
       for (final _NestedScrollPosition position in _innerPositions) {
-        // TODO
         if (innerPosition != null) {
           if (velocity > 0.0) {
             if (innerPosition.pixels < position.pixels) continue;
@@ -479,7 +484,7 @@ class _ExtendedNestedScrollCoordinator implements ScrollActivityDelegate, Scroll
       pixels = _outerPosition!.pixels.clamp(
         _outerPosition!.minScrollExtent,
         _outerPosition!.maxScrollExtent,
-      ); // TODO(ianh): gracefully handle out-of-range outer positions
+      );
       minRange = _outerPosition!.minScrollExtent;
       maxRange = _outerPosition!.maxScrollExtent;
       assert(minRange <= maxRange);
@@ -568,7 +573,6 @@ class _ExtendedNestedScrollCoordinator implements ScrollActivityDelegate, Scroll
     if (!_outerPosition!.haveDimensions) return;
     double maxInnerExtent = 0.0;
     for (final _NestedScrollPosition position in _innerPositions) {
-      // TODO
       if (!position.haveDimensions) return;
       maxInnerExtent = math.max(
         maxInnerExtent,
@@ -608,7 +612,6 @@ class _ExtendedNestedScrollCoordinator implements ScrollActivityDelegate, Scroll
     goIdle();
     _outerPosition!.localJumpTo(nestOffset(to, _outerPosition!));
     for (final _NestedScrollPosition position in _innerPositions) {
-      // TODO
       position.localJumpTo(nestOffset(to, position));
     }
     goBallistic(0.0);
@@ -627,12 +630,10 @@ class _ExtendedNestedScrollCoordinator implements ScrollActivityDelegate, Scroll
     // ScrollPositions as one.
     _outerPosition!.isScrollingNotifier.value = true;
     for (final _NestedScrollPosition position in _innerPositions) {
-      // TODO
       position.isScrollingNotifier.value = true;
     }
 
     if (_innerPositions.isEmpty) {
-      // TODO
       // Does not enter overscroll.
       _outerPosition!.applyClampedPointerSignalUpdate(delta);
     } else if (delta > 0.0) {
@@ -641,7 +642,6 @@ class _ExtendedNestedScrollCoordinator implements ScrollActivityDelegate, Scroll
       // view, so that the app bar will scroll out of the way asap.
       double outerDelta = delta;
       for (final _NestedScrollPosition position in _innerPositions) {
-        // TODO
         if (position.pixels < 0.0) {
           // This inner position is in overscroll.
           final double potentialOuterDelta = position.applyClampedPointerSignalUpdate(delta);
@@ -657,7 +657,6 @@ class _ExtendedNestedScrollCoordinator implements ScrollActivityDelegate, Scroll
         );
         if (innerDelta != 0.0) {
           for (final _NestedScrollPosition position in _innerPositions) {
-            // TODO
             position.applyClampedPointerSignalUpdate(innerDelta);
           }
         }
@@ -674,7 +673,6 @@ class _ExtendedNestedScrollCoordinator implements ScrollActivityDelegate, Scroll
         // scrollable by the outerDelta.
         double outerDelta = 0.0; // it will go negative if it changes
         for (final _NestedScrollPosition position in _innerPositions) {
-          // TODO
           final double overscroll = position.applyClampedPointerSignalUpdate(innerDelta);
           outerDelta = math.min(outerDelta, overscroll);
         }
@@ -728,7 +726,6 @@ class _ExtendedNestedScrollCoordinator implements ScrollActivityDelegate, Scroll
     );
     assert(delta != 0.0);
     if (_innerPositions.isEmpty) {
-      // TODO
       _outerPosition!.applyFullDragUpdate(delta);
     } else if (delta < 0.0) {
       // Dragging "up"
@@ -736,7 +733,6 @@ class _ExtendedNestedScrollCoordinator implements ScrollActivityDelegate, Scroll
       // view, so that the app bar will scroll out of the way asap.
       double outerDelta = delta;
       for (final _NestedScrollPosition position in _innerPositions) {
-        // TODO
         if (position.pixels < 0.0) {
           // This inner position is in overscroll.
           final double potentialOuterDelta = position.applyClampedDragUpdate(delta);
@@ -752,7 +748,6 @@ class _ExtendedNestedScrollCoordinator implements ScrollActivityDelegate, Scroll
         );
         if (innerDelta != 0.0) {
           for (final _NestedScrollPosition position in _innerPositions) {
-            // TODO
             position.applyFullDragUpdate(innerDelta);
           }
         }
@@ -769,7 +764,7 @@ class _ExtendedNestedScrollCoordinator implements ScrollActivityDelegate, Scroll
         // scrollable by the outerDelta.
         double outerDelta = 0.0; // it will go positive if it changes
         final List<double> overscrolls = <double>[];
-        final List<_NestedScrollPosition> innerPositions = _innerPositions.toList(); // TODO
+        final List<_NestedScrollPosition> innerPositions = _innerPositions.toList();
         for (final _NestedScrollPosition position in innerPositions) {
           final double overscroll = position.applyClampedDragUpdate(innerDelta);
           outerDelta = math.max(outerDelta, overscroll);
@@ -798,30 +793,30 @@ class _ExtendedNestedScrollCoordinator implements ScrollActivityDelegate, Scroll
   }
 
   // This method is added by @Aoi-hosizora.
-  void setInnerControllerCount(int value) {
+  void _setInnerControllerCount(int value) {
     _innerControllerCount = value;
-    updateInnerControllers();
+    _updateInnerControllers();
   }
 
   // This method is added by @Aoi-hosizora.
-  void updateInnerControllers() {
-    for (final controller in _innerControllers) {
-      controller.dispose();
-    }
-    _innerControllers.clear();
-    _innerControllers.addAll(
-      List.generate(
-        _innerControllerCount,
-        (_) => _NestedScrollController(
-          this,
-          debugLabel: 'inner',
+  void _updateInnerControllers() {
+    if (_innerControllers.length > _innerControllerCount) {
+      _innerControllers.removeRange(_innerControllerCount, _innerControllers.length);
+    } else if (_innerControllers.length < _innerControllerCount) {
+      _innerControllers.addAll(
+        List.generate(
+          _innerControllerCount - _innerControllers.length,
+          (_) => _NestedScrollController(
+            this,
+            debugLabel: 'inner',
+          ),
         ),
-      ), // TODO
-    );
+      );
+    }
   }
 
   // This method is added by @Aoi-hosizora.
-  void setActivatedPageIndex(int value) {
+  void _setActivatedPageIndex(int value) {
     _activatedPageIndex = value;
   }
 
@@ -831,13 +826,12 @@ class _ExtendedNestedScrollCoordinator implements ScrollActivityDelegate, Scroll
     _currentDrag = null;
     _outerController.dispose();
     for (final controller in _innerControllers) {
-      // TODO
       controller.dispose();
     }
   }
 
   @override
-  String toString() => '${objectRuntimeType(this, '_ExtendedNestedScrollCoordinator')}(outer=$_outerController; inners=$_innerControllers)'; // TODO
+  String toString() => '${objectRuntimeType(this, '_ExtendedNestedScrollCoordinator')}(outer=$_outerController; inners=$_innerControllers)';
 }
 
 class _NestedScrollController extends ScrollController {
@@ -898,7 +892,6 @@ class _NestedScrollController extends ScrollController {
   }
 
   Iterable<_NestedScrollPosition> get nestedPositions {
-    // TODO(vegorov): use instance method version of castFrom when it is available.
     return Iterable.castFrom<ScrollPosition, _NestedScrollPosition>(positions);
   }
 }

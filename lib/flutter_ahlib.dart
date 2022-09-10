@@ -21,9 +21,9 @@ export 'src/widget/text_selection_config.dart';
 
 // list
 export 'src/list/append_indicator.dart';
-export 'src/list/pagination_dataview.dart';
-export 'src/list/refreshable_dataview.dart';
-export 'src/list/updatable_dataview.dart';
+export 'src/list/pagination_data_view.dart';
+export 'src/list/refreshable_data_view.dart';
+export 'src/list/updatable_data_view.dart';
 
 // image
 export 'src/image/local_or_cached_network_image_provider.dart';

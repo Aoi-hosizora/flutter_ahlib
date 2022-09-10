@@ -40,35 +40,34 @@ class _ExtendedNestedScrollViewPageState extends State<ExtendedNestedScrollViewP
             ),
           ),
         ],
-        bodyBuilder: (c, pages) => TabBarView(
+        innerControllerCount: _tabController.length,
+        activeControllerIndex: _tabController.index,
+        bodyBuilder: (c, controllers) => TabBarView(
           controller: _tabController,
-          children: pages,
-          // TODO ScrollController attached to multiple scroll views.
-          // TODO The provided ScrollController is currently attached to more than one ScrollPosition.
-          // TODO The provided ScrollController must be unique to a Scrollable widget.
+          children: [
+            // ScrollController attached to multiple scroll views.
+            // The provided ScrollController is currently attached to more than one ScrollPosition.
+            // The provided ScrollController must be unique to a Scrollable widget.
+            _TestPage(
+              title: 'Page 0',
+              color: Colors.pink,
+              outerScrollController: _scrollController,
+              innerScrollController: controllers[0],
+            ),
+            _TestPage(
+              title: 'Page 1',
+              color: Colors.teal,
+              outerScrollController: _scrollController,
+              innerScrollController: controllers[1],
+            ),
+            _TestPage(
+              title: 'Page 2',
+              color: Colors.lime,
+              outerScrollController: _scrollController,
+              innerScrollController: controllers[2],
+            ),
+          ],
         ),
-        independentPagesCount: _tabController.length,
-        activatedPageIndex: _tabController.index,
-        independentPagesBuilder: (c, index, controller) => index == 0
-            ? _TestPage(
-                title: 'Page 0',
-                color: Colors.pink,
-                outerScrollController: _scrollController,
-                innerScrollController: controller,
-              )
-            : index == 1
-                ? _TestPage(
-                    title: 'Page 1',
-                    color: Colors.teal,
-                    outerScrollController: _scrollController,
-                    innerScrollController: controller,
-                  )
-                : _TestPage(
-                    title: 'Page 2',
-                    color: Colors.lime,
-                    outerScrollController: _scrollController,
-                    innerScrollController: controller,
-                  ),
       ),
     );
   }
@@ -101,9 +100,9 @@ class _TestPageState extends State<_TestPage> with AutomaticKeepAliveClientMixin
     super.build(context);
     return Scaffold(
       body: Scrollbar(
-        isAlwaysShown: true, // TODO The provided ScrollController must be unique to a Scrollable widget.
+        isAlwaysShown: true, // The provided ScrollController must be unique to a Scrollable widget.
         interactive: true,
-        controller: widget.innerScrollController, // TODO The provided ScrollController is currently attached to more than one ScrollPosition.
+        controller: widget.innerScrollController, // The provided ScrollController is currently attached to more than one ScrollPosition.
         child: CustomScrollView(
           controller: widget.innerScrollController,
           slivers: [
@@ -157,7 +156,7 @@ class _TestPageState extends State<_TestPage> with AutomaticKeepAliveClientMixin
         ),
       ),
       floatingActionButton: ScrollAnimatedFab(
-        scrollController: widget.innerScrollController, // TODO ScrollController attached to multiple scroll views.
+        scrollController: widget.innerScrollController, // ScrollController attached to multiple scroll views.
         condition: ScrollAnimatedCondition.direction,
         fab: FloatingActionButton(
           child: const Icon(Icons.vertical_align_top),
