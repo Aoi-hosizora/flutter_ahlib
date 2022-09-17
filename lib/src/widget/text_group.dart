@@ -202,7 +202,7 @@ class TextGroup extends StatefulWidget {
         super(key: key);
 
   /// Creates a [TextGroup] which wraps [RichText] to show [TextGroupItem] list.
-  const TextGroup.nonSelectable({
+  const TextGroup.normal({
     Key? key,
     required this.texts,
     this.style,

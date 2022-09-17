@@ -27,7 +27,7 @@ class _TextGroupPageState extends State<TextGroupPage> {
               ),
             ),
             const SizedBox(height: 5),
-            TextGroup.nonSelectable(
+            TextGroup.normal(
               style: Theme.of(context).textTheme.bodyText2,
               texts: [
                 const PlainTextItem(text: 'short_text'),

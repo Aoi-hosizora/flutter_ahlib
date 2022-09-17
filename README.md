@@ -57,6 +57,7 @@ import 'package:flutter_ahlib/flutter_ahlib.dart'; // the whole library
     + `filesize`
     + `StateExtension` `ScrollControllerExtension` `PageControllerExtension` `ScrollMetricsExtension`
     + `hash2` ~ `hash6` `hashObjects`
+    + `getMimeFromExtension` `getExtensionsFromMime` `getPreferredExtensionFromMime`
     + `Tuple2` ~ `Tuple6`
 
 ### Dependencies
