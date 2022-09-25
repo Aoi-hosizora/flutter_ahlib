@@ -302,8 +302,8 @@ class PaginationDataViewState<T> extends State<PaginationDataView<T>> with Autom
         widget.data.addAll(list.list);
       } else {
         widget.data.addAll(list.list);
-        if (_downScrollable) {
-          widget.scrollController?.scrollDown();
+        if (_downScrollable && (widget.setting.automaticallyScrollDown ?? true)) {
+          await widget.scrollController?.scrollDown();
         }
       }
       _currentIndicator = _nextIndicator;

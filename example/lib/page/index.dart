@@ -22,6 +22,7 @@ import 'package:flutter_ahlib_example/page/widget/tab_in_page_notification.dart'
 import 'package:flutter_ahlib_example/page/widget/table_whole_row_ink_well.dart';
 import 'package:flutter_ahlib_example/page/widget/text_group.dart';
 import 'package:flutter_ahlib_example/page/widget/text_selection_config.dart';
+import 'package:flutter_ahlib_example/page/widget/video_progress_indicator.dart';
 import 'package:flutter_ahlib_example/page/widget/widget_with_callback.dart';
 
 class IndexPage extends StatefulWidget {
@@ -94,6 +95,7 @@ class _IndexPageState extends State<IndexPage> {
                 _button('WidgetWithCallback', const WidgetWithCallbackPage()),
                 _button('ScrollbarWithMore', const ScrollbarWithMorePage()),
                 _button('ExtendedNestedScrollView', const ExtendedNestedScrollViewPage()),
+                _button('VideoProgressIndicator', const VideoProgressIndicatorPage()),
               ],
             ),
             Align(

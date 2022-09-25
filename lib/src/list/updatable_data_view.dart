@@ -49,6 +49,7 @@ class UpdatableDataViewSetting<T> {
     this.reverse = false,
     this.shrinkWrap = false,
     this.wantKeepAlive = true,
+    this.automaticallyScrollDown = true,
     // display settings for scrollbar
     this.scrollbar = true,
     this.alwaysShowScrollbar = false,
@@ -102,6 +103,9 @@ class UpdatableDataViewSetting<T> {
 
   /// The wantKeepAlive for [AutomaticKeepAliveClientMixin], defaults to true.
   final bool? wantKeepAlive;
+
+  /// The flag for scrolling down automatically when data appended, defaults to true.
+  final bool? automaticallyScrollDown;
 
   /// The visibility for [Scrollbar], defaults to true.
   final bool? scrollbar;

@@ -42,7 +42,7 @@ class TableWholeRowInkWell extends CustomInkResponse {
     required double accumulativeWidthRatio,
   }) : super(
           key: key,
-          child: padding == null
+          child: padding == null || padding == EdgeInsets.zero
               ? child
               : Padding(
                   padding: padding,
