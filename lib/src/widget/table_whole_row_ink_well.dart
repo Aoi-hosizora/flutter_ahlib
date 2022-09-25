@@ -1,6 +1,108 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_ahlib/src/widget/custom_ink_feature.dart';
+import 'package:flutter_ahlib/src/widget/custom_ink_response.dart';
+import 'package:flutter_ahlib/src/widget/new_button_style.dart';
+
+/// A special ink well based on [CustomInkResponse], which will splash to the whole row
+/// when tap [TableCell], is used in [TableCell] and to replace [TableRowInkWell].
+class TableWholeRowInkWell extends CustomInkResponse {
+  TableWholeRowInkWell({
+    Key? key,
+    required Widget child,
+    EdgeInsets? padding,
+    GestureTapCallback? onTap,
+    GestureTapDownCallback? onTapDown,
+    GestureTapCallback? onTapCancel,
+    GestureTapCallback? onDoubleTap,
+    GestureLongPressCallback? onLongPress,
+    ValueChanged<bool>? onHighlightChanged,
+    ValueChanged<bool>? onHover,
+    MouseCursor? mouseCursor,
+    bool containedInkWell = true,
+    BoxShape highlightShape = BoxShape.rectangle,
+    BorderRadius? borderRadius,
+    ShapeBorder? customBorder,
+    Color? focusColor,
+    Color? hoverColor,
+    Color? highlightColor,
+    MaterialStateProperty<Color?>? overlayColor,
+    Color? splashColor,
+    bool enableFeedback = true,
+    bool excludeFromSemantics = false,
+    FocusNode? focusNode,
+    bool canRequestFocus = true,
+    ValueChanged<bool>? onFocusChange,
+    bool autofocus = false,
+    Duration? Function(HighlightType type)? highlightFadeDuration,
+    // <<<
+    CustomInkRippleSetting? rippleSetting,
+    required double tableWidth,
+    required double accumulativeWidthRatio,
+  }) : super(
+          key: key,
+          child: padding == null
+              ? child
+              : Padding(
+                  padding: padding,
+                  child: child,
+                ),
+          onTap: onTap,
+          onTapDown: onTapDown,
+          onTapCancel: onTapCancel,
+          onDoubleTap: onDoubleTap,
+          onLongPress: onLongPress,
+          onHighlightChanged: onHighlightChanged,
+          onHover: onHover,
+          mouseCursor: mouseCursor,
+          containedInkWell: containedInkWell,
+          highlightShape: highlightShape,
+          borderRadius: borderRadius,
+          customBorder: customBorder,
+          focusColor: focusColor,
+          hoverColor: hoverColor,
+          highlightColor: highlightColor,
+          overlayColor: overlayColor,
+          splashColor: splashColor,
+          enableFeedback: enableFeedback,
+          excludeFromSemantics: excludeFromSemantics,
+          onFocusChange: onFocusChange,
+          autofocus: autofocus,
+          focusNode: focusNode,
+          canRequestFocus: canRequestFocus,
+          highlightFadeDuration: highlightFadeDuration,
+          // <<<
+          splashFactory: CustomInkRippleFactory(
+            setting: (rippleSetting ?? CustomInkRippleSetting.defaultSetting).copyWith(
+              radiusCanvasCenterFn: (box, _) => Offset(tableWidth / 2 - tableWidth * accumulativeWidthRatio, box.size.height / 2),
+            ),
+          ),
+          getRadius: (box) => calcDiagonal(tableWidth, box.size.height) / 2,
+          getRect: (box) => getTableRowRect(box),
+        );
+
+  /// The preferred [TableWholeRowInkWell] constructor by Aoi-hosizora :)
+  TableWholeRowInkWell.preferred({
+    Key? key,
+    required Widget child,
+    EdgeInsets? padding,
+    GestureTapCallback? onTap,
+    GestureLongPressCallback? onLongPress,
+    required double tableWidth,
+    required double accumulativeWidthRatio,
+  }) : this(
+          key: key,
+          child: child,
+          padding: padding,
+          onTap: onTap,
+          tableWidth: tableWidth,
+          accumulativeWidthRatio: accumulativeWidthRatio,
+          rippleSetting: CustomInkRippleSetting.preferredSetting,
+          highlightColor: Colors.transparent,
+          splashColor: Colors.black.withOpacity(preferredSplashColorOpacityForTable), // 0.16
+        );
+}
 
 /// A helper class for [TableCell], and is used to decide which [TableCell] to fill
 /// the whole [TableRow] in vertical direction, which is not implemented by flutter.

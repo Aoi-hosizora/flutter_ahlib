@@ -59,4 +59,10 @@ extension ListExtension<T> on List<T> {
   List<T> separate(T separator) {
     return separateWithBuilder((_) => separator);
   }
+
+  /// Returns the first element of list, or returns null if list is empty.
+  T? get firstOrNull => isEmpty ? null : first;
+
+  /// Returns the last element of list, or returns null if list is empty.
+  T? get lastOrNull => isEmpty ? null : last;
 }

@@ -55,5 +55,19 @@ void main() {
     test('separateWithBuilder', () {
       expect([1, 2, 3, 4, 5].separateWithBuilder((_) => 0), [1, 0, 2, 0, 3, 0, 4, 0, 5]);
     });
+
+    test('firstOrNull, lastOrNull', () {
+      expect([].firstOrNull, null);
+      expect([1].firstOrNull, 1);
+      expect([1, 2].firstOrNull, 1);
+      expect(<dynamic>[1, 2, null].firstOrNull, 1);
+      expect(<dynamic>[null, null].firstOrNull, null);
+
+      expect([].lastOrNull, null);
+      expect([1].lastOrNull, 1);
+      expect([1, 2].lastOrNull, 2);
+      expect(<dynamic>[1, 2, null].lastOrNull, null);
+      expect(<dynamic>[null, null].lastOrNull, null);
+    });
   });
 }

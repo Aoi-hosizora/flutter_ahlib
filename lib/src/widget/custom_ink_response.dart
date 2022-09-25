@@ -16,6 +16,7 @@ import 'package:flutter/material.dart';
 /// A custom [InkWell] with [getRadius], [getRect] for ink feature.
 class CustomInkWell extends CustomInkResponse {
   const CustomInkWell({
+    Key? key,
     Widget? child,
     GestureTapCallback? onTap,
     GestureTapDownCallback? onTapDown,
@@ -39,7 +40,6 @@ class CustomInkWell extends CustomInkResponse {
     bool canRequestFocus = true,
     ValueChanged<bool>? onFocusChange,
     bool autofocus = false,
-    Key? key,
     Duration? Function(HighlightType type)? highlightFadeDuration, // <<<
     double? Function(RenderBox referenceBox)? getRadius, // <<<
     Rect? Function(RenderBox referenceBox)? getRect, // <<<

@@ -63,20 +63,17 @@ extension ScrollControllerExtension on ScrollController {
     }
     return false;
   }
-}
 
-/// Default [Curve] value for [defaultAnimateToPage].
-const _kPageScrollCurve = Curves.easeOutQuad;
+  /// Checks whether current scroll offset is larger than given threshold, or is in the bottom of
+  /// scroll view.
+  bool isScrollOver(double threshold, {double maxScrollExtentError = 1.0}) {
+    return hasClients && (offset >= threshold || offset >= position.maxScrollExtent * maxScrollExtentError);
+  }
 
-/// Default [Duration] value for [defaultAnimateToPage].
-const _kPageScrollDuration = kTabScrollDuration;
-
-/// An extension for [PageController].
-extension PageControllerExtension on PageController {
-  /// This is almost the same as [ScrollController.animateTo], but has two optional parameters. Here [page]
-  /// is required, but [curve] and [duration] have its default values.
-  Future<void> defaultAnimateToPage(int page, {Curve curve = _kPageScrollCurve, Duration duration = _kPageScrollDuration}) {
-    return animateToPage(page, curve: curve, duration: duration);
+  /// Jumps the scroll position to the given value without animation, and waits for end of frame.
+  Future<void> jumpToAndWait(double value) async {
+    jumpTo(value);
+    return WidgetsBinding.instance?.endOfFrame;
   }
 }
 
@@ -87,9 +84,40 @@ extension ScrollMetricsExtension on ScrollMetrics {
     return maxScrollExtent == 0.0;
   }
 
-  /// Checks if the current scroll position is in the bottom of the parent.
+  /// Checks if the current scroll position is in the bottom of scroll view.
   bool isInBottom() {
     return pixels >= maxScrollExtent && !outOfRange;
     // return extentAfter == 0.0 && !outOfRange; // extentAfter => math.max(maxScrollExtent - pixels, 0.0)
+  }
+}
+
+/// Default [Curve] value for [defaultAnimateToPage].
+const _kPageScrollCurve = Curves.easeOutQuad;
+
+/// Default [Duration] value for [defaultAnimateToPage].
+const _kPageScrollDuration = kTabScrollDuration;
+
+/// An extension for [PageController].
+extension PageControllerExtension on PageController {
+  /// This is almost the same as [ScrollController.animateTo], but has two optional parameters. Here
+  /// [page] is required, but [curve] and [duration] have its default values.
+  Future<void> defaultAnimateToPage(int page, {Curve curve = _kPageScrollCurve, Duration duration = _kPageScrollDuration}) {
+    return animateToPage(page, curve: curve, duration: duration);
+  }
+}
+
+/// An extension for [RenderObject].
+extension RenderObjectExtension on RenderObject {
+  /// Returns the [Rect] which contains the size (semantic bound size) and position (in the coordinate
+  /// system of root node) of render object.
+  Rect getBoundInRootAncestorCoordinate() {
+    var translation = getTransformTo(null).getTranslation();
+    var size = semanticBounds.size;
+    return Rect.fromLTWH(translation.x, translation.y, size.width, size.height);
+  }
+
+  /// Casts the [RenderObject] to [RenderBox].
+  RenderBox? toRenderBox() {
+    return this as RenderBox?;
   }
 }

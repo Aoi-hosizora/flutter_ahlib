@@ -37,7 +37,7 @@ import 'package:flutter_ahlib/flutter_ahlib.dart'; // the whole library
     + `ScrollbarWithMore`
     + `SliverHeaderDelegate` `SliverSeparatedListDelegate` `SliverSeparatedListBuilderDelegate`
     + `TabInPageNotification`
-    + `TableCellHelper` `getTableRowRect`
+    + `TableWholeRowInkWell` `TableCellHelper`
     + `TextGroup`
     + `TextSelectionConfig` `TextSelectionWithColorHandle`
     + `StatelessWidgetWithCallback` `StatefulWidgetWithCallback`
@@ -55,7 +55,7 @@ import 'package:flutter_ahlib/flutter_ahlib.dart'; // the whole library
     + `ActionController`
     + `BoolExtension` `ListExtension`
     + `filesize`
-    + `StateExtension` `ScrollControllerExtension` `PageControllerExtension` `ScrollMetricsExtension`
+    + `StateExtension` `ScrollControllerExtension` `ScrollMetricsExtension` `PageControllerExtension` `RenderObjectExtension`
     + `hash2` ~ `hash6` `hashObjects`
     + `getMimeFromExtension` `getExtensionsFromMime` `getPreferredExtensionFromMime`
     + `Tuple2` ~ `Tuple6`
