@@ -29,22 +29,48 @@ class ActionController {
   final _actions = <dynamic, Action>{}; // action list
 
   /// Adds an action.
-  void addAction<T>(dynamic key, Action<T> action) {
-    _actions[key] = action;
+  ///
+  /// Possible parameter kinds:
+  /// ```
+  /// addAction()                 => key: ''      action: null
+  ///
+  /// addAction('x')              => key: 'x'     action: null
+  /// addAction(1)                => key: 1       action: null
+  /// addAction(func)             => key: ''      action: func
+  /// addAction(() => 1)          => key: ''      action: () => 1
+  ///
+  /// addAction('x', null)        => key: 'x'     action: null
+  /// addAction(1, null)          => key: 1       action: null
+  /// addAction(func, null)       => key: ''      action: func
+  /// addAction(() => 1, null)    => key: ''      action: () => 1
+  ///
+  /// addAction('x', () => 1)     => key: 'x'     action: () => 1
+  /// addAction(1, () => 1)       => key: 1       action: () => 1
+  /// addAction(func, () => 1)    => key: func    action: () => 1
+  /// addAction(() => 1, () => 1) => key: () => 1 action: () => 1
+  /// ```
+  void addAction<T>([dynamic key = '', Action<T>? action]) {
+    if (action == null && key is Action<T>) {
+      action = key;
+      key = '';
+    }
+    if (action != null) {
+      _actions[key] = action;
+    }
   }
 
   /// Removes an action.
-  void removeAction<T>(dynamic key) {
+  void removeAction<T>([dynamic key = '']) {
     _actions.remove(key);
   }
 
-  /// Checks if contains the given [key].
-  bool containsAction(dynamic key) {
+  /// Checks if controller contains the given action [key].
+  bool containsAction([dynamic key = '']) {
     return _actions.containsKey(key);
   }
 
   /// Gets the action by the given [key], returns null if not found.
-  Action<T>? getAction<T>(dynamic key) {
+  Action<T>? getAction<T>([dynamic key = '']) {
     var action = _actions[key];
     if (action != null) {
       return action as Action<T>;
@@ -53,7 +79,7 @@ class ActionController {
   }
 
   /// Invokes an action by the given [key], returns null if not found.
-  T? invoke<T>(dynamic key) {
+  T? invoke<T>([dynamic key = '']) {
     var r = _actions[key]?.call();
     if (r != null) {
       return r as T;

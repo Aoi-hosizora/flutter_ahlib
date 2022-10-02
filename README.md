@@ -40,6 +40,7 @@ import 'package:flutter_ahlib/flutter_ahlib.dart'; // the whole library
     + `TableWholeRowInkWell` `TableCellHelper`
     + `TextGroup`
     + `TextSelectionConfig` `TextSelectionWithColorHandle`
+    + `VideoProgressIndicator`
     + `StatelessWidgetWithCallback` `StatefulWidgetWithCallback`
 + list.dart:
     + `AppendIndicator` `AppendIndicatorState`

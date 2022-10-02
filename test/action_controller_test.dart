@@ -37,6 +37,30 @@ void main() {
       expect(controller.invoke(null), null);
     });
 
+    test('test parameters', () {
+      var controller = ActionController();
+
+      controller.addAction();
+      expect(controller.containsAction(), false);
+      expect(controller.getAction() == null, true);
+      expect(controller.invoke(), null);
+
+      controller.addAction('');
+      expect(controller.containsAction(''), false);
+      expect(controller.getAction('') == null, true);
+      expect(controller.invoke(''), null);
+
+      controller.addAction(() => 1);
+      expect(controller.containsAction(), true);
+      expect(controller.getAction() == null, false);
+      expect(controller.invoke(), 1);
+
+      controller.removeAction();
+      expect(controller.containsAction(''), false);
+      expect(controller.getAction('') == null, true);
+      expect(controller.invoke(''), null);
+    });
+
     test('a normal ctrl', () {
       var controller = ActionController();
       controller.addAction('1', () => null);
