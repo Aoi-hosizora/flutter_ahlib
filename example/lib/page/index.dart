@@ -16,7 +16,6 @@ import 'package:flutter_ahlib_example/page/widget/new_button_style.dart';
 import 'package:flutter_ahlib_example/page/widget/placeholder_text.dart';
 import 'package:flutter_ahlib_example/page/widget/popup_list_menu.dart';
 import 'package:flutter_ahlib_example/page/widget/animated_fab.dart';
-import 'package:flutter_ahlib_example/page/widget/popup_modal_dialog.dart';
 import 'package:flutter_ahlib_example/page/widget/scrollbar_with_more.dart';
 import 'package:flutter_ahlib_example/page/widget/sliver_delegate.dart';
 import 'package:flutter_ahlib_example/page/widget/tab_in_page_notification.dart';
@@ -97,7 +96,6 @@ class _IndexPageState extends State<IndexPage> {
                 _button('ScrollbarWithMore', const ScrollbarWithMorePage()),
                 _button('ExtendedNestedScrollView', const ExtendedNestedScrollViewPage()),
                 _button('VideoProgressIndicator', const VideoProgressIndicatorPage()),
-                _button('PopupModalDialog', const PopupModalDialogPage()),
               ],
             ),
             Align(

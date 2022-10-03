@@ -30,6 +30,8 @@ class PlaceholderSetting {
     this.progressTextPadding = const EdgeInsets.all(14),
     // style
     this.textStyle = const TextStyle(fontSize: 20),
+    this.errorTextMaxLines = 15,
+    this.errorTextOverflow = TextOverflow.ellipsis,
     this.buttonTextStyle = const TextStyle(fontSize: 14),
     this.buttonStyle = const ButtonStyle(),
     this.iconSize = 50,
@@ -69,6 +71,8 @@ class PlaceholderSetting {
       progressPadding: progressPadding,
       progressTextPadding: progressTextPadding,
       textStyle: textStyle,
+      errorTextMaxLines: errorTextMaxLines,
+      errorTextOverflow: errorTextOverflow,
       buttonTextStyle: buttonTextStyle,
       buttonStyle: buttonStyle,
       iconSize: iconSize,
@@ -106,6 +110,8 @@ class PlaceholderSetting {
       progressPadding: progressPadding,
       progressTextPadding: progressTextPadding,
       textStyle: textStyle,
+      errorTextMaxLines: errorTextMaxLines,
+      errorTextOverflow: errorTextOverflow,
       buttonTextStyle: buttonTextStyle,
       buttonStyle: buttonStyle,
       iconSize: iconSize,
@@ -142,6 +148,8 @@ class PlaceholderSetting {
 
   // style
   final TextStyle textStyle;
+  final int errorTextMaxLines;
+  final TextOverflow errorTextOverflow;
   final TextStyle buttonTextStyle;
   final ButtonStyle buttonStyle;
   final double iconSize;
@@ -348,10 +356,19 @@ class _PlaceholderTextState extends State<PlaceholderText> {
               if (widget.setting.showErrorText)
                 Padding(
                   padding: widget.setting.textPadding,
-                  child: Text(
-                    (widget.errorText?.isNotEmpty == true) ? widget.errorText! : widget.setting.unknownErrorText,
-                    textAlign: TextAlign.center,
-                    style: widget.setting.textStyle,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          (widget.errorText?.isNotEmpty == true) ? widget.errorText! : widget.setting.unknownErrorText,
+                          textAlign: TextAlign.center,
+                          style: widget.setting.textStyle,
+                          maxLines: widget.setting.errorTextMaxLines,
+                          overflow: widget.setting.errorTextOverflow,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               if (widget.setting.showErrorRetry)

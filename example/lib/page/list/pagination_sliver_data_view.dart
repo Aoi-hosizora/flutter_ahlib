@@ -179,12 +179,12 @@ class _PaginationSliverDataViewPageState extends State<PaginationSliverDataViewP
                   updateOnlyIfNotEmpty: false,
                   onPlaceholderStateChanged: (_, __) => _fabController.hide(),
                   onStartRefreshing: () => printLog('onStartRefreshing'),
-                  onStopRefreshing: () => printLog('onStopRefreshing'),
                   onStartGettingData: () => printLog('onStartGettingData'),
-                  onStopGettingData: () => printLog('onStopGettingData'),
                   onAppend: (i, l) => printLog('onAppend: $i (${_pdvKey.currentState?.currentIndicator}), #=${l.length}'),
                   onError: (e) => printLog('onError: $e'),
-                  onNothing: () => printLog('onNothing'),
+                  onStopGettingData: () => printLog('onStopGettingData'),
+                  onStopRefreshing: () => printLog('onStopRefreshing'),
+                  onFinalSetState: () => printLog('onFinalSetState'),
                 ),
                 itemBuilder: (_, idx, item) => _listOrGrid
                     ? ListTile(

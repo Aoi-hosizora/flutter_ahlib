@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/src/list/append_indicator.dart';
 import 'package:flutter_ahlib/src/list/updatable_data_view.dart';
@@ -271,16 +272,19 @@ class PaginationDataViewState<T> extends State<PaginationDataView<T>> with Autom
         _errorMessage = '';
         _currentIndicator = _nextIndicator;
         widget.setting.onAppend?.call(_nextIndicator, []);
-        widget.setting.onStopGettingData?.call(); // stop loading callback
+        widget.setting.onStopGettingData?.call(); // stop loading
         if (reset) {
-          widget.setting.onStopRefreshing?.call(); // stop refreshing callback
+          widget.setting.onStopRefreshing?.call(); // stop refreshing
         }
         if (mounted) setState(() {});
+        widget.setting.onFinalSetState?.call(); // final setState
       });
     }
 
     // get data
     final func = widget.getData(indicator: _nextIndicator); // Future<PagedList<T>>
+    double? previousOffset;
+    var needScrollDown = false;
 
     // return future
     return func.then((PagedList<T> list) async {
@@ -302,8 +306,11 @@ class PaginationDataViewState<T> extends State<PaginationDataView<T>> with Autom
         widget.data.addAll(list.list);
       } else {
         widget.data.addAll(list.list);
-        if (_downScrollable && (widget.setting.automaticallyScrollDown ?? true)) {
-          await widget.scrollController?.scrollDown();
+        if (widget.scrollController?.hasClients == true && (widget.setting.ensureKeepScrollOffsetWhenAppend ?? false)) {
+          previousOffset = widget.scrollController!.offset;
+        }
+        if (_downScrollable && (widget.setting.automaticallyScrollDownWhenAppend ?? true)) {
+          needScrollDown = true;
         }
       }
       _currentIndicator = _nextIndicator;
@@ -316,14 +323,24 @@ class PaginationDataViewState<T> extends State<PaginationDataView<T>> with Autom
         widget.data.clear();
       }
       widget.setting.onError?.call(e);
-    }).whenComplete(() {
+    }).whenComplete(() async {
       // finish loading and setState
       _loading = false;
-      widget.setting.onStopGettingData?.call(); // stop loading callback
+      widget.setting.onStopGettingData?.call(); // stop loading
       if (reset) {
-        widget.setting.onStopRefreshing?.call(); // stop refreshing callback
+        widget.setting.onStopRefreshing?.call(); // stop refreshing
       }
       if (mounted) setState(() {});
+      // keep scroll offset and scroll down the list, if needed
+      if (previousOffset != null) {
+        await WidgetsBinding.instance?.endOfFrame;
+        widget.scrollController?.jumpTo(previousOffset!);
+      }
+      if (needScrollDown) {
+        await WidgetsBinding.instance?.endOfFrame;
+        await widget.scrollController?.scrollDown();
+      }
+      widget.setting.onFinalSetState?.call(); // final setState
     });
   }
 
@@ -363,6 +380,11 @@ class PaginationDataViewState<T> extends State<PaginationDataView<T>> with Autom
         physics: widget.setting.physics ?? const AlwaysScrollableScrollPhysics(),
         reverse: widget.setting.reverse ?? false,
         shrinkWrap: widget.setting.shrinkWrap ?? false,
+        cacheExtent: widget.setting.cacheExtent,
+        dragStartBehavior: widget.setting.dragStartBehavior ?? DragStartBehavior.start,
+        keyboardDismissBehavior: widget.setting.keyboardDismissBehavior ?? ScrollViewKeyboardDismissBehavior.manual,
+        restorationId: widget.setting.restorationId,
+        clipBehavior: widget.setting.clipBehavior ?? Clip.hardEdge,
         // ===================================
         separatorBuilder: separatorBuilder,
         itemCount: tl + dl + bl,
@@ -375,6 +397,11 @@ class PaginationDataViewState<T> extends State<PaginationDataView<T>> with Autom
       physics: widget.setting.physics ?? const AlwaysScrollableScrollPhysics(),
       reverse: widget.setting.reverse ?? false,
       shrinkWrap: widget.setting.shrinkWrap ?? false,
+      cacheExtent: widget.setting.cacheExtent,
+      dragStartBehavior: widget.setting.dragStartBehavior ?? DragStartBehavior.start,
+      keyboardDismissBehavior: widget.setting.keyboardDismissBehavior ?? ScrollViewKeyboardDismissBehavior.manual,
+      restorationId: widget.setting.restorationId,
+      clipBehavior: widget.setting.clipBehavior ?? Clip.hardEdge,
       // ===================================
       slivers: [
         if (widget.useOverlapInjector ?? false)
@@ -405,6 +432,11 @@ class PaginationDataViewState<T> extends State<PaginationDataView<T>> with Autom
         physics: widget.setting.physics ?? const AlwaysScrollableScrollPhysics(),
         reverse: widget.setting.reverse ?? false,
         shrinkWrap: widget.setting.shrinkWrap ?? false,
+        cacheExtent: widget.setting.cacheExtent,
+        dragStartBehavior: widget.setting.dragStartBehavior ?? DragStartBehavior.start,
+        keyboardDismissBehavior: widget.setting.keyboardDismissBehavior ?? ScrollViewKeyboardDismissBehavior.manual,
+        restorationId: widget.setting.restorationId,
+        clipBehavior: widget.setting.clipBehavior ?? Clip.hardEdge,
         // ===================================
         crossAxisCount: widget.crossAxisCount ?? 2,
         mainAxisSpacing: widget.mainAxisSpacing ?? 0.0,
@@ -419,6 +451,11 @@ class PaginationDataViewState<T> extends State<PaginationDataView<T>> with Autom
       physics: widget.setting.physics ?? const AlwaysScrollableScrollPhysics(),
       reverse: widget.setting.reverse ?? false,
       shrinkWrap: widget.setting.shrinkWrap ?? false,
+      cacheExtent: widget.setting.cacheExtent,
+      dragStartBehavior: widget.setting.dragStartBehavior ?? DragStartBehavior.start,
+      keyboardDismissBehavior: widget.setting.keyboardDismissBehavior ?? ScrollViewKeyboardDismissBehavior.manual,
+      restorationId: widget.setting.restorationId,
+      clipBehavior: widget.setting.clipBehavior ?? Clip.hardEdge,
       // ===================================
       slivers: [
         if (widget.useOverlapInjector ?? false)

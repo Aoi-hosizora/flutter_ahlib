@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/src/list/updatable_data_view.dart';
 import 'package:flutter_ahlib/src/widget/placeholder_text.dart';
@@ -213,6 +214,7 @@ class RefreshableDataViewState<T> extends State<RefreshableDataView<T>> with Aut
       widget.setting.onStopGettingData?.call(); // stop loading
       widget.setting.onStopRefreshing?.call(); // stop refreshing
       if (mounted) setState(() {});
+      widget.setting.onFinalSetState?.call(); // final setState
     });
   }
 
@@ -252,6 +254,11 @@ class RefreshableDataViewState<T> extends State<RefreshableDataView<T>> with Aut
         physics: widget.setting.physics ?? const AlwaysScrollableScrollPhysics(),
         reverse: widget.setting.reverse ?? false,
         shrinkWrap: widget.setting.shrinkWrap ?? false,
+        cacheExtent: widget.setting.cacheExtent,
+        dragStartBehavior: widget.setting.dragStartBehavior ??  DragStartBehavior.start,
+        keyboardDismissBehavior: widget.setting.keyboardDismissBehavior ?? ScrollViewKeyboardDismissBehavior.manual,
+        restorationId: widget.setting.restorationId,
+        clipBehavior: widget.setting.clipBehavior ?? Clip.hardEdge,
         // ===================================
         separatorBuilder: separatorBuilder,
         itemCount: tl + dl + bl,
@@ -264,6 +271,11 @@ class RefreshableDataViewState<T> extends State<RefreshableDataView<T>> with Aut
       physics: widget.setting.physics ?? const AlwaysScrollableScrollPhysics(),
       reverse: widget.setting.reverse ?? false,
       shrinkWrap: widget.setting.shrinkWrap ?? false,
+      cacheExtent: widget.setting.cacheExtent,
+      dragStartBehavior: widget.setting.dragStartBehavior ??  DragStartBehavior.start,
+      keyboardDismissBehavior: widget.setting.keyboardDismissBehavior ?? ScrollViewKeyboardDismissBehavior.manual,
+      restorationId: widget.setting.restorationId,
+      clipBehavior: widget.setting.clipBehavior ?? Clip.hardEdge,
       // ===================================
       slivers: [
         if (widget.useOverlapInjector ?? false)
@@ -294,6 +306,11 @@ class RefreshableDataViewState<T> extends State<RefreshableDataView<T>> with Aut
         physics: widget.setting.physics ?? const AlwaysScrollableScrollPhysics(),
         reverse: widget.setting.reverse ?? false,
         shrinkWrap: widget.setting.shrinkWrap ?? false,
+        cacheExtent: widget.setting.cacheExtent,
+        dragStartBehavior: widget.setting.dragStartBehavior ??  DragStartBehavior.start,
+        keyboardDismissBehavior: widget.setting.keyboardDismissBehavior ?? ScrollViewKeyboardDismissBehavior.manual,
+        restorationId: widget.setting.restorationId,
+        clipBehavior: widget.setting.clipBehavior ?? Clip.hardEdge,
         // ===================================
         crossAxisCount: widget.crossAxisCount ?? 2,
         mainAxisSpacing: widget.mainAxisSpacing ?? 0.0,
@@ -308,6 +325,11 @@ class RefreshableDataViewState<T> extends State<RefreshableDataView<T>> with Aut
       physics: widget.setting.physics ?? const AlwaysScrollableScrollPhysics(),
       reverse: widget.setting.reverse ?? false,
       shrinkWrap: widget.setting.shrinkWrap ?? false,
+      cacheExtent: widget.setting.cacheExtent,
+      dragStartBehavior: widget.setting.dragStartBehavior ??  DragStartBehavior.start,
+      keyboardDismissBehavior: widget.setting.keyboardDismissBehavior ?? ScrollViewKeyboardDismissBehavior.manual,
+      restorationId: widget.setting.restorationId,
+      clipBehavior: widget.setting.clipBehavior ?? Clip.hardEdge,
       // ===================================
       slivers: [
         if (widget.useOverlapInjector ?? false)

@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/src/list/append_indicator.dart';
 import 'package:flutter_ahlib/src/widget/placeholder_text.dart';
@@ -48,8 +49,12 @@ class UpdatableDataViewSetting<T> {
     this.physics = const AlwaysScrollableScrollPhysics(),
     this.reverse = false,
     this.shrinkWrap = false,
+    this.cacheExtent,
+    this.dragStartBehavior = DragStartBehavior.start,
+    this.keyboardDismissBehavior = ScrollViewKeyboardDismissBehavior.manual,
+    this.restorationId,
+    this.clipBehavior = Clip.hardEdge,
     this.wantKeepAlive = true,
-    this.automaticallyScrollDown = true,
     // display settings for scrollbar
     this.scrollbar = true,
     this.alwaysShowScrollbar = false,
@@ -71,20 +76,22 @@ class UpdatableDataViewSetting<T> {
     this.appendNotificationPredicate = defaultScrollNotificationPredicate,
     // display settings for placeholder text
     this.placeholderSetting = const PlaceholderSetting(),
+    this.onPlaceholderStateChanged,
     // behavior settings
     this.refreshFirst = true,
     this.clearWhenRefresh = false,
     this.clearWhenError = false,
     this.updateOnlyIfNotEmpty = false,
+    this.ensureKeepScrollOffsetWhenAppend = false,
+    this.automaticallyScrollDownWhenAppend = true,
     // behavior callbacks
-    this.onPlaceholderStateChanged,
     this.onStartRefreshing,
-    this.onStopRefreshing,
     this.onStartGettingData,
-    this.onStopGettingData,
     this.onAppend,
     this.onError,
-    this.onNothing,
+    this.onStopGettingData,
+    this.onStopRefreshing,
+    this.onFinalSetState,
   });
 
   // Display settings
@@ -101,11 +108,23 @@ class UpdatableDataViewSetting<T> {
   /// The shrinkWrap for [ScrollView], defaults to false.
   final bool? shrinkWrap;
 
+  /// The cacheExtent for [ScrollView].
+  final double? cacheExtent;
+
+  /// The dragStartBehavior for [ScrollView], defaults to [DragStartBehavior.start].
+  final DragStartBehavior? dragStartBehavior;
+
+  /// The keyboardDismissBehavior for [ScrollView], defaults to [ScrollViewKeyboardDismissBehavior.manual].
+  final ScrollViewKeyboardDismissBehavior? keyboardDismissBehavior;
+
+  /// The restorationId for [ScrollView].
+  final String? restorationId;
+
+  /// The clipBehavior for [ScrollView], defaults to [Clip.hardEdge].
+  final Clip? clipBehavior;
+
   /// The wantKeepAlive for [AutomaticKeepAliveClientMixin], defaults to true.
   final bool? wantKeepAlive;
-
-  /// The flag for scrolling down automatically when data appended, defaults to true.
-  final bool? automaticallyScrollDown;
 
   /// The visibility for [Scrollbar], defaults to true.
   final bool? scrollbar;
@@ -158,6 +177,9 @@ class UpdatableDataViewSetting<T> {
   /// The setting for [PlaceholderText], defaults to [PlaceholderSetting()].
   final PlaceholderSetting? placeholderSetting;
 
+  /// The callback when [PlaceholderText] state changed.
+  final PlaceholderStateChangedCallback? onPlaceholderStateChanged;
+
   // Behavior settings and callbacks
 
   /// The switcher to do refresh when init view, defaults to true.
@@ -172,29 +194,32 @@ class UpdatableDataViewSetting<T> {
   /// The switcher to update list only when returned data is not empty, defaults to false, only used for pagination.
   final bool? updateOnlyIfNotEmpty;
 
-  /// The callback when [PlaceholderText] state changed.
-  final PlaceholderStateChangedCallback? onPlaceholderStateChanged;
+  /// The flag for ensure keeping scroll offset when data appended, default to false, only used for pagination.
+  final bool? ensureKeepScrollOffsetWhenAppend;
+
+  /// The flag for scrolling down automatically when data appended, defaults to true, only used for pagination.
+  final bool? automaticallyScrollDownWhenAppend;
 
   /// The callback when start refreshing.
   final void Function()? onStartRefreshing;
 
-  /// The callback when stop refreshing.
-  final void Function()? onStopRefreshing;
-
   /// The callback when start getting data.
   final void Function()? onStartGettingData;
-
-  /// The callback when stop getting data.
-  final void Function()? onStopGettingData;
 
   /// The callback when data has been replaced or appended.
   final void Function(dynamic indicator, List<T> appendedData)? onAppend;
 
-  /// The callback when error invoked.
+  /// The callback when error aroused.
   final void Function(dynamic error)? onError;
 
-  /// The callback when get nothing, used for only pagination.
-  final void Function()? onNothing;
+  /// The callback when stop getting data.
+  final void Function()? onStopGettingData;
+
+  /// The callback when stop refreshing.
+  final void Function()? onStopRefreshing;
+
+  /// The callback when final setState is called.
+  final void Function()? onFinalSetState;
 }
 
 /// A list of extra widgets which is used in [UpdatableDataView], including widgets lie before/after [ScrollView] and [CustomScrollView],

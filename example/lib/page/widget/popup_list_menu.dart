@@ -87,6 +87,122 @@ class _PopupListMenuPageState extends State<PopupListMenuPage> {
                 ],
               ),
             ),
+            const Divider(),
+            OutlinedButton(
+              child: const Text('showGeneralDialog - CustomSingleChildLayout'),
+              onPressed: () async {
+                var offset = false;
+                var result = await showGeneralDialog<String>(
+                  context: context,
+                  barrierColor: Colors.transparent,
+                  barrierDismissible: true,
+                  barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+                  pageBuilder: (c, _, __) => StatefulBuilder(
+                    builder: (_, _setState) => CustomSingleChildLayout(
+                      delegate: CustomSingleChildLayoutDelegate(
+                        sizeGetter: (constraints) => constraints.biggest,
+                        constraintsGetter: (constraints) => BoxConstraints(
+                          minWidth: 0,
+                          minHeight: 0,
+                          maxWidth: MediaQuery.of(context).size.width - (!offset ? 0 : 50),
+                          maxHeight: MediaQuery.of(context).size.height - (!offset ? MediaQuery.of(context).padding.top + kToolbarHeight : 100),
+                        ),
+                        positionGetter: (size, childSize) => Offset(
+                          !offset ? 0 : 50,
+                          !offset ? MediaQuery.of(context).padding.top + kToolbarHeight : 100,
+                        ),
+                        relayoutChecker: () => true,
+                      ),
+                      child: Column(
+                        children: [
+                          Container(
+                            height: 150,
+                            color: Colors.yellow,
+                            child: Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Text('General Dialog'),
+                                  const SizedBox(height: 5),
+                                  OutlinedButton(
+                                    onPressed: () => Navigator.of(context).pop('dismiss'),
+                                    child: const Text('dismiss'),
+                                  ),
+                                  OutlinedButton(
+                                    onPressed: () => _setState(() => offset = !offset),
+                                    child: Text('offset - ${offset ? 'on' : 'off'}'),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: GestureDetector(
+                              child: Container(
+                                color: const Color(0x80000000),
+                                margin: EdgeInsets.only(right: !offset ? 0 : 10, bottom: !offset ? 0 : 10),
+                              ),
+                              onTap: () => Navigator.of(context).pop(),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+                printLog('$result, from showGeneralDialog - CustomSingleChildLayout');
+              },
+            ),
+            OutlinedButton(
+              child: const Text('showGeneralDialog - Stack'),
+              onPressed: () async {
+                var result = await showGeneralDialog<String>(
+                  context: context,
+                  barrierColor: Colors.transparent,
+                  barrierDismissible: true,
+                  barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+                  pageBuilder: (c, _, __) => Stack(
+                    children: [
+                      Positioned(
+                        left: 0,
+                        top: MediaQuery.of(context).padding.top + kToolbarHeight,
+                        right: 0,
+                        bottom: 0,
+                        child: GestureDetector(
+                          child: Container(
+                            color: const Color(0x80000000),
+                          ),
+                          onTap: () => Navigator.of(context).pop(null),
+                        ),
+                      ),
+                      Positioned(
+                        left: 0,
+                        top: MediaQuery.of(context).padding.top + kToolbarHeight,
+                        right: 0,
+                        child: Container(
+                          height: 150,
+                          color: Colors.yellow,
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Text('General Dialog'),
+                                const SizedBox(height: 5),
+                                OutlinedButton(
+                                  onPressed: () => Navigator.of(context).pop('dismiss'),
+                                  child: const Text('dismiss'),
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+                printLog('$result - from showGeneralDialog - Stack');
+              },
+            ),
           ],
         ),
       ),
