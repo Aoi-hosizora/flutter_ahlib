@@ -17,8 +17,9 @@ class PlaceholderSetting {
     // text
     this.loadingText = 'Loading...',
     this.nothingText = 'Nothing',
-    this.retryText = 'Retry',
+    this.nothingRetryText = 'Retry',
     this.unknownErrorText = 'Unknown error',
+    this.errorRetryText = 'Retry',
     // icon
     this.nothingIcon = Icons.clear_all,
     this.errorIcon = Icons.error,
@@ -29,7 +30,7 @@ class PlaceholderSetting {
     this.progressPadding = const EdgeInsets.all(27.5),
     this.progressTextPadding = const EdgeInsets.all(14),
     // style
-    this.textStyle = const TextStyle(fontSize: 20),
+    this.textStyle = const TextStyle(fontSize: 20), // TODO use Theme.of(context).textTheme instead
     this.errorTextMaxLines = 15,
     this.errorTextOverflow = TextOverflow.ellipsis,
     this.buttonTextStyle = const TextStyle(fontSize: 14),
@@ -55,14 +56,16 @@ class PlaceholderSetting {
   PlaceholderSetting copyWithChinese({
     String loadingText = '加载中...',
     String nothingText = '无内容',
-    String retryText = '重试',
+    String nothingRetryText = '重试',
     String unknownErrorText = '未知错误',
+    String errorRetryText = '重试',
   }) {
     return PlaceholderSetting(
       loadingText: loadingText,
       nothingText: nothingText,
-      retryText: retryText,
+      nothingRetryText: nothingRetryText,
       unknownErrorText: unknownErrorText,
+      errorRetryText: errorRetryText,
       nothingIcon: nothingIcon,
       errorIcon: errorIcon,
       textPadding: textPadding,
@@ -94,14 +97,16 @@ class PlaceholderSetting {
   PlaceholderSetting copyWithJapanese({
     String loadingText = '読み込み中...',
     String nothingText = '何も見つかりませんでした',
-    String retryText = '再試行',
+    String nothingRetryText = '再試行',
     String unknownErrorText = '未知エラー',
+    String errorRetryText = '再試行',
   }) {
     return PlaceholderSetting(
       loadingText: loadingText,
       nothingText: nothingText,
-      retryText: retryText,
+      nothingRetryText: nothingRetryText,
       unknownErrorText: unknownErrorText,
+      errorRetryText: errorRetryText,
       nothingIcon: nothingIcon,
       errorIcon: errorIcon,
       textPadding: textPadding,
@@ -132,8 +137,9 @@ class PlaceholderSetting {
   // text
   final String loadingText;
   final String nothingText;
-  final String retryText;
+  final String nothingRetryText;
   final String unknownErrorText;
+  final String errorRetryText;
 
   // icon
   final IconData nothingIcon;
@@ -172,33 +178,41 @@ class PlaceholderSetting {
   final bool showErrorRetry;
 }
 
-/// A placeholder text mainly used with [ListView] when using network request, includes four states: normal, loading, nothing, error.
+/// A placeholder text mainly used with [ListView] when using network request, includes four states:
+/// normal, loading, nothing, error.
 class PlaceholderText extends StatefulWidget {
   const PlaceholderText({
     Key? key,
     required this.childBuilder,
     this.onRefresh,
+    this.onRetryForNothing,
+    this.onRetryForError,
     this.errorText,
     required this.state,
     this.onChanged,
     this.setting = const PlaceholderSetting(),
   }) : super(key: key);
 
-  /// Creates [PlaceholderText] with given parameters, this method will use given conditions to get the [state].
+  /// Creates [PlaceholderText] with given parameters, this method uses given fields to get the [state].
   const PlaceholderText.from({
     Key? key,
     required Widget Function(BuildContext) childBuilder,
-    Function? onRefresh,
+    void Function()? onRefresh,
+    void Function()? onRetryForNothing,
+    void Function()? onRetryForError,
     String? errorText,
     PlaceholderState? forceState,
     required bool isEmpty,
     required bool isLoading,
     PlaceholderStateChangedCallback? onChanged,
     PlaceholderSetting setting = const PlaceholderSetting(),
+    // TODO error priority field !!!, data existed when error aroused
   }) : this(
           key: key,
           childBuilder: childBuilder,
           onRefresh: onRefresh,
+          onRetryForNothing: onRetryForNothing,
+          onRetryForError: onRetryForError,
           errorText: errorText,
           onChanged: onChanged,
           setting: setting,
@@ -215,8 +229,15 @@ class PlaceholderText extends StatefulWidget {
   /// The child builder of this widget.
   final Widget Function(BuildContext) childBuilder;
 
-  /// The refresh handler to perform retry logic.
-  final Function? onRefresh;
+  /// The refresh handler to perform retry logic. Note that this is the fallback value for
+  /// [onRetryForNothing] and [onRetryForError].
+  final void Function()? onRefresh;
+
+  /// The refresh handler to perform retry logic, for nothing.
+  final void Function()? onRetryForNothing;
+
+  /// The refresh handler to perform retry logic, for error.
+  final void Function()? onRetryForError;
 
   /// The current error message, shown when current [state] is [PlaceholderState.error].
   final String? errorText;
@@ -322,11 +343,11 @@ class _PlaceholderTextState extends State<PlaceholderText> {
                   padding: widget.setting.buttonPadding,
                   child: OutlinedButton(
                     child: Text(
-                      widget.setting.retryText,
+                      widget.setting.nothingRetryText,
                       style: widget.setting.buttonTextStyle,
                     ),
                     onPressed: () {
-                      widget.onRefresh?.call();
+                      (widget.onRetryForNothing ?? widget.onRefresh)?.call();
                       if (mounted) setState(() {});
                     },
                     style: widget.setting.buttonStyle,
@@ -376,11 +397,11 @@ class _PlaceholderTextState extends State<PlaceholderText> {
                   padding: widget.setting.buttonPadding,
                   child: OutlinedButton(
                     child: Text(
-                      widget.setting.retryText,
+                      widget.setting.errorRetryText,
                       style: widget.setting.buttonTextStyle,
                     ),
                     onPressed: () {
-                      widget.onRefresh?.call();
+                      (widget.onRetryForError ?? widget.onRefresh)?.call();
                       if (mounted) setState(() {});
                     },
                     style: widget.setting.buttonStyle,

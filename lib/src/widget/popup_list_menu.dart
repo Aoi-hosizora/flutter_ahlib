@@ -8,7 +8,7 @@ const _kDefaultMenuItemPadding = EdgeInsets.symmetric(vertical: 8, horizontal: 2
 const _kDefaultTextMenuItemPadding = EdgeInsets.symmetric(horizontal: 28, vertical: 16);
 
 /// The default padding of [IconTextMenuItem].
-const _kDefaultIconTextMenuItemPadding = EdgeInsets.symmetric(horizontal: 18, vertical: 10);
+const _kDefaultIconTextMenuItemPadding = EdgeInsets.symmetric(horizontal: 23, vertical: 10);
 
 /// An enum type for [MenuItem] and [TextMenuItem], used to specify dialog's dismiss behavior.
 enum DismissBehavior {
@@ -85,7 +85,7 @@ Future<void> showPopupListMenu({
   bool? barrierDismissible = true,
   Color? barrierColor = Colors.black54,
   bool? useSafeArea = true,
-}) {
+}) { // TODO default DismissBehavior
   return showDialog(
     context: context,
     barrierDismissible: barrierDismissible ?? true,

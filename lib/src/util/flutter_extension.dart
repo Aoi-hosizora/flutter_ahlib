@@ -31,7 +31,10 @@ const _kAnimatedLocalScrollDuration = Duration(milliseconds: 300);
 extension ScrollControllerExtension on ScrollController {
   /// Scrolls to offset with default [Curve] and [Duration].
   Future<void> scrollWithAnimate(double offset, {Curve curve = _kAnimatedScrollCurve, Duration duration = _kAnimatedScrollDuration}) {
-    return animateTo(offset, curve: curve, duration: duration);
+    if (hasClients) {
+      return animateTo(offset, curve: curve, duration: duration);
+    }
+    return Future.value(null);
   }
 
   /// Scrolls to the top of the scroll view, see [scrollWithAnimate].
