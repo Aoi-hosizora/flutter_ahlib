@@ -11,7 +11,11 @@ import 'package:flutter/rendering.dart';
 // Some code in this file keeps the same as the following source codes:
 // - PageView: https://github.com/flutter/flutter/blob/2.10.5/packages/flutter/lib/src/widgets/page_view.dart
 
-final PageController _defaultPageController = PageController();
+// Having this global (mutable) page controller is a bit of a hack. We need it
+// to plumb in the factory for _PagePosition, but it will end up accumulating
+// a large list of scroll positions. As long as you don't try to actually
+// control the scroll positions, everything should be fine.
+final PageController _defaultPageController = PageController(); // <<< the same as Flutter's source code
 const PageScrollPhysics _kPagePhysics = PageScrollPhysics();
 
 /// A scrollable and preloadable list that works page by page, which is modified from [PageView].
@@ -31,8 +35,10 @@ class PreloadablePageView extends StatefulWidget {
     this.clipBehavior = Clip.hardEdge,
     this.scrollBehavior,
     this.padEnds = true,
+    this.pageMainAxisHintSize,
     this.preloadPagesCount = 0,
-  })  : assert(preloadPagesCount >= 0),
+  })  : assert(pageMainAxisHintSize == null || pageMainAxisHintSize >= 0),
+        assert(preloadPagesCount >= 0),
         controller = controller ?? _defaultPageController,
         childrenDelegate = SliverChildListDelegate(children),
         super(key: key);
@@ -53,8 +59,10 @@ class PreloadablePageView extends StatefulWidget {
     this.clipBehavior = Clip.hardEdge,
     this.scrollBehavior,
     this.padEnds = true,
+    this.pageMainAxisHintSize,
     this.preloadPagesCount = 0,
-  })  : assert(preloadPagesCount >= 0),
+  })  : assert(pageMainAxisHintSize == null || pageMainAxisHintSize >= 0),
+        assert(preloadPagesCount >= 0),
         controller = controller ?? _defaultPageController,
         childrenDelegate = SliverChildBuilderDelegate(itemBuilder, childCount: itemCount),
         super(key: key);
@@ -95,8 +103,11 @@ class PreloadablePageView extends StatefulWidget {
   /// Mirror to [PageView.padEnds].
   final bool padEnds;
 
-  /// An integer value that determines number pages that will be preloaded.
-  /// Defaults to 0.
+  /// A double value that represents the hint size at page main axis, is used to set the cache
+  /// extent for preloading page, defaults to `MediaQuery.of(context).size`.
+  final double? pageMainAxisHintSize;
+
+  /// An integer value that determines number pages that will be preloaded,defaults to 0.
   final int preloadPagesCount;
 
   @override
@@ -128,10 +139,10 @@ class _PreloadablePageViewState extends State<PreloadablePageView> {
   Widget build(BuildContext context) {
     final AxisDirection axisDirection = _getDirection(context);
     final ScrollPhysics? physics = widget.pageSnapping
-        ? _kPagePhysics.applyTo(
-            widget.physics ?? widget.scrollBehavior?.getScrollPhysics(context),
-          )
+        ? _kPagePhysics.applyTo(widget.physics ?? widget.scrollBehavior?.getScrollPhysics(context)) //
         : widget.physics ?? widget.scrollBehavior?.getScrollPhysics(context);
+    final pageMainAxisHintSize = widget.pageMainAxisHintSize ?? //
+        (widget.scrollDirection == Axis.horizontal ? MediaQuery.of(context).size.width : MediaQuery.of(context).size.height);
 
     return NotificationListener<ScrollNotification>(
       onNotification: (ScrollNotification notification) {
@@ -154,11 +165,7 @@ class _PreloadablePageViewState extends State<PreloadablePageView> {
         scrollBehavior: widget.scrollBehavior ?? ScrollConfiguration.of(context).copyWith(scrollbars: false),
         viewportBuilder: (BuildContext context, ViewportOffset position) {
           return Viewport(
-            cacheExtent: widget.preloadPagesCount < 1
-                ? 0
-                : widget.scrollDirection == Axis.horizontal
-                    ? MediaQuery.of(context).size.width * widget.preloadPagesCount - 1
-                    : MediaQuery.of(context).size.height * widget.preloadPagesCount - 1,
+            cacheExtent: widget.preloadPagesCount < 1 ? 0 : pageMainAxisHintSize * widget.preloadPagesCount - 1,
             // cacheExtent: widget.allowImplicitScrolling ? 1.0 : 0.0,
             // cacheExtentStyle: CacheExtentStyle.viewport,
             axisDirection: axisDirection,
@@ -175,15 +182,5 @@ class _PreloadablePageViewState extends State<PreloadablePageView> {
         },
       ),
     );
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder description) {
-    super.debugFillProperties(description);
-    description.add(EnumProperty<Axis>('scrollDirection', widget.scrollDirection));
-    description.add(FlagProperty('reverse', value: widget.reverse, ifTrue: 'reversed'));
-    description.add(DiagnosticsProperty<PageController>('controller', widget.controller, showName: false));
-    description.add(DiagnosticsProperty<ScrollPhysics>('physics', widget.physics, showName: false));
-    description.add(FlagProperty('pageSnapping', value: widget.pageSnapping, ifFalse: 'snapping disabled'));
   }
 }

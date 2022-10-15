@@ -7,53 +7,61 @@ import 'package:photo_view/photo_view.dart';
 // Some code in this file keeps the same as the following source codes:
 // - PhotoViewGallery: https://github.com/bluefireteam/photo_view/blob/0.14.0/lib/photo_view_gallery.dart
 
-/// A [StatefulWidget] that shows multiple [PhotoView] widgets in a [PageView], which is modified from [PhotoViewGallery], and is used to make a reloadable
-/// [PhotoViewGallery] through [ReloadablePhotoViewGalleryState.reload].
+/// A [StatefulWidget] that shows multiple [PhotoView] widgets in a [PageView], which is modified from [PhotoViewGallery],
+/// and is used to make a reloadable and fractionally [PhotoViewGallery] through [ReloadablePhotoViewGalleryState.reload].
 ///
-/// Some of [PhotoView] constructor options are passed direct to [ReloadablePhotoViewGallery] constructor. Those options will affect the gallery in a whole.
+/// Some of [PhotoView] constructor options are passed direct to [ReloadablePhotoViewGallery] constructor. Those options
+/// will affect the gallery in a whole.
 ///
-/// Some of the options may be defined to each image individually, such as `initialScale` or `heroAttributes`. Those must be passed via each [ReloadablePhotoViewGalleryPageOptions].
+/// Some of the options may be defined to each image individually, such as `initialScale` or `heroAttributes`. Those must
+/// be passed via each [ReloadablePhotoViewGalleryPageOptions].
 class ReloadablePhotoViewGallery extends StatefulWidget {
   /// Construct a gallery with static items through a list of [ReloadablePhotoViewGalleryPageOptions].
   const ReloadablePhotoViewGallery({
     Key? key,
-    required this.pageOptions,
+    required List<ReloadablePhotoViewGalleryPageOptions> this.pageOptions,
     this.backgroundDecoration,
     this.wantKeepAlive = false,
     this.gaplessPlayback = false,
     this.reverse = false,
     this.pageController,
     this.onPageChanged,
+    this.keepViewportMainAxisSize = true,
+    this.viewportMainAxisFactor,
     this.scaleStateChangedCallback,
     this.enableRotation = false,
     this.scrollPhysics,
     this.scrollDirection = Axis.horizontal,
     this.customSize,
+    this.pageMainAxisHintSize,
     this.preloadPagesCount = 0,
   })  : itemCount = null,
         builder = null,
+        assert(viewportMainAxisFactor == null || viewportMainAxisFactor > 0),
         super(key: key);
 
   /// Construct a gallery with dynamic items. The builder must return a [ReloadablePhotoViewGalleryPageOptions].
   const ReloadablePhotoViewGallery.builder({
     Key? key,
-    required this.itemCount,
-    required this.builder,
+    required int this.itemCount,
+    required ReloadablePhotoViewGalleryPageOptions Function(BuildContext context, int index) this.builder,
     this.backgroundDecoration,
     this.wantKeepAlive = false,
     this.gaplessPlayback = false,
     this.reverse = false,
     this.pageController,
     this.onPageChanged,
+    this.keepViewportMainAxisSize = true,
+    this.viewportMainAxisFactor,
     this.scaleStateChangedCallback,
     this.enableRotation = false,
     this.scrollPhysics,
     this.scrollDirection = Axis.horizontal,
     this.customSize,
+    this.pageMainAxisHintSize,
     this.preloadPagesCount = 0,
   })  : pageOptions = null,
-        assert(itemCount != null),
-        assert(builder != null),
+        assert(viewportMainAxisFactor == null || viewportMainAxisFactor > 0),
         super(key: key);
 
   /// A list of options to describe the items in the gallery.
@@ -86,6 +94,14 @@ class ReloadablePhotoViewGallery extends StatefulWidget {
   /// An callback to be called on a page change.
   final void Function(int index)? onPageChanged;
 
+  /// The flag for keeping main axis size of each photo page to origin size with default viewport fraction (which is 1),
+  /// defaults to false.
+  final bool keepViewportMainAxisSize;
+
+  /// The viewport width or height factor for each photo page, and if this value is set to null, the factor will be depended
+  /// by [keepViewportMainAxisSize] and [PageController.viewportFraction].
+  final double? viewportMainAxisFactor;
+
   /// Mirror to [PhotoView.scaleStateChangedCallback].
   final ValueChanged<PhotoViewScaleState>? scaleStateChangedCallback;
 
@@ -97,6 +113,9 @@ class ReloadablePhotoViewGallery extends StatefulWidget {
 
   /// The axis along which the [PageView] scrolls. Mirror to [PageView.scrollDirection].
   final Axis scrollDirection;
+
+  /// Mirror to [PreloadablePageView.pageMainAxisHintSize].
+  final double? pageMainAxisHintSize;
 
   /// Mirror to [PreloadablePageView.preloadPagesCount].
   final int preloadPagesCount;
@@ -111,7 +130,7 @@ class ReloadablePhotoViewGallery extends StatefulWidget {
 
 /// The state of [ReloadablePhotoViewGallery], can be used to [reload] the specific image from [ImageProvider].
 class ReloadablePhotoViewGalleryState extends State<ReloadablePhotoViewGallery> {
-  late final PageController _controller = widget.pageController ?? PageController();
+  late var _controller = widget.pageController ?? PageController();
   late List<ValueNotifier<String>> _notifiers = List.generate(widget._itemCount, (index) => ValueNotifier(''));
 
   /// Returns the current page of the widget.
@@ -121,17 +140,46 @@ class ReloadablePhotoViewGalleryState extends State<ReloadablePhotoViewGallery> 
   int get itemCount => widget._itemCount;
 
   /// Reloads the image of given index from [ImageProvider].
+  ///
+  /// Example:
+  /// ```
+  /// final CacheManager _cache = DefaultCacheManager();
+  /// // imageProviderBuilder: (key) => LocalOrCachedNetworkImageProvider.fromNetwork(
+  /// //   key: key,
+  /// //   url: urls[idx],
+  /// //   cacheManager: _cache,
+  /// // )
+  ///
+  /// await _cache.removeFile(urls[_index]);
+  /// _galleryKey.currentState?.reload(_index);
+  /// ```
   void reload(int index) {
     _notifiers[index].value = DateTime.now().microsecondsSinceEpoch.toString();
     // no need to setState
   }
 
   @override
+  void dispose() {
+    if (widget.pageController == null) {
+      _controller.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
   void didUpdateWidget(covariant ReloadablePhotoViewGallery oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final oldController = oldWidget.pageController;
+    final newController = widget.pageController;
+    if (oldController != newController || //
+        oldController?.initialPage != newController?.initialPage ||
+        oldController?.keepPage != newController?.keepPage ||
+        oldController?.viewportFraction != newController?.viewportFraction) {
+      _controller = newController ?? PageController();
+    }
     if (widget._itemCount != oldWidget._itemCount) {
       _notifiers = List.generate(widget._itemCount, (index) => ValueNotifier(''));
     }
-    super.didUpdateWidget(oldWidget);
   }
 
   void _scaleStateChangedCallback(PhotoViewScaleState scaleState) {
@@ -153,7 +201,7 @@ class ReloadablePhotoViewGalleryState extends State<ReloadablePhotoViewGallery> 
       child: ValueListenableBuilder<String>(
         valueListenable: _notifiers[index], // <<<
         builder: (_, v, __) => PhotoView(
-          key: ValueKey('$index-$v') /* ObjectKey(index) */,
+          key: ValueKey('$index-$v'),
           imageProvider: pageOption.imageProviderBuilder(ValueKey('$index-$v')),
           backgroundDecoration: widget.backgroundDecoration,
           wantKeepAlive: widget.wantKeepAlive,
@@ -193,13 +241,18 @@ class ReloadablePhotoViewGalleryState extends State<ReloadablePhotoViewGallery> 
         controller: _controller,
         onPageChanged: widget.onPageChanged,
         itemCount: widget._itemCount,
-        // itemBuilder: _buildItem,
         itemBuilder: (context, index) => FractionallySizedBox(
-          widthFactor: 1 / (widget.pageController?.viewportFraction ?? 1), // <<<
+          widthFactor: widget.scrollDirection == Axis.vertical && widget.keepViewportMainAxisSize
+              ? 1 / (widget.pageController?.viewportFraction ?? 1)  // <<< keeps
+              : null,
+          heightFactor: widget.scrollDirection == Axis.horizontal && widget.keepViewportMainAxisSize
+              ? 1 / (widget.pageController?.viewportFraction ?? 1) // <<< keeps
+              : null,
           child: _buildItem(context, index),
         ),
         scrollDirection: widget.scrollDirection,
         physics: widget.scrollPhysics,
+        pageMainAxisHintSize: widget.pageMainAxisHintSize,
         preloadPagesCount: widget.preloadPagesCount,
       ),
     );
