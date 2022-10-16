@@ -23,7 +23,7 @@ class IconText extends StatelessWidget {
   const IconText({
     Key? key,
     required this.icon,
-    required this.text,
+    required Widget this.text,
     this.iconPadding = EdgeInsets.zero,
     this.textPadding = EdgeInsets.zero,
     this.alignment = IconTextAlignment.l2r,
@@ -31,23 +31,42 @@ class IconText extends StatelessWidget {
     this.mainAxisAlignment = MainAxisAlignment.start,
     this.mainAxisSize = MainAxisSize.max,
     this.crossAxisAlignment = CrossAxisAlignment.center,
-  })  : assert(space == null || space >= 0),
+  })  : texts = null,
+        assert(space == null || space >= 0),
+        super(key: key);
+
+  const IconText.texts({
+    Key? key,
+    required this.icon,
+    required List<Widget> this.texts, // TODO without test in example
+    this.iconPadding = EdgeInsets.zero,
+    this.alignment = IconTextAlignment.l2r,
+    this.space = _kDefaultSpace,
+    this.mainAxisAlignment = MainAxisAlignment.start,
+    this.mainAxisSize = MainAxisSize.max,
+    this.crossAxisAlignment = CrossAxisAlignment.center,
+  })  : text = null,
+        textPadding = EdgeInsets.zero,
+        assert(space == null || space >= 0),
         super(key: key);
 
   /// Creates a [IconText] in a simple way, note that this is a non-const constructor.
   IconText.simple(IconData icon, String text, {Key? key}) : this(key: key, icon: Icon(icon), text: Text(text));
 
-  /// The icon of this widget.
+  /// The icon of this widget, and its padding can be set by [iconPadding].
   final Widget icon;
 
-  /// The text of this widget.
-  final Widget text;
+  /// The text of this widget, and its padding can be set by [textPadding]
+  final Widget? text;
 
-  /// The padding of this widget's icon, default to zero.
+  /// The text list of this widget, note that [textPadding] will be ignored if this value is used.
+  final List<Widget>? texts;
+
+  /// The padding of this widget's icon, default to [EdgeInsets.zero].
   final EdgeInsets? iconPadding;
 
-  /// The padding of this widget's text, default to zero. Note that if you want to wrap [text]
-  /// with [Flexible], you should set [textPadding] to [EdgeInsets.zero].
+  /// The padding of this widget's text, default to [EdgeInsets.zero]. Note that if you want to
+  /// wrap [text] with [Flexible], you should set [textPadding] to zero.
   final EdgeInsets? textPadding;
 
   /// The alignment of the icon and the text, defaults to [IconTextAlignment.l2r].
@@ -68,7 +87,7 @@ class IconText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var pIcon = (iconPadding == null || iconPadding == EdgeInsets.zero) ? icon : Padding(padding: iconPadding!, child: icon);
-    var pText = (textPadding == null || textPadding == EdgeInsets.zero) ? text : Padding(padding: textPadding!, child: text);
+    var pText = (textPadding == null || textPadding == EdgeInsets.zero) ? text : (text == null ? null : Padding(padding: textPadding!, child: text!));
     var mainAxisAlignment = this.mainAxisAlignment ?? MainAxisAlignment.start;
     var mainAxisSize = this.mainAxisSize ?? MainAxisSize.max;
     var crossAxisAlignment = this.crossAxisAlignment ?? CrossAxisAlignment.center;
@@ -83,7 +102,8 @@ class IconText extends StatelessWidget {
           children: [
             pIcon,
             SizedBox(height: 0, width: space ?? _kDefaultSpace),
-            pText,
+            if (pText != null) pText,
+            if (texts != null) ...texts!,
           ],
         );
       case IconTextAlignment.r2l:
@@ -93,7 +113,8 @@ class IconText extends StatelessWidget {
           mainAxisSize: mainAxisSize,
           crossAxisAlignment: crossAxisAlignment,
           children: [
-            pText,
+            if (pText != null) pText,
+            if (texts != null) ...texts!,
             SizedBox(height: 0, width: space ?? _kDefaultSpace),
             pIcon,
           ],
@@ -107,7 +128,8 @@ class IconText extends StatelessWidget {
           children: [
             pIcon,
             SizedBox(height: space ?? _kDefaultSpace, width: 0),
-            pText,
+            if (pText != null) pText,
+            if (texts != null) ...texts!,
           ],
         );
       case IconTextAlignment.b2t:
@@ -117,7 +139,8 @@ class IconText extends StatelessWidget {
           mainAxisSize: mainAxisSize,
           crossAxisAlignment: crossAxisAlignment,
           children: [
-            pText,
+            if (pText != null) pText,
+            if (texts != null) ...texts!,
             SizedBox(height: space ?? _kDefaultSpace, width: 0),
             pIcon,
           ],

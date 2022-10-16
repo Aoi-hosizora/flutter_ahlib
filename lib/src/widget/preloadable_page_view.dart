@@ -18,6 +18,8 @@ import 'package:flutter/rendering.dart';
 final PageController _defaultPageController = PageController(); // <<< the same as Flutter's source code
 const PageScrollPhysics _kPagePhysics = PageScrollPhysics();
 
+// TODO add example for testing
+
 /// A scrollable and preloadable list that works page by page, which is modified from [PageView].
 class PreloadablePageView extends StatefulWidget {
   /// Creates a scrollable list that works page by page from an explicit [List] of widgets.

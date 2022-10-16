@@ -14,6 +14,7 @@ export 'src/widget/lazy_indexed_stack.dart';
 export 'src/widget/new_button_style.dart';
 export 'src/widget/placeholder_text.dart';
 export 'src/widget/popup_list_menu.dart';
+export 'src/widget/preloadable_page_view.dart';
 export 'src/widget/scrollbar_with_more.dart';
 export 'src/widget/sliver_delegate.dart';
 export 'src/widget/tab_in_page_notification.dart';
@@ -30,10 +31,9 @@ export 'src/list/refreshable_data_view.dart';
 export 'src/list/updatable_data_view.dart';
 
 // image
+export 'src/image/extended_photo_gallery.dart';
 export 'src/image/local_or_cached_network_image_provider.dart';
 export 'src/image/multi_image_stream_completer.dart';
-export 'src/image/preloadable_page_view.dart';
-export 'src/image/reloadable_photo_view_gallery.dart';
 
 // util
 export 'src/util/action_controller.dart';

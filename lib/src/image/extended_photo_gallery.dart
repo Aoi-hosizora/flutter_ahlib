@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_ahlib/src/image/preloadable_page_view.dart';
+import 'package:flutter_ahlib/src/widget/preloadable_page_view.dart';
 import 'package:photo_view/photo_view.dart';
 
 // Note: The file is based on bluefireteam/photo_view, and is modified by Aoi-hosizora (GitHub: @Aoi-hosizora).
@@ -7,19 +7,14 @@ import 'package:photo_view/photo_view.dart';
 // Some code in this file keeps the same as the following source codes:
 // - PhotoViewGallery: https://github.com/bluefireteam/photo_view/blob/0.14.0/lib/photo_view_gallery.dart
 
-/// A [StatefulWidget] that shows multiple [PhotoView] widgets in a [PageView], which is modified from [PhotoViewGallery],
-/// and is used to make a reloadable and fractionally [PhotoViewGallery] through [ReloadablePhotoViewGalleryState.reload].
-///
-/// Some of [PhotoView] constructor options are passed direct to [ReloadablePhotoViewGallery] constructor. Those options
-/// will affect the gallery in a whole.
-///
-/// Some of the options may be defined to each image individually, such as `initialScale` or `heroAttributes`. Those must
-/// be passed via each [ReloadablePhotoViewGalleryPageOptions].
-class ReloadablePhotoViewGallery extends StatefulWidget {
-  /// Construct a gallery with static items through a list of [ReloadablePhotoViewGalleryPageOptions].
-  const ReloadablePhotoViewGallery({
+/// This is an extended [PhotoViewGallery], is used to show multiple [PhotoView] widgets in a [PageView]. Extended
+/// features include: reload behavior (through [ExtendedPhotoGalleryState.reload]), custom viewport factor, advance
+/// page builder (through [ExtendedPhotoGallery.advanced]).
+class ExtendedPhotoGallery extends StatefulWidget {
+  /// Constructs a gallery with static photo items through a list of [ExtendedPhotoGalleryPageOptions].
+  const ExtendedPhotoGallery({
     Key? key,
-    required List<ReloadablePhotoViewGalleryPageOptions> this.pageOptions,
+    required List<ExtendedPhotoGalleryPageOptions> this.pageOptions,
     this.backgroundDecoration,
     this.wantKeepAlive = false,
     this.gaplessPlayback = false,
@@ -35,16 +30,45 @@ class ReloadablePhotoViewGallery extends StatefulWidget {
     this.customSize,
     this.pageMainAxisHintSize,
     this.preloadPagesCount = 0,
-  })  : itemCount = null,
+  })  : pageCount = null,
         builder = null,
+        advancedBuilder = null,
         assert(viewportMainAxisFactor == null || viewportMainAxisFactor > 0),
         super(key: key);
 
-  /// Construct a gallery with dynamic items. The builder must return a [ReloadablePhotoViewGalleryPageOptions].
-  const ReloadablePhotoViewGallery.builder({
+  /// Constructs a gallery with dynamic photo items. The builder must return a [ExtendedPhotoGalleryPageOptions].
+  const ExtendedPhotoGallery.builder({
     Key? key,
-    required int this.itemCount,
-    required ReloadablePhotoViewGalleryPageOptions Function(BuildContext context, int index) this.builder,
+    required int this.pageCount,
+    required ExtendedPhotoGalleryPageOptions Function(BuildContext context, int index) this.builder,
+    this.backgroundDecoration,
+    this.wantKeepAlive = false,
+    this.gaplessPlayback = false,
+    this.reverse = false,
+    this.pageController,
+    this.onPageChanged,
+    this.keepViewportMainAxisSize = true,
+    this.viewportMainAxisFactor,
+    this.scaleStateChangedCallback,
+    this.enableRotation = false,
+    this.scrollPhysics,
+    this.scrollDirection = Axis.horizontal,
+    this.customSize,
+    this.pageMainAxisHintSize,
+    this.preloadPagesCount = 0,
+  })  : pageOptions = null,
+        advancedBuilder = null,
+        assert(viewportMainAxisFactor == null || viewportMainAxisFactor > 0),
+        super(key: key);
+
+// TODO test in example
+
+  /// Constructs a gallery with advanced page builder, by [builder] and [advancedBuilder].
+  const ExtendedPhotoGallery.advanced({
+    Key? key,
+    required int this.pageCount,
+    required ExtendedPhotoGalleryPageOptions Function(BuildContext context, int index) this.builder,
+    required Widget Function(BuildContext context, int index, Widget Function(BuildContext context, int index) photoPageBuilder) this.advancedBuilder,
     this.backgroundDecoration,
     this.wantKeepAlive = false,
     this.gaplessPlayback = false,
@@ -64,14 +88,17 @@ class ReloadablePhotoViewGallery extends StatefulWidget {
         assert(viewportMainAxisFactor == null || viewportMainAxisFactor > 0),
         super(key: key);
 
-  /// A list of options to describe the items in the gallery.
-  final List<ReloadablePhotoViewGalleryPageOptions>? pageOptions;
+  /// A list of options to describe the photo items in the gallery.
+  final List<ExtendedPhotoGalleryPageOptions>? pageOptions;
 
-  /// The count of items in the gallery, only used when constructed via [ReloadablePhotoViewGallery.builder].
-  final int? itemCount;
+  /// The count of pages in the gallery, only used when constructed via [ExtendedPhotoGallery.builder] and [ExtendedPhotoGallery.advancedBuilder].
+  final int? pageCount;
 
-  /// Called to build items for the gallery when using [ReloadablePhotoViewGallery.builder].
-  final ReloadablePhotoViewGalleryPageOptions Function(BuildContext context, int index)? builder;
+  /// Called to build photo pages for the gallery, here index need exclude non-[PhotoView] pages.
+  final ExtendedPhotoGalleryPageOptions Function(BuildContext context, int index)? builder;
+
+  /// Called to build not-only-[PhotoView] pages for the gallery, note that index passed to photoPageBuilder should exclude non-[PhotoView] pages.
+  final Widget Function(BuildContext context, int index, Widget Function(BuildContext context, int index) photoPageBuilder)? advancedBuilder;
 
   /// [ScrollPhysics] for the internal [PageView].
   final ScrollPhysics? scrollPhysics;
@@ -88,7 +115,7 @@ class ReloadablePhotoViewGallery extends StatefulWidget {
   /// Mirror to [PageView.reverse].
   final bool reverse;
 
-  /// An object that controls the [PageView] inside [ReloadablePhotoViewGallery].
+  /// An object that controls the [PageView] inside [ExtendedPhotoGallery].
   final PageController? pageController;
 
   /// An callback to be called on a page change.
@@ -120,26 +147,26 @@ class ReloadablePhotoViewGallery extends StatefulWidget {
   /// Mirror to [PreloadablePageView.preloadPagesCount].
   final int preloadPagesCount;
 
-  bool get _isBuilder => builder != null;
-
-  int get _itemCount => _isBuilder ? itemCount! : pageOptions!.length;
+  /// The readonly property for page count, determined by [pageOptions] or [pageCount].
+  int get _pageCount => builder != null ? pageCount! : pageOptions!.length;
 
   @override
-  State<StatefulWidget> createState() => ReloadablePhotoViewGalleryState();
+  State<StatefulWidget> createState() => ExtendedPhotoGalleryState();
 }
 
-/// The state of [ReloadablePhotoViewGallery], can be used to [reload] the specific image from [ImageProvider].
-class ReloadablePhotoViewGalleryState extends State<ReloadablePhotoViewGallery> {
+/// The state of [ExtendedPhotoGallery], can be used to [reload] the specific image from [ImageProvider].
+class ExtendedPhotoGalleryState extends State<ExtendedPhotoGallery> {
   late var _controller = widget.pageController ?? PageController();
-  late List<ValueNotifier<String>> _notifiers = List.generate(widget._itemCount, (index) => ValueNotifier(''));
+  late List<ValueNotifier<String>> _notifiers = List.generate(widget._pageCount, (index) => ValueNotifier(''));
 
   /// Returns the current page of the widget.
   int get currentPage => _controller.hasClients ? _controller.page!.floor() : 0;
 
   /// Returns the total page count of the widget.
-  int get itemCount => widget._itemCount;
+  int get pageCount => widget._pageCount;
 
-  /// Reloads the image of given index from [ImageProvider].
+  /// Reloads the image of given index from [ImageProvider]. Note that here index should exclude non-[PhotoView] pages, when constructed via
+  /// [ExtendedPhotoGallery.advancedBuilder].
   ///
   /// Example:
   /// ```
@@ -167,7 +194,7 @@ class ReloadablePhotoViewGalleryState extends State<ReloadablePhotoViewGallery> 
   }
 
   @override
-  void didUpdateWidget(covariant ReloadablePhotoViewGallery oldWidget) {
+  void didUpdateWidget(covariant ExtendedPhotoGallery oldWidget) {
     super.didUpdateWidget(oldWidget);
     final oldController = oldWidget.pageController;
     final newController = widget.pageController;
@@ -177,8 +204,8 @@ class ReloadablePhotoViewGalleryState extends State<ReloadablePhotoViewGallery> 
         oldController?.viewportFraction != newController?.viewportFraction) {
       _controller = newController ?? PageController();
     }
-    if (widget._itemCount != oldWidget._itemCount) {
-      _notifiers = List.generate(widget._itemCount, (index) => ValueNotifier(''));
+    if (widget._pageCount != oldWidget._pageCount) {
+      _notifiers = List.generate(widget._pageCount, (index) => ValueNotifier(''));
     }
   }
 
@@ -188,15 +215,15 @@ class ReloadablePhotoViewGalleryState extends State<ReloadablePhotoViewGallery> 
     }
   }
 
-  ReloadablePhotoViewGalleryPageOptions _buildPageOption(BuildContext context, int index) {
-    if (widget._isBuilder) {
+  ExtendedPhotoGalleryPageOptions _buildPageOption(BuildContext context, int index) {
+    if (widget.builder != null) {
       return widget.builder!(context, index);
     }
     return widget.pageOptions![index];
   }
 
-  Widget _buildItem(BuildContext context, int index) {
-    final pageOption = _buildPageOption(context, index);
+  Widget _buildPhotoItem(BuildContext context, int index) {
+    final pageOption = _buildPageOption(context, index); // index excludes non-PhotoView pages
     return ClipRect(
       child: ValueListenableBuilder<String>(
         valueListenable: _notifiers[index], // <<<
@@ -233,35 +260,41 @@ class ReloadablePhotoViewGalleryState extends State<ReloadablePhotoViewGallery> 
 
   @override
   Widget build(BuildContext context) {
+    double? factor = widget.viewportMainAxisFactor;
+    factor ??= widget.keepViewportMainAxisSize ? 1 / _controller.viewportFraction : null;
+
+    Widget _buildPage(BuildContext context, int index) {
+      if (widget.advancedBuilder == null) {
+        return _buildPhotoItem(context, index);
+      }
+      return widget.advancedBuilder!.call(context, index, _buildPhotoItem);
+    }
+
     // Enable corner hit test
     return PhotoViewGestureDetectorScope(
       axis: widget.scrollDirection,
       child: PreloadablePageView.builder(
-        reverse: widget.reverse,
         controller: _controller,
         onPageChanged: widget.onPageChanged,
-        itemCount: widget._itemCount,
-        itemBuilder: (context, index) => FractionallySizedBox(
-          widthFactor: widget.scrollDirection == Axis.vertical && widget.keepViewportMainAxisSize
-              ? 1 / (widget.pageController?.viewportFraction ?? 1)  // <<< keeps
-              : null,
-          heightFactor: widget.scrollDirection == Axis.horizontal && widget.keepViewportMainAxisSize
-              ? 1 / (widget.pageController?.viewportFraction ?? 1) // <<< keeps
-              : null,
-          child: _buildItem(context, index),
-        ),
-        scrollDirection: widget.scrollDirection,
         physics: widget.scrollPhysics,
+        reverse: widget.reverse,
+        scrollDirection: widget.scrollDirection,
         pageMainAxisHintSize: widget.pageMainAxisHintSize,
         preloadPagesCount: widget.preloadPagesCount,
+        itemCount: widget._pageCount,
+        itemBuilder: (context, index) => FractionallySizedBox(
+          widthFactor: widget.scrollDirection == Axis.horizontal ? factor : null,
+          heightFactor: widget.scrollDirection == Axis.vertical ? factor : null,
+          child: _buildPage(context, index),
+        ),
       ),
     );
   }
 }
 
-/// A helper class that wraps individual options of a page in [ReloadablePhotoViewGallery].
-class ReloadablePhotoViewGalleryPageOptions {
-  const ReloadablePhotoViewGalleryPageOptions({
+/// A helper class that wraps individual options of a page in [ExtendedPhotoGallery].
+class ExtendedPhotoGalleryPageOptions {
+  const ExtendedPhotoGalleryPageOptions({
     required this.imageProviderBuilder,
     this.heroAttributes,
     this.minScale,

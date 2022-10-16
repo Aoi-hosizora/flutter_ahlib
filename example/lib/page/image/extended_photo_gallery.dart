@@ -3,14 +3,14 @@ import 'package:flutter_ahlib/flutter_ahlib.dart';
 import 'package:flutter_ahlib_example/main.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
-class ReloadablePhotoViewGalleryPage extends StatefulWidget {
-  const ReloadablePhotoViewGalleryPage({Key? key}) : super(key: key);
+class ExtendedPhotoGalleryPage extends StatefulWidget {
+  const ExtendedPhotoGalleryPage({Key? key}) : super(key: key);
 
   @override
-  State<ReloadablePhotoViewGalleryPage> createState() => _ReloadablePhotoViewGalleryPageState();
+  State<ExtendedPhotoGalleryPage> createState() => _ExtendedPhotoGalleryPageState();
 }
 
-class _ReloadablePhotoViewGalleryPageState extends State<ReloadablePhotoViewGalleryPage> {
+class _ExtendedPhotoGalleryPageState extends State<ExtendedPhotoGalleryPage> {
   final _urls = [
     'https://userxxx-images.githubusercontent.com/31433480/139594297-c68369d4-32d9-4f8b-8727-ccaf2d1a53f6.jpg',
     'https://user-images.githubusercontent.com/31433480/139594293-94643ffa-938f-41fa-b3bf-8dceafb1dc58.jpg',
@@ -20,7 +20,7 @@ class _ReloadablePhotoViewGalleryPageState extends State<ReloadablePhotoViewGall
     'https://miuc.org/wp-content/uploads/2018/02/How-can-colours-help-you-in-your-everyday-life.jpg',
   ];
   final _controller = PageController(viewportFraction: 1.08);
-  final _key = GlobalKey<ReloadablePhotoViewGalleryState>();
+  final _key = GlobalKey<ExtendedPhotoGalleryState>();
   final CacheManager _cache = DefaultCacheManager();
   var _currentIndex = 0;
   var _correctUrl = false;
@@ -90,13 +90,13 @@ class _ReloadablePhotoViewGalleryPageState extends State<ReloadablePhotoViewGall
           color: Colors.black,
           child: Stack(
             children: [
-              ReloadablePhotoViewGallery.builder(
+              ExtendedPhotoGallery.builder(
                 key: _key,
-                itemCount: 6,
+                pageCount: 6,
                 backgroundDecoration: const BoxDecoration(color: Colors.black),
                 pageController: _controller,
                 preloadPagesCount: _preloadCount,
-                builder: (c, index) => ReloadablePhotoViewGalleryPageOptions(
+                builder: (c, index) => ExtendedPhotoGalleryPageOptions(
                   imageProviderBuilder: (key) => LocalOrCachedNetworkImageProvider.fromNetwork(
                     key: key,
                     url: _urls[index],
@@ -131,7 +131,7 @@ class _ReloadablePhotoViewGalleryPageState extends State<ReloadablePhotoViewGall
                 child: Align(
                   alignment: Alignment.center,
                   child: Text(
-                    '${_currentIndex + 1} / ${_key.currentState?.itemCount ?? '?'}',
+                    '${_currentIndex + 1} / ${_key.currentState?.pageCount ?? '?'}',
                     style: Theme.of(context).textTheme.subtitle1!.copyWith(color: Colors.white),
                   ),
                 ),

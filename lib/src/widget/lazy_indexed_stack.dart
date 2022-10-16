@@ -40,6 +40,7 @@ class _LazyIndexedStackState extends State<LazyIndexedStack> {
 
   @override
   void initState() {
+    super.initState();
     for (var i = 0; i < widget.itemCount; i++) {
       if (i == widget.index) {
         _children.add(widget.itemBuilder(context, i));
@@ -49,11 +50,11 @@ class _LazyIndexedStackState extends State<LazyIndexedStack> {
         _loaded.add(false);
       }
     }
-    super.initState();
   }
 
   @override
   void didUpdateWidget(covariant LazyIndexedStack oldWidget) {
+    super.didUpdateWidget(oldWidget);
     for (var i = 0; i < widget.itemCount; i++) {
       if (i != widget.index) {
         continue;
@@ -64,7 +65,6 @@ class _LazyIndexedStackState extends State<LazyIndexedStack> {
       _children[i] = widget.itemBuilder(context, i);
       _loaded[i] = true;
     }
-    super.didUpdateWidget(oldWidget);
   }
 
   @override

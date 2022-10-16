@@ -373,7 +373,9 @@ class _TextGroupState extends State<TextGroup> {
   @override
   void didUpdateWidget(covariant TextGroup oldWidget) {
     super.didUpdateWidget(oldWidget);
-    _tapped = List.generate(widget.texts.length, (_) => false);
+    if (widget.texts.length != oldWidget.texts.length) {
+      _tapped = List.generate(widget.texts.length, (_) => false);
+    }
   }
 
   @override

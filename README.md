@@ -34,6 +34,7 @@ import 'package:flutter_ahlib/flutter_ahlib.dart'; // the whole library
     + `flatButtonStyle` `raisedButtonStyle` `outlineButtonStyle`
     + `PlaceholderText`
     + `showPopupListMenu` `CustomSingleChildLayoutDelegate`
+    + `PreloadablePageView`
     + `ScrollbarWithMore`
     + `SliverHeaderDelegate` `SliverSeparatedListDelegate` `SliverSeparatedListBuilderDelegate`
     + `TabInPageNotification`
@@ -48,10 +49,9 @@ import 'package:flutter_ahlib/flutter_ahlib.dart'; // the whole library
     + `PaginationDataView` `PaginationDataViewState`
     + `UpdatableDataView`
 + image.dart:
+    + `ExtendedPhotoGallery` `ExtendedPhotoGalleryState`
     + `LocalOrCachedNetworkImageProvider`
     + `MultiImageStreamCompleter`
-    + `PreloadablePageView`
-    + `ReloadablePhotoViewGallery` `ReloadablePhotoViewGalleryState`
 + util.dart:
     + `ActionController`
     + `BoolExtension` `ListExtension`
