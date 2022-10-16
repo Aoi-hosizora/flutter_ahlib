@@ -21,6 +21,7 @@ class ExtendedPhotoGallery extends StatefulWidget {
     this.reverse = false,
     this.pageController,
     this.onPageChanged,
+    this.changePageWhenFinished = false,
     this.keepViewportMainAxisSize = true,
     this.viewportMainAxisFactor,
     this.scaleStateChangedCallback,
@@ -47,6 +48,7 @@ class ExtendedPhotoGallery extends StatefulWidget {
     this.reverse = false,
     this.pageController,
     this.onPageChanged,
+    this.changePageWhenFinished = false,
     this.keepViewportMainAxisSize = true,
     this.viewportMainAxisFactor,
     this.scaleStateChangedCallback,
@@ -75,6 +77,7 @@ class ExtendedPhotoGallery extends StatefulWidget {
     this.reverse = false,
     this.pageController,
     this.onPageChanged,
+    this.changePageWhenFinished = false,
     this.keepViewportMainAxisSize = true,
     this.viewportMainAxisFactor,
     this.scaleStateChangedCallback,
@@ -120,6 +123,9 @@ class ExtendedPhotoGallery extends StatefulWidget {
 
   /// An callback to be called on a page change.
   final void Function(int index)? onPageChanged;
+
+  /// Mirror to [PreloadablePageView.changePageWhenFinished].
+  final bool changePageWhenFinished;
 
   /// The flag for keeping main axis size of each photo page to origin size with default viewport fraction (which is 1),
   /// defaults to false.
@@ -276,6 +282,7 @@ class ExtendedPhotoGalleryState extends State<ExtendedPhotoGallery> {
       child: PreloadablePageView.builder(
         controller: _controller,
         onPageChanged: widget.onPageChanged,
+        changePageWhenFinished: widget.changePageWhenFinished,
         physics: widget.scrollPhysics,
         reverse: widget.reverse,
         scrollDirection: widget.scrollDirection,

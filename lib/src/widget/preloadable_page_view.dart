@@ -31,6 +31,7 @@ class PreloadablePageView extends StatefulWidget {
     this.physics,
     this.pageSnapping = true,
     this.onPageChanged,
+    this.changePageWhenFinished = false,
     List<Widget> children = const <Widget>[],
     this.dragStartBehavior = DragStartBehavior.start,
     this.restorationId,
@@ -54,6 +55,7 @@ class PreloadablePageView extends StatefulWidget {
     this.physics,
     this.pageSnapping = true,
     this.onPageChanged,
+    this.changePageWhenFinished = false,
     required IndexedWidgetBuilder itemBuilder,
     int? itemCount,
     this.dragStartBehavior = DragStartBehavior.start,
@@ -89,6 +91,9 @@ class PreloadablePageView extends StatefulWidget {
 
   /// Mirror to [PageView.onPageChanged].
   final ValueChanged<int>? onPageChanged;
+
+  /// Called [onPageChanged] when page changing is finished.
+  final bool changePageWhenFinished;
 
   /// Mirror to [PageView.childrenDelegate].
   final SliverChildDelegate childrenDelegate;
@@ -148,12 +153,14 @@ class _PreloadablePageViewState extends State<PreloadablePageView> {
 
     return NotificationListener<ScrollNotification>(
       onNotification: (ScrollNotification notification) {
-        if (notification.depth == 0 && widget.onPageChanged != null && notification is ScrollUpdateNotification) {
-          final PageMetrics metrics = notification.metrics as PageMetrics;
-          final int currentPage = metrics.page!.round();
-          if (currentPage != _lastReportedPage) {
-            _lastReportedPage = currentPage;
-            widget.onPageChanged!(currentPage);
+        if (notification.depth == 0 && widget.onPageChanged != null) {
+          if ((!widget.changePageWhenFinished && notification is ScrollUpdateNotification) || (widget.changePageWhenFinished && notification is ScrollEndNotification)) {
+            final PageMetrics metrics = notification.metrics as PageMetrics;
+            final int currentPage = metrics.page!.round();
+            if (currentPage != _lastReportedPage) {
+              _lastReportedPage = currentPage;
+              widget.onPageChanged!(currentPage);
+            }
           }
         }
         return false;
