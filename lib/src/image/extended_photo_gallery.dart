@@ -23,18 +23,20 @@ class ExtendedPhotoGallery extends StatefulWidget {
     this.onPageChanged,
     this.changePageWhenFinished = false,
     this.keepViewportMainAxisSize = true,
-    this.viewportMainAxisFactor,
+    this.fractionWidthFactor,
+    this.fractionHeightFactor,
     this.scaleStateChangedCallback,
     this.enableRotation = false,
     this.scrollPhysics,
     this.scrollDirection = Axis.horizontal,
     this.customSize,
+    this.loadingBuilder,
+    this.errorBuilder,
     this.pageMainAxisHintSize,
     this.preloadPagesCount = 0,
   })  : pageCount = null,
         builder = null,
         advancedBuilder = null,
-        assert(viewportMainAxisFactor == null || viewportMainAxisFactor > 0),
         super(key: key);
 
   /// Constructs a gallery with dynamic photo items. The builder must return a [ExtendedPhotoGalleryPageOptions].
@@ -50,20 +52,22 @@ class ExtendedPhotoGallery extends StatefulWidget {
     this.onPageChanged,
     this.changePageWhenFinished = false,
     this.keepViewportMainAxisSize = true,
-    this.viewportMainAxisFactor,
+    this.fractionWidthFactor,
+    this.fractionHeightFactor,
     this.scaleStateChangedCallback,
     this.enableRotation = false,
     this.scrollPhysics,
     this.scrollDirection = Axis.horizontal,
     this.customSize,
+    this.loadingBuilder,
+    this.errorBuilder,
     this.pageMainAxisHintSize,
     this.preloadPagesCount = 0,
   })  : pageOptions = null,
         advancedBuilder = null,
-        assert(viewportMainAxisFactor == null || viewportMainAxisFactor > 0),
         super(key: key);
 
-// TODO test in example
+// TODO test advanced in example
 
   /// Constructs a gallery with advanced page builder, by [builder] and [advancedBuilder].
   const ExtendedPhotoGallery.advanced({
@@ -79,16 +83,18 @@ class ExtendedPhotoGallery extends StatefulWidget {
     this.onPageChanged,
     this.changePageWhenFinished = false,
     this.keepViewportMainAxisSize = true,
-    this.viewportMainAxisFactor,
+    this.fractionWidthFactor,
+    this.fractionHeightFactor,
     this.scaleStateChangedCallback,
     this.enableRotation = false,
     this.scrollPhysics,
     this.scrollDirection = Axis.horizontal,
     this.customSize,
+    this.loadingBuilder,
+    this.errorBuilder,
     this.pageMainAxisHintSize,
     this.preloadPagesCount = 0,
   })  : pageOptions = null,
-        assert(viewportMainAxisFactor == null || viewportMainAxisFactor > 0),
         super(key: key);
 
   /// A list of options to describe the photo items in the gallery.
@@ -127,13 +133,16 @@ class ExtendedPhotoGallery extends StatefulWidget {
   /// Mirror to [PreloadablePageView.changePageWhenFinished].
   final bool changePageWhenFinished;
 
-  /// The flag for keeping main axis size of each photo page to origin size with default viewport fraction (which is 1),
-  /// defaults to false.
+  /// The flag for keeping main axis size of each photo page to origin size (which is the same as default identical viewport fraction), defaults
+  /// to false. Note that if [fractionWidthFactor] or [fractionHeightFactor] set to null or non positive number, the fractional page factor
+  /// will be depended by [keepViewportMainAxisSize] and [PageController.viewportFraction].
   final bool keepViewportMainAxisSize;
 
-  /// The viewport width or height factor for each photo page, and if this value is set to null, the factor will be depended
-  /// by [keepViewportMainAxisSize] and [PageController.viewportFraction].
-  final double? viewportMainAxisFactor;
+  /// The width factor for each fractional photo page. Note that this value may disable [keepViewportMainAxisSize] when scroll horizontally.
+  final double? fractionWidthFactor;
+
+  /// The height factor for each fractional photo page. Note that this value may disable [keepViewportMainAxisSize] when scroll vertically.
+  final double? fractionHeightFactor;
 
   /// Mirror to [PhotoView.scaleStateChangedCallback].
   final ValueChanged<PhotoViewScaleState>? scaleStateChangedCallback;
@@ -147,13 +156,19 @@ class ExtendedPhotoGallery extends StatefulWidget {
   /// The axis along which the [PageView] scrolls. Mirror to [PageView.scrollDirection].
   final Axis scrollDirection;
 
+  /// Mirror to [PhotoView.loadingBuilder], is the default builder for photo items.
+  final LoadingPlaceholderBuilder? loadingBuilder;
+
+  /// Mirror to [PhotoView.errorBuilder], is the default builder for photo items.
+  final ErrorPlaceholderBuilder? errorBuilder;
+
   /// Mirror to [PreloadablePageView.pageMainAxisHintSize].
   final double? pageMainAxisHintSize;
 
   /// Mirror to [PreloadablePageView.preloadPagesCount].
   final int preloadPagesCount;
 
-  /// The readonly property for page count, determined by [pageOptions] or [pageCount].
+// The readonly property for page count, determined by `pageOptions` or `pageCount`.
   int get _pageCount => builder != null ? pageCount! : pageOptions!.length;
 
   @override
@@ -215,12 +230,6 @@ class ExtendedPhotoGalleryState extends State<ExtendedPhotoGallery> {
     }
   }
 
-  void _scaleStateChangedCallback(PhotoViewScaleState scaleState) {
-    if (widget.scaleStateChangedCallback != null) {
-      widget.scaleStateChangedCallback!(scaleState);
-    }
-  }
-
   ExtendedPhotoGalleryPageOptions _buildPageOption(BuildContext context, int index) {
     if (widget.builder != null) {
       return widget.builder!(context, index);
@@ -243,7 +252,7 @@ class ExtendedPhotoGalleryState extends State<ExtendedPhotoGallery> {
           customSize: widget.customSize,
           gaplessPlayback: widget.gaplessPlayback,
           heroAttributes: pageOption.heroAttributes,
-          scaleStateChangedCallback: _scaleStateChangedCallback,
+          scaleStateChangedCallback: (state) => widget.scaleStateChangedCallback?.call(state),
           enableRotation: widget.enableRotation,
           initialScale: pageOption.initialScale,
           minScale: pageOption.minScale,
@@ -257,8 +266,9 @@ class ExtendedPhotoGalleryState extends State<ExtendedPhotoGallery> {
           filterQuality: pageOption.filterQuality,
           basePosition: pageOption.basePosition,
           disableGestures: pageOption.disableGestures,
-          loadingBuilder: pageOption.loadingBuilder,
-          errorBuilder: pageOption.errorBuilder,
+          enablePanAlways: pageOption.enablePanAlways,
+          loadingBuilder: pageOption.loadingBuilder ?? widget.loadingBuilder,
+          errorBuilder: pageOption.errorBuilder ?? widget.errorBuilder,
         ),
       ),
     );
@@ -266,8 +276,16 @@ class ExtendedPhotoGalleryState extends State<ExtendedPhotoGallery> {
 
   @override
   Widget build(BuildContext context) {
-    double? factor = widget.viewportMainAxisFactor;
-    factor ??= widget.keepViewportMainAxisSize ? 1 / _controller.viewportFraction : null;
+    double? widthFactor = widget.fractionWidthFactor;
+    double? heightFactor = widget.fractionHeightFactor;
+    if (widget.keepViewportMainAxisSize) {
+      if (widget.scrollDirection == Axis.horizontal && (widthFactor == null || widthFactor <= 0)) {
+        widthFactor = 1 / _controller.viewportFraction;
+      }
+      if (widget.scrollDirection == Axis.vertical && (heightFactor == null || heightFactor <= 0)) {
+        heightFactor = 1 / _controller.viewportFraction;
+      }
+    }
 
     Widget _buildPage(BuildContext context, int index) {
       if (widget.advancedBuilder == null) {
@@ -290,14 +308,27 @@ class ExtendedPhotoGalleryState extends State<ExtendedPhotoGallery> {
         preloadPagesCount: widget.preloadPagesCount,
         itemCount: widget._pageCount,
         itemBuilder: (context, index) => FractionallySizedBox(
-          widthFactor: widget.scrollDirection == Axis.horizontal ? factor : null,
-          heightFactor: widget.scrollDirection == Axis.vertical ? factor : null,
+          widthFactor: widthFactor,
+          heightFactor: heightFactor,
           child: _buildPage(context, index),
         ),
       ),
     );
   }
 }
+
+/// Signature for creating a replacement widget to render while the image is loading.
+typedef LoadingPlaceholderBuilder = Widget Function(
+  BuildContext context,
+  ImageChunkEvent? event,
+);
+
+/// Signature for creating a replacement widget to render while it is failed to load the image.
+typedef ErrorPlaceholderBuilder = Widget Function(
+  BuildContext context,
+  Object error,
+  StackTrace? stackTrace,
+);
 
 /// A helper class that wraps individual options of a page in [ExtendedPhotoGallery].
 class ExtendedPhotoGalleryPageOptions {
@@ -316,8 +347,9 @@ class ExtendedPhotoGalleryPageOptions {
     this.onScaleEnd,
     this.gestureDetectorBehavior,
     this.tightMode,
-    this.filterQuality,
     this.disableGestures,
+    this.enablePanAlways,
+    this.filterQuality,
     this.loadingBuilder,
     this.errorBuilder,
   });
@@ -367,12 +399,15 @@ class ExtendedPhotoGalleryPageOptions {
   /// Mirror to [PhotoView.disableGestures].
   final bool? disableGestures;
 
+  /// Mirror to [PhotoView.enablePanAlways].
+  final bool? enablePanAlways;
+
   /// Quality levels for image filters.
   final FilterQuality? filterQuality;
 
   /// Mirror to [PhotoView.loadingBuilder].
-  final LoadingBuilder? loadingBuilder;
+  final LoadingPlaceholderBuilder? loadingBuilder;
 
   /// Mirror to [PhotoView.errorBuilder].
-  final ImageErrorWidgetBuilder? errorBuilder;
+  final ErrorPlaceholderBuilder? errorBuilder;
 }
