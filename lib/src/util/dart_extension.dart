@@ -25,12 +25,12 @@ extension BoolExtension on bool {
   }
 }
 
-/// An extension for [List].
-extension ListExtension<T> on List<T> {
+/// An extension for [Iterable].
+extension IterableExtension<T> on Iterable<T> {
   /// Returns a new list containing totalCount count of the given list.
   List<T> repeat(int totalCount) {
     if (totalCount <= 1) {
-      return this;
+      return toList();
     }
     var newList = <T>[];
     for (int i = 0; i < totalCount; i++) {
@@ -46,11 +46,12 @@ extension ListExtension<T> on List<T> {
     if (isEmpty) {
       return <T>[];
     }
+    var list = toList();
     return [
-      this[0],
+      list[0],
       for (var idx = 1; idx < length; idx++) ...[
         builder(idx - 1),
-        this[idx],
+        list[idx],
       ],
     ];
   }
@@ -60,9 +61,26 @@ extension ListExtension<T> on List<T> {
     return separateWithBuilder((_) => separator);
   }
 
-  /// Returns the first element of list, or returns null if list is empty.
+  /// Returns the first element of the collection, or returns null if the collection is empty.
   T? get firstOrNull => isEmpty ? null : first;
 
-  /// Returns the last element of list, or returns null if list is empty.
+  /// Returns the last element of the collection, or returns null if the collection is empty.
   T? get lastOrNull => isEmpty ? null : last;
+}
+
+// TODO test
+
+/// An extension for any values, and it only contains kotlin-like [let] function.
+extension LetExtension<T extends Object> on T {
+  /// Calls given function when current value is not null.
+  R let<R>(R Function(T value) func) {
+    return func.call(this);
+  }
+}
+
+/// An extension for [Future], and it only contains kotlin-like [let] function.
+extension FutureLetExtension<T extends Object> on Future<T?> {
+  Future<R?> futureLet<R>(R Function(T value) func) async {
+    return (await this)?.let<R>(func);
+  }
 }
