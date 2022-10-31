@@ -62,6 +62,7 @@ class AppBarActionButtonThemeData with Diagnosticable {
   final bool? enableFeedback;
   final BoxConstraints? constraints;
 
+  /// Creates a copy of this theme but with the given fields replaced with the new values.
   AppBarActionButtonThemeData copyWith({
     double? iconSize,
     VisualDensity? visualDensity,

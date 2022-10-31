@@ -4,6 +4,7 @@ export 'src/widget/animated_fab.dart';
 export 'src/widget/app_bar_action_button.dart';
 export 'src/widget/custom_ink_feature.dart';
 export 'src/widget/custom_ink_response.dart';
+export 'src/widget/custom_material_page_route.dart';
 export 'src/widget/drawer_list_view.dart';
 export 'src/widget/extended_nested_scroll_view.dart';
 export 'src/widget/icon_text.dart';
