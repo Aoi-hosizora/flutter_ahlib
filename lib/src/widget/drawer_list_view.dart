@@ -37,7 +37,7 @@ class DrawerPageItem<T> extends DrawerItem {
     required this.title,
     this.leading,
     this.trailing,
-    required this.page,
+    required this.page, // TODO use builder
     required this.selection,
     this.backgroundColor = _kDefaultBackgroundColor,
     this.highlightColor = _kDefaultHighlightColor,
@@ -46,12 +46,24 @@ class DrawerPageItem<T> extends DrawerItem {
   }) : super(type: _DrawerItemType.page);
 
   /// Creates a [DrawerPageItem] in a simple way.
-  DrawerPageItem.simple(String title, IconData? icon, Widget page, T selection)
-      : this(
+  DrawerPageItem.simple(
+    String title,
+    IconData? icon,
+    Widget page,
+    T selection, {
+    Color backgroundColor = _kDefaultBackgroundColor,
+    Color highlightColor = _kDefaultHighlightColor,
+    bool autoCloseWhenTapped = true,
+    bool autoCloseWhenAlreadySelected = false,
+  }) : this(
           title: Text(title),
           leading: icon == null ? null : Icon(icon),
           page: page,
           selection: selection,
+          backgroundColor: backgroundColor,
+          highlightColor: highlightColor,
+          autoCloseWhenTapped: autoCloseWhenTapped,
+          autoCloseWhenAlreadySelected: autoCloseWhenAlreadySelected,
         );
 
   /// The title widget of this item.
@@ -96,11 +108,21 @@ class DrawerActionItem extends DrawerItem {
   }) : super(type: _DrawerItemType.action);
 
   /// Creates a [DrawerActionItem] in a simple way.
-  DrawerActionItem.simple(String title, IconData? icon, Function action)
-      : this(
+  DrawerActionItem.simple(
+    String title,
+    IconData? icon,
+    Function action, {
+    Function? longPressAction,
+    Color backgroundColor = _kDefaultBackgroundColor,
+    bool autoCloseWhenTapped = true,
+    bool autoCloseWhenLongPressed = false,
+  }) : this(
           title: Text(title),
           leading: icon == null ? null : Icon(icon),
           action: action,
+          backgroundColor: backgroundColor,
+          autoCloseWhenTapped: autoCloseWhenTapped,
+          autoCloseWhenLongPressed: autoCloseWhenLongPressed,
         );
 
   /// The title widget of this item.
@@ -183,6 +205,7 @@ class DrawerListView<T> extends StatefulWidget {
     required this.onNavigatorTo,
     this.currentSelection,
     this.enableHighlight = true,
+    // TODO add default options
   }) : super(key: key);
 
   /// The list of [DrawerItem] to show.

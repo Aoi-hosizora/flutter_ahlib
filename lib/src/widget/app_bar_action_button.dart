@@ -225,8 +225,15 @@ class AppBarActionButton extends StatelessWidget {
   }
 
   /// Creates the default [AppBarActionButton] which will be used as leading button in [AppBar].
+  ///
+  /// Note that if you use [leading] as [Scaffold.appBar]'s leading directly and do not wrap any
+  /// widget, the [ScaffoldState] got from given [context] may be null, so in this case, please
+  /// set [forceUseBuilder] to true if you want to show drawer button.
   static Widget? leading({
     required BuildContext context,
+    bool forceUseBuilder = false,
+    bool allowDrawerButton = true,
+    // <<<
     double? iconSize,
     VisualDensity? visualDensity,
     EdgeInsetsGeometry? padding,
@@ -244,56 +251,67 @@ class AppBarActionButton extends StatelessWidget {
     bool? enableFeedback,
     BoxConstraints? constraints,
   }) {
-    final ScaffoldState? scaffold = Scaffold.maybeOf(context);
-    final bool hasDrawer = scaffold?.hasDrawer ?? false;
-    final bool hasEndDrawer = scaffold?.hasEndDrawer ?? false;
+    Widget? _build(BuildContext context) {
+      final ScaffoldState? scaffold = Scaffold.maybeOf(context);
+      final bool hasDrawer = scaffold?.hasDrawer ?? false;
+      final bool hasEndDrawer = scaffold?.hasEndDrawer ?? false;
 
-    final ModalRoute<dynamic>? parentRoute = ModalRoute.of(context);
-    final bool canPop = parentRoute?.canPop ?? false;
-    final bool useCloseButton = parentRoute is PageRoute<dynamic> && parentRoute.fullscreenDialog;
+      final ModalRoute<dynamic>? parentRoute = ModalRoute.of(context);
+      final bool canPop = parentRoute?.canPop ?? false;
+      final bool useCloseButton = parentRoute is PageRoute<dynamic> && parentRoute.fullscreenDialog;
 
-    Widget icon;
-    String tooltip;
-    VoidCallback onPressed;
-    if (hasDrawer) {
-      icon = const Icon(Icons.menu);
-      tooltip = MaterialLocalizations.of(context).openAppDrawerTooltip;
-      onPressed = () => Scaffold.of(context).openDrawer();
-    } else if (!hasEndDrawer && canPop) {
-      if (useCloseButton) {
-        icon = const Icon(Icons.close);
-        tooltip = MaterialLocalizations.of(context).closeButtonTooltip;
-        onPressed = () => Navigator.maybePop(context);
+      Widget icon;
+      String tooltip;
+      VoidCallback onPressed;
+      if (allowDrawerButton && hasDrawer) {
+        icon = const Icon(Icons.menu);
+        tooltip = MaterialLocalizations.of(context).openAppDrawerTooltip;
+        onPressed = () => Scaffold.of(context).openDrawer();
+      } else if (!hasEndDrawer && canPop) {
+        if (useCloseButton) {
+          icon = const Icon(Icons.close);
+          tooltip = MaterialLocalizations.of(context).closeButtonTooltip;
+          onPressed = () => Navigator.maybePop(context);
+        } else {
+          icon = const BackButtonIcon(); // Icons.arrow_back / Icons.arrow_back_ios
+          tooltip = MaterialLocalizations.of(context).backButtonTooltip;
+          onPressed = () => Navigator.maybePop(context);
+        }
       } else {
-        icon = const BackButtonIcon();
-        tooltip = MaterialLocalizations.of(context).backButtonTooltip;
-        onPressed = () => Navigator.maybePop(context);
+        return null;
       }
-    } else {
-      return null;
+
+      return AppBarActionButton(
+        icon: icon,
+        tooltip: tooltip,
+        onPressed: onPressed,
+        // <<<
+        iconSize: iconSize,
+        visualDensity: visualDensity,
+        padding: padding,
+        alignment: alignment,
+        splashRadius: splashRadius,
+        focusColor: focusColor,
+        hoverColor: hoverColor,
+        color: color,
+        splashColor: splashColor,
+        highlightColor: highlightColor,
+        disabledColor: disabledColor,
+        mouseCursor: mouseCursor,
+        focusNode: focusNode,
+        autofocus: autofocus,
+        enableFeedback: enableFeedback,
+        constraints: constraints,
+      );
     }
 
-    return AppBarActionButton(
-      icon: icon,
-      tooltip: tooltip,
-      onPressed: onPressed,
-      // <<<
-      iconSize: iconSize,
-      visualDensity: visualDensity,
-      padding: padding,
-      alignment: alignment,
-      splashRadius: splashRadius,
-      focusColor: focusColor,
-      hoverColor: hoverColor,
-      color: color,
-      splashColor: splashColor,
-      highlightColor: highlightColor,
-      disabledColor: disabledColor,
-      mouseCursor: mouseCursor,
-      focusNode: focusNode,
-      autofocus: autofocus,
-      enableFeedback: enableFeedback,
-      constraints: constraints,
+    if (!forceUseBuilder) {
+      return _build(context); // null-able
+    }
+    return Builder(
+      builder: (c) =>
+          _build(c) ?? //
+          const SizedBox(width: 0, height: 0),
     );
   }
 }

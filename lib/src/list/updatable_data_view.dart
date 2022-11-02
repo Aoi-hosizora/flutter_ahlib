@@ -41,6 +41,8 @@ enum UpdatableDataViewStyle {
   sliverMasonryGridView,
 }
 
+// TODO add global theme config
+
 /// A list of behavior and display settings for [UpdatableDataView].
 class UpdatableDataViewSetting<T> {
   const UpdatableDataViewSetting({

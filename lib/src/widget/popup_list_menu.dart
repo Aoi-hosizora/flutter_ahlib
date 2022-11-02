@@ -85,7 +85,7 @@ Future<void> showPopupListMenu({
   bool? barrierDismissible = true,
   Color? barrierColor = Colors.black54,
   bool? useSafeArea = true,
-  // TODO add default DismissBehavior
+  // TODO add default options (DismissBehavior)
 }) {
   return showDialog(
     context: context,
@@ -98,7 +98,7 @@ Future<void> showPopupListMenu({
         for (var item in items)
           SimpleDialogOption(
             child: DefaultTextStyle(
-              style: Theme.of(context).textTheme.subtitle1!,
+              style: Theme.of(context).textTheme.subtitle1!, // TODO custom-able
               child: item.child,
             ),
             padding: item.padding ?? _kDefaultMenuItemPadding,
