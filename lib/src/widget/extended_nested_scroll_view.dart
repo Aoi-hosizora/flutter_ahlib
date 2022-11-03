@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 
-// Note: The file is based on Flutter's source code, and is modified by Aoi-hosizora (GitHub: @Aoi-hosizora).
+// Note: The file is based on Flutter's source code, and is modified by AoiHosizora (GitHub: @Aoi-hosizora).
 //
 // Some code in this file keeps the same as the following source codes:
 // - NestedScrollView: https://github.com/flutter/flutter/blob/2.10.5/packages/flutter/lib/src/widget/nested_scroll_view.dart

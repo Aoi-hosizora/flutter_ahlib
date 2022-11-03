@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/src/widget/preloadable_page_view.dart';
 import 'package:photo_view/photo_view.dart';
 
-// Note: The file is based on bluefireteam/photo_view, and is modified by Aoi-hosizora (GitHub: @Aoi-hosizora).
+// Note: The file is based on bluefireteam/photo_view, and is modified by AoiHosizora (GitHub: @Aoi-hosizora).
 //
 // Some code in this file keeps the same as the following source codes:
 // - PhotoViewGallery: https://github.com/bluefireteam/photo_view/blob/0.14.0/lib/photo_view_gallery.dart

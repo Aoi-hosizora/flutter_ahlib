@@ -1,5 +1,277 @@
+import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
+/// An extended [IconButton] that uses [AppBarActionButtonThemeData] as its default theme,
+/// can be used to show action button with consistent theme in [AppBar].
+class AppBarActionButton extends StatelessWidget {
+  const AppBarActionButton({
+    Key? key,
+    required this.icon,
+    required this.onPressed,
+    this.tooltip,
+    this.onLongPressed,
+    // <<<
+    this.iconSize /* 24 */,
+    this.visualDensity,
+    this.padding /* const EdgeInsets.all(8.0) */,
+    this.alignment /* Alignment.center */,
+    this.splashRadius,
+    this.focusColor,
+    this.hoverColor,
+    this.color,
+    this.splashColor,
+    this.highlightColor,
+    this.disabledColor,
+    this.mouseCursor,
+    this.focusNode,
+    this.autofocus /* false */,
+    this.enableFeedback /* true */,
+    this.constraints,
+  })  : assert(splashRadius == null || splashRadius > 0),
+        super(key: key);
+
+  // not contained in theme
+  final Widget icon;
+  final VoidCallback? onPressed;
+  final String? tooltip;
+
+  /// The callback for long pressing the button, which can not be customized in
+  /// [IconButton]. Note that [onLongPressed] will make [tooltip] unavailable.
+  final VoidCallback? onLongPressed;
+
+  // contained in theme, except for focusNode
+  final double? iconSize;
+  final VisualDensity? visualDensity;
+  final EdgeInsetsGeometry? padding;
+  final AlignmentGeometry? alignment;
+  final double? splashRadius;
+  final Color? focusColor;
+  final Color? hoverColor;
+  final Color? color;
+  final Color? splashColor;
+  final Color? highlightColor;
+  final Color? disabledColor;
+  final MouseCursor? mouseCursor;
+  final FocusNode? focusNode;
+  final bool? autofocus;
+  final bool? enableFeedback;
+  final BoxConstraints? constraints;
+
+  // Note: This function is based on Flutter's source code, and is modified by AoiHosizora (GitHub: @Aoi-hosizora).
+  //
+  // Some code in this function keeps the same as the following source codes:
+  // - InkRipple: https://github.com/flutter/flutter/blob/2.10.5/packages/flutter/lib/src/material/icon_button.dart
+  Widget _buildIconButton({
+    required BuildContext context,
+    required Widget icon,
+    required VoidCallback? onPressed,
+    String? tooltip,
+    VoidCallback? onLongPressed,
+    // <<<
+    double? iconSize,
+    VisualDensity? visualDensity,
+    EdgeInsetsGeometry padding = const EdgeInsets.all(8.0),
+    AlignmentGeometry alignment = Alignment.center,
+    double? splashRadius,
+    Color? focusColor,
+    Color? hoverColor,
+    Color? color,
+    Color? splashColor,
+    Color? highlightColor,
+    Color? disabledColor,
+    MouseCursor? mouseCursor,
+    FocusNode? focusNode,
+    bool autofocus = false,
+    bool enableFeedback = true,
+    BoxConstraints? constraints,
+  }) {
+    assert(debugCheckHasMaterial(context));
+    const double _kMinButtonSize = kMinInteractiveDimension;
+    final ThemeData theme = Theme.of(context);
+    final Color? currentColor = onPressed != null ? color : (disabledColor ?? theme.disabledColor);
+    final VisualDensity effectiveVisualDensity = visualDensity ?? theme.visualDensity;
+    final BoxConstraints unadjustedConstraints = constraints ?? const BoxConstraints(minWidth: _kMinButtonSize, minHeight: _kMinButtonSize);
+    final BoxConstraints adjustedConstraints = effectiveVisualDensity.effectiveConstraints(unadjustedConstraints);
+    final double effectiveIconSize = iconSize ?? IconTheme.of(context).size ?? 24.0;
+
+    Widget result = ConstrainedBox(
+      constraints: adjustedConstraints,
+      child: Padding(
+        padding: padding,
+        child: SizedBox(
+          height: effectiveIconSize,
+          width: effectiveIconSize,
+          child: Align(
+            alignment: alignment,
+            child: IconTheme.merge(
+              data: IconThemeData(
+                size: effectiveIconSize,
+                color: currentColor,
+              ),
+              child: icon,
+            ),
+          ),
+        ),
+      ),
+    );
+    if (onLongPressed == null /* <<< Modified by AoiHosizora */ && tooltip != null) {
+      result = Tooltip(
+        message: tooltip,
+        child: result,
+      );
+    }
+    return Semantics(
+      button: true,
+      enabled: onPressed != null,
+      child: InkResponse(
+        focusNode: focusNode,
+        autofocus: autofocus,
+        canRequestFocus: onPressed != null,
+        onTap: onPressed,
+        onLongPress: onLongPressed /* <<< Modified by AoiHosizora */,
+        mouseCursor: mouseCursor ?? (onPressed == null ? SystemMouseCursors.forbidden : SystemMouseCursors.click),
+        enableFeedback: enableFeedback,
+        focusColor: focusColor ?? theme.focusColor,
+        hoverColor: hoverColor ?? theme.hoverColor,
+        highlightColor: highlightColor ?? theme.highlightColor,
+        splashColor: splashColor ?? theme.splashColor,
+        radius: splashRadius ??
+            math.max(
+              Material.defaultSplashRadius,
+              (effectiveIconSize + math.min(padding.horizontal, padding.vertical)) * 0.7,
+              // x 0.5 for diameter -> radius and + 40% overflow derived from other Material apps.
+            ),
+        child: result,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = AppBarActionButtonTheme.of(context);
+    return _buildIconButton(
+      context: context,
+      icon: icon,
+      onPressed: onPressed,
+      tooltip: tooltip,
+      onLongPressed: onLongPressed,
+      // <<<
+      iconSize: iconSize ?? theme?.iconSize ?? 24,
+      visualDensity: visualDensity ?? theme?.visualDensity,
+      padding: padding ?? theme?.padding ?? const EdgeInsets.all(8.0),
+      alignment: alignment ?? theme?.alignment ?? Alignment.center,
+      splashRadius: splashRadius ?? theme?.splashRadius,
+      focusColor: focusColor ?? theme?.focusColor,
+      hoverColor: hoverColor ?? theme?.hoverColor,
+      color: color ?? theme?.color,
+      splashColor: splashColor ?? theme?.splashColor,
+      highlightColor: highlightColor ?? theme?.highlightColor,
+      disabledColor: disabledColor ?? theme?.disabledColor,
+      mouseCursor: mouseCursor ?? theme?.mouseCursor,
+      focusNode: focusNode,
+      autofocus: autofocus ?? theme?.autofocus ?? false,
+      enableFeedback: enableFeedback ?? theme?.enableFeedback ?? true,
+      constraints: constraints ?? theme?.constraints,
+    );
+  }
+
+  // TODO add test in example
+
+  /// Creates the default [AppBarActionButton] which will be used as leading button in [AppBar].
+  ///
+  /// Note that if you want to use [leading] as [Scaffold.appBar]'s leading directly (which
+  /// means do not wrap any widgets right under [Scaffold]) and want to display the correct
+  /// drawer button, please set [forceUseBuilder] to true, this flag ensures [ScaffoldState]
+  /// is available by using the correct [context] from [Builder].
+  static Widget? leading({
+    required BuildContext context,
+    bool forceUseBuilder = false,
+    bool allowDrawerButton = true,
+    // <<<
+    double? iconSize,
+    VisualDensity? visualDensity,
+    EdgeInsetsGeometry? padding,
+    AlignmentGeometry? alignment,
+    double? splashRadius,
+    Color? focusColor,
+    Color? hoverColor,
+    Color? color,
+    Color? splashColor,
+    Color? highlightColor,
+    Color? disabledColor,
+    MouseCursor? mouseCursor,
+    FocusNode? focusNode,
+    bool? autofocus,
+    bool? enableFeedback,
+    BoxConstraints? constraints,
+  }) {
+    Widget? _build(BuildContext context) {
+      final ScaffoldState? scaffold = Scaffold.maybeOf(context);
+      final bool hasDrawer = scaffold?.hasDrawer ?? false;
+      final bool hasEndDrawer = scaffold?.hasEndDrawer ?? false;
+
+      final ModalRoute<dynamic>? parentRoute = ModalRoute.of(context);
+      final bool canPop = parentRoute?.canPop ?? false;
+      final bool useCloseButton = parentRoute is PageRoute<dynamic> && parentRoute.fullscreenDialog;
+
+      Widget icon;
+      String tooltip;
+      VoidCallback onPressed;
+      if (allowDrawerButton && hasDrawer) {
+        icon = const Icon(Icons.menu);
+        tooltip = MaterialLocalizations.of(context).openAppDrawerTooltip;
+        onPressed = () => Scaffold.of(context).openDrawer();
+      } else if (!hasEndDrawer && canPop) {
+        if (useCloseButton) {
+          icon = const Icon(Icons.close);
+          tooltip = MaterialLocalizations.of(context).closeButtonTooltip;
+          onPressed = () => Navigator.maybePop(context);
+        } else {
+          icon = const BackButtonIcon(); // Icons.arrow_back / Icons.arrow_back_ios
+          tooltip = MaterialLocalizations.of(context).backButtonTooltip;
+          onPressed = () => Navigator.maybePop(context);
+        }
+      } else {
+        return null;
+      }
+
+      return AppBarActionButton(
+        icon: icon,
+        tooltip: tooltip,
+        onPressed: onPressed,
+        // <<<
+        iconSize: iconSize,
+        visualDensity: visualDensity,
+        padding: padding,
+        alignment: alignment,
+        splashRadius: splashRadius,
+        focusColor: focusColor,
+        hoverColor: hoverColor,
+        color: color,
+        splashColor: splashColor,
+        highlightColor: highlightColor,
+        disabledColor: disabledColor,
+        mouseCursor: mouseCursor,
+        focusNode: focusNode,
+        autofocus: autofocus,
+        enableFeedback: enableFeedback,
+        constraints: constraints,
+      );
+    }
+
+    if (!forceUseBuilder) {
+      return _build(context); // null-able
+    }
+    return Builder(
+      builder: (c) =>
+          _build(c) ?? // <<<
+          const SizedBox(width: 0, height: 0),
+    );
+  }
+}
+
+// TODO LeadingAppBarActionButton
 
 /// Associates an [AppBarActionButtonThemeData] with a subtree. The [AppBarActionButton] uses
 /// [of] methods to find the [AppBarActionButtonThemeData] associated with its subtree.
@@ -142,176 +414,6 @@ class AppBarActionButtonThemeData with Diagnosticable {
       autofocus,
       enableFeedback,
       constraints,
-    );
-  }
-}
-
-/// An [IconButton] that uses [AppBarActionButtonThemeData] as its default theme, can be used
-/// to show action button with consistent theme in [AppBar].
-class AppBarActionButton extends StatelessWidget {
-  const AppBarActionButton({
-    Key? key,
-    required this.icon,
-    required this.onPressed,
-    this.tooltip,
-    // <<<
-    this.iconSize /* 24 */,
-    this.visualDensity,
-    this.padding /* const EdgeInsets.all(8.0) */,
-    this.alignment /* Alignment.center */,
-    this.splashRadius,
-    this.focusColor,
-    this.hoverColor,
-    this.color,
-    this.splashColor,
-    this.highlightColor,
-    this.disabledColor,
-    this.mouseCursor,
-    this.focusNode,
-    this.autofocus /* false */,
-    this.enableFeedback /* true */,
-    this.constraints,
-  })  : assert(splashRadius == null || splashRadius > 0),
-        super(key: key);
-
-  // not contained in theme
-  final Widget icon;
-  final VoidCallback? onPressed;
-  final String? tooltip;
-
-  // contained in theme, except for focusNode
-  final double? iconSize;
-  final VisualDensity? visualDensity;
-  final EdgeInsetsGeometry? padding;
-  final AlignmentGeometry? alignment;
-  final double? splashRadius;
-  final Color? focusColor;
-  final Color? hoverColor;
-  final Color? color;
-  final Color? splashColor;
-  final Color? highlightColor;
-  final Color? disabledColor;
-  final MouseCursor? mouseCursor;
-  final FocusNode? focusNode;
-  final bool? autofocus;
-  final bool? enableFeedback;
-  final BoxConstraints? constraints;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = AppBarActionButtonTheme.of(context);
-    return IconButton(
-      icon: icon,
-      onPressed: onPressed,
-      tooltip: tooltip,
-      // <<<
-      iconSize: iconSize ?? theme?.iconSize ?? 24,
-      visualDensity: visualDensity ?? theme?.visualDensity,
-      padding: padding ?? theme?.padding ?? const EdgeInsets.all(8.0),
-      alignment: alignment ?? theme?.alignment ?? Alignment.center,
-      splashRadius: splashRadius ?? theme?.splashRadius,
-      focusColor: focusColor ?? theme?.focusColor,
-      hoverColor: hoverColor ?? theme?.hoverColor,
-      color: color ?? theme?.color,
-      splashColor: splashColor ?? theme?.splashColor,
-      highlightColor: highlightColor ?? theme?.highlightColor,
-      disabledColor: disabledColor ?? theme?.disabledColor,
-      mouseCursor: mouseCursor ?? theme?.mouseCursor,
-      focusNode: focusNode,
-      autofocus: autofocus ?? theme?.autofocus ?? false,
-      enableFeedback: enableFeedback ?? theme?.enableFeedback ?? true,
-      constraints: constraints ?? theme?.constraints,
-    );
-  }
-
-  /// Creates the default [AppBarActionButton] which will be used as leading button in [AppBar].
-  ///
-  /// Note that if you use [leading] as [Scaffold.appBar]'s leading directly and do not wrap any
-  /// widget, the [ScaffoldState] got from given [context] may be null, so in this case, please
-  /// set [forceUseBuilder] to true if you want to show drawer button.
-  static Widget? leading({
-    required BuildContext context,
-    bool forceUseBuilder = false,
-    bool allowDrawerButton = true,
-    // <<<
-    double? iconSize,
-    VisualDensity? visualDensity,
-    EdgeInsetsGeometry? padding,
-    AlignmentGeometry? alignment,
-    double? splashRadius,
-    Color? focusColor,
-    Color? hoverColor,
-    Color? color,
-    Color? splashColor,
-    Color? highlightColor,
-    Color? disabledColor,
-    MouseCursor? mouseCursor,
-    FocusNode? focusNode,
-    bool? autofocus,
-    bool? enableFeedback,
-    BoxConstraints? constraints,
-  }) {
-    Widget? _build(BuildContext context) {
-      final ScaffoldState? scaffold = Scaffold.maybeOf(context);
-      final bool hasDrawer = scaffold?.hasDrawer ?? false;
-      final bool hasEndDrawer = scaffold?.hasEndDrawer ?? false;
-
-      final ModalRoute<dynamic>? parentRoute = ModalRoute.of(context);
-      final bool canPop = parentRoute?.canPop ?? false;
-      final bool useCloseButton = parentRoute is PageRoute<dynamic> && parentRoute.fullscreenDialog;
-
-      Widget icon;
-      String tooltip;
-      VoidCallback onPressed;
-      if (allowDrawerButton && hasDrawer) {
-        icon = const Icon(Icons.menu);
-        tooltip = MaterialLocalizations.of(context).openAppDrawerTooltip;
-        onPressed = () => Scaffold.of(context).openDrawer();
-      } else if (!hasEndDrawer && canPop) {
-        if (useCloseButton) {
-          icon = const Icon(Icons.close);
-          tooltip = MaterialLocalizations.of(context).closeButtonTooltip;
-          onPressed = () => Navigator.maybePop(context);
-        } else {
-          icon = const BackButtonIcon(); // Icons.arrow_back / Icons.arrow_back_ios
-          tooltip = MaterialLocalizations.of(context).backButtonTooltip;
-          onPressed = () => Navigator.maybePop(context);
-        }
-      } else {
-        return null;
-      }
-
-      return AppBarActionButton(
-        icon: icon,
-        tooltip: tooltip,
-        onPressed: onPressed,
-        // <<<
-        iconSize: iconSize,
-        visualDensity: visualDensity,
-        padding: padding,
-        alignment: alignment,
-        splashRadius: splashRadius,
-        focusColor: focusColor,
-        hoverColor: hoverColor,
-        color: color,
-        splashColor: splashColor,
-        highlightColor: highlightColor,
-        disabledColor: disabledColor,
-        mouseCursor: mouseCursor,
-        focusNode: focusNode,
-        autofocus: autofocus,
-        enableFeedback: enableFeedback,
-        constraints: constraints,
-      );
-    }
-
-    if (!forceUseBuilder) {
-      return _build(context); // null-able
-    }
-    return Builder(
-      builder: (c) =>
-          _build(c) ?? //
-          const SizedBox(width: 0, height: 0),
     );
   }
 }
