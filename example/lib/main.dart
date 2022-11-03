@@ -11,8 +11,10 @@ final _controller = ScrollController();
 
 void printLog(Object? s) {
   print(s);
-  _logger.value += '\n[log] ' + (s?.toString() ?? '<null>');
-  Future.delayed(const Duration(milliseconds: 20), () => _controller.scrollToBottom());
+  Future.microtask(() {
+    _logger.value += '\n[log] ' + (s?.toString() ?? '<null>');
+    WidgetsBinding.instance?.addPostFrameCallback((_) => _controller.scrollToBottom());
+  });
 }
 
 class MyApp extends StatelessWidget {
@@ -30,7 +32,7 @@ class MyApp extends StatelessWidget {
         body: Column(
           children: [
             Expanded(child: child!),
-            const Divider(thickness: 1, height: 1),
+            const Divider(height: 0, thickness: 1),
             Container(
               height: (MediaQuery.of(context).size.height - MediaQuery.of(context).padding.vertical) / 5,
               width: double.infinity,

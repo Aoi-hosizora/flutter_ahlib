@@ -10,6 +10,7 @@ import 'package:flutter_ahlib_example/page/widget/app_bar_action_button.dart';
 import 'package:flutter_ahlib_example/page/widget/custom_ink_feature.dart';
 import 'package:flutter_ahlib_example/page/widget/custom_ink_response.dart';
 import 'package:flutter_ahlib_example/page/widget/custom_page_route.dart';
+import 'package:flutter_ahlib_example/page/widget/custom_single_child_layout.dart';
 import 'package:flutter_ahlib_example/page/widget/extended_nested_scroll_view.dart';
 import 'package:flutter_ahlib_example/page/widget/icon_text.dart';
 import 'package:flutter_ahlib_example/page/widget/lazy_indexed_stack.dart';
@@ -98,6 +99,7 @@ class _IndexPageState extends State<IndexPage> {
                 _button('ScrollbarWithMore', const ScrollbarWithMorePage()),
                 _button('ExtendedNestedScrollView', const ExtendedNestedScrollViewPage()),
                 _button('VideoProgressIndicator', const VideoProgressIndicatorPage()),
+                _button('CustomSingleChildLayout', const CustomSingleChildLayoutPage()),
                 _button('AppBarActionButton', const AppBarActionButtonPage()),
                 _button('CustomPageRoute', const CustomPageRoutePage()),
               ],

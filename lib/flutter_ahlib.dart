@@ -6,6 +6,7 @@ export 'src/widget/app_bar_action_button.dart';
 export 'src/widget/custom_ink_feature.dart';
 export 'src/widget/custom_ink_response.dart';
 export 'src/widget/custom_page_route.dart';
+export 'src/widget/custom_single_child_layout.dart';
 export 'src/widget/extended_nested_scroll_view.dart';
 export 'src/widget/icon_text.dart';
 export 'src/widget/lazy_indexed_stack.dart';
