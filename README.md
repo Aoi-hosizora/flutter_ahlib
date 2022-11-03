@@ -28,6 +28,7 @@ import 'package:flutter_ahlib/flutter_ahlib.dart'; // the whole library
     + `AppBarActionButtonTheme` `AppBarActionButton`
     + `CustomInkRipple` `CustomInkSplash`
     + `CustomInkWell` `CustomInkResponse`
+    + `CustomPageRoute` `CustomPageRouteTheme` `NoPopGestureCupertinoPageTransitionsBuilder`
     + `DrawerListView`
     + `ExtendedNestedScrollView`
     + `IconText`
@@ -55,7 +56,7 @@ import 'package:flutter_ahlib/flutter_ahlib.dart'; // the whole library
     + `MultiImageStreamCompleter`
 + util.dart:
     + `ActionController`
-    + `BoolExtension` `ListExtension`
+    + `BoolExtension` `IterableExtension` `LetExtension`
     + `filesize`
     + `StateExtension` `ScrollControllerExtension` `ScrollMetricsExtension` `PageControllerExtension` `RenderObjectExtension`
     + `hash2` ~ `hash6` `hashObjects`

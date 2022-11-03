@@ -2,9 +2,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-///
+// TODO add test in example
+
+/// A custom [PageRoute] which is similar to [MaterialPageRoute] or [CupertinoPageRoute],
+/// but this supports customizable transition duration and transitions builder, which is
+/// fixed in these two builtin [PageRoute].
 class CustomPageRoute<T> extends PageRoute<T> {
-  ///
+  /// Creates a [CustomPageRoute] using given named parameters, here [transitionDuration]
+  /// and [transitionsBuilder] will fallback to use [CustomPageRouteThemeData] if null.
   CustomPageRoute({
     required this.context,
     required this.builder,
@@ -19,54 +24,56 @@ class CustomPageRoute<T> extends PageRoute<T> {
     assert(opaque);
   }
 
+  /// Creates a [CustomPageRoute] in a simple way.
   CustomPageRoute.simple(
     BuildContext context,
-    WidgetBuilder builder,
-  ) : this(
+    WidgetBuilder builder, {
+    RouteSettings? settings,
+    bool fullscreenDialog = false,
+    bool maintainState = true,
+    Duration? transitionDuration,
+    PageTransitionsBuilder? transitionsBuilder,
+  }) : this(
           context: context,
           builder: builder,
-          settings: null,
-          fullscreenDialog: false,
-          transitionDuration: null,
-          transitionsBuilder: null,
+          settings: settings,
+          fullscreenDialog: fullscreenDialog,
+          maintainState: maintainState,
+          transitionDuration: transitionDuration,
+          transitionsBuilder: transitionsBuilder,
         );
 
-  ///
+  /// The build context which is used for getting [CustomPageRouteThemeData] of the route.
   final BuildContext context;
 
-  ///
+  /// Builds the primary contents of the route.
   final WidgetBuilder builder;
 
-  ///
+  /// The flag describing whether the route should remain in memory when it is inactive.
   @override
   final bool maintainState;
 
-  ///
+  /// The duration the transition going forwards, this field is private and [transitionDuration]
+  /// will be used.
   final Duration? _transitionDuration;
 
-  ///
+  /// The function which defines a [MaterialPageRoute] page transition animation, this field
+  /// is private and [buildTransitions] will be used.
   final PageTransitionsBuilder? _transitionsBuilder;
 
+  /// Mirrors to [ModalRoute.barrierColor].
   @override
-  Color? get barrierColor => null;
+  Color? get barrierColor => null; // TODO effect and is customizable ???
 
+  /// Mirrors to [ModalRoute.barrierLabel].
   @override
   String? get barrierLabel => null;
 
+  /// The duration the transition going forwards.
   @override
   Duration get transitionDuration {
     final theme = CustomPageRouteTheme.of(context);
     return _transitionDuration ?? theme?.transitionDuration ?? const Duration(milliseconds: 300);
-  }
-
-  @override
-  bool canTransitionFrom(TransitionRoute<dynamic> previousRoute) {
-    return super.canTransitionFrom(previousRoute);
-  }
-
-  @override
-  bool canTransitionTo(TransitionRoute<dynamic> nextRoute) {
-    return super.canTransitionTo(nextRoute);
   }
 
   @override
@@ -80,14 +87,13 @@ class CustomPageRoute<T> extends PageRoute<T> {
 
   @override
   Widget buildTransitions(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
-    // TODO allowSwipeTransition
     final theme = CustomPageRouteTheme.of(context);
     var builder = (_transitionsBuilder ?? theme?.transitionsBuilder)?.buildTransitions ?? Theme.of(context).pageTransitionsTheme.buildTransitions;
     return builder<T>(this, context, animation, secondaryAnimation, child);
   }
 }
 
-/// Associates an [CustomPageRouteThemeData] with a subtree. The [CustomPageRoute] uses
+/// Associates a [CustomPageRouteThemeData] with a subtree. The [CustomPageRoute] uses
 /// [of] methods to find the [CustomPageRouteThemeData] associated with its subtree.
 class CustomPageRouteTheme extends InheritedWidget {
   /// Creates a widget that associates a [CustomPageRouteThemeData] with a subtree.
@@ -119,18 +125,19 @@ class CustomPageRouteThemeData with Diagnosticable {
     this.transitionsBuilder,
   });
 
-  /// Mirrors to [TransitionRoute.transitionDuration].
+  /// The duration the transition going forwards, which defaults to `Duration(milliseconds: 300)`
+  /// in [MaterialPageRoute], and defaults to `Duration(milliseconds: 400)` in [CupertinoPageRoute].
   final Duration? transitionDuration;
 
-  ///
+  /// The function which defines a [MaterialPageRoute] page transition animation. You have
+  /// to set this value the same as [PageTransitionsTheme] to ensure the transition behavior
+  /// of [CustomPageRoute] normal.
   final PageTransitionsBuilder? transitionsBuilder;
 
   /// Creates a copy of this theme but with the given fields replaced with the new values.
   CustomPageRouteThemeData copyWith({
-    bool? maintainState,
     Duration? transitionDuration,
     PageTransitionsBuilder? transitionsBuilder,
-    bool? allowSwipeTransition,
   }) {
     return CustomPageRouteThemeData(
       transitionDuration: transitionDuration ?? this.transitionDuration,
@@ -146,7 +153,8 @@ class CustomPageRouteThemeData with Diagnosticable {
     if (other is! CustomPageRouteThemeData) {
       return false;
     }
-    return other.transitionDuration == transitionDuration && other.transitionsBuilder == transitionsBuilder;
+    return other.transitionDuration == transitionDuration && //
+        other.transitionsBuilder == transitionsBuilder;
   }
 
   @override
@@ -158,9 +166,8 @@ class CustomPageRouteThemeData with Diagnosticable {
   }
 }
 
-/// [CupertinoPageTransitionsBuilder] ...
-///
-///
+/// A no pop gesture version of [CupertinoPageTransitionsBuilder], which can deal with the
+/// swipe behavior conflict between [CupertinoPageTransitionsBuilder] and [Drawer].
 class NoPopGestureCupertinoPageTransitionsBuilder extends PageTransitionsBuilder {
   const NoPopGestureCupertinoPageTransitionsBuilder();
 

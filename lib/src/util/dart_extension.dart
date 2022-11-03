@@ -68,8 +68,6 @@ extension IterableExtension<T> on Iterable<T> {
   T? get lastOrNull => isEmpty ? null : last;
 }
 
-// TODO test
-
 /// An extension for any values, and it only contains kotlin-like [let] function.
 extension LetExtension<T extends Object> on T {
   /// Calls given function when current value is not null.
@@ -80,7 +78,12 @@ extension LetExtension<T extends Object> on T {
 
 /// An extension for [Future], and it only contains kotlin-like [let] function.
 extension FutureLetExtension<T extends Object> on Future<T?> {
+  /// Calls given function when current value is not null.
   Future<R?> futureLet<R>(R Function(T value) func) async {
-    return (await this)?.let<R>(func);
+    T? value = await this;
+    if (value != null) {
+      return func.call(value);
+    }
+    return null;
   }
 }

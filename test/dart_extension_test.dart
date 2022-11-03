@@ -70,4 +70,37 @@ void main() {
       expect(<dynamic>[null, null].lastOrNull, null);
     });
   });
+
+  group('LetExtension', () {
+    test('let', () {
+      expect(0.let((int v) => v), 0); // let<int>
+      expect(0.let((int v) => 1), 1); // let<int>
+      expect('x'.let((String v) => v * 2), 'xx'); // let<String>
+
+      bool? i = false;
+      bool value = false;
+      () {
+        i?.let((bool v) => value = !v); // let<bool>
+        expect(value, true);
+        i = null;
+        i?.let((bool v) => value = false); // let<bool>
+        expect(value, true);
+      }();
+    });
+
+    test('futureLet', () async {
+      expect(await Future.value(0).futureLet((int v) => v), 0); // futureLet<int>
+      expect(await Future.value(0).futureLet((int v) => 1), 1); // futureLet<int>
+      expect(await Future.value('x').futureLet((String v) => v * 2), 'xx'); // futureLet<String>
+      expect(await (await Future.value('x').futureLet((String v) async => await Future.delayed(const Duration(milliseconds: 100), () => v * 2))), 'xx'); // futureLet<Future<String>>
+
+      Future<bool?> i = Future.value(false);
+      await i.futureLet((bool v) => i = Future.value(!v)); // futureLet<bool>
+      expect(await i, true);
+      i = Future<bool?>.value(null);
+      bool value = false;
+      await i.futureLet((bool v) => value = true); // futureLet<bool>
+      expect(value, false);
+    });
+  });
 }
