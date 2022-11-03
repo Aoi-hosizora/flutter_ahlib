@@ -5,21 +5,19 @@ class StatelessWidgetWithCallback extends StatelessWidget {
   /// Creates [StatelessWidgetWithCallback] with non-null [child].
   const StatelessWidgetWithCallback({
     Key? key,
-    required this.child,
+    required Widget this.child,
     this.buildCallback,
     this.postFrameCallback,
   })  : builder = null,
-        assert(child != null),
         super(key: key);
 
   /// Creates [StatelessWidgetWithCallback] with non-null [builder].
   const StatelessWidgetWithCallback.builder({
     Key? key,
-    required this.builder,
+    required WidgetBuilder this.builder,
     this.buildCallback,
     this.postFrameCallback,
   })  : child = null,
-        assert(builder != null),
         super(key: key);
 
   /// The widget below this widget in the tree.
@@ -55,7 +53,7 @@ class StatefulWidgetWithCallback extends StatefulWidget {
   /// Creates [StatefulWidgetWithCallback] with non-null [child].
   const StatefulWidgetWithCallback({
     Key? key,
-    required this.child,
+    required Widget this.child,
     this.initStateCallback,
     this.didChangeDependenciesCallback,
     this.didUpdateWidgetCallback,
@@ -70,13 +68,12 @@ class StatefulWidgetWithCallback extends StatefulWidget {
     this.postFrameCallbackForDidUpdateWidget,
     this.postFrameCallbackForBuild,
   })  : builder = null,
-        assert(child != null),
         super(key: key);
 
   /// Creates [StatefulWidgetWithCallback] with non-null [builder].
   const StatefulWidgetWithCallback.builder({
     Key? key,
-    required this.builder,
+    required StatefulWidgetBuilder this.builder,
     this.initStateCallback,
     this.didChangeDependenciesCallback,
     this.didUpdateWidgetCallback,
@@ -91,7 +88,6 @@ class StatefulWidgetWithCallback extends StatefulWidget {
     this.postFrameCallbackForDidUpdateWidget,
     this.postFrameCallbackForBuild,
   })  : child = null,
-        assert(builder != null),
         super(key: key);
 
   /// The widget below this widget in the tree.

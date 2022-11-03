@@ -189,7 +189,7 @@ class CustomPageRouteThemeData with Diagnosticable {
   /// normal transition behavior.
   final PageTransitionsBuilder? transitionsBuilder;
 
-  /// Creates a copy of this theme but with the given fields replaced with the new values.
+  /// Creates a copy of this value but with given fields replaced with the new values.
   CustomPageRouteThemeData copyWith({
     Duration? transitionDuration,
     Duration? reverseTransitionDuration,

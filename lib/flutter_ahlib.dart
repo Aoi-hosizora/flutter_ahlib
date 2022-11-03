@@ -1,8 +1,5 @@
 library flutter_ahlib;
 
-// TODO use this kind of type
-// {required int this.itemCount}
-
 // widget
 export 'src/widget/animated_fab.dart';
 export 'src/widget/app_bar_action_button.dart';

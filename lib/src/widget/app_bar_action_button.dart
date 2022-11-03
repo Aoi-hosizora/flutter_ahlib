@@ -36,8 +36,8 @@ class AppBarActionButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final String? tooltip;
 
-  /// The callback for long pressing the button, which can not be customized in
-  /// [IconButton]. Note that [onLongPressed] will make [tooltip] unavailable.
+  /// The callback for long pressing the button, which can not be customized in [IconButton].
+  /// Note that [onLongPressed] will make [tooltip] unavailable.
   final VoidCallback? onLongPressed;
 
   // contained in theme, except for focusNode
@@ -61,7 +61,7 @@ class AppBarActionButton extends StatelessWidget {
   // Note: This function is based on Flutter's source code, and is modified by AoiHosizora (GitHub: @Aoi-hosizora).
   //
   // Some code in this function keeps the same as the following source codes:
-  // - InkRipple: https://github.com/flutter/flutter/blob/2.10.5/packages/flutter/lib/src/material/icon_button.dart
+  // - IconButton: https://github.com/flutter/flutter/blob/2.10.5/packages/flutter/lib/src/material/icon_button.dart
   Widget _buildIconButton({
     required BuildContext context,
     required Widget icon,
@@ -182,12 +182,16 @@ class AppBarActionButton extends StatelessWidget {
   ///
   /// Note that if you want to use [leading] as [Scaffold.appBar]'s leading directly (which
   /// means do not wrap any widgets right under [Scaffold]) and want to display the correct
-  /// drawer button, please set [forceUseBuilder] to true, this flag ensures [ScaffoldState]
-  /// is available by using the correct [context] from [Builder].
+  /// drawer button, please set [forceUseBuilder] to true.
+  ///
+  /// [forceUseBuilder] ensures [ScaffoldState] is available by using [Builder] to get the correct
+  /// [context], but it will also make [leading] never return null. So if there is no drawer button,
+  /// close button or back button, a blank with [AppBar.leadingWidth] width will be displayed.
   static Widget? leading({
     required BuildContext context,
     bool forceUseBuilder = false,
     bool allowDrawerButton = true,
+    bool endDrawerAffected = false,
     // <<<
     double? iconSize,
     VisualDensity? visualDensity,
@@ -207,13 +211,13 @@ class AppBarActionButton extends StatelessWidget {
     BoxConstraints? constraints,
   }) {
     Widget? _build(BuildContext context) {
-      final ScaffoldState? scaffold = Scaffold.maybeOf(context);
-      final bool hasDrawer = scaffold?.hasDrawer ?? false;
-      final bool hasEndDrawer = scaffold?.hasEndDrawer ?? false;
+      final scaffold = Scaffold.maybeOf(context);
+      final hasDrawer = scaffold?.hasDrawer ?? false;
+      final hasEndDrawer = scaffold?.hasEndDrawer ?? false;
 
-      final ModalRoute<dynamic>? parentRoute = ModalRoute.of(context);
-      final bool canPop = parentRoute?.canPop ?? false;
-      final bool useCloseButton = parentRoute is PageRoute<dynamic> && parentRoute.fullscreenDialog;
+      final parentRoute = ModalRoute.of(context);
+      final canPop = parentRoute?.canPop ?? false;
+      final useCloseButton = parentRoute is PageRoute<dynamic> && parentRoute.fullscreenDialog;
 
       Widget icon;
       String tooltip;
@@ -222,7 +226,7 @@ class AppBarActionButton extends StatelessWidget {
         icon = const Icon(Icons.menu);
         tooltip = MaterialLocalizations.of(context).openAppDrawerTooltip;
         onPressed = () => Scaffold.of(context).openDrawer();
-      } else if (!hasEndDrawer && canPop) {
+      } else if (canPop && (!endDrawerAffected || !hasEndDrawer)) {
         if (useCloseButton) {
           icon = const Icon(Icons.close);
           tooltip = MaterialLocalizations.of(context).closeButtonTooltip;
@@ -265,13 +269,11 @@ class AppBarActionButton extends StatelessWidget {
     }
     return Builder(
       builder: (c) =>
-          _build(c) ?? // <<<
-          const SizedBox(width: 0, height: 0),
+          _build(c) ?? //
+          const SizedBox(width: 0, height: 0) /* display a blank with fixed width */,
     );
   }
 }
-
-// TODO LeadingAppBarActionButton
 
 /// Associates an [AppBarActionButtonThemeData] with a subtree. The [AppBarActionButton] uses
 /// [of] methods to find the [AppBarActionButtonThemeData] associated with its subtree.
@@ -334,7 +336,7 @@ class AppBarActionButtonThemeData with Diagnosticable {
   final bool? enableFeedback;
   final BoxConstraints? constraints;
 
-  /// Creates a copy of this theme but with the given fields replaced with the new values.
+  /// Creates a copy of this value but with given fields replaced with the new values.
   AppBarActionButtonThemeData copyWith({
     double? iconSize,
     VisualDensity? visualDensity,

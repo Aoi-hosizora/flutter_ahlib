@@ -19,7 +19,7 @@ class VideoProgress {
   /// Video buffered position, should have the same unit with [duration].
   final int? buffered;
 
-  /// Creates a copy of [VideoProgress] with given parameters.
+  /// Creates a copy of this value but with given fields replaced with the new values.
   VideoProgress copyWith({int? duration, int? position, int? buffered}) {
     return VideoProgress(
       duration: duration ?? this.duration,

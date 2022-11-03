@@ -2,16 +2,46 @@ import 'package:flutter/material.dart';
 
 /// A state enum used to describe the current state of [PlaceholderText].
 enum PlaceholderState {
-  normal, // 1. not empty
-  loading, // 2. empty && loading
-  nothing, // 3. empty && !loading && !error
-  error, // 4. empty && !loading && error
+  normal, // isEmpty == false
+  loading, // isLoading == true
+  error, // errorText != null && errorText != ''
+  nothing, // isEmpty == true
 }
+
+/// A rule enum used to describe how to decide [PlaceholderState] in [PlaceholderText.from].
+enum PlaceholderDisplayRule {
+  /// Shows data first, even if currently it is loading, or error text is not empty.
+  /// 1. !empty => normal
+  /// 2. empty && loading => loading
+  /// 3. empty && !loading && error => error
+  /// 4. empty && !loading && !error => nothing
+  dataFirst,
+
+  /// Shows loading first, and then shows data, even if currently data is not empty.
+  /// 1. loading => loading
+  /// 2. !loading && !empty => normal
+  /// 3. !loading && empty && error => error
+  /// 4. !loading && empty && !error => nothing
+  loadingFirst,
+
+  /// Shows loading first, and then shows error, even if currently data is not empty.
+  /// 1. loading => loading
+  /// 2. !loading && error => error
+  /// 3. !loading && !error && !empty => normal
+  /// 4. !loading && !error && empty => nothing
+  errorFirst,
+}
+
+/// A widget builder function, with void callback parameter.
+typedef CallbackWidgetBuilder = Widget Function(BuildContext context, VoidCallback callback);
 
 /// A [PlaceholderText.state] changed callback function, with old state and new state.
 typedef PlaceholderStateChangedCallback = void Function(PlaceholderState oldState, PlaceholderState newState);
 
-/// A display setting of [PlaceholderText]. Note that the properties of this class are all non-nullable.
+/// TODO set as global theme, use PlaceholderTextTheme ???
+
+/// A display setting of [PlaceholderText]. Note that all the properties of this class are
+/// non-nullable, except for widget builders.
 class PlaceholderSetting {
   const PlaceholderSetting({
     // text
@@ -27,30 +57,115 @@ class PlaceholderSetting {
     this.textPadding = const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
     this.iconPadding = const EdgeInsets.all(5),
     this.buttonPadding = const EdgeInsets.all(5),
-    this.progressPadding = const EdgeInsets.all(27.5),
-    this.progressTextPadding = const EdgeInsets.all(14),
+    this.progressPadding = const EdgeInsets.fromLTRB(25, 5, 25, 30), // TODO test
     // style
-    this.textStyle = const TextStyle(fontSize: 20), // TODO use Theme.of(context).textTheme instead
+    this.textStyle = const TextStyle(fontSize: 20), // TextTheme.headline6
     this.errorTextMaxLines = 15,
     this.errorTextOverflow = TextOverflow.ellipsis,
-    this.buttonTextStyle = const TextStyle(fontSize: 14),
+    this.buttonTextStyle = const TextStyle(fontSize: 14), // TextTheme.button
     this.buttonStyle = const ButtonStyle(),
     this.iconSize = 50,
     this.iconColor = Colors.grey,
-    this.progressSize = 45,
+    this.progressSize = 45, // TODO test
     this.progressStrokeWidth = 4.4,
-    // show loading xxx
+    // show xxx
     this.showLoadingProgress = true,
     this.showLoadingText = true,
-    // show nothing xxx
     this.showNothingIcon = true,
     this.showNothingText = true,
     this.showNothingRetry = true,
-    // show error xxx
     this.showErrorIcon = true,
     this.showErrorText = true,
     this.showErrorRetry = true,
+    // custom xxx
+    this.customLoadingProgress,
+    this.customLoadingText,
+    this.customNothingIcon,
+    this.customNothingText,
+    this.customNothingRetry,
+    this.customErrorIcon,
+    this.customErrorText,
+    this.customErrorRetry,
   });
+
+  /// Creates a copy of this value but with given fields replaced with the new values.
+  PlaceholderSetting copyWith({
+    String? loadingText,
+    String? nothingText,
+    String? nothingRetryText,
+    String? unknownErrorText,
+    String? errorRetryText,
+    IconData? nothingIcon,
+    IconData? errorIcon,
+    EdgeInsets? textPadding,
+    EdgeInsets? iconPadding,
+    EdgeInsets? buttonPadding,
+    EdgeInsets? progressPadding,
+    TextStyle? textStyle,
+    int? errorTextMaxLines,
+    TextOverflow? errorTextOverflow,
+    TextStyle? buttonTextStyle,
+    ButtonStyle? buttonStyle,
+    double? iconSize,
+    Color? iconColor,
+    double? progressSize,
+    double? progressStrokeWidth,
+    bool? showLoadingProgress,
+    bool? showLoadingText,
+    bool? showNothingIcon,
+    bool? showNothingText,
+    bool? showNothingRetry,
+    bool? showErrorIcon,
+    bool? showErrorText,
+    bool? showErrorRetry,
+    WidgetBuilder? customLoadingProgress,
+    WidgetBuilder? customLoadingText,
+    WidgetBuilder? customNothingIcon,
+    WidgetBuilder? customNothingText,
+    CallbackWidgetBuilder? customNothingRetry,
+    WidgetBuilder? customErrorIcon,
+    WidgetBuilder? customErrorText,
+    CallbackWidgetBuilder? customErrorRetry,
+  }) {
+    return PlaceholderSetting(
+      loadingText: loadingText ?? this.loadingText,
+      nothingText: nothingText ?? this.nothingText,
+      nothingRetryText: nothingRetryText ?? this.nothingRetryText,
+      unknownErrorText: unknownErrorText ?? this.unknownErrorText,
+      errorRetryText: errorRetryText ?? this.errorRetryText,
+      nothingIcon: nothingIcon ?? this.nothingIcon,
+      errorIcon: errorIcon ?? this.errorIcon,
+      textPadding: textPadding ?? this.textPadding,
+      iconPadding: iconPadding ?? this.iconPadding,
+      buttonPadding: buttonPadding ?? this.buttonPadding,
+      progressPadding: progressPadding ?? this.progressPadding,
+      textStyle: textStyle ?? this.textStyle,
+      errorTextMaxLines: errorTextMaxLines ?? this.errorTextMaxLines,
+      errorTextOverflow: errorTextOverflow ?? this.errorTextOverflow,
+      buttonTextStyle: buttonTextStyle ?? this.buttonTextStyle,
+      buttonStyle: buttonStyle ?? this.buttonStyle,
+      iconSize: iconSize ?? this.iconSize,
+      iconColor: iconColor ?? this.iconColor,
+      progressSize: progressSize ?? this.progressSize,
+      progressStrokeWidth: progressStrokeWidth ?? this.progressStrokeWidth,
+      showLoadingProgress: showLoadingProgress ?? this.showLoadingProgress,
+      showLoadingText: showLoadingText ?? this.showLoadingText,
+      showNothingIcon: showNothingIcon ?? this.showNothingIcon,
+      showNothingText: showNothingText ?? this.showNothingText,
+      showNothingRetry: showNothingRetry ?? this.showNothingRetry,
+      showErrorIcon: showErrorIcon ?? this.showErrorIcon,
+      showErrorText: showErrorText ?? this.showErrorText,
+      showErrorRetry: showErrorRetry ?? this.showErrorRetry,
+      customLoadingProgress: customLoadingProgress ?? this.customLoadingProgress,
+      customLoadingText: customLoadingText ?? this.customLoadingText,
+      customNothingIcon: customNothingIcon ?? this.customNothingIcon,
+      customNothingText: customNothingText ?? this.customNothingText,
+      customNothingRetry: customNothingRetry ?? this.customNothingRetry,
+      customErrorIcon: customErrorIcon ?? this.customErrorIcon,
+      customErrorText: customErrorText ?? this.customErrorText,
+      customErrorRetry: customErrorRetry ?? this.customErrorRetry,
+    );
+  }
 
   /// Translates the current setting to Chinese and returns the new [PlaceholderSetting].
   PlaceholderSetting copyWithChinese({
@@ -60,36 +175,12 @@ class PlaceholderSetting {
     String unknownErrorText = '未知错误',
     String errorRetryText = '重试',
   }) {
-    return PlaceholderSetting(
+    return copyWith(
       loadingText: loadingText,
       nothingText: nothingText,
       nothingRetryText: nothingRetryText,
       unknownErrorText: unknownErrorText,
       errorRetryText: errorRetryText,
-      nothingIcon: nothingIcon,
-      errorIcon: errorIcon,
-      textPadding: textPadding,
-      iconPadding: iconPadding,
-      buttonPadding: buttonPadding,
-      progressPadding: progressPadding,
-      progressTextPadding: progressTextPadding,
-      textStyle: textStyle,
-      errorTextMaxLines: errorTextMaxLines,
-      errorTextOverflow: errorTextOverflow,
-      buttonTextStyle: buttonTextStyle,
-      buttonStyle: buttonStyle,
-      iconSize: iconSize,
-      iconColor: iconColor,
-      progressSize: progressSize,
-      progressStrokeWidth: progressStrokeWidth,
-      showLoadingProgress: showLoadingProgress,
-      showLoadingText: showLoadingText,
-      showNothingIcon: showNothingIcon,
-      showNothingText: showNothingText,
-      showNothingRetry: showNothingRetry,
-      showErrorIcon: showErrorIcon,
-      showErrorText: showErrorText,
-      showErrorRetry: showErrorRetry,
     );
   }
 
@@ -101,36 +192,12 @@ class PlaceholderSetting {
     String unknownErrorText = '未知エラー',
     String errorRetryText = '再試行',
   }) {
-    return PlaceholderSetting(
+    return copyWith(
       loadingText: loadingText,
       nothingText: nothingText,
       nothingRetryText: nothingRetryText,
       unknownErrorText: unknownErrorText,
       errorRetryText: errorRetryText,
-      nothingIcon: nothingIcon,
-      errorIcon: errorIcon,
-      textPadding: textPadding,
-      iconPadding: iconPadding,
-      buttonPadding: buttonPadding,
-      progressPadding: progressPadding,
-      progressTextPadding: progressTextPadding,
-      textStyle: textStyle,
-      errorTextMaxLines: errorTextMaxLines,
-      errorTextOverflow: errorTextOverflow,
-      buttonTextStyle: buttonTextStyle,
-      buttonStyle: buttonStyle,
-      iconSize: iconSize,
-      iconColor: iconColor,
-      progressSize: progressSize,
-      progressStrokeWidth: progressStrokeWidth,
-      showLoadingProgress: showLoadingProgress,
-      showLoadingText: showLoadingText,
-      showNothingIcon: showNothingIcon,
-      showNothingText: showNothingText,
-      showNothingRetry: showNothingRetry,
-      showErrorIcon: showErrorIcon,
-      showErrorText: showErrorText,
-      showErrorRetry: showErrorRetry,
     );
   }
 
@@ -150,7 +217,6 @@ class PlaceholderSetting {
   final EdgeInsets iconPadding;
   final EdgeInsets buttonPadding;
   final EdgeInsets progressPadding;
-  final EdgeInsets progressTextPadding;
 
   // style
   final TextStyle textStyle;
@@ -163,87 +229,120 @@ class PlaceholderSetting {
   final double progressSize;
   final double progressStrokeWidth;
 
-  // show loading xxx
+  // show xxx
   final bool showLoadingProgress;
   final bool showLoadingText;
-
-  // show nothing xxx
   final bool showNothingIcon;
   final bool showNothingText;
   final bool showNothingRetry;
-
-  // show error xxx
   final bool showErrorIcon;
   final bool showErrorText;
   final bool showErrorRetry;
+
+  // custom xxx
+  final WidgetBuilder? customLoadingProgress;
+  final WidgetBuilder? customLoadingText;
+  final WidgetBuilder? customNothingIcon;
+  final WidgetBuilder? customNothingText;
+  final CallbackWidgetBuilder? customNothingRetry;
+  final WidgetBuilder? customErrorIcon;
+  final WidgetBuilder? customErrorText;
+  final CallbackWidgetBuilder? customErrorRetry;
 }
 
-/// A placeholder text mainly used with [ListView] when using network request, includes four states:
-/// normal, loading, nothing, error.
+/// A placeholder text mainly used with [ListView] when using network request, includes four
+/// states: normal, loading, nothing, error.
 class PlaceholderText extends StatefulWidget {
+  /// Creates [PlaceholderText] with [state].
   const PlaceholderText({
     Key? key,
     required this.childBuilder,
+    required this.state,
+    this.errorText,
     this.onRefresh,
     this.onRetryForNothing,
     this.onRetryForError,
-    this.errorText,
-    required this.state,
     this.onChanged,
     this.setting = const PlaceholderSetting(),
   }) : super(key: key);
 
-  /// Creates [PlaceholderText] with given parameters, this method uses given fields to get the [state].
+  /// Creates [PlaceholderText] with given parameters, this constructor uses given fields and
+  /// [displayRule] to get the [state].
   const PlaceholderText.from({
     Key? key,
     required Widget Function(BuildContext) childBuilder,
-    void Function()? onRefresh,
-    void Function()? onRetryForNothing,
-    void Function()? onRetryForError,
-    String? errorText,
     PlaceholderState? forceState,
     required bool isEmpty,
     required bool isLoading,
+    String? errorText,
+    void Function()? onRefresh,
+    void Function()? onRetryForNothing,
+    void Function()? onRetryForError,
     PlaceholderStateChangedCallback? onChanged,
     PlaceholderSetting setting = const PlaceholderSetting(),
-    // TODO error priority field !!!, data existed when error aroused
+    PlaceholderDisplayRule displayRule = PlaceholderDisplayRule.dataFirst,
   }) : this(
           key: key,
           childBuilder: childBuilder,
+          state: forceState ?? // use given forced state
+              (displayRule == PlaceholderDisplayRule.dataFirst
+                  ?
+                  // !!! dataFirst
+                  (isEmpty == false
+                      ? PlaceholderState.normal // !empty => normal
+                      : isLoading == true
+                          ? PlaceholderState.loading // empty && loading => loading
+                          : errorText != null && errorText != ''
+                              ? PlaceholderState.error // empty && !loading && error => error
+                              : PlaceholderState.nothing) // empty && !loading && !error => nothing
+                  : displayRule == PlaceholderDisplayRule.loadingFirst
+                      ?
+                      // !!! loadingFirst
+                      (isLoading == true
+                          ? PlaceholderState.loading // loading => loading
+                          : isEmpty == false
+                              ? PlaceholderState.normal // !loading && !empty => normal
+                              : errorText != null && errorText != ''
+                                  ? PlaceholderState.error // !loading && empty && error => error
+                                  : PlaceholderState.nothing) // !loading && empty && !error => nothing
+                      :
+                      // !!! errorFirst
+                      (isLoading == true
+                          ? PlaceholderState.loading // loading => loading
+                          : errorText != null && errorText != ''
+                              ? PlaceholderState.error // !loading && error => error
+                              : isEmpty == false
+                                  ? PlaceholderState.normal // !loading && !error && !empty => normal
+                                  : PlaceholderState.nothing) // !loading && !error && empty => nothing
+              ),
+          errorText: errorText,
           onRefresh: onRefresh,
           onRetryForNothing: onRetryForNothing,
           onRetryForError: onRetryForError,
-          errorText: errorText,
           onChanged: onChanged,
           setting: setting,
-          state: forceState ?? // use given forced state
-              (isEmpty == false
-                  ? PlaceholderState.normal // not empty
-                  : isLoading == true
-                      ? PlaceholderState.loading // empty && loading
-                      : errorText != null && errorText != ''
-                          ? PlaceholderState.error // empty && !loading && error
-                          : PlaceholderState.nothing), // empty && !loading && !error
         );
 
   /// The child builder of this widget.
   final Widget Function(BuildContext) childBuilder;
 
-  /// The refresh handler to perform retry logic. Note that this is the fallback value for
-  /// [onRetryForNothing] and [onRetryForError].
-  final void Function()? onRefresh;
-
-  /// The refresh handler to perform retry logic, for nothing.
-  final void Function()? onRetryForNothing;
-
-  /// The refresh handler to perform retry logic, for error.
-  final void Function()? onRetryForError;
+  /// The current state of this widget.
+  final PlaceholderState state;
 
   /// The current error message, shown when current [state] is [PlaceholderState.error].
   final String? errorText;
 
-  /// The current state of this widget.
-  final PlaceholderState state;
+  /// The refresh handler to perform retry logic. Note that this will only be used when
+  /// [onRetryForNothing] or [onRetryForError] are null.
+  final void Function()? onRefresh;
+
+  /// The refresh handler to perform retry logic, for nothing. If this value is null,
+  /// [onRefresh] will be used instead.
+  final void Function()? onRetryForNothing;
+
+  /// The refresh handler to perform retry logic, for error. If this value is null,
+  /// [onRefresh] will be used instead.
+  final void Function()? onRetryForError;
 
   /// The callback function when [state] changed.
   final PlaceholderStateChangedCallback? onChanged;
@@ -256,20 +355,13 @@ class PlaceholderText extends StatefulWidget {
 }
 
 class _PlaceholderTextState extends State<PlaceholderText> {
-  PlaceholderState? _lastState; // store the last state
-
-  @override
-  void initState() {
-    _lastState = widget.state;
-    super.initState();
-  }
+  // store the last state
+  late var _lastState = widget.state;
 
   @override
   Widget build(BuildContext context) {
-    if (_lastState == null) {
-      _lastState = widget.state;
-    } else if (_lastState != widget.state) {
-      widget.onChanged?.call(_lastState!, widget.state);
+    if (_lastState != widget.state) {
+      widget.onChanged?.call(_lastState, widget.state);
       _lastState = widget.state;
     }
 
@@ -291,22 +383,27 @@ class _PlaceholderTextState extends State<PlaceholderText> {
               if (widget.setting.showLoadingProgress)
                 Padding(
                   padding: widget.setting.progressPadding,
-                  child: SizedBox(
-                    height: widget.setting.progressSize,
-                    width: widget.setting.progressSize,
-                    child: CircularProgressIndicator(
-                      strokeWidth: widget.setting.progressStrokeWidth,
-                    ),
-                  ),
+                  child: widget.setting.customLoadingProgress?.call(context) ??
+                      SizedBox(
+                        height: widget.setting.progressSize,
+                        width: widget.setting.progressSize,
+                        child: CircularProgressIndicator(
+                          strokeWidth: widget.setting.progressStrokeWidth,
+                        ),
+                      ),
                 ),
               if (widget.setting.showLoadingText)
                 Padding(
-                  padding: widget.setting.progressTextPadding,
-                  child: Text(
-                    widget.setting.loadingText,
-                    textAlign: TextAlign.center,
-                    style: widget.setting.textStyle,
-                  ),
+                  padding: widget.setting.textPadding,
+                  child: widget.setting.customLoadingText?.call(context) ??
+                      DefaultTextStyle(
+                        style: Theme.of(context).textTheme.subtitle1!,
+                        child: Text(
+                          widget.setting.loadingText, // TODO overflow ???
+                          textAlign: TextAlign.center,
+                          style: widget.setting.textStyle,
+                        ),
+                      ),
                 ),
             ],
           ),
@@ -323,35 +420,41 @@ class _PlaceholderTextState extends State<PlaceholderText> {
               if (widget.setting.showNothingIcon)
                 Padding(
                   padding: widget.setting.iconPadding,
-                  child: Icon(
-                    widget.setting.nothingIcon,
-                    size: widget.setting.iconSize,
-                    color: widget.setting.iconColor,
-                  ),
+                  child: widget.setting.customNothingIcon?.call(context) ??
+                      Icon(
+                        widget.setting.nothingIcon,
+                        size: widget.setting.iconSize,
+                        color: widget.setting.iconColor,
+                      ),
                 ),
               if (widget.setting.showNothingText)
                 Padding(
                   padding: widget.setting.textPadding,
-                  child: Text(
-                    widget.setting.nothingText,
-                    textAlign: TextAlign.center,
-                    style: widget.setting.textStyle,
-                  ),
+                  child: widget.setting.customNothingText?.call(context) ??
+                      DefaultTextStyle(
+                        style: Theme.of(context).textTheme.subtitle1!,
+                        child: Text(
+                          widget.setting.nothingText, // TODO overflow ???
+                          textAlign: TextAlign.center,
+                          style: widget.setting.textStyle,
+                        ),
+                      ),
                 ),
               if (widget.setting.showNothingRetry)
                 Padding(
                   padding: widget.setting.buttonPadding,
-                  child: OutlinedButton(
-                    child: Text(
-                      widget.setting.nothingRetryText,
-                      style: widget.setting.buttonTextStyle,
-                    ),
-                    onPressed: () {
-                      (widget.onRetryForNothing ?? widget.onRefresh)?.call();
-                      if (mounted) setState(() {});
-                    },
-                    style: widget.setting.buttonStyle,
-                  ),
+                  child: widget.setting.customNothingRetry?.call(
+                        context,
+                        () => (widget.onRetryForNothing ?? widget.onRefresh)?.call(),
+                      ) ??
+                      OutlinedButton(
+                        child: Text(
+                          widget.setting.nothingRetryText,
+                          style: widget.setting.buttonTextStyle,
+                        ),
+                        style: widget.setting.buttonStyle,
+                        onPressed: () => (widget.onRetryForNothing ?? widget.onRefresh)?.call(),
+                      ),
                 ),
             ],
           ),
@@ -368,44 +471,52 @@ class _PlaceholderTextState extends State<PlaceholderText> {
               if (widget.setting.showErrorIcon)
                 Padding(
                   padding: widget.setting.iconPadding,
-                  child: Icon(
-                    widget.setting.errorIcon,
-                    size: widget.setting.iconSize,
-                    color: widget.setting.iconColor,
-                  ),
+                  child: widget.setting.customErrorIcon?.call(context) ??
+                      Icon(
+                        widget.setting.errorIcon,
+                        size: widget.setting.iconSize,
+                        color: widget.setting.iconColor,
+                      ),
                 ),
               if (widget.setting.showErrorText)
                 Padding(
                   padding: widget.setting.textPadding,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Flexible(
-                        child: Text(
-                          (widget.errorText?.isNotEmpty == true) ? widget.errorText! : widget.setting.unknownErrorText,
-                          textAlign: TextAlign.center,
-                          style: widget.setting.textStyle,
-                          maxLines: widget.setting.errorTextMaxLines,
-                          overflow: widget.setting.errorTextOverflow,
-                        ),
+                  child: widget.setting.customErrorText?.call(context) ??
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Flexible(
+                            child: DefaultTextStyle(
+                              style: Theme.of(context).textTheme.subtitle1!,
+                              child: Text(
+                                widget.errorText?.isNotEmpty == true
+                                    ? widget.errorText! //
+                                    : widget.setting.unknownErrorText,
+                                textAlign: TextAlign.center,
+                                style: widget.setting.textStyle,
+                                maxLines: widget.setting.errorTextMaxLines,
+                                overflow: widget.setting.errorTextOverflow,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
                 ),
               if (widget.setting.showErrorRetry)
                 Padding(
                   padding: widget.setting.buttonPadding,
-                  child: OutlinedButton(
-                    child: Text(
-                      widget.setting.errorRetryText,
-                      style: widget.setting.buttonTextStyle,
-                    ),
-                    onPressed: () {
-                      (widget.onRetryForError ?? widget.onRefresh)?.call();
-                      if (mounted) setState(() {});
-                    },
-                    style: widget.setting.buttonStyle,
-                  ),
+                  child: widget.setting.customErrorRetry?.call(
+                        context,
+                        () => (widget.onRetryForError ?? widget.onRefresh)?.call(),
+                      ) ??
+                      OutlinedButton(
+                        child: Text(
+                          widget.setting.errorRetryText,
+                          style: widget.setting.buttonTextStyle,
+                        ),
+                        style: widget.setting.buttonStyle,
+                        onPressed: () => (widget.onRetryForError ?? widget.onRefresh)?.call(),
+                      ),
                 ),
             ],
           ),

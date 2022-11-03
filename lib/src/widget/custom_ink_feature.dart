@@ -117,8 +117,7 @@ class CustomInkRippleSetting {
   /// used in [preferredSetting].
   static Offset _radiusCanvasCenterFn(RenderBox referenceBox, double targetRadius) => referenceBox.size.center(Offset.zero);
 
-  /// Creates a copy of this [CustomInkRippleSetting] but with the given fields
-  /// replaced with the new values.
+  /// Creates a copy of this value but with given fields replaced with the new values.
   CustomInkRippleSetting copyWith({
     Duration? unconfirmedRippleDuration,
     Duration? unconfirmedFadeInDuration,
@@ -411,8 +410,7 @@ class CustomInkSplashSetting {
     confirmedFadeOutInterval: Duration(milliseconds: 125) /* 0 -> 125 */,
   );
 
-  /// Creates a copy of this [CustomInkSplashSetting] but with the given fields
-  /// replaced with the new values.
+  /// Creates a copy of this value but with given fields replaced with the new values.
   CustomInkSplashSetting copyWith({
     Duration? unconfirmedSplashDuration,
     double? confirmedSplashVelocity,
