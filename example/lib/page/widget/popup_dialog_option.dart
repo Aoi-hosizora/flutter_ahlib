@@ -2,89 +2,127 @@ import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/flutter_ahlib.dart';
 import 'package:flutter_ahlib_example/main.dart';
 
-class PopupListMenuPage extends StatefulWidget {
-  const PopupListMenuPage({Key? key}) : super(key: key);
+class PopupDialogOptionPage extends StatefulWidget {
+  const PopupDialogOptionPage({Key? key}) : super(key: key);
 
   @override
-  _PopupListMenuPageState createState() => _PopupListMenuPageState();
+  _PopupDialogOptionPageState createState() => _PopupDialogOptionPageState();
 }
 
-class _PopupListMenuPageState extends State<PopupListMenuPage> {
+class _PopupDialogOptionPageState extends State<PopupDialogOptionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('PopupListMenu Example'),
+        title: const Text('PopupDialogOption Example'),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             OutlinedButton(
-              child: const Text('showPopupListMenu - IconTextMenuItem'),
-              onPressed: () => showPopupListMenu(
+              child: const Text('showDialog - SimpleDialogOption (default)'),
+              onPressed: () => showDialog(
                 context: context,
-                title: const Text('showPopupListMenu'),
-                barrierDismissible: true,
-                items: [
-                  IconTextMenuItem(
-                    iconText: IconText.simple(Icons.chevron_right, 'test1'),
-                    action: () => printLog('test1'),
-                  ),
-                  IconTextMenuItem(
-                    iconText: IconText.simple(Icons.chevron_right, 'test2'),
-                    action: () => printLog('test2'),
-                  ),
-                ],
+                builder: (c) => SimpleDialog(
+                  title: const Text('SimpleDialogOption'),
+                  children: [
+                    SimpleDialogOption(child: const Text('test1'), onPressed: () {}),
+                    SimpleDialogOption(child: const Text('test2'), onPressed: () {}),
+                    SimpleDialogOption(child: const Text('test3'), onPressed: () {}),
+                    const Divider(thickness: 1),
+                    SimpleDialogOption(child: const Text('cancel'), onPressed: () => Navigator.of(c).pop()),
+                  ],
+                ),
               ),
             ),
             OutlinedButton(
-              child: const Text('showPopupListMenu - TextMenuItem'),
-              onPressed: () => showPopupListMenu(
+              child: const Text('showDialog - TextDialogOption'),
+              onPressed: () => showDialog(
                 context: context,
-                title: const Text('showPopupListMenu'),
-                barrierDismissible: true,
-                items: [
-                  TextMenuItem(
-                    text: const Text('test3'),
-                    action: () => printLog('test3'),
-                  ),
-                  TextMenuItem(
-                    text: const Text('test4'),
-                    action: () => printLog('test4'),
-                  ),
-                ],
+                builder: (c) => SimpleDialog(
+                  title: const Text('TextDialogOption'),
+                  children: [
+                    TextDialogOption(text: const Text('test1'), onPressed: () {}),
+                    TextDialogOption(text: const Text('test2'), onPressed: () {}),
+                    TextDialogOption(text: const Text('test3'), onPressed: () {}),
+                    const Divider(thickness: 1),
+                    TextDialogOption(text: const Text('cancel'), onPressed: () => Navigator.of(c).pop()),
+                  ],
+                ),
               ),
             ),
             OutlinedButton(
-              child: const Text('showPopupListMenu - XXX'),
-              onPressed: () => showPopupListMenu(
+              child: const Text('showDialog - IconTextDialogOption'),
+              onPressed: () => showDialog(
                 context: context,
-                title: const Text('showPopupListMenu'),
-                barrierDismissible: true,
-                items: [
-                  TextMenuItem(
-                    text: const Text('test5'),
-                    action: () async {
-                      await Future.delayed(const Duration(milliseconds: 500));
-                      printLog('test5');
-                    },
-                    dismissBehavior: DismissBehavior.before,
-                  ),
-                  IconTextMenuItem(
-                    iconText: IconText.simple(Icons.chevron_right, 'test6'),
-                    action: () async {
-                      await Future.delayed(const Duration(milliseconds: 500));
-                      printLog('test6');
-                    },
-                    dismissBehavior: DismissBehavior.after,
-                  ),
-                  MenuItem(
-                    child: const Text('test7'),
-                    action: () => printLog('test7'),
-                    dismissBehavior: DismissBehavior.never,
-                  ),
-                ],
+                builder: (c) => SimpleDialog(
+                  title: const Text('IconTextDialogOption'),
+                  children: [
+                    IconTextDialogOption(icon: const Icon(Icons.check), text: const Text('test1'), onPressed: () {}),
+                    IconTextDialogOption(icon: const Icon(Icons.check), text: const Text('test2'), onPressed: () {}),
+                    IconTextDialogOption(icon: const Icon(Icons.check), text: const Text('test3'), onPressed: () {}),
+                    const Divider(thickness: 1),
+                    IconTextDialogOption(icon: const Icon(Icons.arrow_back), text: const Text('cancel'), onPressed: () => Navigator.of(c).pop()),
+                  ],
+                ),
+              ),
+            ),
+            OutlinedButton(
+              child: const Text('showDialog - TextDialogOption (only option)'),
+              onPressed: () => showDialog(
+                context: context,
+                builder: (c) => SimpleDialog(
+                  insetPadding: EdgeInsets.zero,
+                  contentPadding: EdgeInsets.zero,
+                  children: [
+                    TextDialogOption(text: const Text('test1'), onPressed: () {}),
+                    const Divider(height: 0, thickness: 1),
+                    TextDialogOption(text: const Text('test2'), onPressed: () {}),
+                    const Divider(height: 0, thickness: 1),
+                    TextDialogOption(text: const Text('test3'), onPressed: () {}),
+                    const Divider(height: 0, thickness: 1),
+                    TextDialogOption(text: const Text('cancel'), onPressed: () => Navigator.of(c).pop()),
+                  ],
+                ),
+              ),
+            ),
+            OutlinedButton(
+              child: const Text('showDialog - IconTextDialogOption (only option)'),
+              onPressed: () => showDialog(
+                context: context,
+                builder: (c) => SimpleDialog(
+                  insetPadding: EdgeInsets.zero,
+                  contentPadding: EdgeInsets.zero,
+                  children: [
+                    IconTextDialogOption(icon: const Icon(Icons.check), text: const Text('test1'), padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10), onPressed: () {}),
+                    const Divider(height: 0, thickness: 1),
+                    IconTextDialogOption(icon: const Icon(Icons.check), text: const Text('test2'), padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10), onPressed: () {}),
+                    const Divider(height: 0, thickness: 1),
+                    IconTextDialogOption(icon: const Icon(Icons.check), text: const Text('test3'), padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10), onPressed: () {}),
+                    const Divider(height: 0, thickness: 1),
+                    IconTextDialogOption(icon: const Icon(Icons.arrow_back), text: const Text('cancel'), padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10), onPressed: () => Navigator.of(c).pop()),
+                  ],
+                ),
+              ),
+            ),
+            OutlinedButton(
+              child: const Text('showDialog - TextDialogOption+IconTextDialogOption'),
+              onPressed: () => showDialog(
+                context: context,
+                builder: (c) => SimpleDialog(
+                  title: const Text('TextDialogOption+IconTextDialogOption'),
+                  children: [
+                    TextDialogOption(text: const Text('test1'), onPressed: () {}),
+                    TextDialogOption(text: const Text('test2'), onPressed: () {}),
+                    TextDialogOption(text: const Text('test3'), onPressed: () {}),
+                    IconTextDialogOption(icon: const Icon(Icons.refresh), text: const Text('test1'), onPressed: () {}),
+                    IconTextDialogOption(icon: const Icon(Icons.download), text: const Text('test2'), onPressed: () {}),
+                    IconTextDialogOption(icon: const Icon(Icons.share), text: const Text('test3'), onPressed: () {}),
+                    const Divider(thickness: 1),
+                    IconTextDialogOption(icon: const Icon(Icons.arrow_back), text: const Text('cancel'), onPressed: () => Navigator.of(c).pop()),
+                  ],
+                ),
               ),
             ),
             const Divider(),

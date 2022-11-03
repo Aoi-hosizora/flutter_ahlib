@@ -9,13 +9,13 @@ import 'package:flutter_ahlib_example/page/list/refreshable_sliver_data_view.dar
 import 'package:flutter_ahlib_example/page/widget/app_bar_action_button.dart';
 import 'package:flutter_ahlib_example/page/widget/custom_ink_feature.dart';
 import 'package:flutter_ahlib_example/page/widget/custom_ink_response.dart';
-import 'package:flutter_ahlib_example/page/widget/drawer_list_view.dart';
+import 'package:flutter_ahlib_example/page/widget/custom_page_route.dart';
 import 'package:flutter_ahlib_example/page/widget/extended_nested_scroll_view.dart';
 import 'package:flutter_ahlib_example/page/widget/icon_text.dart';
 import 'package:flutter_ahlib_example/page/widget/lazy_indexed_stack.dart';
 import 'package:flutter_ahlib_example/page/widget/new_button_style.dart';
 import 'package:flutter_ahlib_example/page/widget/placeholder_text.dart';
-import 'package:flutter_ahlib_example/page/widget/popup_list_menu.dart';
+import 'package:flutter_ahlib_example/page/widget/popup_dialog_option.dart';
 import 'package:flutter_ahlib_example/page/widget/animated_fab.dart';
 import 'package:flutter_ahlib_example/page/widget/preloadable_page_view.dart';
 import 'package:flutter_ahlib_example/page/widget/scrollbar_with_more.dart';
@@ -81,9 +81,8 @@ class _IndexPageState extends State<IndexPage> {
               spacing: 8,
               children: [
                 _button('PlaceholderText', const PlaceholderTextPage()),
-                _button('DrawerListView', const DrawerListViewPage(), const RouteSettings(name: '.')),
                 _button('IconText', const IconTextPage()),
-                _button('PopupListMenu', const PopupListMenuPage()),
+                _button('PopupDialogOption', const PopupDialogOptionPage()),
                 _button('AnimatedFab', const AnimatedFabPage()),
                 _button('LazyIndexedStack', const LazyIndexedStackPage()),
                 _button('SliverDelegate', const SliverDelegatePage()),
@@ -100,6 +99,7 @@ class _IndexPageState extends State<IndexPage> {
                 _button('ExtendedNestedScrollView', const ExtendedNestedScrollViewPage()),
                 _button('VideoProgressIndicator', const VideoProgressIndicatorPage()),
                 _button('AppBarActionButton', const AppBarActionButtonPage()),
+                _button('CustomPageRoute', const CustomPageRoutePage()),
               ],
             ),
             Align(

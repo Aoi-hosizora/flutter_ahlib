@@ -29,13 +29,12 @@ import 'package:flutter_ahlib/flutter_ahlib.dart'; // the whole library
     + `CustomInkRipple` `CustomInkSplash`
     + `CustomInkWell` `CustomInkResponse`
     + `CustomPageRoute` `CustomPageRouteTheme` `NoPopGestureCupertinoPageTransitionsBuilder`
-    + `DrawerListView`
     + `ExtendedNestedScrollView`
     + `IconText`
     + `LazyIndexedStack`
     + `flatButtonStyle` `raisedButtonStyle` `outlineButtonStyle`
     + `PlaceholderText`
-    + `showPopupListMenu` `CustomSingleChildLayoutDelegate`
+    + `TextDialogOption` `IconTextDialogOption` `CustomSingleChildLayoutDelegate`
     + `PreloadablePageView`
     + `ScrollbarWithMore`
     + `SliverHeaderDelegate` `SliverSeparatedListDelegate` `SliverSeparatedListBuilderDelegate`

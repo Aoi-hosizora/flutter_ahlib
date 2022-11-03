@@ -16,9 +16,11 @@ class CustomPageRoute<T> extends PageRoute<T> {
     RouteSettings? settings,
     bool fullscreenDialog = false,
     this.maintainState = true,
-    Duration? transitionDuration /* 300ms */,
-    PageTransitionsBuilder? transitionsBuilder /* PageTransitionsTheme */,
+    Duration? transitionDuration,
+    Duration? reverseTransitionDuration,
+    PageTransitionsBuilder? transitionsBuilder,
   })  : _transitionDuration = transitionDuration,
+        _reverseTransitionDuration = reverseTransitionDuration,
         _transitionsBuilder = transitionsBuilder,
         super(settings: settings, fullscreenDialog: fullscreenDialog) {
     assert(opaque);
@@ -32,6 +34,7 @@ class CustomPageRoute<T> extends PageRoute<T> {
     bool fullscreenDialog = false,
     bool maintainState = true,
     Duration? transitionDuration,
+    Duration? reverseTransitionDuration,
     PageTransitionsBuilder? transitionsBuilder,
   }) : this(
           context: context,
@@ -40,6 +43,7 @@ class CustomPageRoute<T> extends PageRoute<T> {
           fullscreenDialog: fullscreenDialog,
           maintainState: maintainState,
           transitionDuration: transitionDuration,
+          reverseTransitionDuration: reverseTransitionDuration,
           transitionsBuilder: transitionsBuilder,
         );
 
@@ -53,27 +57,49 @@ class CustomPageRoute<T> extends PageRoute<T> {
   @override
   final bool maintainState;
 
-  /// The duration the transition going forwards, this field is private and [transitionDuration]
-  /// will be used.
+  // The duration the transition going forwards.
   final Duration? _transitionDuration;
 
-  /// The function which defines a [MaterialPageRoute] page transition animation, this field
-  /// is private and [buildTransitions] will be used.
+  // The duration the transition going forwards.
+  final Duration? _reverseTransitionDuration;
+
+  // The function which defines a [MaterialPageRoute] page transition animation.
   final PageTransitionsBuilder? _transitionsBuilder;
 
-  /// Mirrors to [ModalRoute.barrierColor].
   @override
-  Color? get barrierColor => null; // TODO effect and is customizable ???
+  Color? get barrierColor => null;
 
-  /// Mirrors to [ModalRoute.barrierLabel].
   @override
   String? get barrierLabel => null;
+
+  // /// Mirrors to [ModalRoute.barrierDismissible].
+  // @override
+  // bool get barrierDismissible => false;
+  //
+  // /// Mirrors to [ModalRoute.barrierColor].
+  // @override
+  // Color? get barrierColor => Colors.black;
+  //
+  // /// Mirrors to [ModalRoute.barrierLabel].
+  // @override
+  // String? get barrierLabel => null;
+  //
+  // /// Mirrors to [ModalRoute.barrierCurve].
+  // @override
+  // Curve get barrierCurve => Curves.ease;
 
   /// The duration the transition going forwards.
   @override
   Duration get transitionDuration {
     final theme = CustomPageRouteTheme.of(context);
     return _transitionDuration ?? theme?.transitionDuration ?? const Duration(milliseconds: 300);
+  }
+
+  /// The duration the transition going in reverse.
+  @override
+  Duration get reverseTransitionDuration {
+    final theme = CustomPageRouteTheme.of(context);
+    return _reverseTransitionDuration ?? theme?.reverseTransitionDuration ?? transitionDuration;
   }
 
   @override
@@ -122,12 +148,17 @@ class CustomPageRouteTheme extends InheritedWidget {
 class CustomPageRouteThemeData with Diagnosticable {
   const CustomPageRouteThemeData({
     this.transitionDuration,
+    this.reverseTransitionDuration,
     this.transitionsBuilder,
   });
 
   /// The duration the transition going forwards, which defaults to `Duration(milliseconds: 300)`
   /// in [MaterialPageRoute], and defaults to `Duration(milliseconds: 400)` in [CupertinoPageRoute].
   final Duration? transitionDuration;
+
+  /// The duration the transition going in reverse, which defaults to null, which means equaling to
+  /// [transitionDuration].
+  final Duration? reverseTransitionDuration;
 
   /// The function which defines a [MaterialPageRoute] page transition animation. You have
   /// to set this value the same as [PageTransitionsTheme] to ensure the transition behavior
