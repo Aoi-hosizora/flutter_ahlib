@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_ahlib/flutter_ahlib.dart';
 import 'package:flutter_ahlib_example/page/image/local_or_cached_network_image_provider.dart';
 import 'package:flutter_ahlib_example/page/image/extended_photo_gallery.dart';
 import 'package:flutter_ahlib_example/page/list/append_indicator.dart';
@@ -53,6 +54,8 @@ class _IndexPageState extends State<IndexPage> {
       child: Text(title),
       onPressed: () {
         Navigator.of(context).push(
+          // CustomPageRoute(
+          //   context: context,
           MaterialPageRoute(
             builder: (c) => page,
             settings: settings,

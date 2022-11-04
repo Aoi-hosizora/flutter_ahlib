@@ -2,8 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-// TODO add test in example
-
 /// A custom [PageRoute] which is similar to [MaterialPageRoute] or [CupertinoPageRoute], but
 /// this [PageRoute] supports customizable transition duration, transitions builder, and more,
 /// and these settings are fixed and can not be customized in these builtin [PageRoute].
@@ -119,6 +117,17 @@ class CustomPageRoute<T> extends PageRoute<T> {
   }
 
   @override
+  bool canTransitionTo(TransitionRoute<dynamic> nextRoute) {
+    // var ok = (nextRoute is MaterialRouteTransitionMixin && !nextRoute.fullscreenDialog) || //
+    //     (nextRoute is CupertinoRouteTransitionMixin && !nextRoute.fullscreenDialog) ||
+    //     (nextRoute is CustomPageRoute && !nextRoute.fullscreenDialog);
+    // print('C canTransitionTo ${nextRoute.runtimeType} $ok');
+    return (nextRoute is MaterialRouteTransitionMixin && !nextRoute.fullscreenDialog) || //
+        (nextRoute is CupertinoRouteTransitionMixin && !nextRoute.fullscreenDialog) ||
+        (nextRoute is CustomPageRoute && !nextRoute.fullscreenDialog);
+  }
+
+  @override
   Widget buildPage(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
     return Semantics(
       scopesRoute: true,
@@ -169,8 +178,8 @@ class CustomPageRouteThemeData with Diagnosticable {
     this.transitionsBuilder,
   });
 
-  /// The duration the transition going forwards, which defaults to `Duration(milliseconds: 300)`
-  /// in [MaterialPageRoute], and defaults to `Duration(milliseconds: 400)` in [CupertinoPageRoute].
+  /// The duration the transition going forwards, which all defaults to `Duration(milliseconds: 300)`
+  /// in both [MaterialPageRoute] and [CupertinoPageRoute].
   final Duration? transitionDuration;
 
   /// The duration the transition going in reverse, which defaults to null, and it means

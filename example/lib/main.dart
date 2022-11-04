@@ -26,6 +26,13 @@ class MyApp extends StatelessWidget {
       title: 'flutter_ahlib_example',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        // pageTransitionsTheme: const PageTransitionsTheme(
+        //   builders: {
+        //     TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+        //     // TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
+        //     TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+        //   },
+        // ),
       ).withSplashFactory(CustomInkRipple.preferredSplashFactory),
       home: const IndexPage(),
       builder: (context, child) => Scaffold(

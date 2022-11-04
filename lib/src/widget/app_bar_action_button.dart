@@ -10,7 +10,7 @@ class AppBarActionButton extends StatelessWidget {
     required this.icon,
     required this.onPressed,
     this.tooltip,
-    this.onLongPressed,
+    this.onLongPress,
     // <<<
     this.iconSize /* 24 */,
     this.visualDensity,
@@ -37,8 +37,8 @@ class AppBarActionButton extends StatelessWidget {
   final String? tooltip;
 
   /// The callback for long pressing the button, which can not be customized in [IconButton].
-  /// Note that [onLongPressed] will make [tooltip] unavailable.
-  final VoidCallback? onLongPressed;
+  /// Note that [onLongPress] will make [tooltip] unavailable.
+  final VoidCallback? onLongPress;
 
   // contained in theme, except for focusNode
   final double? iconSize;
@@ -155,7 +155,7 @@ class AppBarActionButton extends StatelessWidget {
       icon: icon,
       onPressed: onPressed,
       tooltip: tooltip,
-      onLongPressed: onLongPressed,
+      onLongPressed: onLongPress,
       // <<<
       iconSize: iconSize ?? theme?.iconSize ?? 24,
       visualDensity: visualDensity ?? theme?.visualDensity,
@@ -176,8 +176,6 @@ class AppBarActionButton extends StatelessWidget {
     );
   }
 
-  // TODO add test in example
-
   /// Creates the default [AppBarActionButton] which will be used as leading button in [AppBar].
   ///
   /// Note that if you want to use [leading] as [Scaffold.appBar]'s leading directly (which
@@ -191,7 +189,7 @@ class AppBarActionButton extends StatelessWidget {
     required BuildContext context,
     bool forceUseBuilder = false,
     bool allowDrawerButton = true,
-    bool endDrawerAffected = false,
+    bool allowPopButton = true,
     // <<<
     double? iconSize,
     VisualDensity? visualDensity,
@@ -213,7 +211,6 @@ class AppBarActionButton extends StatelessWidget {
     Widget? _build(BuildContext context) {
       final scaffold = Scaffold.maybeOf(context);
       final hasDrawer = scaffold?.hasDrawer ?? false;
-      final hasEndDrawer = scaffold?.hasEndDrawer ?? false;
 
       final parentRoute = ModalRoute.of(context);
       final canPop = parentRoute?.canPop ?? false;
@@ -226,7 +223,7 @@ class AppBarActionButton extends StatelessWidget {
         icon = const Icon(Icons.menu);
         tooltip = MaterialLocalizations.of(context).openAppDrawerTooltip;
         onPressed = () => Scaffold.of(context).openDrawer();
-      } else if (canPop && (!endDrawerAffected || !hasEndDrawer)) {
+      } else if (allowPopButton && canPop) {
         if (useCloseButton) {
           icon = const Icon(Icons.close);
           tooltip = MaterialLocalizations.of(context).closeButtonTooltip;
