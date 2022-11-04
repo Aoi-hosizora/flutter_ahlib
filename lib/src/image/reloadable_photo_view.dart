@@ -16,9 +16,12 @@ typedef LoadingPlaceholderBuilder = Widget Function(BuildContext context, ImageC
 /// Signature for creating a replacement widget to render while it is failed to load the image.
 typedef ErrorPlaceholderBuilder = Widget Function(BuildContext context, Object error, StackTrace? stackTrace);
 
-///
+// TODO test advanced in example
+
+/// A reloadable [PhotoView], which uses given [ValueKey] for [ImageProvider] (such as [LocalOrCachedNetworkImageProvider]),
+/// to reload the image, through [ReloadablePhotoViewState.reload] method.
 class ReloadablePhotoView extends StatefulWidget {
-  /// Creates a [ReloadablePhotoView] with non-null [imageProviderBuilder].
+  /// Constructs a [ReloadablePhotoView] with non-null [imageProviderBuilder].
   const ReloadablePhotoView({
     Key? key,
     required this.imageProviderBuilder,
@@ -55,19 +58,19 @@ class ReloadablePhotoView extends StatefulWidget {
 
   // almost be used frequently
 
-  /// Mirrors to [PhotoView.initialScale].
+  /// Mirrors to [PhotoView.initialScale], defaults to [PhotoViewComputedScale.contained].
   final dynamic initialScale;
 
-  /// Mirrors to [PhotoView.minScale].
+  /// Mirrors to [PhotoView.minScale], defaults to 0.0.
   final dynamic minScale;
 
-  /// Mirrors to [PhotoView.maxScale].
+  /// Mirrors to [PhotoView.maxScale], defaults to [double.infinity].
   final dynamic maxScale;
 
-  /// Mirrors to [PhotoView.backgroundDecoration].
+  /// Mirrors to [PhotoView.backgroundDecoration], defaults to `BoxDecoration(color: Colors.black)`.
   final BoxDecoration? backgroundDecoration;
 
-  /// Mirrors to [PhotoView.filterQuality].
+  /// Mirrors to [PhotoView.filterQuality], defaults to [FilterQuality.none].
   final FilterQuality? filterQuality;
 
   /// Mirrors to [PhotoView.onTapDown].
@@ -76,15 +79,15 @@ class ReloadablePhotoView extends StatefulWidget {
   /// Mirrors to [PhotoView.onTapUp].
   final PhotoViewImageTapUpCallback? onTapUp;
 
-  /// Mirrors to [PhotoView.loadingBuilder].
+  /// Mirrors to [PhotoView.loadingBuilder], defaults to use [PhotoViewDefaultLoading], which only contains a [CircularProgressIndicator].
   final LoadingPlaceholderBuilder? loadingBuilder;
 
-  /// Mirrors to [PhotoView.errorBuilder].
+  /// Mirrors to [PhotoView.errorBuilder], defaults to use [PhotoViewDefaultError], which only contains an [Icons.broken_image] icon.
   final ErrorPlaceholderBuilder? errorBuilder;
 
   // may be used infrequently
 
-  /// Mirrors to [PhotoView.basePosition].
+  /// Mirrors to [PhotoView.basePosition], defaults to [Alignment.center].
   final Alignment? basePosition;
 
   /// Mirrors to [PhotoView.controller].
@@ -93,16 +96,16 @@ class ReloadablePhotoView extends StatefulWidget {
   /// Mirrors to [PhotoView.customSize].
   final Size? customSize;
 
-  /// Mirrors to [PhotoView.disableGestures].
+  /// Mirrors to [PhotoView.disableGestures], defaults to false.
   final bool? disableGestures;
 
-  /// Mirrors to [PhotoView.enablePanAlways].
+  /// Mirrors to [PhotoView.enablePanAlways], defaults to false.
   final bool? enablePanAlways;
 
-  /// Mirrors to [PhotoView.enableRotation].
+  /// Mirrors to [PhotoView.enableRotation], defaults to false.
   final bool? enableRotation;
 
-  /// Mirrors to [PhotoView.gaplessPlayback].
+  /// Mirrors to [PhotoView.gaplessPlayback], defaults to false.
   final bool? gaplessPlayback;
 
   /// Mirrors to [PhotoView.gestureDetectorBehavior].
@@ -120,24 +123,43 @@ class ReloadablePhotoView extends StatefulWidget {
   /// Mirrors to [PhotoView.scaleStateChangedCallback].
   final ValueChanged<PhotoViewScaleState>? scaleStateChangedCallback;
 
-  /// Mirrors to [PhotoView.scaleStateCycle].
+  /// Mirrors to [PhotoView.scaleStateCycle], defaults to [defaultScaleStateCycle].
   final ScaleStateCycle? scaleStateCycle;
 
-  /// Mirrors to [PhotoView.tightMode].
+  /// Mirrors to [PhotoView.tightMode], defaults to false.
   final bool? tightMode;
 
-  /// Mirrors to [PhotoView.wantKeepAlive].
+  /// Mirrors to [PhotoView.wantKeepAlive], defaults to false.
   final bool? wantKeepAlive;
 
   @override
   State<ReloadablePhotoView> createState() => ReloadablePhotoViewState();
 }
 
-///
+/// The state of [ReloadablePhotoView], which can be used to reload the photo view by [reload] method.
 class ReloadablePhotoViewState extends State<ReloadablePhotoView> {
   final _notifier = ValueNotifier<String>('');
 
+  /// Reloads the [ImageProvider] from [ReloadablePhotoView].
   ///
+  /// Example:
+  /// ```
+  /// final _photoViewKey = GlobalKey<ReloadablePhotoViewState>();
+  /// final CacheManager _cache = DefaultCacheManager();
+  ///
+  /// ReloadablePhotoView(
+  ///   key: _photoViewKey,
+  ///   imageProviderBuilder: (key) => LocalOrCachedNetworkImageProvider.fromNetwork(
+  ///     key: key,
+  ///     url: url,
+  ///     cacheManager: _cache,
+  ///   ),
+  ///   // ...
+  /// );
+  ///
+  /// await _cache.removeFile(url);
+  /// _photoViewKey.currentState?.reload();
+  /// ```
   void reload() {
     _notifier.value = DateTime.now().microsecondsSinceEpoch.toString();
   }

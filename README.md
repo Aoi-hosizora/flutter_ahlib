@@ -54,6 +54,7 @@ import 'package:flutter_ahlib/flutter_ahlib.dart'; // the whole library
     + `ExtendedPhotoGallery` `ExtendedPhotoGalleryState`
     + `LocalOrCachedNetworkImageProvider`
     + `MultiImageStreamCompleter`
+    + `ReloadablePhotoView` `ReloadablePhotoViewState`
 + util.dart:
     + `ActionController`
     + `BoolExtension` `IterableExtension` `LetExtension`

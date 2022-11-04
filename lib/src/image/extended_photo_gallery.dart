@@ -8,16 +8,18 @@ import 'package:photo_view/photo_view.dart';
 // Some code in this file keeps the same as the following source codes:
 // - PhotoViewGallery: https://github.com/bluefireteam/photo_view/blob/0.14.0/lib/photo_view_gallery.dart
 
-///
+/// Signature for building a [ExtendedPhotoGalleryPageOptions] with given page index.
 typedef ExtendedPhotoGalleryPageOptionsBuilder = ExtendedPhotoGalleryPageOptions Function(BuildContext context, int index);
 
-///
+/// Signature for building a photo page in [ExtendedPhotoGallery] with given page index.
 typedef ExtendedPhotoGalleryPageBuilder = Widget Function(BuildContext context, int index);
 
-///
+/// Signature for building a page in [ExtendedPhotoGallery], with given page index and photo page builder.
 typedef AdvancedPhotoGalleryPageBuilder = Widget Function(BuildContext context, int index, ExtendedPhotoGalleryPageBuilder photoPageBuilder);
 
-/// This is an extended [PhotoViewGallery], is used to show multiple [PhotoView] widgets in a [PageView]. Extended
+// TODO test advanced in example
+
+/// An extended [PhotoViewGallery], which is used to show multiple [PhotoView] widgets in a [PageView]. Extended
 /// features include: reload behavior (through [ExtendedPhotoGalleryState.reload]), custom viewport factor, advance
 /// page builder (through [ExtendedPhotoGallery.advanced]).
 class ExtendedPhotoGallery extends StatefulWidget {
@@ -69,8 +71,6 @@ class ExtendedPhotoGallery extends StatefulWidget {
         advancedBuilder = null,
         super(key: key);
 
-// TODO test advanced in example
-
   /// Constructs a gallery with advanced page builder, by [builder] and [advancedBuilder].
   const ExtendedPhotoGallery.advanced({
     Key? key,
@@ -98,13 +98,15 @@ class ExtendedPhotoGallery extends StatefulWidget {
   /// A list of options to describe the photo items in the gallery.
   final List<ExtendedPhotoGalleryPageOptions>? pageOptions;
 
-  /// The count of pages in the gallery, only used when constructed via [ExtendedPhotoGallery.builder] and [ExtendedPhotoGallery.advancedBuilder].
+  /// The count of pages in the gallery, only used when constructed via [ExtendedPhotoGallery.builder] and
+  /// [ExtendedPhotoGallery.advancedBuilder].
   final int? pageCount;
 
   /// Called to build photo pages for the gallery, here index need exclude non-[PhotoView] pages.
   final ExtendedPhotoGalleryPageOptionsBuilder? builder;
 
-  /// Called to build not-only-[PhotoView] pages for the gallery, note that index passed to photoPageBuilder should exclude non-[PhotoView] pages.
+  /// Called to build not-only-[PhotoView] pages for the gallery, note that index passed to photoPageBuilder
+  /// should exclude non-[PhotoView] pages.
   final AdvancedPhotoGalleryPageBuilder? advancedBuilder;
 
   // for PhotoView fallback
@@ -134,15 +136,18 @@ class ExtendedPhotoGallery extends StatefulWidget {
   /// Mirrors to [PreloadablePageView.changePageWhenFinished].
   final bool changePageWhenFinished;
 
-  /// The flag for keeping main axis size of each photo page to origin size (which is the same as default identical viewport fraction), defaults
-  /// to false. Note that if [fractionWidthFactor] or [fractionHeightFactor] set to null or non positive number, the fractional page factor
-  /// will be depended by [keepViewportMainAxisSize] and [PageController.viewportFraction].
+  /// The flag for keeping main axis size of each photo page to origin size (which is the same as default identical
+  /// viewport fraction), defaults to false. Note that if [fractionWidthFactor] or [fractionHeightFactor] set to
+  /// null or non positive number, the fractional page factor will be depended by [keepViewportMainAxisSize] and
+  /// [PageController.viewportFraction].
   final bool keepViewportMainAxisSize;
 
-  /// The width factor for each fractional photo page. Note that this value may disable [keepViewportMainAxisSize] when scroll horizontally.
+  /// The width factor for each fractional photo page. Note that this value may disable [keepViewportMainAxisSize]
+  /// when scroll horizontally.
   final double? fractionWidthFactor;
 
-  /// The height factor for each fractional photo page. Note that this value may disable [keepViewportMainAxisSize] when scroll vertically.
+  /// The height factor for each fractional photo page. Note that this value may disable [keepViewportMainAxisSize]
+  /// when scroll vertically.
   final double? fractionHeightFactor;
 
   /// Mirrors to [PreloadablePageView.pageMainAxisHintSize].
@@ -151,43 +156,23 @@ class ExtendedPhotoGallery extends StatefulWidget {
   /// Mirrors to [PreloadablePageView.preloadPagesCount].
   final int preloadPagesCount;
 
-// The readonly property for page count, determined by `pageOptions` or `pageCount`.
+  // The readonly property for page count, determined by `pageOptions` or `pageCount`.
   int get _pageCount => builder != null ? pageCount! : pageOptions!.length;
 
   @override
   State<StatefulWidget> createState() => ExtendedPhotoGalleryState();
 }
 
-/// The state of [ExtendedPhotoGallery], can be used to [reload] the specific image from [ImageProvider].
+/// The state of [ExtendedPhotoGallery], can be used to [reload] the specific [ImageProvider].
 class ExtendedPhotoGalleryState extends State<ExtendedPhotoGallery> {
   late var _controller = widget.pageController ?? PageController();
-  late List<ValueNotifier<String>> _notifiers = List.generate(widget._pageCount, (index) => ValueNotifier(''));
+  late var _photoViewKeys = List.generate(widget._pageCount, (index) => GlobalKey<ReloadablePhotoViewState>());
 
-  /// Returns the current page of the widget.
-  int get currentPage => _controller.hasClients ? _controller.page!.floor() : 0;
-
-  /// Returns the total page count of the widget.
+  /// Returns the total page count of the gallery.
   int get pageCount => widget._pageCount;
 
-  /// Reloads the image of given index from [ImageProvider]. Note that here index should exclude non-[PhotoView] pages, when constructed via
-  /// [ExtendedPhotoGallery.advancedBuilder].
-  ///
-  /// Example:
-  /// ```
-  /// final CacheManager _cache = DefaultCacheManager();
-  /// // imageProviderBuilder: (key) => LocalOrCachedNetworkImageProvider.fromNetwork(
-  /// //   key: key,
-  /// //   url: urls[idx],
-  /// //   cacheManager: _cache,
-  /// // )
-  ///
-  /// await _cache.removeFile(urls[_index]);
-  /// _galleryKey.currentState?.reload(_index);
-  /// ```
-  void reload(int index) {
-    _notifiers[index].value = DateTime.now().microsecondsSinceEpoch.toString();
-    // no need to setState
-  }
+  /// Returns the current page of the gallery.
+  int get currentPage => _controller.hasClients ? _controller.page!.floor() : 0;
 
   @override
   void dispose() {
@@ -209,53 +194,50 @@ class ExtendedPhotoGalleryState extends State<ExtendedPhotoGallery> {
       _controller = newController ?? PageController();
     }
     if (widget._pageCount != oldWidget._pageCount) {
-      _notifiers = List.generate(widget._pageCount, (index) => ValueNotifier(''));
+      _photoViewKeys = List.generate(widget._pageCount, (index) => GlobalKey<ReloadablePhotoViewState>());
     }
   }
 
-  ExtendedPhotoGalleryPageOptions _buildPageOptions(BuildContext context, int index) {
-    if (widget.builder != null) {
-      return widget.builder!(context, index);
+  /// Reloads the [ImageProvider] of given index from [ExtendedPhotoGallery]. Note that here index should exclude
+  /// non-[PhotoView] pages, when constructed via [ExtendedPhotoGallery.advancedBuilder].
+  void reload(int index) {
+    if (index >= 0 && index < widget._pageCount) {
+      _photoViewKeys[index].currentState?.reload();
     }
-    return widget.pageOptions![index];
   }
 
   Widget _buildPhotoItem(BuildContext context, int index) {
-    final pageOptions = _buildPageOptions(context, index); // index excludes non-PhotoView pages
+    final pageOptions = (widget.builder?.call(context, index) ?? widget.pageOptions?[index])!; // index excludes non-PhotoView pages
     final options = pageOptions.merge(widget.fallbackOptions);
     return ClipRect(
-      child: ValueListenableBuilder<String>(
-        valueListenable: _notifiers[index], // <<<
-        builder: (_, v, __) => PhotoView(
-          key: ValueKey('$index-$v') /* TODO necessary ??? */,
-          imageProvider: pageOptions.imageProviderBuilder(ValueKey('$index-$v')) /* TODO use $index-$v or $v ??? */,
-          // almost be used frequently
-          initialScale: options.initialScale ?? PhotoViewComputedScale.contained,
-          minScale: options.minScale ?? 0.0,
-          maxScale: options.maxScale ?? double.infinity,
-          backgroundDecoration: options.backgroundDecoration ?? const BoxDecoration(color: Colors.black),
-          filterQuality: options.filterQuality ?? FilterQuality.none,
-          onTapDown: options.onTapDown,
-          onTapUp: options.onTapUp,
-          loadingBuilder: options.loadingBuilder,
-          errorBuilder: options.errorBuilder,
-          // may be used infrequently
-          basePosition: options.basePosition ?? Alignment.center,
-          controller: options.controller,
-          customSize: options.customSize,
-          disableGestures: options.disableGestures ?? false,
-          enablePanAlways: options.enablePanAlways ?? false,
-          enableRotation: options.enableRotation ?? false,
-          gaplessPlayback: options.gaplessPlayback ?? false,
-          gestureDetectorBehavior: options.gestureDetectorBehavior,
-          heroAttributes: options.heroAttributes,
-          onScaleEnd: options.onScaleEnd,
-          scaleStateController: options.scaleStateController,
-          scaleStateChangedCallback: options.scaleStateChangedCallback,
-          scaleStateCycle: options.scaleStateCycle ?? defaultScaleStateCycle,
-          tightMode: options.tightMode ?? false,
-          wantKeepAlive: options.wantKeepAlive ?? false,
-        ),
+      child: ReloadablePhotoView(
+        imageProviderBuilder: pageOptions.imageProviderBuilder,
+        // almost be used frequently
+        initialScale: options.initialScale,
+        minScale: options.minScale,
+        maxScale: options.maxScale,
+        backgroundDecoration: options.backgroundDecoration,
+        filterQuality: options.filterQuality,
+        onTapDown: options.onTapDown,
+        onTapUp: options.onTapUp,
+        loadingBuilder: options.loadingBuilder,
+        errorBuilder: options.errorBuilder,
+        // may be used infrequently
+        basePosition: options.basePosition,
+        controller: options.controller,
+        customSize: options.customSize,
+        disableGestures: options.disableGestures,
+        enablePanAlways: options.enablePanAlways,
+        enableRotation: options.enableRotation,
+        gaplessPlayback: options.gaplessPlayback,
+        gestureDetectorBehavior: options.gestureDetectorBehavior,
+        heroAttributes: options.heroAttributes,
+        onScaleEnd: options.onScaleEnd,
+        scaleStateController: options.scaleStateController,
+        scaleStateChangedCallback: options.scaleStateChangedCallback,
+        scaleStateCycle: options.scaleStateCycle,
+        tightMode: options.tightMode,
+        wantKeepAlive: options.wantKeepAlive,
       ),
     );
   }
@@ -286,18 +268,18 @@ class ExtendedPhotoGalleryState extends State<ExtendedPhotoGallery> {
       child: PreloadablePageView.builder(
         controller: _controller,
         onPageChanged: widget.onPageChanged,
-        changePageWhenFinished: widget.changePageWhenFinished,
         physics: widget.scrollPhysics,
         reverse: widget.reverse,
         scrollDirection: widget.scrollDirection,
-        pageMainAxisHintSize: widget.pageMainAxisHintSize,
-        preloadPagesCount: widget.preloadPagesCount,
         itemCount: widget._pageCount,
         itemBuilder: (context, index) => FractionallySizedBox(
-          widthFactor: widthFactor,
-          heightFactor: heightFactor,
+          widthFactor: widthFactor, // <<<
+          heightFactor: heightFactor, // <<<
           child: _buildPage(context, index),
         ),
+        changePageWhenFinished: widget.changePageWhenFinished,
+        pageMainAxisHintSize: widget.pageMainAxisHintSize,
+        preloadPagesCount: widget.preloadPagesCount,
       ),
     );
   }
