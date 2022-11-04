@@ -22,13 +22,13 @@ import 'package:http/http.dart' as http show head;
 ///
 /// [file] and [url] (or [fileFuture] and [urlFuture]) must at lease have one non-null value.
 ///
-/// If given [file] (or [fileFuture]) is not null and exists, then this provider will load
-/// image from this file.
+/// If given [file] (or [fileFuture]) is not null and exists, this provider will load image
+/// from this file.
 ///
-/// If given [file] is not null but does not exist, behavior will depend on [fileMustExist],
-/// an exception will be thrown if it is set to true, otherwise [url] will be used as fallback.
+/// If given [file] is not null but does not exist, behavior will depend on [fileMustExist].
+/// An exception will be thrown if it is set to true, otherwise [url] will be used as fallback.
 ///
-/// If given [url] is not null, then this provider will load image from given network [url].
+/// If given [url] is not null, this provider will load image from given network [url].
 class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.LocalOrCachedNetworkImageProvider> {
   /// Creates [LocalOrCachedNetworkImageProvider] with nullable [file] and [url].
   const LocalOrCachedNetworkImageProvider({
@@ -149,7 +149,7 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
   // general
   // =======
 
-  /// The key that can be used to reload the image in force.
+  /// The key that can be used to reload the image in force when different [Key] passed.
   final Key? key;
 
   /// The flag that describes if xxxFuture parameters used or not.
