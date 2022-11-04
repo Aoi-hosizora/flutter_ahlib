@@ -116,6 +116,32 @@ class _IconTextPageState extends State<IconTextPage> {
                 ),
               ),
             ),
+            const Divider(),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: InkWell(
+                onTap: () => printLog('l2r texts'),
+                child: Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: IconText.texts(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    icon: const Icon(Icons.check),
+                    texts: [
+                      Flexible(
+                        child: Text(
+                          'long text ' * 20,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 15),
+                      const Text('Check (l2r texts)'),
+                    ],
+                    alignment: IconTextAlignment.l2r,
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),

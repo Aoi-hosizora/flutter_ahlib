@@ -69,6 +69,16 @@ class _TextGroupPageState extends State<TextGroupPage> {
                     ),
                   ),
                 ),
+                const SpanItem(
+                  span: WidgetSpan(
+                    child: Icon(
+                      Icons.check,
+                      size: 16,
+                      color: Colors.blue,
+                    ),
+                  ),
+                ),
+                const PlainTextItem(text: 'finish'),
               ],
             ),
             const Divider(),
@@ -120,6 +130,16 @@ class _TextGroupPageState extends State<TextGroupPage> {
                     ),
                   ),
                 ),
+                const SpanItem(
+                  span: WidgetSpan(
+                    child: Icon(
+                      Icons.check,
+                      size: 16,
+                      color: Colors.blue,
+                    ),
+                  ),
+                ),
+                const PlainTextItem(text: 'finish'),
               ],
             ),
           ],

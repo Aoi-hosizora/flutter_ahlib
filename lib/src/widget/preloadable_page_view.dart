@@ -18,8 +18,6 @@ import 'package:flutter/rendering.dart';
 final PageController _defaultPageController = PageController(); // <<< the same as Flutter's source code
 const PageScrollPhysics _kPagePhysics = PageScrollPhysics();
 
-// TODO add example for testing
-
 /// A scrollable and preloadable list that works page by page, which is modified from [PageView].
 class PreloadablePageView extends StatefulWidget {
   /// Creates a scrollable list that works page by page from an explicit [List] of widgets.
@@ -92,7 +90,8 @@ class PreloadablePageView extends StatefulWidget {
   /// Mirror to [PageView.onPageChanged].
   final ValueChanged<int>? onPageChanged;
 
-  /// Called [onPageChanged] when page changing is finished.
+  /// The flag to call [onPageChanged] when page changing is finished. Note that listeners in
+  /// [PageController] will still be called when round value of page offset changed.
   final bool changePageWhenFinished;
 
   /// Mirror to [PageView.childrenDelegate].

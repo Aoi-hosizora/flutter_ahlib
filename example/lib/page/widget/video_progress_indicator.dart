@@ -47,6 +47,31 @@ class _VideoProgressIndicatorPageState extends State<VideoProgressIndicatorPage>
               ),
             ),
             const SizedBox(height: 20),
+            const Text('Non-null progress, allow scrubbing, with padding'),
+            Container(
+              width: MediaQuery.of(context).size.width - 20,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.black),
+                color: _black ? Colors.black : null,
+              ),
+              child: VideoProgressIndicator(
+                padding: const EdgeInsets.symmetric(vertical: 5),
+                progress: _progress,
+                allowScrubbing: true,
+                onScrubStart: () {
+                  printLog('onScrubStart 2');
+                },
+                onScrubbing: (position) {
+                  printLog('onScrubbing 2 $position');
+                  _progress = _progress.copyWith(position: position);
+                  if (mounted) setState(() {});
+                },
+                onScrubEnd: () {
+                  printLog('onScrubEnd');
+                },
+              ),
+            ),
+            const SizedBox(height: 20),
             const Text('Non-null progress, disallow scrubbing'),
             Container(
               width: MediaQuery.of(context).size.width - 20,

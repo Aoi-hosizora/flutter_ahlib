@@ -38,7 +38,7 @@ class IconText extends StatelessWidget {
   const IconText.texts({
     Key? key,
     required this.icon,
-    required List<Widget> this.texts, // TODO without test in example
+    required List<Widget> this.texts,
     this.iconPadding = EdgeInsets.zero,
     this.alignment = IconTextAlignment.l2r,
     this.space = _kDefaultSpace,
