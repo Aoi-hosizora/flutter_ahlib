@@ -169,7 +169,7 @@ class ReloadablePhotoViewState extends State<ReloadablePhotoView> {
       builder: (_, v, __) => PhotoView(
         key: ValueKey<String>(v) /* <<< necessary */,
         imageProvider: widget.imageProviderBuilder.call(ValueKey<String>(v)),
-        // almost be used frequently
+        //
         initialScale: widget.initialScale ?? PhotoViewComputedScale.contained,
         minScale: widget.minScale ?? 0.0,
         maxScale: widget.maxScale ?? double.infinity,
@@ -179,7 +179,7 @@ class ReloadablePhotoViewState extends State<ReloadablePhotoView> {
         onTapUp: widget.onTapUp,
         loadingBuilder: widget.loadingBuilder,
         errorBuilder: widget.errorBuilder,
-        // may be used infrequently
+        //
         basePosition: widget.basePosition ?? Alignment.center,
         controller: widget.controller,
         customSize: widget.customSize,
@@ -203,7 +203,6 @@ class ReloadablePhotoViewState extends State<ReloadablePhotoView> {
 /// A helper class that contains all reusable options of [ReloadablePhotoView].
 class PhotoViewOptions {
   const PhotoViewOptions({
-    // almost be used frequently
     this.initialScale,
     this.minScale,
     this.maxScale,
@@ -213,7 +212,7 @@ class PhotoViewOptions {
     this.onTapUp,
     this.loadingBuilder,
     this.errorBuilder,
-    // may be used infrequently
+    //
     this.basePosition,
     this.controller,
     this.customSize,
@@ -231,7 +230,6 @@ class PhotoViewOptions {
     this.wantKeepAlive,
   });
 
-  // almost be used frequently
   final dynamic initialScale;
   final dynamic minScale;
   final dynamic maxScale;
@@ -242,7 +240,6 @@ class PhotoViewOptions {
   final LoadingPlaceholderBuilder? loadingBuilder;
   final ErrorPlaceholderBuilder? errorBuilder;
 
-  // may be used infrequently
   final Alignment? basePosition;
   final PhotoViewControllerBase? controller;
   final Size? customSize;
@@ -259,35 +256,91 @@ class PhotoViewOptions {
   final bool? tightMode;
   final bool? wantKeepAlive;
 
-  /// Returns a new value that is a combination of this value and the given [other] value.
-  PhotoViewOptions merge(PhotoViewOptions? other) {
+  /// Creates a copy of this value but with given fields replaced with the new values.
+  PhotoViewOptions copyWith({
+    dynamic initialScale,
+    dynamic minScale,
+    dynamic maxScale,
+    BoxDecoration? backgroundDecoration,
+    FilterQuality? filterQuality,
+    PhotoViewImageTapDownCallback? onTapDown,
+    PhotoViewImageTapUpCallback? onTapUp,
+    LoadingPlaceholderBuilder? loadingBuilder,
+    ErrorPlaceholderBuilder? errorBuilder,
+    //
+    Alignment? basePosition,
+    PhotoViewControllerBase? controller,
+    Size? customSize,
+    bool? disableGestures,
+    bool? enablePanAlways,
+    bool? enableRotation,
+    bool? gaplessPlayback,
+    HitTestBehavior? gestureDetectorBehavior,
+    PhotoViewHeroAttributes? heroAttributes,
+    PhotoViewImageScaleEndCallback? onScaleEnd,
+    PhotoViewScaleStateController? scaleStateController,
+    ValueChanged<PhotoViewScaleState>? scaleStateChangedCallback,
+    ScaleStateCycle? scaleStateCycle,
+    bool? tightMode,
+    bool? wantKeepAlive,
+  }) {
     return PhotoViewOptions(
-      // almost be used frequently
-      initialScale: other?.initialScale ?? initialScale,
-      minScale: other?.minScale ?? minScale,
-      maxScale: other?.maxScale ?? maxScale,
-      backgroundDecoration: other?.backgroundDecoration ?? backgroundDecoration,
-      filterQuality: other?.filterQuality ?? filterQuality,
-      onTapDown: other?.onTapDown ?? onTapDown,
-      onTapUp: other?.onTapUp ?? onTapUp,
-      loadingBuilder: other?.loadingBuilder ?? loadingBuilder,
-      errorBuilder: other?.errorBuilder ?? errorBuilder,
-      // may be used infrequently
-      basePosition: other?.basePosition ?? basePosition,
-      controller: other?.controller ?? controller,
-      customSize: other?.customSize ?? customSize,
-      disableGestures: other?.disableGestures ?? disableGestures,
-      enablePanAlways: other?.enablePanAlways ?? enablePanAlways,
-      enableRotation: other?.enableRotation ?? enableRotation,
-      gaplessPlayback: other?.gaplessPlayback ?? gaplessPlayback,
-      gestureDetectorBehavior: other?.gestureDetectorBehavior ?? gestureDetectorBehavior,
-      heroAttributes: other?.heroAttributes ?? heroAttributes,
-      onScaleEnd: other?.onScaleEnd ?? onScaleEnd,
-      scaleStateController: other?.scaleStateController ?? scaleStateController,
-      scaleStateChangedCallback: other?.scaleStateChangedCallback ?? scaleStateChangedCallback,
-      scaleStateCycle: other?.scaleStateCycle ?? scaleStateCycle,
-      tightMode: other?.tightMode ?? tightMode,
-      wantKeepAlive: other?.wantKeepAlive ?? wantKeepAlive,
+      initialScale: initialScale ?? this.initialScale,
+      minScale: minScale ?? this.minScale,
+      maxScale: maxScale ?? this.maxScale,
+      backgroundDecoration: backgroundDecoration ?? this.backgroundDecoration,
+      filterQuality: filterQuality ?? this.filterQuality,
+      onTapDown: onTapDown ?? this.onTapDown,
+      onTapUp: onTapUp ?? this.onTapUp,
+      loadingBuilder: loadingBuilder ?? this.loadingBuilder,
+      errorBuilder: errorBuilder ?? this.errorBuilder,
+      //
+      basePosition: basePosition ?? this.basePosition,
+      controller: controller ?? this.controller,
+      customSize: customSize ?? this.customSize,
+      disableGestures: disableGestures ?? this.disableGestures,
+      enablePanAlways: enablePanAlways ?? this.enablePanAlways,
+      enableRotation: enableRotation ?? this.enableRotation,
+      gaplessPlayback: gaplessPlayback ?? this.gaplessPlayback,
+      gestureDetectorBehavior: gestureDetectorBehavior ?? this.gestureDetectorBehavior,
+      heroAttributes: heroAttributes ?? this.heroAttributes,
+      onScaleEnd: onScaleEnd ?? this.onScaleEnd,
+      scaleStateController: scaleStateController ?? this.scaleStateController,
+      scaleStateChangedCallback: scaleStateChangedCallback ?? this.scaleStateChangedCallback,
+      scaleStateCycle: scaleStateCycle ?? this.scaleStateCycle,
+      tightMode: tightMode ?? this.tightMode,
+      wantKeepAlive: wantKeepAlive ?? this.wantKeepAlive,
+    );
+  }
+
+  /// Creates a new value that is a combination of given value and fallback value.
+  static PhotoViewOptions merge(PhotoViewOptions options, PhotoViewOptions? fallback) {
+    return PhotoViewOptions(
+      initialScale: options.initialScale ?? fallback?.initialScale,
+      minScale: options.minScale ?? fallback?.minScale,
+      maxScale: options.maxScale ?? fallback?.maxScale,
+      backgroundDecoration: options.backgroundDecoration ?? fallback?.backgroundDecoration,
+      filterQuality: options.filterQuality ?? fallback?.filterQuality,
+      onTapDown: options.onTapDown ?? fallback?.onTapDown,
+      onTapUp: options.onTapUp ?? fallback?.onTapUp,
+      loadingBuilder: options.loadingBuilder ?? fallback?.loadingBuilder,
+      errorBuilder: options.errorBuilder ?? fallback?.errorBuilder,
+      //
+      basePosition: options.basePosition ?? fallback?.basePosition,
+      controller: options.controller ?? fallback?.controller,
+      customSize: options.customSize ?? fallback?.customSize,
+      disableGestures: options.disableGestures ?? fallback?.disableGestures,
+      enablePanAlways: options.enablePanAlways ?? fallback?.enablePanAlways,
+      enableRotation: options.enableRotation ?? fallback?.enableRotation,
+      gaplessPlayback: options.gaplessPlayback ?? fallback?.gaplessPlayback,
+      gestureDetectorBehavior: options.gestureDetectorBehavior ?? fallback?.gestureDetectorBehavior,
+      heroAttributes: options.heroAttributes ?? fallback?.heroAttributes,
+      onScaleEnd: options.onScaleEnd ?? fallback?.onScaleEnd,
+      scaleStateController: options.scaleStateController ?? fallback?.scaleStateController,
+      scaleStateChangedCallback: options.scaleStateChangedCallback ?? fallback?.scaleStateChangedCallback,
+      scaleStateCycle: options.scaleStateCycle ?? fallback?.scaleStateCycle,
+      tightMode: options.tightMode ?? fallback?.tightMode,
+      wantKeepAlive: options.wantKeepAlive ?? fallback?.wantKeepAlive,
     );
   }
 }

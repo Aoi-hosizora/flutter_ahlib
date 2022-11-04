@@ -38,8 +38,6 @@ typedef CallbackWidgetBuilder = Widget Function(BuildContext context, VoidCallba
 /// A [PlaceholderText.state] changed callback function, with old state and new state.
 typedef PlaceholderStateChangedCallback = void Function(PlaceholderState oldState, PlaceholderState newState);
 
-// TODO set as global theme, use PlaceholderTextTheme ???
-
 /// A display setting of [PlaceholderText]. Note that all the properties of this class are
 /// non-nullable, except for widget builders.
 class PlaceholderSetting {
@@ -263,7 +261,7 @@ class PlaceholderText extends StatefulWidget {
     this.onRetryForNothing,
     this.onRetryForError,
     this.onChanged,
-    this.setting = const PlaceholderSetting(),
+    this.setting,
   }) : super(key: key);
 
   /// Creates [PlaceholderText] with given parameters, this constructor uses given fields and
@@ -279,7 +277,7 @@ class PlaceholderText extends StatefulWidget {
     void Function()? onRetryForNothing,
     void Function()? onRetryForError,
     PlaceholderStateChangedCallback? onChanged,
-    PlaceholderSetting setting = const PlaceholderSetting(),
+    PlaceholderSetting? setting,
     PlaceholderDisplayRule displayRule = PlaceholderDisplayRule.dataFirst,
   }) : this(
           key: key,
@@ -347,8 +345,8 @@ class PlaceholderText extends StatefulWidget {
   /// The callback function when [state] changed.
   final PlaceholderStateChangedCallback? onChanged;
 
-  /// The display setting of this widget.
-  final PlaceholderSetting setting;
+  /// The display setting of this widget, defaults to `const PlaceholderSetting()`.
+  final PlaceholderSetting? setting;
 
   @override
   _PlaceholderTextState createState() => _PlaceholderTextState();
@@ -365,6 +363,8 @@ class _PlaceholderTextState extends State<PlaceholderText> {
 
   @override
   Widget build(BuildContext context) {
+    final setting = widget.setting ?? const PlaceholderSetting();
+
     switch (widget.state) {
       // ======
       // normal
@@ -380,30 +380,30 @@ class _PlaceholderTextState extends State<PlaceholderText> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              if (widget.setting.showLoadingProgress)
+              if (setting.showLoadingProgress)
                 Padding(
-                  padding: widget.setting.progressPadding,
-                  child: widget.setting.customLoadingProgressBuilder?.call(context) ??
+                  padding: setting.progressPadding,
+                  child: setting.customLoadingProgressBuilder?.call(context) ??
                       SizedBox(
-                        height: widget.setting.progressSize,
-                        width: widget.setting.progressSize,
+                        height: setting.progressSize,
+                        width: setting.progressSize,
                         child: CircularProgressIndicator(
-                          strokeWidth: widget.setting.progressStrokeWidth,
+                          strokeWidth: setting.progressStrokeWidth,
                         ),
                       ),
                 ),
-              if (widget.setting.showLoadingText)
+              if (setting.showLoadingText)
                 Padding(
-                  padding: widget.setting.textPadding,
-                  child: widget.setting.customLoadingTextBuilder?.call(context) ??
+                  padding: setting.textPadding,
+                  child: setting.customLoadingTextBuilder?.call(context) ??
                       DefaultTextStyle(
                         style: Theme.of(context).textTheme.subtitle1!,
                         child: Text(
-                          widget.setting.loadingText,
+                          setting.loadingText,
                           textAlign: TextAlign.center,
-                          style: widget.setting.textStyle,
-                          maxLines: widget.setting.textMaxLines,
-                          overflow: widget.setting.textOverflow,
+                          style: setting.textStyle,
+                          maxLines: setting.textMaxLines,
+                          overflow: setting.textOverflow,
                         ),
                       ),
                 ),
@@ -419,44 +419,44 @@ class _PlaceholderTextState extends State<PlaceholderText> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              if (widget.setting.showNothingIcon)
+              if (setting.showNothingIcon)
                 Padding(
-                  padding: widget.setting.iconPadding,
-                  child: widget.setting.customNothingIconBuilder?.call(context) ??
+                  padding: setting.iconPadding,
+                  child: setting.customNothingIconBuilder?.call(context) ??
                       Icon(
-                        widget.setting.nothingIcon,
-                        size: widget.setting.iconSize,
-                        color: widget.setting.iconColor,
+                        setting.nothingIcon,
+                        size: setting.iconSize,
+                        color: setting.iconColor,
                       ),
                 ),
-              if (widget.setting.showNothingText)
+              if (setting.showNothingText)
                 Padding(
-                  padding: widget.setting.textPadding,
-                  child: widget.setting.customNothingTextBuilder?.call(context) ??
+                  padding: setting.textPadding,
+                  child: setting.customNothingTextBuilder?.call(context) ??
                       DefaultTextStyle(
                         style: Theme.of(context).textTheme.subtitle1!,
                         child: Text(
-                          widget.setting.nothingText,
+                          setting.nothingText,
                           textAlign: TextAlign.center,
-                          style: widget.setting.textStyle,
-                          maxLines: widget.setting.textMaxLines,
-                          overflow: widget.setting.textOverflow,
+                          style: setting.textStyle,
+                          maxLines: setting.textMaxLines,
+                          overflow: setting.textOverflow,
                         ),
                       ),
                 ),
-              if (widget.setting.showNothingRetry)
+              if (setting.showNothingRetry)
                 Padding(
-                  padding: widget.setting.buttonPadding,
-                  child: widget.setting.customNothingRetryBuilder?.call(
+                  padding: setting.buttonPadding,
+                  child: setting.customNothingRetryBuilder?.call(
                         context,
                         () => (widget.onRetryForNothing ?? widget.onRefresh)?.call(),
                       ) ??
                       OutlinedButton(
                         child: Text(
-                          widget.setting.nothingRetryText,
-                          style: widget.setting.buttonTextStyle,
+                          setting.nothingRetryText,
+                          style: setting.buttonTextStyle,
                         ),
-                        style: widget.setting.buttonStyle,
+                        style: setting.buttonStyle,
                         onPressed: () => (widget.onRetryForNothing ?? widget.onRefresh)?.call(),
                       ),
                 ),
@@ -472,46 +472,46 @@ class _PlaceholderTextState extends State<PlaceholderText> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              if (widget.setting.showErrorIcon)
+              if (setting.showErrorIcon)
                 Padding(
-                  padding: widget.setting.iconPadding,
-                  child: widget.setting.customErrorIconBuilder?.call(context) ??
+                  padding: setting.iconPadding,
+                  child: setting.customErrorIconBuilder?.call(context) ??
                       Icon(
-                        widget.setting.errorIcon,
-                        size: widget.setting.iconSize,
-                        color: widget.setting.iconColor,
+                        setting.errorIcon,
+                        size: setting.iconSize,
+                        color: setting.iconColor,
                       ),
                 ),
-              if (widget.setting.showErrorText)
+              if (setting.showErrorText)
                 Padding(
-                  padding: widget.setting.textPadding,
-                  child: widget.setting.customErrorTextBuilder?.call(context) ??
+                  padding: setting.textPadding,
+                  child: setting.customErrorTextBuilder?.call(context) ??
                       DefaultTextStyle(
                         style: Theme.of(context).textTheme.subtitle1!,
                         child: Text(
                           widget.errorText?.isNotEmpty == true
                               ? widget.errorText! //
-                              : widget.setting.unknownErrorText,
+                              : setting.unknownErrorText,
                           textAlign: TextAlign.center,
-                          style: widget.setting.textStyle,
-                          maxLines: widget.setting.textMaxLines,
-                          overflow: widget.setting.textOverflow,
+                          style: setting.textStyle,
+                          maxLines: setting.textMaxLines,
+                          overflow: setting.textOverflow,
                         ),
                       ),
                 ),
-              if (widget.setting.showErrorRetry)
+              if (setting.showErrorRetry)
                 Padding(
-                  padding: widget.setting.buttonPadding,
-                  child: widget.setting.customErrorRetryBuilder?.call(
+                  padding: setting.buttonPadding,
+                  child: setting.customErrorRetryBuilder?.call(
                         context,
                         () => (widget.onRetryForError ?? widget.onRefresh)?.call(),
                       ) ??
                       OutlinedButton(
                         child: Text(
-                          widget.setting.errorRetryText,
-                          style: widget.setting.buttonTextStyle,
+                          setting.errorRetryText,
+                          style: setting.buttonTextStyle,
                         ),
-                        style: widget.setting.buttonStyle,
+                        style: setting.buttonStyle,
                         onPressed: () => (widget.onRetryForError ?? widget.onRefresh)?.call(),
                       ),
                 ),

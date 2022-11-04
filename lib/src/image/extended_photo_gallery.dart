@@ -109,7 +109,7 @@ class ExtendedPhotoGallery extends StatefulWidget {
 
   // for PhotoView fallback
 
-  /// The fallback options for photo pages, which almost has same fields with [ExtendedPhotoGalleryPageOptions].
+  /// The fallback options for photo pages, which has almost the same fields as [ExtendedPhotoGalleryPageOptions].
   final PhotoViewOptions? fallbackOptions;
 
   // for PageView settings
@@ -208,12 +208,11 @@ class ExtendedPhotoGalleryState extends State<ExtendedPhotoGallery> {
 
   Widget _buildPhotoPage(BuildContext context, int index) {
     final pageOptions = (widget.builder?.call(context, index) ?? widget.pageOptions?[index])!; // index excludes non-PhotoView pages
-    final options = (widget.fallbackOptions ?? const PhotoViewOptions()).merge(pageOptions);
+    final options = PhotoViewOptions.merge(pageOptions, widget.fallbackOptions);
     return ClipRect(
       child: ReloadablePhotoView(
         key: _photoViewKeys[index],
         imageProviderBuilder: pageOptions.imageProviderBuilder,
-        // almost be used frequently
         initialScale: options.initialScale,
         minScale: options.minScale,
         maxScale: options.maxScale,
@@ -223,7 +222,6 @@ class ExtendedPhotoGalleryState extends State<ExtendedPhotoGallery> {
         onTapUp: options.onTapUp,
         loadingBuilder: options.loadingBuilder,
         errorBuilder: options.errorBuilder,
-        // may be used infrequently
         basePosition: options.basePosition,
         controller: options.controller,
         customSize: options.customSize,
@@ -296,7 +294,6 @@ class ExtendedPhotoGalleryState extends State<ExtendedPhotoGallery> {
 class ExtendedPhotoGalleryPageOptions extends PhotoViewOptions {
   const ExtendedPhotoGalleryPageOptions({
     required this.imageProviderBuilder,
-    // almost be used frequently
     dynamic initialScale,
     dynamic minScale,
     dynamic maxScale,
@@ -306,7 +303,6 @@ class ExtendedPhotoGalleryPageOptions extends PhotoViewOptions {
     PhotoViewImageTapUpCallback? onTapUp,
     LoadingPlaceholderBuilder? loadingBuilder,
     ErrorPlaceholderBuilder? errorBuilder,
-    // may be used infrequently
     Alignment? basePosition,
     PhotoViewControllerBase? controller,
     Size? customSize,
@@ -323,7 +319,6 @@ class ExtendedPhotoGalleryPageOptions extends PhotoViewOptions {
     bool? tightMode,
     bool? wantKeepAlive,
   }) : super(
-          // almost be used frequently
           initialScale: initialScale,
           minScale: minScale,
           maxScale: maxScale,
@@ -333,7 +328,6 @@ class ExtendedPhotoGalleryPageOptions extends PhotoViewOptions {
           onTapUp: onTapUp,
           loadingBuilder: loadingBuilder,
           errorBuilder: errorBuilder,
-          // may be used infrequently
           basePosition: basePosition,
           controller: controller,
           customSize: customSize,

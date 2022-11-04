@@ -32,8 +32,14 @@ class AppBarActionButton extends StatelessWidget {
         super(key: key);
 
   // not contained in theme
+
+  /// Mirrors to [IconButton.icon].
   final Widget icon;
+
+  /// Mirrors to [IconButton.onPressed].
   final VoidCallback? onPressed;
+
+  /// Mirrors to [IconButton.tooltip].
   final String? tooltip;
 
   /// The callback for long pressing the button, which can not be customized in [IconButton].
@@ -67,7 +73,7 @@ class AppBarActionButton extends StatelessWidget {
     required Widget icon,
     required VoidCallback? onPressed,
     String? tooltip,
-    VoidCallback? onLongPressed,
+    VoidCallback? onLongPress,
     // <<<
     double? iconSize,
     VisualDensity? visualDensity,
@@ -115,7 +121,7 @@ class AppBarActionButton extends StatelessWidget {
         ),
       ),
     );
-    if (onLongPressed == null /* <<< Modified by AoiHosizora */ && tooltip != null) {
+    if (onLongPress == null /* <<< Modified by AoiHosizora */ && tooltip != null) {
       result = Tooltip(
         message: tooltip,
         child: result,
@@ -129,7 +135,7 @@ class AppBarActionButton extends StatelessWidget {
         autofocus: autofocus,
         canRequestFocus: onPressed != null,
         onTap: onPressed,
-        onLongPress: onLongPressed /* <<< Modified by AoiHosizora */,
+        onLongPress: onLongPress /* <<< Modified by AoiHosizora */,
         mouseCursor: mouseCursor ?? (onPressed == null ? SystemMouseCursors.forbidden : SystemMouseCursors.click),
         enableFeedback: enableFeedback,
         focusColor: focusColor ?? theme.focusColor,
@@ -155,7 +161,7 @@ class AppBarActionButton extends StatelessWidget {
       icon: icon,
       onPressed: onPressed,
       tooltip: tooltip,
-      onLongPressed: onLongPress,
+      onLongPress: onLongPress,
       // <<<
       iconSize: iconSize ?? theme?.iconSize ?? 24,
       visualDensity: visualDensity ?? theme?.visualDensity,
@@ -190,6 +196,8 @@ class AppBarActionButton extends StatelessWidget {
     bool forceUseBuilder = false,
     bool allowDrawerButton = true,
     bool allowPopButton = true,
+    String? forceTooltip,
+    VoidCallback? forceOnLongPress,
     // <<<
     double? iconSize,
     VisualDensity? visualDensity,
@@ -239,8 +247,9 @@ class AppBarActionButton extends StatelessWidget {
 
       return AppBarActionButton(
         icon: icon,
-        tooltip: tooltip,
         onPressed: onPressed,
+        tooltip: forceTooltip ?? tooltip,
+        onLongPress: forceOnLongPress,
         // <<<
         iconSize: iconSize,
         visualDensity: visualDensity,
@@ -272,20 +281,18 @@ class AppBarActionButton extends StatelessWidget {
   }
 }
 
-/// Associates an [AppBarActionButtonThemeData] with a subtree. The [AppBarActionButton] uses
-/// [of] methods to find the [AppBarActionButtonThemeData] associated with its subtree.
+/// An [InheritedWidget] that associates an [AppBarActionButtonThemeData] with a subtree.
 class AppBarActionButtonTheme extends InheritedWidget {
-  /// Creates a widget that associates a [AppBarActionButtonThemeData] with a subtree.
   const AppBarActionButtonTheme({
     Key? key,
     required AppBarActionButtonThemeData this.data,
     required Widget child,
   }) : super(key: key, child: child);
 
-  /// The [AppBarActionButtonThemeData] associated with the subtree.
+  /// The data associated with the subtree.
   final AppBarActionButtonThemeData? data;
 
-  /// Returns the [AppBarActionButtonThemeData] most closely associated with the given context.
+  /// Returns the data most closely associated with the given context.
   static AppBarActionButtonThemeData? of(BuildContext context) {
     final result = context.dependOnInheritedWidgetOfExactType<AppBarActionButtonTheme>();
     return result?.data;
@@ -367,6 +374,27 @@ class AppBarActionButtonThemeData with Diagnosticable {
       autofocus: autofocus ?? this.autofocus,
       enableFeedback: enableFeedback ?? this.enableFeedback,
       constraints: constraints ?? this.constraints,
+    );
+  }
+
+  /// Creates a new value that is a combination of given value and fallback value.
+  static AppBarActionButtonThemeData merge(AppBarActionButtonThemeData data, AppBarActionButtonThemeData? fallback) {
+    return AppBarActionButtonThemeData(
+      iconSize: data.iconSize ?? fallback?.iconSize,
+      visualDensity: data.visualDensity ?? fallback?.visualDensity,
+      padding: data.padding ?? fallback?.padding,
+      alignment: data.alignment ?? fallback?.alignment,
+      splashRadius: data.splashRadius ?? fallback?.splashRadius,
+      focusColor: data.focusColor ?? fallback?.focusColor,
+      hoverColor: data.hoverColor ?? fallback?.hoverColor,
+      color: data.color ?? fallback?.color,
+      splashColor: data.splashColor ?? fallback?.splashColor,
+      highlightColor: data.highlightColor ?? fallback?.highlightColor,
+      disabledColor: data.disabledColor ?? fallback?.disabledColor,
+      mouseCursor: data.mouseCursor ?? fallback?.mouseCursor,
+      autofocus: data.autofocus ?? fallback?.autofocus,
+      enableFeedback: data.enableFeedback ?? fallback?.enableFeedback,
+      constraints: data.constraints ?? fallback?.constraints,
     );
   }
 

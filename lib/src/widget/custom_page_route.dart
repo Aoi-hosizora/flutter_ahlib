@@ -166,20 +166,18 @@ class CustomPageRoute<T> extends PageRoute<T> {
   }
 }
 
-/// Associates a [CustomPageRouteThemeData] with a subtree. The [CustomPageRoute] uses [of]
-/// methods to find the [CustomPageRouteThemeData] associated with its subtree.
+/// An [InheritedWidget] that associates an [CustomPageRouteThemeData] with a subtree.
 class CustomPageRouteTheme extends InheritedWidget {
-  /// Creates a widget that associates a [CustomPageRouteThemeData] with a subtree.
   const CustomPageRouteTheme({
     Key? key,
     required CustomPageRouteThemeData this.data,
     required Widget child,
   }) : super(key: key, child: child);
 
-  /// The [CustomPageRouteThemeData] associated with the subtree.
+  /// The data associated with the subtree.
   final CustomPageRouteThemeData? data;
 
-  /// Returns the [CustomPageRouteThemeData] most closely associated with the given context.
+  /// Returns the data most closely associated with the given context.
   static CustomPageRouteThemeData? of(BuildContext context) {
     final result = context.dependOnInheritedWidgetOfExactType<CustomPageRouteTheme>();
     return result?.data;
@@ -257,6 +255,19 @@ class CustomPageRouteThemeData with Diagnosticable {
       disableCanTransitionTo: disableCanTransitionTo ?? this.disableCanTransitionTo,
       disableCanTransitionFrom: disableCanTransitionFrom ?? this.disableCanTransitionFrom,
       transitionsBuilder: transitionsBuilder ?? this.transitionsBuilder,
+    );
+  }
+
+  /// Creates a new value that is a combination of given value and fallback value.
+  static CustomPageRouteThemeData merge(CustomPageRouteThemeData data, CustomPageRouteThemeData? fallback) {
+    return CustomPageRouteThemeData(
+      transitionDuration: data.transitionDuration ?? fallback?.transitionDuration,
+      reverseTransitionDuration: data.reverseTransitionDuration ?? fallback?.reverseTransitionDuration,
+      barrierColor: data.barrierColor ?? fallback?.barrierColor,
+      barrierCurve: data.barrierCurve ?? fallback?.barrierCurve,
+      disableCanTransitionTo: data.disableCanTransitionTo ?? fallback?.disableCanTransitionTo,
+      disableCanTransitionFrom: data.disableCanTransitionFrom ?? fallback?.disableCanTransitionFrom,
+      transitionsBuilder: data.transitionsBuilder ?? fallback?.transitionsBuilder,
     );
   }
 

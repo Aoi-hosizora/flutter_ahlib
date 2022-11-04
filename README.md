@@ -30,7 +30,7 @@ import 'package:flutter_ahlib/flutter_ahlib.dart';
     + `LazyIndexedStack`
     + `flatButtonStyle` `raisedButtonStyle` `outlineButtonStyle`
     + `PlaceholderText`
-    + `TextDialogOption` `IconTextDialogOption`
+    + `TextDialogOption` `IconTextDialogOption` `CircularProgressDialogOption`
     + `PreloadablePageView`
     + `SliverHeaderDelegate` `SliverSeparatedListDelegate` `SliverSeparatedListBuilderDelegate`
     + `TabInPageNotification`

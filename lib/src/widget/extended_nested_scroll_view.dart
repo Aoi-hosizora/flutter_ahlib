@@ -89,11 +89,14 @@ class ExtendedNestedScrollView extends StatefulWidget {
   ExtendedNestedScrollViewState createState() => ExtendedNestedScrollViewState();
 }
 
+/// The state of [ExtendedNestedScrollView], can be used to get all inner controllers and outer controller.
 class ExtendedNestedScrollViewState extends State<ExtendedNestedScrollView> {
   final SliverOverlapAbsorberHandle _absorberHandle = SliverOverlapAbsorberHandle();
 
+  /// The inner controllers of [ExtendedNestedScrollView].
   List<ScrollController> get innerControllers => _coordinator!._innerControllers; // <<<
 
+  /// The outer controller of [ExtendedNestedScrollView].
   ScrollController get outerController => _coordinator!._outerController;
 
   _ExtendedNestedScrollCoordinator? _coordinator;

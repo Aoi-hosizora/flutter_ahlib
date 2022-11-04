@@ -41,8 +41,6 @@ enum UpdatableDataViewStyle {
   sliverMasonryGridView,
 }
 
-// TODO add global theme config
-
 /// A list of behavior and display settings for [UpdatableDataView].
 class UpdatableDataViewSetting<T> {
   const UpdatableDataViewSetting({
@@ -78,6 +76,7 @@ class UpdatableDataViewSetting<T> {
     this.appendNotificationPredicate = defaultScrollNotificationPredicate,
     // display settings for placeholder text
     this.placeholderSetting = const PlaceholderSetting(),
+    this.placeholderDisplayRule = PlaceholderDisplayRule.dataFirst,
     this.onPlaceholderStateChanged,
     // behavior settings
     this.refreshFirst = true,
@@ -161,7 +160,7 @@ class UpdatableDataViewSetting<T> {
   /// The stroke width for [RefreshIndicator], defaults to [RefreshProgressIndicator.defaultStrokeWidth].
   final double? refreshIndicatorStrokeWidth;
 
-  /// The notificationPredicate for [RefreshIndicator], defaults to [defaultScrollNotificationPredicate]..
+  /// The notificationPredicate for [RefreshIndicator], defaults to [defaultScrollNotificationPredicate].
   final ScrollNotificationPredicate? refreshNotificationPredicate;
 
   /// The Color for [AppendIndicator], only used for pagination.
@@ -178,6 +177,9 @@ class UpdatableDataViewSetting<T> {
 
   /// The setting for [PlaceholderText], defaults to [PlaceholderSetting()].
   final PlaceholderSetting? placeholderSetting;
+
+  /// The display rule for [PlaceholderText], defaults to [PlaceholderDisplayRule.dataFirst].
+  final PlaceholderDisplayRule? placeholderDisplayRule;
 
   /// The callback when [PlaceholderText] state changed.
   final PlaceholderStateChangedCallback? onPlaceholderStateChanged;

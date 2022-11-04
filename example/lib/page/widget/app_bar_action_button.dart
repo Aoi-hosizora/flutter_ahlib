@@ -63,6 +63,7 @@ class _AppBarActionButtonPageState extends State<AppBarActionButtonPage> {
               ),
           ],
         ),
+        drawerEdgeDragWidth: MediaQuery.of(context).size.width * 0.3,
         drawer: !_hasDrawer
             ? null
             : const Drawer(

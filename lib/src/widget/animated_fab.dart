@@ -21,7 +21,7 @@ class AnimatedFab extends StatefulWidget {
     required this.show,
   }) : super(key: key);
 
-  /// The widget below this widget in the tree, which is almost a [FloatingActionButton].
+  /// The widget below this widget in the tree, typically is a [FloatingActionButton] widget.
   final Widget fab;
 
   /// The controller of this widget.
@@ -100,7 +100,7 @@ class ScrollAnimatedFab extends StatefulWidget {
   })  : assert(offset == null || offset >= 0),
         super(key: key);
 
-  /// The widget below this widget in the tree, which is almost a [FloatingActionButton].
+  /// The widget below this widget in the tree, typically is a [FloatingActionButton] widget.
   final Widget fab;
 
   /// The controller of this widget.

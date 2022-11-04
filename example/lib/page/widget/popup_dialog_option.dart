@@ -145,6 +145,72 @@ class _PopupDialogOptionPageState extends State<PopupDialogOptionPage> {
                 ),
               ),
             ),
+            const Divider(),
+            OutlinedButton(
+              child: const Text('showDialog - CircularProgressDialogOption (has title)'),
+              onPressed: () => showDialog(
+                context: context,
+                builder: (c) => const AlertDialog(
+                  title: Text('CircularProgressDialogOption'),
+                  contentPadding: EdgeInsets.zero,
+                  content: CircularProgressDialogOption(
+                    progress: CircularProgressIndicator(),
+                    child: Text('Loading...'),
+                  ),
+                ),
+              ),
+            ),
+            OutlinedButton(
+              child: const Text('showDialog - CircularProgressDialogOption (no title)'),
+              onPressed: () => showDialog(
+                context: context,
+                builder: (c) => AlertDialog(
+                  contentPadding: EdgeInsets.zero,
+                  content: CircularProgressDialogOption(
+                    progress: const CircularProgressIndicator(),
+                    child: Text(
+                      'long_text_' * 50,
+                      maxLines: 6,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            OutlinedButton(
+              child: const Text('showDialog - LinearProgressIndicator (not in ahlib)'),
+              onPressed: () => showDialog(
+                context: context,
+                builder: (c) => AlertDialog(
+                  title: const Text('LinearProgressIndicator (not in ahlib)'),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'long_text_' * 50,
+                        style: Theme.of(context).textTheme.subtitle1,
+                        maxLines: 6,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 24),
+                      const LinearProgressIndicator(),
+                      const SizedBox(height: 6),
+                      DefaultTextStyle(
+                        style: Theme.of(context).textTheme.bodyText2!,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: const [
+                            Text('5%'),
+                            Text('5/100'),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),

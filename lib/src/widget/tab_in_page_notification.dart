@@ -10,7 +10,7 @@ class TabInPageNotification extends StatelessWidget {
     required this.pageController,
   }) : super(key: key);
 
-  /// The child used to notified scroll, which is almost [TabBarView].
+  /// The child used to notified scroll, typically is a [TabBarView] widget.
   final Widget child;
 
   /// The page controller of outer [PageView], which will be used in [NotificationListener].

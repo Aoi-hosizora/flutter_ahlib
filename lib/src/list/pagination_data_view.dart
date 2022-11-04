@@ -519,13 +519,14 @@ class PaginationDataViewState<T> extends State<PaginationDataView<T>> with Autom
             if (widget.extra?.outerTopWidgets != null) ...(widget.extra?.outerTopWidgets)!,
             Expanded(
               child: PlaceholderText.from(
-                onRefresh: () => _refreshIndicatorKey.currentState?.show(),
                 forceState: _forceState,
-                isLoading: _loading,
                 isEmpty: widget.data.isEmpty,
+                isLoading: _loading,
                 errorText: _errorMessage,
+                onRefresh: () => _refreshIndicatorKey.currentState?.show(),
                 onChanged: widget.setting.onPlaceholderStateChanged,
                 setting: widget.setting.placeholderSetting ?? const PlaceholderSetting(),
+                displayRule: widget.setting.placeholderDisplayRule ?? PlaceholderDisplayRule.dataFirst,
                 childBuilder: (c) => Column(
                   crossAxisAlignment: widget.extra?.innerCrossAxisAlignment ?? CrossAxisAlignment.center,
                   children: [
