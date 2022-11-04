@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/flutter_ahlib.dart';
 
-class ScrollbarWithMorePage extends StatefulWidget {
-  const ScrollbarWithMorePage({Key? key}) : super(key: key);
+class ExtendedScrollbarPage extends StatefulWidget {
+  const ExtendedScrollbarPage({Key? key}) : super(key: key);
 
   @override
-  State<ScrollbarWithMorePage> createState() => _ScrollbarWithMorePageState();
+  State<ExtendedScrollbarPage> createState() => _ExtendedScrollbarPageState();
 }
 
-class _ScrollbarWithMorePageState extends State<ScrollbarWithMorePage> {
+class _ExtendedScrollbarPageState extends State<ExtendedScrollbarPage> {
   final _controller = ScrollController();
   var _useTheme = false;
 
@@ -16,7 +16,7 @@ class _ScrollbarWithMorePageState extends State<ScrollbarWithMorePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ScrollbarWithMore Example'),
+        title: const Text('ExtendedScrollbar Example'),
         actions: [
           IconButton(
             icon: Text(_useTheme ? 'Theme' : 'Widget'),
@@ -37,7 +37,7 @@ class _ScrollbarWithMorePageState extends State<ScrollbarWithMorePage> {
                 trackBorderColor: _useTheme ? MaterialStateProperty.all(Colors.lightGreenAccent) : null,
               ),
         ),
-        child: ScrollbarWithMore(
+        child: ExtendedScrollbar(
           controller: _controller,
           isAlwaysShown: true,
           interactive: true,

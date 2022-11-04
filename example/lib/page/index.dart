@@ -21,7 +21,7 @@ import 'package:flutter_ahlib_example/page/widget/placeholder_text.dart';
 import 'package:flutter_ahlib_example/page/widget/popup_dialog_option.dart';
 import 'package:flutter_ahlib_example/page/widget/animated_fab.dart';
 import 'package:flutter_ahlib_example/page/widget/preloadable_page_view.dart';
-import 'package:flutter_ahlib_example/page/widget/scrollbar_with_more.dart';
+import 'package:flutter_ahlib_example/page/widget/extended_scrollbar.dart';
 import 'package:flutter_ahlib_example/page/widget/sliver_delegate.dart';
 import 'package:flutter_ahlib_example/page/widget/tab_in_page_notification.dart';
 import 'package:flutter_ahlib_example/page/widget/table_whole_row_ink_well.dart';
@@ -113,7 +113,7 @@ class _IndexPageState extends State<IndexPage> {
               _button('CustomInkResponse', const CustomInkResponsePage()),
               _button('TableWholeRowInkWell', const TableWholeRowInkWellPage()),
               _button('WidgetWithCallback', const WidgetWithCallbackPage()),
-              _button('ScrollbarWithMore', const ScrollbarWithMorePage()),
+              _button('ExtendedScrollbar', const ExtendedScrollbarPage()),
               _button('ExtendedNestedScrollView', const ExtendedNestedScrollViewPage()),
               _button('VideoProgressIndicator', const VideoProgressIndicatorPage()),
               _button('CustomSingleChildLayout', const CustomSingleChildLayoutPage()),

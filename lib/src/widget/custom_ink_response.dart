@@ -279,7 +279,7 @@ class _CustomInkResponseState extends State<CustomInkResponse> with AutomaticKee
     }
   }
 
-  // This method is modified by @Aoi-hosizora.
+  // This method is modified by AoiHosizora.
   void updateHighlight(HighlightType type, {required bool value, bool callOnHover = true}) {
     final InkHighlight? highlight = _highlights[type];
     void handleInkRemoval() {
@@ -334,7 +334,7 @@ class _CustomInkResponseState extends State<CustomInkResponse> with AutomaticKee
     }
   }
 
-  // This method is modified by @Aoi-hosizora.
+  // This method is modified by AoiHosizora.
   InteractiveInkFeature _createInkFeature(Offset globalPosition) {
     final MaterialInkController inkController = Material.of(context)!;
     final RenderBox referenceBox = context.findRenderObject()! as RenderBox;

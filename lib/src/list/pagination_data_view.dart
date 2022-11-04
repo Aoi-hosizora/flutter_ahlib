@@ -4,7 +4,7 @@ import 'package:flutter_ahlib/src/list/append_indicator.dart';
 import 'package:flutter_ahlib/src/list/updatable_data_view.dart';
 import 'package:flutter_ahlib/src/util/flutter_extension.dart';
 import 'package:flutter_ahlib/src/widget/placeholder_text.dart';
-import 'package:flutter_ahlib/src/widget/scrollbar_with_more.dart';
+import 'package:flutter_ahlib/src/widget/extended_scrollbar.dart';
 import 'package:flutter_ahlib/src/widget/sliver_delegate.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
@@ -534,7 +534,7 @@ class PaginationDataViewState<T> extends State<PaginationDataView<T>> with Autom
                       child: NotificationListener<ScrollNotification>(
                         onNotification: (s) => _onScroll(s),
                         child: widget.setting.scrollbar ?? true
-                            ? ScrollbarWithMore(
+                            ? ExtendedScrollbar(
                                 interactive: widget.setting.interactiveScrollbar ?? false,
                                 isAlwaysShown: widget.setting.alwaysShowScrollbar ?? false,
                                 radius: widget.setting.scrollbarRadius,

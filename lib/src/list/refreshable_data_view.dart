@@ -2,7 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/src/list/updatable_data_view.dart';
 import 'package:flutter_ahlib/src/widget/placeholder_text.dart';
-import 'package:flutter_ahlib/src/widget/scrollbar_with_more.dart';
+import 'package:flutter_ahlib/src/widget/extended_scrollbar.dart';
 import 'package:flutter_ahlib/src/widget/sliver_delegate.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
@@ -399,7 +399,7 @@ class RefreshableDataViewState<T> extends State<RefreshableDataView<T>> with Aut
                   if (widget.extra?.innerTopWidgets != null) ...(widget.extra?.innerTopWidgets)!,
                   Expanded(
                     child: widget.setting.scrollbar ?? true
-                        ? ScrollbarWithMore(
+                        ? ExtendedScrollbar(
                             interactive: widget.setting.interactiveScrollbar ?? false,
                             isAlwaysShown: widget.setting.alwaysShowScrollbar ?? false,
                             radius: widget.setting.scrollbarRadius,

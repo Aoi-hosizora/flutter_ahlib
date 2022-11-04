@@ -29,13 +29,13 @@ class PreloadablePageView extends StatefulWidget {
     this.physics,
     this.pageSnapping = true,
     this.onPageChanged,
-    this.changePageWhenFinished = false,
     List<Widget> children = const <Widget>[],
     this.dragStartBehavior = DragStartBehavior.start,
     this.restorationId,
     this.clipBehavior = Clip.hardEdge,
     this.scrollBehavior,
     this.padEnds = true,
+    this.changePageWhenFinished = false,
     this.pageMainAxisHintSize,
     this.preloadPagesCount = 0,
   })  : assert(pageMainAxisHintSize == null || pageMainAxisHintSize >= 0),
@@ -53,7 +53,6 @@ class PreloadablePageView extends StatefulWidget {
     this.physics,
     this.pageSnapping = true,
     this.onPageChanged,
-    this.changePageWhenFinished = false,
     required IndexedWidgetBuilder itemBuilder,
     int? itemCount,
     this.dragStartBehavior = DragStartBehavior.start,
@@ -61,6 +60,7 @@ class PreloadablePageView extends StatefulWidget {
     this.clipBehavior = Clip.hardEdge,
     this.scrollBehavior,
     this.padEnds = true,
+    this.changePageWhenFinished = false,
     this.pageMainAxisHintSize,
     this.preloadPagesCount = 0,
   })  : assert(pageMainAxisHintSize == null || pageMainAxisHintSize >= 0),
@@ -69,45 +69,47 @@ class PreloadablePageView extends StatefulWidget {
         childrenDelegate = SliverChildBuilderDelegate(itemBuilder, childCount: itemCount),
         super(key: key);
 
-  /// Mirror to [PageView.restorationId].
+  /// Mirrors to [PageView.restorationId].
   final String? restorationId;
 
-  /// Mirror to [PageView.scrollDirection].
+  /// Mirrors to [PageView.scrollDirection].
   final Axis scrollDirection;
 
-  /// Mirror to [PageView.reverse].
+  /// Mirrors to [PageView.reverse].
   final bool reverse;
 
-  /// Mirror to [PageView.controller].
+  /// Mirrors to [PageView.controller].
   final PageController controller;
 
-  /// Mirror to [PageView.physics].
+  /// Mirrors to [PageView.physics].
   final ScrollPhysics? physics;
 
-  /// Mirror to [PageView.pageSnapping].
+  /// Mirrors to [PageView.pageSnapping].
   final bool pageSnapping;
 
-  /// Mirror to [PageView.onPageChanged].
+  /// Mirrors to [PageView.onPageChanged].
   final ValueChanged<int>? onPageChanged;
+
+  /// Mirrors to [PageView.childrenDelegate].
+  final SliverChildDelegate childrenDelegate;
+
+  /// Mirrors to [PageView.dragStartBehavior].
+  final DragStartBehavior dragStartBehavior;
+
+  /// Mirrors to [PageView.clipBehavior].
+  final Clip clipBehavior;
+
+  /// Mirrors to [PageView.scrollBehavior].
+  final ScrollBehavior? scrollBehavior;
+
+  /// Mirrors to [PageView.padEnds].
+  final bool padEnds;
+
+  // extended
 
   /// The flag to call [onPageChanged] when page changing is finished. Note that listeners in
   /// [PageController] will still be called when round value of page offset changed.
   final bool changePageWhenFinished;
-
-  /// Mirror to [PageView.childrenDelegate].
-  final SliverChildDelegate childrenDelegate;
-
-  /// Mirror to [PageView.dragStartBehavior].
-  final DragStartBehavior dragStartBehavior;
-
-  /// Mirror to [PageView.clipBehavior].
-  final Clip clipBehavior;
-
-  /// Mirror to [PageView.scrollBehavior].
-  final ScrollBehavior? scrollBehavior;
-
-  /// Mirror to [PageView.padEnds].
-  final bool padEnds;
 
   /// A double value that represents the hint size at page main axis, is used to set the cache
   /// extent for preloading page, defaults to `MediaQuery.of(context).size`.
@@ -153,7 +155,8 @@ class _PreloadablePageViewState extends State<PreloadablePageView> {
     return NotificationListener<ScrollNotification>(
       onNotification: (ScrollNotification notification) {
         if (notification.depth == 0 && widget.onPageChanged != null) {
-          if ((!widget.changePageWhenFinished && notification is ScrollUpdateNotification) || (widget.changePageWhenFinished && notification is ScrollEndNotification)) {
+          if ((!widget.changePageWhenFinished && notification is ScrollUpdateNotification) || //
+              (widget.changePageWhenFinished && notification is ScrollEndNotification)) {
             final PageMetrics metrics = notification.metrics as PageMetrics;
             final int currentPage = metrics.page!.round();
             if (currentPage != _lastReportedPage) {

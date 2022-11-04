@@ -75,7 +75,7 @@ class ExtendedNestedScrollView extends StatefulWidget {
     return target!.state._absorberHandle;
   }
 
-  // This method is modified by @Aoi-hosizora.
+  // This method is modified by AoiHosizora.
   List<Widget> _buildSlivers(BuildContext context, List<ScrollController> innerControllers, bool bodyIsScrolled) {
     return <Widget>[
       ...headerSliverBuilder(context, bodyIsScrolled),
@@ -156,7 +156,9 @@ class ExtendedNestedScrollViewState extends State<ExtendedNestedScrollView> {
 
   @override
   Widget build(BuildContext context) {
-    final ScrollPhysics _scrollPhysics = widget.physics?.applyTo(const ClampingScrollPhysics()) ?? widget.scrollBehavior?.getScrollPhysics(context).applyTo(const ClampingScrollPhysics()) ?? const ClampingScrollPhysics();
+    final ScrollPhysics _scrollPhysics = widget.physics?.applyTo(const ClampingScrollPhysics()) ?? //
+        widget.scrollBehavior?.getScrollPhysics(context).applyTo(const ClampingScrollPhysics()) ??
+        const ClampingScrollPhysics();
 
     return _InheritedNestedScrollView(
       state: this,
@@ -293,7 +295,7 @@ class _NestedScrollMetrics extends FixedScrollMetrics {
 typedef _NestedScrollActivityGetter = ScrollActivity Function(_NestedScrollPosition position);
 
 class _ExtendedNestedScrollCoordinator implements ScrollActivityDelegate, ScrollHoldController {
-  // This constructor is modified by @Aoi-hosizora.
+  // This constructor is modified by AoiHosizora.
   _ExtendedNestedScrollCoordinator(
     this._state,
     this._parent,
@@ -332,7 +334,7 @@ class _ExtendedNestedScrollCoordinator implements ScrollActivityDelegate, Scroll
     return _outerController.nestedPositions.single;
   }
 
-  // This property is modified by @Aoi-hosizora.
+  // This property is modified by AoiHosizora.
   Iterable<_NestedScrollPosition> get _innerPositions {
     assert(_innerControllerCount > 0);
     assert(_activatedPageIndex < _innerControllerCount);

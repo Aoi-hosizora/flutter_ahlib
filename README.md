@@ -6,19 +6,13 @@
 [![License](https://img.shields.io/badge/license-mit-blue.svg)](./LICENSE)
 
 + A personal flutter library, contains some useful widgets and utils.
-+ Please visit https://pub.dev/packages/flutter_ahlib for this package.
++ Please visit https://pub.dev/packages/flutter_ahlib for this library.
 
 ### Usage
 
 ```dart
-// Import package as required
-import 'package:flutter_ahlib/widget.dart'; // for common widgets
-import 'package:flutter_ahlib/list.dart'; // for list widgets
-import 'package:flutter_ahlib/image.dart'; // for image widgets
-import 'package:flutter_ahlib/util.dart'; // for utils
-
-// Import all packages directly
-import 'package:flutter_ahlib/flutter_ahlib.dart'; // the whole library
+// Import the whole library, including common widgets, list widgets, image widgets and utils.
+import 'package:flutter_ahlib/flutter_ahlib.dart'; 
 ```
 
 ### Library contents
@@ -31,13 +25,13 @@ import 'package:flutter_ahlib/flutter_ahlib.dart'; // the whole library
     + `CustomPageRoute` `CustomPageRouteTheme` `NoPopGestureCupertinoPageTransitionsBuilder`
     + `CustomSingleChildLayoutDelegate`
     + `ExtendedNestedScrollView`
+    + `ExtendedScrollbar`
     + `IconText`
     + `LazyIndexedStack`
     + `flatButtonStyle` `raisedButtonStyle` `outlineButtonStyle`
     + `PlaceholderText`
     + `TextDialogOption` `IconTextDialogOption`
     + `PreloadablePageView`
-    + `ScrollbarWithMore`
     + `SliverHeaderDelegate` `SliverSeparatedListDelegate` `SliverSeparatedListBuilderDelegate`
     + `TabInPageNotification`
     + `TableWholeRowInkWell` `TableCellHelper`

@@ -93,7 +93,7 @@ class ExtendedPhotoGallery extends StatefulWidget {
   })  : pageOptions = null,
         super(key: key);
 
-  /// A list of options to describe the photo pages in the gallery.
+  /// The list of options to describe the photo pages in the gallery.
   final List<ExtendedPhotoGalleryPageOptions>? pageOptions;
 
   /// The count of pages (not only photo pages) in the gallery, only used when constructed via
@@ -114,16 +114,16 @@ class ExtendedPhotoGallery extends StatefulWidget {
 
   // for PageView settings
 
-  /// An callback to be called on a page change.
+  /// A callback to be called on a page change.
   final void Function(int index)? onPageChanged;
 
   /// An object that controls the [PageView] inside [ExtendedPhotoGallery].
   final PageController? pageController;
 
-  /// Mirrors to [PageView.reverse].
+  /// The flag for whether the page view scrolls in the reading direction.
   final bool reverse;
 
-  /// [ScrollPhysics] for the internal [PageView].
+  /// The [ScrollPhysics] for the internal [PageView].
   final ScrollPhysics? scrollPhysics;
 
   /// The axis along which the [PageView] scrolls. Mirrors to [PageView.scrollDirection].
@@ -131,7 +131,8 @@ class ExtendedPhotoGallery extends StatefulWidget {
 
   // for extended settings
 
-  /// Mirrors to [PreloadablePageView.changePageWhenFinished].
+  /// The flag to call [onPageChanged] when page changing is finished. Note that listeners in
+  /// [PageController] will still be called when round value of page offset changed.
   final bool changePageWhenFinished;
 
   /// The flag for keeping main axis size of each photo page to origin size (which is the same as default identical
