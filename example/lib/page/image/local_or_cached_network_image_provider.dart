@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/flutter_ahlib.dart';
 import 'package:flutter_ahlib_example/main.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 class LocalOrCachedNetworkImageProviderPage extends StatefulWidget {
   const LocalOrCachedNetworkImageProviderPage({Key? key}) : super(key: key);
@@ -12,12 +13,6 @@ class LocalOrCachedNetworkImageProviderPage extends StatefulWidget {
 }
 
 class _LocalOrCachedNetworkImageProviderPageState extends State<LocalOrCachedNetworkImageProviderPage> {
-  // https://github.com/Baseflow/flutter_cached_network_image/issues/468#issuecomment-789757758
-  // https://github.com/Baseflow/flutter_cached_network_image/issues/468#issuecomment-1153510183
-  final _vn1 = ValueNotifier<String>('');
-  final _vn2 = ValueNotifier<String>('');
-  var _correctFile = false;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,94 +20,168 @@ class _LocalOrCachedNetworkImageProviderPageState extends State<LocalOrCachedNet
         title: const Text('LocalOrCachedNetworkImageProvider Example'),
         actions: [
           IconButton(
-            icon: const Text('Reload 1'),
-            onPressed: () {
-              printLog('Reload network image');
-              _vn1.value = DateTime.now().microsecondsSinceEpoch.toString();
-            },
-          ),
-          IconButton(
-            icon: const Text('Reload 2'),
-            onPressed: () {
-              printLog('Reload local image');
-              _vn2.value = DateTime.now().microsecondsSinceEpoch.toString();
-            },
-          ),
-          IconButton(
-            icon: const Text('setState'),
-            onPressed: () {
-              printLog('setState directly');
-              if (mounted) setState(() {});
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.redo),
-            onPressed: () => _correctFile = !_correctFile,
+            icon: const Text('Future'),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (c) => Scaffold(
+                  appBar: AppBar(
+                    title: const Text('LocalOrCachedNetworkImageProvider.fromFutures Example'),
+                  ),
+                  body: const _TestPage(
+                    useFuture: true,
+                  ),
+                ),
+              ),
+            ),
           ),
         ],
       ),
-      body: Center(
-        child: Column(
+      body: const _TestPage(
+        useFuture: false,
+      ),
+    );
+  }
+}
+
+class _TestPage extends StatefulWidget {
+  const _TestPage({
+    Key? key,
+    required this.useFuture,
+  }) : super(key: key);
+
+  final bool useFuture;
+
+  @override
+  State<_TestPage> createState() => _TestPageState();
+}
+
+class _TestPageState extends State<_TestPage> {
+  // https://github.com/Baseflow/flutter_cached_network_image/issues/468#issuecomment-789757758
+  // https://github.com/Baseflow/flutter_cached_network_image/issues/468#issuecomment-1153510183
+  final CacheManager _cache = DefaultCacheManager();
+  final _vn1 = ValueNotifier<String>('');
+  final _vn2 = ValueNotifier<String>('');
+  var _correctFile = false;
+
+  final _url = 'https://neilpatel.com/wp-content/uploads/2017/08/colors.jpg';
+  final _urlKey = 'xxx';
+  final _path1 = '/sdcard/DCIM/test.jpg';
+  final _path2 = '/sdcard/DCIM/test_wrong.jpg';
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Expanded(
-              child: Center(
-                child: ValueListenableBuilder(
-                  valueListenable: _vn1,
-                  builder: (_, k, __) => Image(
-                    key: ValueKey(k),
-                    image: LocalOrCachedNetworkImageProvider(
-                      key: ValueKey(k),
-                      file: null,
-                      url: 'https://neilpatel.com/wp-content/uploads/2017/08/colors.jpg',
-                      onFileLoading: () => printLog('(url) onFileLoading'),
-                      onFileLoaded: () => printLog('(url) onFileLoaded'),
-                      onFileError: (_) => printLog('(url) onError'),
-                      onUrlLoading: () => printLog('(url) onUrlLoading'),
-                      onUrlError: (_) => printLog('(url) onError'),
-                      onUrlLoaded: () => printLog('(url) onUrlLoaded'),
-                    ),
-                    errorBuilder: (_, e, __) => Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(e.toString()),
-                        const Icon(Icons.error),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+            ElevatedButton(
+              child: const Text('Reload 1'),
+              onPressed: () {
+                printLog('Reload network image');
+                _cache.removeFile(_urlKey);
+                _vn1.value = DateTime.now().microsecondsSinceEpoch.toString();
+              },
             ),
-            Expanded(
-              child: Center(
-                child: ValueListenableBuilder(
-                  valueListenable: _vn2,
-                  builder: (_, k, __) => Image(
-                    key: ValueKey(k),
-                    image: LocalOrCachedNetworkImageProvider(
-                      key: ValueKey(k),
-                      file: _correctFile ? File('/sdcard/DCIM/test.jpg') : File('/sdcard/DCIM/testx.jpg'),
-                      url: null,
-                      onFileLoading: () => printLog('(file) onFileLoading'),
-                      onFileLoaded: () => printLog('(file) onFileLoaded'),
-                      onFileError: (_) => printLog('(file) onError'),
-                      onUrlLoading: () => printLog('(file) onUrlLoading'),
-                      onUrlError: (_) => printLog('(file) onError'),
-                      onUrlLoaded: () => printLog('(file) onUrlLoaded'),
-                    ),
-                    errorBuilder: (_, e, __) => Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(e.toString()),
-                        const Icon(Icons.error),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+            const SizedBox(width: 15),
+            ElevatedButton(
+              child: const Text('Reload 2'),
+              onPressed: () {
+                printLog('Reload local image');
+                _vn2.value = DateTime.now().microsecondsSinceEpoch.toString();
+              },
+            ),
+            const SizedBox(width: 15),
+            ElevatedButton(
+              child: const Text('setState'),
+              onPressed: () {
+                printLog('setState directly');
+                if (mounted) setState(() {});
+              },
+            ),
+            const SizedBox(width: 15),
+            ElevatedButton(
+              child: const Icon(Icons.redo),
+              onPressed: () {
+                // do not setState, please this will make the second LocalOrCachedNetworkImageProvider reload because different url
+                _correctFile = !_correctFile;
+              },
             ),
           ],
         ),
-      ),
+        Expanded(
+          child: Center(
+            child: ValueListenableBuilder(
+              valueListenable: _vn1,
+              builder: (_, k, __) => Image(
+                key: ValueKey(k),
+                image: !widget.useFuture
+                    ? LocalOrCachedNetworkImageProvider.fromNetwork(
+                        key: ValueKey(k),
+                        url: _url,
+                        cacheManager: _cache,
+                        cacheKey: _urlKey,
+                        onUrlLoading: () => printLog('(first) onUrlLoading'),
+                        onUrlLoaded: (e) => printLog('(first) onUrlLoaded $e'),
+                      )
+                    : LocalOrCachedNetworkImageProvider.fromFutures(
+                        key: ValueKey(k),
+                        fileFuture: Future<File?>.delayed(const Duration(milliseconds: 500), () => null),
+                        urlFuture: Future<String?>.delayed(const Duration(milliseconds: 500), () => _url),
+                        cacheManager: _cache,
+                        cacheKey: _urlKey,
+                        onFileLoading: () => printLog('(first future) onFileLoading'),
+                        onFileLoaded: (e) => printLog('(first future) onFileLoaded $e'),
+                        onUrlLoading: () => printLog('(first future) onUrlLoading'),
+                        onUrlLoaded: (e) => printLog('(first future) onUrlLoaded $e'),
+                      ),
+                errorBuilder: (_, e, __) => Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(e.toString()),
+                    const Icon(Icons.error),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        Expanded(
+          child: Center(
+            child: ValueListenableBuilder(
+              valueListenable: _vn2,
+              builder: (_, k, __) => Image(
+                key: ValueKey(k),
+                image: !widget.useFuture
+                    ? LocalOrCachedNetworkImageProvider.fromLocal(
+                        key: ValueKey(k),
+                        file: _correctFile ? File(_path1) : File(_path2),
+                        fileMustExist: true,
+                        onFileLoading: () => printLog('(second) onFileLoading'),
+                        onFileLoaded: (e) => printLog('(second) onFileLoaded $e'),
+                      )
+                    : LocalOrCachedNetworkImageProvider.fromFutures(
+                        key: ValueKey(k),
+                        fileFuture: Future<File?>.delayed(const Duration(milliseconds: 500), () => _correctFile ? File(_path1) : File(_path2)),
+                        urlFuture: Future<String?>.delayed(const Duration(milliseconds: 500), () => null),
+                        fileMustExist: true,
+                        onFileLoading: () => printLog('(second future) onFileLoading'),
+                        onFileLoaded: (e) => printLog('(second future) onFileLoaded $e'),
+                        onUrlLoading: () => printLog('(second future) onUrlLoading'),
+                        onUrlLoaded: (e) => printLog('(second future) onUrlLoaded $e'),
+                      ),
+                errorBuilder: (_, e, __) => Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(e.toString()),
+                    const Icon(Icons.error),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

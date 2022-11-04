@@ -49,6 +49,7 @@ class _ReloadablePhotoViewPageState extends State<ReloadablePhotoViewPage> {
             IconButton(
               icon: const Text('0'),
               onPressed: () async {
+                printLog('reload page 0');
                 await _cache.removeFile(_urls[0]);
                 _keys[0].currentState?.reload();
               },
@@ -56,6 +57,7 @@ class _ReloadablePhotoViewPageState extends State<ReloadablePhotoViewPage> {
             IconButton(
               icon: const Text('1'),
               onPressed: () async {
+                printLog('reload page 1');
                 await _cache.removeFile(_urls[1]);
                 _keys[1].currentState?.reload();
               },
@@ -63,6 +65,7 @@ class _ReloadablePhotoViewPageState extends State<ReloadablePhotoViewPage> {
             IconButton(
               icon: const Text('2'),
               onPressed: () async {
+                printLog('reload page 2');
                 await _cache.removeFile(_urls[2]);
                 _keys[2].currentState?.reload();
               },
@@ -76,7 +79,8 @@ class _ReloadablePhotoViewPageState extends State<ReloadablePhotoViewPage> {
               padding: EdgeInsets.fromLTRB(0, 20, 0, 5),
               child: Text('initialScale: covered, minScale: 0, maxScale: inf, custom loadingBuilder, custom errorBuilder'),
             ),
-            SizedBox(
+            Container(
+              color: Colors.black,
               width: MediaQuery.of(context).size.width * 0.8,
               height: MediaQuery.of(context).size.width * 0.8,
               child: ReloadablePhotoView(
@@ -85,11 +89,12 @@ class _ReloadablePhotoViewPageState extends State<ReloadablePhotoViewPage> {
                   key: key,
                   url: _urls[0],
                   cacheManager: _cache,
+                  onUrlLoading: () => printLog('onUrlLoading 0'),
+                  onUrlLoaded: (e) => printLog('onUrlLoaded 0 $e'),
                 ),
-                //
                 initialScale: PhotoViewComputedScale.covered,
-                minScale: null, // 0
-                maxScale: null, // inf
+                minScale: null /* 0 */,
+                maxScale: null /* inf */,
                 backgroundDecoration: null,
                 filterQuality: FilterQuality.high,
                 onTapDown: (_, d, __) => print('onTapDown 0 ${d.globalPosition}'),
@@ -106,7 +111,7 @@ class _ReloadablePhotoViewPageState extends State<ReloadablePhotoViewPage> {
                     style: const TextStyle(color: Colors.white),
                   ),
                 ),
-                //
+                // <<<
                 basePosition: null,
                 enablePanAlways: null,
                 enableRotation: null,
@@ -114,12 +119,13 @@ class _ReloadablePhotoViewPageState extends State<ReloadablePhotoViewPage> {
               ),
             ),
 
-            //
+            // 1
             const Padding(
               padding: EdgeInsets.fromLTRB(0, 20, 0, 5),
               child: Text('initialScale: contained, minScale: contained / 2, maxScale: covered * 2, custom backgroundDecoration, enableRotation'),
             ),
-            SizedBox(
+            Container(
+              color: Colors.grey[800]!,
               width: MediaQuery.of(context).size.width * 0.8,
               height: MediaQuery.of(context).size.width * 0.8,
               child: ReloadablePhotoView(
@@ -128,8 +134,9 @@ class _ReloadablePhotoViewPageState extends State<ReloadablePhotoViewPage> {
                   key: key,
                   url: _urls[1],
                   cacheManager: _cache,
+                  onUrlLoading: () => printLog('onUrlLoading 1'),
+                  onUrlLoaded: (e) => printLog('onUrlLoaded 1 $e'),
                 ),
-                //
                 initialScale: PhotoViewComputedScale.contained,
                 minScale: PhotoViewComputedScale.contained / 2,
                 maxScale: PhotoViewComputedScale.covered * 2,
@@ -139,7 +146,7 @@ class _ReloadablePhotoViewPageState extends State<ReloadablePhotoViewPage> {
                 onTapUp: (_, d, __) => print('onTapUp 1 ${d.globalPosition}'),
                 loadingBuilder: null,
                 errorBuilder: null,
-                //
+                // <<<
                 basePosition: null,
                 enablePanAlways: null,
                 enableRotation: true,
@@ -147,12 +154,13 @@ class _ReloadablePhotoViewPageState extends State<ReloadablePhotoViewPage> {
               ),
             ),
 
-            //
+            // 2
             const Padding(
               padding: EdgeInsets.fromLTRB(0, 20, 0, 5),
-              child: Text('initialScale: covered, maxScale: 1.0, filterQuality: none, basePosition: topCenter, enablePanAlways, custom scaleStateCycle'),
+              child: Text('initialScale: 0.5, maxScale: 1.0, filterQuality: none, basePosition: topCenter, enablePanAlways, custom scaleStateCycle'),
             ),
-            SizedBox(
+            Container(
+              color: Colors.black,
               width: MediaQuery.of(context).size.width * 0.8,
               height: MediaQuery.of(context).size.width * 0.8,
               child: ReloadablePhotoView(
@@ -161,9 +169,10 @@ class _ReloadablePhotoViewPageState extends State<ReloadablePhotoViewPage> {
                   key: key,
                   url: _urls[2],
                   cacheManager: _cache,
+                  onUrlLoading: () => printLog('onUrlLoading 2'),
+                  onUrlLoaded: (e) => printLog('onUrlLoaded 2 $e'),
                 ),
-                //
-                initialScale: PhotoViewComputedScale.covered,
+                initialScale: 0.5,
                 minScale: null,
                 maxScale: 1.0,
                 backgroundDecoration: null,
@@ -172,8 +181,8 @@ class _ReloadablePhotoViewPageState extends State<ReloadablePhotoViewPage> {
                 onTapUp: (_, d, __) => print('onTapUp 2 ${d.globalPosition}'),
                 loadingBuilder: null,
                 errorBuilder: null,
-                //
-                basePosition: Alignment.topCenter,
+                // <<<
+                basePosition: Alignment.topLeft,
                 enablePanAlways: true,
                 enableRotation: true,
                 scaleStateCycle: _customScaleStateCycle,

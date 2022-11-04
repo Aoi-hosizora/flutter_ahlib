@@ -16,10 +16,8 @@ typedef LoadingPlaceholderBuilder = Widget Function(BuildContext context, ImageC
 /// Signature for creating a replacement widget to render while it is failed to load the image.
 typedef ErrorPlaceholderBuilder = Widget Function(BuildContext context, Object error, StackTrace? stackTrace);
 
-// TODO test advanced in example
-
 /// A reloadable [PhotoView], which uses given [ValueKey] for [ImageProvider] (such as [LocalOrCachedNetworkImageProvider]),
-/// to reload the image, through [ReloadablePhotoViewState.reload] method.
+/// to reload it, through [ReloadablePhotoViewState.reload] method.
 class ReloadablePhotoView extends StatefulWidget {
   /// Constructs a [ReloadablePhotoView] with non-null [imageProviderBuilder].
   const ReloadablePhotoView({
@@ -53,7 +51,7 @@ class ReloadablePhotoView extends StatefulWidget {
     this.wantKeepAlive,
   }) : super(key: key);
 
-  /// The [ImageProvider] builder with [ValueKey], which can be used to reload image.
+  /// The [ImageProvider] builder with [ValueKey], which can be used to reload it.
   final ImageProviderBuilder imageProviderBuilder;
 
   // almost be used frequently
@@ -169,8 +167,7 @@ class ReloadablePhotoViewState extends State<ReloadablePhotoView> {
     return ValueListenableBuilder<String>(
       valueListenable: _notifier, // <<<
       builder: (_, v, __) => PhotoView(
-        key: ValueKey(v) /* TODO necessary ??? */,
-        imageProvider: widget.imageProviderBuilder.call(ValueKey<String>(v)) /* TODO test multiple PhotoView-s */,
+        imageProvider: widget.imageProviderBuilder.call(ValueKey<String>(v)),
         // almost be used frequently
         initialScale: widget.initialScale ?? PhotoViewComputedScale.contained,
         minScale: widget.minScale ?? 0.0,
@@ -179,8 +176,8 @@ class ReloadablePhotoViewState extends State<ReloadablePhotoView> {
         filterQuality: widget.filterQuality ?? FilterQuality.none,
         onTapDown: widget.onTapDown,
         onTapUp: widget.onTapUp,
-        loadingBuilder: widget.loadingBuilder,
-        errorBuilder: widget.errorBuilder,
+        loadingBuilder: widget.loadingBuilder, // TODO bug ???
+        errorBuilder: widget.errorBuilder, // TODO bug ???
         // may be used infrequently
         basePosition: widget.basePosition ?? Alignment.center,
         controller: widget.controller,

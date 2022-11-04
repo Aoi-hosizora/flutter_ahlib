@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
+// TODO add example
+
 /// An extension for [State].
 extension StateExtension<T extends StatefulWidget> on State<T> {
   /// Equals to call `if (mounted) setState(() {});`

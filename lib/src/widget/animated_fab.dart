@@ -158,7 +158,7 @@ class _ScrollAnimatedFabState extends State<ScrollAnimatedFab> with TickerProvid
       canShow = widget.scrollController.offset >= (widget.offset ?? _kDefaultScrollOffset);
     } else if (widget.condition == ScrollAnimatedCondition.direction) {
       var pos = widget.scrollController.position;
-      // var pos = widget.scrollController.positions.last;
+      // var pos = widget.scrollController.positions.last; // TODO
       canShow = pos.extentBefore > 0 && pos.userScrollDirection == ScrollDirection.forward;
     }
 
@@ -181,6 +181,8 @@ class _ScrollAnimatedFabState extends State<ScrollAnimatedFab> with TickerProvid
     );
   }
 }
+
+// TODO use key rather than controller
 
 /// A controller of [AnimatedFab] and [ScrollAnimatedFab], includes [show] and [hide] methods.
 class AnimatedFabController {

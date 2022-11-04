@@ -16,8 +16,6 @@ import 'package:http/http.dart' as http show head;
 // - CachedNetworkImageProvider: https://github.com/Baseflow/flutter_cached_network_image/blob/v3.1.0/cached_network_image/lib/src/image_provider/cached_network_image_provider.dart
 // - ImageLoader: https://github.com/Baseflow/flutter_cached_network_image/blob/v3.1.0/cached_network_image/lib/src/image_provider/_image_loader.dart
 
-// TODO test futures in example
-
 /// An [ImageProvider] for loading image from local file or network using a cache.
 ///
 /// [file] and [url] (or [fileFuture] and [urlFuture]) must at lease have one non-null value.
@@ -42,15 +40,13 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
     // network
     this.maxHeight,
     this.maxWidth,
-    this.asyncHeadFirst,
     this.headers,
     this.cacheManager,
     this.cacheKey,
+    this.asyncHeadFirst = false,
     // callback
     this.onFileLoading,
     this.onUrlLoading,
-    this.onFileError,
-    this.onUrlError,
     this.onFileLoaded,
     this.onUrlLoaded,
   })  : // general
@@ -69,7 +65,6 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
     this.fileMustExist = true,
     // callback
     this.onFileLoading,
-    this.onFileError,
     this.onFileLoaded,
   })  : // general
         _useFuture = false,
@@ -79,13 +74,12 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
         // network
         maxHeight = null,
         maxWidth = null,
-        asyncHeadFirst = null,
+        asyncHeadFirst = false,
         headers = null,
         cacheManager = null,
         cacheKey = null,
         // callback
         onUrlLoading = null,
-        onUrlError = null,
         onUrlLoaded = null;
 
   /// Creates [LocalOrCachedNetworkImageProvider] with non-null [url] only.
@@ -97,13 +91,12 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
     // network
     this.maxHeight,
     this.maxWidth,
-    this.asyncHeadFirst,
     this.headers,
     this.cacheManager,
     this.cacheKey,
+    this.asyncHeadFirst = false,
     // callback
     this.onUrlLoading,
-    this.onUrlError,
     this.onUrlLoaded,
   })  : // general
         _useFuture = false,
@@ -114,7 +107,6 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
         fileMustExist = true,
         // callback
         onFileLoading = null,
-        onFileError = null,
         onFileLoaded = null;
 
   /// Creates [LocalOrCachedNetworkImageProvider] with non-null [fileFuture] and [urlFuture].
@@ -129,15 +121,13 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
     // network
     this.maxHeight,
     this.maxWidth,
-    this.asyncHeadFirst,
     this.headers,
     this.cacheManager,
     this.cacheKey,
+    this.asyncHeadFirst = false,
     // callbacks
     this.onFileLoading,
     this.onUrlLoading,
-    this.onFileError,
-    this.onUrlError,
     this.onFileLoaded,
     this.onUrlLoaded,
   })  : // general
@@ -182,17 +172,17 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
   // for network
   // ===========
 
-  /// The maximum height of the loaded network image. If not null and using an
-  /// [ImageCacheManager] the image is resized on disk to fit the height.
+  /// The maximum height of the loaded network image. If not null and using an [ImageCacheManager]
+  /// the image is resized on disk to fit the height.
   final int? maxHeight;
 
-  /// The maximum width of the loaded network image. If not null and using an
-  /// [ImageCacheManager] the image is resized on disk to fit the width.
+  /// The maximum width of the loaded network image. If not null and using an [ImageCacheManager]
+  /// the image is resized on disk to fit the width.
   final int? maxWidth;
 
   /// The flag for loading image from network, is used to check if need to send head request
-  /// in asynchronous to get its real size.
-  final bool? asyncHeadFirst;
+  /// in asynchronous to get its real size, defaults to false.
+  final bool asyncHeadFirst;
 
   /// The headers for loading image from network, such as authentication.
   final Map<String, String>? headers;
@@ -214,18 +204,13 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
   /// The callback function to be called when the network image starts to load or download.
   final Function()? onUrlLoading;
 
-  /// The callback function to be called when the local image failed to load.
-  final void Function(dynamic e)? onFileError;
-
-  /// The callback function to be called when the network image failed to load.
-  final void Function(dynamic e)? onUrlError;
-
-  /// The callback function to be called when the local image finished loading.
-  final Function()? onFileLoaded;
+  /// The callback function to be called when the local image finished loading. Here null
+  /// [err] represents it succeeded, otherwise represents it failed.
+  final Function(Object? err)? onFileLoaded;
 
   /// The callback function to be called when the network image finished loading or
-  /// downloading.
-  final Function()? onUrlLoaded;
+  /// downloading. Here null [err] represents it succeeded, otherwise represents it failed.
+  final Function(Object? err)? onUrlLoaded;
 
   @override
   Future<LocalOrCachedNetworkImageProvider> obtainKey(ImageConfiguration configuration) {
@@ -294,9 +279,8 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
         file!,
         chunkEvents,
         decode,
-        onFileError,
+        onFileLoaded,
       );
-      onFileLoaded?.call();
     }
 
     // load cached network image
@@ -312,10 +296,9 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
         maxWidth,
         asyncHeadFirst,
         headers,
-        onUrlError,
+        onUrlLoaded,
         () => PaintingBinding.instance?.imageCache?.evict(key),
       );
-      onUrlLoaded?.call();
     }
   }
 
@@ -323,14 +306,15 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
     io.File file,
     StreamController<ImageChunkEvent> chunkEvents,
     DecoderCallback decode,
-    Function(dynamic)? onError,
+    Function(Object?)? onFinish,
   ) async* {
     try {
       var bytes = await file.readAsBytes();
       var decoded = await decode(bytes);
       yield decoded;
+      onFinish?.call(null);
     } catch (e) {
-      onError?.call(e);
+      onFinish?.call(e);
 
       // chunkEvents.addError(e);
       // =>
@@ -373,9 +357,9 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
     BaseCacheManager cacheManager,
     int? maxHeight,
     int? maxWidth,
-    bool? asyncHeadFirst,
+    bool asyncHeadFirst,
     Map<String, String>? headers,
-    Function(dynamic)? onError,
+    Function(Object?)? onFinish,
     Function() evictImage,
   ) async* {
     try {
@@ -393,7 +377,7 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
               maxWidth: maxWidth,
               withProgress: true,
               headers: headers,
-            )
+            ) // also download
           : cacheManager.getFileStream(
               url,
               key: cacheKey,
@@ -403,7 +387,7 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
 
       // get real size from http head request
       int? imageSize;
-      if (asyncHeadFirst ?? false) {
+      if (asyncHeadFirst) {
         var uriUrl = Uri.parse(url);
         http.head(uriUrl, headers: {
           'Accept': '*/*',
@@ -430,6 +414,7 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
           yield decoded;
         }
       }
+      onFinish?.call(null);
     } catch (e) {
       // Depending on where the exception was thrown, the image cache may not have had
       // a chance to track the key in the cache at all. Schedule a microtask to give
@@ -438,7 +423,7 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
         evictImage();
       });
 
-      onError?.call(e);
+      onFinish?.call(e);
       // chunkEvents.addError(e);
       rethrow; // <<< use rethrow is better than chunkEvents.addError
     } finally {

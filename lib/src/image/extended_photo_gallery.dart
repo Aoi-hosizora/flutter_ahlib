@@ -17,13 +17,11 @@ typedef ExtendedPhotoGalleryPageBuilder = Widget Function(BuildContext context, 
 /// Signature for building a page in [ExtendedPhotoGallery], with given page index and photo page builder.
 typedef AdvancedPhotoGalleryPageBuilder = Widget Function(BuildContext context, int index, ExtendedPhotoGalleryPageBuilder photoPageBuilder);
 
-// TODO test advanced in example
-
 /// An extended [PhotoViewGallery], which is used to show multiple [PhotoView] widgets in a [PageView]. Extended
-/// features include: reload behavior (through [ExtendedPhotoGalleryState.reload]), custom viewport factor, advance
-/// page builder (through [ExtendedPhotoGallery.advanced]).
+/// features include: reload behavior (through [ExtendedPhotoGalleryState.reloadPhoto]), custom viewport factor,
+/// advance page builder (through [ExtendedPhotoGallery.advanced]).
 class ExtendedPhotoGallery extends StatefulWidget {
-  /// Constructs a gallery with static photo items through a list of [ExtendedPhotoGalleryPageOptions].
+  /// Constructs a gallery with static photo pages through a list of [ExtendedPhotoGalleryPageOptions].
   const ExtendedPhotoGallery({
     Key? key,
     required List<ExtendedPhotoGalleryPageOptions> this.pageOptions,
@@ -47,7 +45,7 @@ class ExtendedPhotoGallery extends StatefulWidget {
         advancedBuilder = null,
         super(key: key);
 
-  /// Constructs a gallery with dynamic photo items. The builder must return a [ExtendedPhotoGalleryPageOptions].
+  /// Constructs a gallery with dynamic photo pages. The builder must return a [ExtendedPhotoGalleryPageOptions].
   const ExtendedPhotoGallery.builder({
     Key? key,
     required int this.pageCount,
@@ -95,23 +93,23 @@ class ExtendedPhotoGallery extends StatefulWidget {
   })  : pageOptions = null,
         super(key: key);
 
-  /// A list of options to describe the photo items in the gallery.
+  /// A list of options to describe the photo pages in the gallery.
   final List<ExtendedPhotoGalleryPageOptions>? pageOptions;
 
-  /// The count of pages in the gallery, only used when constructed via [ExtendedPhotoGallery.builder] and
-  /// [ExtendedPhotoGallery.advancedBuilder].
+  /// The count of pages (not only photo pages) in the gallery, only used when constructed via
+  /// [ExtendedPhotoGallery.builder] and [ExtendedPhotoGallery.advancedBuilder].
   final int? pageCount;
 
-  /// Called to build photo pages for the gallery, here index need exclude non-[PhotoView] pages.
+  /// Called to build photo pages for the gallery, here index should exclude non-photo pages.
   final ExtendedPhotoGalleryPageOptionsBuilder? builder;
 
-  /// Called to build not-only-[PhotoView] pages for the gallery, note that index passed to photoPageBuilder
-  /// should exclude non-[PhotoView] pages.
+  /// Called to build all pages (not only photo pages) for the gallery, note that [builder] will be called
+  /// through [photoPageBuilder], so index passed to [photoPageBuilder] should exclude non-photo pages.
   final AdvancedPhotoGalleryPageBuilder? advancedBuilder;
 
   // for PhotoView fallback
 
-  /// The fallback options for photo items, which almost has same fields with [ExtendedPhotoGalleryPageOptions].
+  /// The fallback options for photo pages, which almost has same fields with [ExtendedPhotoGalleryPageOptions].
   final PhotoViewOptions? fallbackOptions;
 
   // for PageView settings
@@ -137,17 +135,18 @@ class ExtendedPhotoGallery extends StatefulWidget {
   final bool changePageWhenFinished;
 
   /// The flag for keeping main axis size of each photo page to origin size (which is the same as default identical
-  /// viewport fraction), defaults to false. Note that if [fractionWidthFactor] or [fractionHeightFactor] set to
-  /// null or non positive number, the fractional page factor will be depended by [keepViewportMainAxisSize] and
-  /// [PageController.viewportFraction].
+  /// viewport fraction), defaults to false.
+  ///
+  /// Note that if [fractionWidthFactor] or [fractionHeightFactor] set to null or non-positive number, the actial
+  /// fractional page factor will be depended by [keepViewportMainAxisSize] and [PageController.viewportFraction].
   final bool keepViewportMainAxisSize;
 
-  /// The width factor for each fractional photo page. Note that this value may disable [keepViewportMainAxisSize]
-  /// when scroll horizontally.
+  /// The width factor for each fractional photo page. Note that valid [fractionWidthFactor] (positive value) will
+  /// disable [keepViewportMainAxisSize] when scroll horizontally.
   final double? fractionWidthFactor;
 
-  /// The height factor for each fractional photo page. Note that this value may disable [keepViewportMainAxisSize]
-  /// when scroll vertically.
+  /// The height factor for each fractional photo page. Note that valid [fractionHeightFactor] (positive value) will
+  /// disable [keepViewportMainAxisSize] when scroll vertically.
   final double? fractionHeightFactor;
 
   /// Mirrors to [PreloadablePageView.pageMainAxisHintSize].
@@ -163,15 +162,15 @@ class ExtendedPhotoGallery extends StatefulWidget {
   State<StatefulWidget> createState() => ExtendedPhotoGalleryState();
 }
 
-/// The state of [ExtendedPhotoGallery], can be used to [reload] the specific [ImageProvider].
+/// The state of [ExtendedPhotoGallery], can be used to [reloadPhoto] the specific [ImageProvider].
 class ExtendedPhotoGalleryState extends State<ExtendedPhotoGallery> {
   late var _controller = widget.pageController ?? PageController();
   late var _photoViewKeys = List.generate(widget._pageCount, (index) => GlobalKey<ReloadablePhotoViewState>());
 
-  /// Returns the total page count of the gallery.
+  /// Returns the total page count (not only photo pages) of the gallery.
   int get pageCount => widget._pageCount;
 
-  /// Returns the current page of the gallery.
+  /// Returns the current page index (not only photo pages) of the gallery.
   int get currentPage => _controller.hasClients ? _controller.page!.floor() : 0;
 
   @override
@@ -199,18 +198,19 @@ class ExtendedPhotoGalleryState extends State<ExtendedPhotoGallery> {
   }
 
   /// Reloads the [ImageProvider] of given index from [ExtendedPhotoGallery]. Note that here index should exclude
-  /// non-[PhotoView] pages, when constructed via [ExtendedPhotoGallery.advancedBuilder].
-  void reload(int index) {
+  /// non-photo pages, just the same as indies passed to [photoPageBuilder] for [ExtendedPhotoGallery.advanced].
+  void reloadPhoto(int index) {
     if (index >= 0 && index < widget._pageCount) {
       _photoViewKeys[index].currentState?.reload();
     }
   }
 
-  Widget _buildPhotoItem(BuildContext context, int index) {
+  Widget _buildPhotoPage(BuildContext context, int index) {
     final pageOptions = (widget.builder?.call(context, index) ?? widget.pageOptions?[index])!; // index excludes non-PhotoView pages
-    final options = pageOptions.merge(widget.fallbackOptions);
+    final options = (widget.fallbackOptions ?? const PhotoViewOptions()).merge(pageOptions);
     return ClipRect(
       child: ReloadablePhotoView(
+        key: _photoViewKeys[index],
         imageProviderBuilder: pageOptions.imageProviderBuilder,
         // almost be used frequently
         initialScale: options.initialScale,
@@ -244,9 +244,9 @@ class ExtendedPhotoGalleryState extends State<ExtendedPhotoGallery> {
 
   Widget _buildPage(BuildContext context, int index) {
     if (widget.advancedBuilder == null) {
-      return _buildPhotoItem(context, index);
+      return _buildPhotoPage(context, index);
     }
-    return widget.advancedBuilder!.call(context, index, _buildPhotoItem);
+    return widget.advancedBuilder!.call(context, index, _buildPhotoPage);
   }
 
   @override
@@ -260,6 +260,12 @@ class ExtendedPhotoGalleryState extends State<ExtendedPhotoGallery> {
       if (widget.scrollDirection == Axis.vertical && (heightFactor == null || heightFactor <= 0)) {
         heightFactor = 1 / _controller.viewportFraction;
       }
+    }
+    if (widthFactor != null && widthFactor <= 0) {
+      widthFactor = null;
+    }
+    if (heightFactor != null && heightFactor <= 0) {
+      heightFactor = null;
     }
 
     // Enable corner hit test
