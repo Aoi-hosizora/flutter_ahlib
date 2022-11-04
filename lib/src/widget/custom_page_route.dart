@@ -22,11 +22,15 @@ class CustomPageRoute<T> extends PageRoute<T> {
     Duration? reverseTransitionDuration,
     Color? barrierColor,
     Curve? barrierCurve,
+    bool? disableCanTransitionTo,
+    bool? disableCanTransitionFrom,
     PageTransitionsBuilder? transitionsBuilder,
   })  : _transitionDuration = transitionDuration,
         _reverseTransitionDuration = reverseTransitionDuration,
         _barrierColor = barrierColor,
         _barrierCurve = barrierCurve,
+        _disableCanTransitionTo = disableCanTransitionTo,
+        _disableCanTransitionFrom = disableCanTransitionFrom,
         _transitionsBuilder = transitionsBuilder,
         super(settings: settings, fullscreenDialog: fullscreenDialog) {
     assert(opaque);
@@ -44,6 +48,8 @@ class CustomPageRoute<T> extends PageRoute<T> {
     Duration? reverseTransitionDuration,
     Color? barrierColor,
     Curve? barrierCurve,
+    bool? disableCanTransitionTo,
+    bool? disableCanTransitionFrom,
     PageTransitionsBuilder? transitionsBuilder,
   }) : this(
           context: context,
@@ -55,6 +61,8 @@ class CustomPageRoute<T> extends PageRoute<T> {
           reverseTransitionDuration: reverseTransitionDuration,
           barrierColor: barrierColor,
           barrierCurve: barrierCurve,
+          disableCanTransitionTo: disableCanTransitionTo,
+          disableCanTransitionFrom: disableCanTransitionFrom,
           transitionsBuilder: transitionsBuilder,
         );
 
@@ -72,6 +80,8 @@ class CustomPageRoute<T> extends PageRoute<T> {
   final Duration? _reverseTransitionDuration;
   final Color? _barrierColor;
   final Curve? _barrierCurve;
+  final bool? _disableCanTransitionTo;
+  final bool? _disableCanTransitionFrom;
   final PageTransitionsBuilder? _transitionsBuilder;
 
   /// The duration the transition going forwards.
@@ -110,6 +120,18 @@ class CustomPageRoute<T> extends PageRoute<T> {
   @override
   bool get barrierDismissible => false;
 
+  /// The flag to disable this route's transition animation when next route is pushed or popped.
+  bool get disableCanTransitionTo {
+    final theme = CustomPageRouteTheme.of(context);
+    return _disableCanTransitionTo ?? theme?.disableCanTransitionTo ?? false;
+  }
+
+  /// The flag to disable transition previous route's animation when this route is pushed or popped.
+  bool get disableCanTransitionFrom {
+    final theme = CustomPageRouteTheme.of(context);
+    return _disableCanTransitionFrom ?? theme?.disableCanTransitionFrom ?? false;
+  }
+
   /// The function which defines a [CustomPageRoute] page transition animation.
   PageTransitionsBuilder? get transitionsBuilder {
     final theme = CustomPageRouteTheme.of(context);
@@ -117,14 +139,15 @@ class CustomPageRoute<T> extends PageRoute<T> {
   }
 
   @override
+  bool canTransitionFrom(TransitionRoute<dynamic> previousRoute) {
+    // Will never be called when previous is MaterialPageRoute and CupertinoPageRoute.
+    return !disableCanTransitionFrom && previousRoute is PageRoute;
+  }
+
+  @override
   bool canTransitionTo(TransitionRoute<dynamic> nextRoute) {
-    // var ok = (nextRoute is MaterialRouteTransitionMixin && !nextRoute.fullscreenDialog) || //
-    //     (nextRoute is CupertinoRouteTransitionMixin && !nextRoute.fullscreenDialog) ||
-    //     (nextRoute is CustomPageRoute && !nextRoute.fullscreenDialog);
-    // print('C canTransitionTo ${nextRoute.runtimeType} $ok');
-    return (nextRoute is MaterialRouteTransitionMixin && !nextRoute.fullscreenDialog) || //
-        (nextRoute is CupertinoRouteTransitionMixin && !nextRoute.fullscreenDialog) ||
-        (nextRoute is CustomPageRoute && !nextRoute.fullscreenDialog);
+    // Don't perform outgoing animation if the next route is a fullscreen dialog.
+    return !disableCanTransitionTo && nextRoute is PageRoute && !nextRoute.fullscreenDialog;
   }
 
   @override
@@ -175,6 +198,8 @@ class CustomPageRouteThemeData with Diagnosticable {
     this.reverseTransitionDuration,
     this.barrierColor,
     this.barrierCurve,
+    this.disableCanTransitionTo,
+    this.disableCanTransitionFrom,
     this.transitionsBuilder,
   });
 
@@ -193,6 +218,22 @@ class CustomPageRouteThemeData with Diagnosticable {
   /// `Curves.ease`.
   final Curve? barrierCurve;
 
+  /// The flag to disable this route's transition animation when next route is pushed or popped,
+  /// defaults to false.
+  ///
+  /// Because of [MaterialPageRoute] and [CupertinoPageRoute]'s setting, transition animation
+  /// of routes which push on top of these builtin routes will be disabled, and this will also
+  /// affect the first pushed [CustomPageRoute] in [MaterialApp].
+  final bool? disableCanTransitionTo;
+
+  /// The flag to disable transition previous route's animation when this route is pushed or popped,
+  /// defaults to false.
+  ///
+  /// Actually [CustomPageRoute.canTransitionFrom] will never be called when previous route is
+  /// [MaterialPageRoute] or [CupertinoPageRoute] because of [TransitionRoute._updateSecondaryAnimation]'s
+  /// short-circuit evaluation and [MaterialRouteTransitionMixin.canTransitionTo] and [CupertinoRouteTransitionMixin.canTransitionTo].
+  final bool? disableCanTransitionFrom;
+
   /// The function which defines a [CustomPageRoute] page transition animation. You have to
   /// set this value the same as [PageTransitionsTheme] to ensure [CustomPageRoute] have a
   /// normal transition behavior.
@@ -204,6 +245,8 @@ class CustomPageRouteThemeData with Diagnosticable {
     Duration? reverseTransitionDuration,
     Color? barrierColor,
     Curve? barrierCurve,
+    bool? disableCanTransitionTo,
+    bool? disableCanTransitionFrom,
     PageTransitionsBuilder? transitionsBuilder,
   }) {
     return CustomPageRouteThemeData(
@@ -211,6 +254,8 @@ class CustomPageRouteThemeData with Diagnosticable {
       reverseTransitionDuration: reverseTransitionDuration ?? this.reverseTransitionDuration,
       barrierColor: barrierColor ?? this.barrierColor,
       barrierCurve: barrierCurve ?? this.barrierCurve,
+      disableCanTransitionTo: disableCanTransitionTo ?? this.disableCanTransitionTo,
+      disableCanTransitionFrom: disableCanTransitionFrom ?? this.disableCanTransitionFrom,
       transitionsBuilder: transitionsBuilder ?? this.transitionsBuilder,
     );
   }
@@ -227,6 +272,8 @@ class CustomPageRouteThemeData with Diagnosticable {
         other.reverseTransitionDuration == reverseTransitionDuration &&
         other.barrierColor == barrierColor &&
         other.barrierCurve == barrierCurve &&
+        other.disableCanTransitionTo == disableCanTransitionTo &&
+        other.disableCanTransitionFrom == disableCanTransitionFrom &&
         other.transitionsBuilder == transitionsBuilder;
   }
 
@@ -237,6 +284,8 @@ class CustomPageRouteThemeData with Diagnosticable {
       reverseTransitionDuration,
       barrierColor,
       barrierCurve,
+      disableCanTransitionTo,
+      disableCanTransitionFrom,
       transitionsBuilder,
     );
   }
