@@ -29,8 +29,9 @@ class _AnimatedFabPageState extends State<AnimatedFabPage> {
       body: Stack(
         children: [
           Scrollbar(
-            // isAlwaysShown: true,
-            // interactive: true,
+            isAlwaysShown: true,
+            interactive: true,
+            controller: _controller,
             child: ListView(
               controller: _controller,
               children: List.generate(
@@ -75,7 +76,7 @@ class _AnimatedFabPageState extends State<AnimatedFabPage> {
               fab: FloatingActionButton(
                 child: const Icon(Icons.vertical_align_top),
                 onPressed: () => _controller.scrollToTop(),
-                heroTag: '3',
+                heroTag: null,
               ),
             ),
           ),
@@ -89,7 +90,7 @@ class _AnimatedFabPageState extends State<AnimatedFabPage> {
               fab: FloatingActionButton(
                 child: const Icon(Icons.vertical_align_top),
                 onPressed: () => _controller.scrollToTop(),
-                heroTag: '2',
+                heroTag: null,
               ),
             ),
           ),
@@ -101,7 +102,7 @@ class _AnimatedFabPageState extends State<AnimatedFabPage> {
         fab: FloatingActionButton(
           child: const Icon(Icons.vertical_align_top),
           onPressed: () => _controller.scrollToTop(),
-          heroTag: '1',
+          heroTag: null,
         ),
       ),
     );

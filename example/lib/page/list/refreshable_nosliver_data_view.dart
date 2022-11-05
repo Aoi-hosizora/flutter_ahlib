@@ -193,7 +193,7 @@ class _RefreshableNoSliverDataViewPageState extends State<RefreshableNoSliverDat
         fab: FloatingActionButton(
           child: const Icon(Icons.vertical_align_top),
           onPressed: () => _scrollController.scrollToTop(),
-          heroTag: 'RefreshableNoSliverDataViewPage',
+          heroTag: null,
         ),
       ),
     );

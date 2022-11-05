@@ -97,8 +97,8 @@ class _ReloadablePhotoViewPageState extends State<ReloadablePhotoViewPage> {
                 maxScale: null /* inf */,
                 backgroundDecoration: null,
                 filterQuality: FilterQuality.high,
-                onTapDown: (_, d, __) => print('onTapDown 0 ${d.globalPosition}'),
-                onTapUp: (_, d, __) => print('onTapUp 0 ${d.globalPosition}'),
+                onTapDown: (_, d, __) => printLog('onTapDown 0 ${d.globalPosition}'),
+                onTapUp: (_, d, __) => printLog('onTapUp 0 ${d.globalPosition}'),
                 loadingBuilder: (_, ev) => Center(
                   child: Text(
                     '${ev?.cumulativeBytesLoaded}/${ev?.expectedTotalBytes}',
@@ -142,8 +142,8 @@ class _ReloadablePhotoViewPageState extends State<ReloadablePhotoViewPage> {
                 maxScale: PhotoViewComputedScale.covered * 2,
                 backgroundDecoration: BoxDecoration(color: Colors.grey[800]!),
                 filterQuality: FilterQuality.high,
-                onTapDown: (_, d, __) => print('onTapDown 1 ${d.globalPosition}'),
-                onTapUp: (_, d, __) => print('onTapUp 1 ${d.globalPosition}'),
+                onTapDown: (_, d, __) => printLog('onTapDown 1 ${d.globalPosition}'),
+                onTapUp: (_, d, __) => printLog('onTapUp 1 ${d.globalPosition}'),
                 loadingBuilder: null,
                 errorBuilder: null,
                 // <<<
@@ -177,8 +177,8 @@ class _ReloadablePhotoViewPageState extends State<ReloadablePhotoViewPage> {
                 maxScale: 1.0,
                 backgroundDecoration: null,
                 filterQuality: FilterQuality.none,
-                onTapDown: (_, d, __) => print('onTapDown 2 ${d.globalPosition}'),
-                onTapUp: (_, d, __) => print('onTapUp 2 ${d.globalPosition}'),
+                onTapDown: (_, d, __) => printLog('onTapDown 2 ${d.globalPosition}'),
+                onTapUp: (_, d, __) => printLog('onTapUp 2 ${d.globalPosition}'),
                 loadingBuilder: null,
                 errorBuilder: null,
                 // <<<

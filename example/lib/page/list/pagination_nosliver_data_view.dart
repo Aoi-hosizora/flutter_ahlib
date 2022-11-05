@@ -210,7 +210,7 @@ class _PaginationNoSliverDataViewPageState extends State<PaginationNoSliverDataV
         fab: FloatingActionButton(
           child: const Icon(Icons.vertical_align_top),
           onPressed: () => _scrollController.scrollToTop(),
-          heroTag: 'PaginationNoSliverDataViewPage',
+          heroTag: null,
         ),
       ),
     );

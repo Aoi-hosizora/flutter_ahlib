@@ -38,7 +38,7 @@ typedef CallbackWidgetBuilder = Widget Function(BuildContext context, VoidCallba
 /// A [PlaceholderText.state] changed callback function, with old state and new state.
 typedef PlaceholderStateChangedCallback = void Function(PlaceholderState oldState, PlaceholderState newState);
 
-/// TODO set as global theme, use PlaceholderTextTheme ???
+// TODO set as global theme, use PlaceholderTextTheme ???
 
 /// A display setting of [PlaceholderText]. Note that all the properties of this class are
 /// non-nullable, except for widget builders.

@@ -165,8 +165,9 @@ class ReloadablePhotoViewState extends State<ReloadablePhotoView> {
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<String>(
-      valueListenable: _notifier, // <<<
+      valueListenable: _notifier,
       builder: (_, v, __) => PhotoView(
+        key: ValueKey<String>(v) /* <<< necessary */,
         imageProvider: widget.imageProviderBuilder.call(ValueKey<String>(v)),
         // almost be used frequently
         initialScale: widget.initialScale ?? PhotoViewComputedScale.contained,
@@ -176,8 +177,8 @@ class ReloadablePhotoViewState extends State<ReloadablePhotoView> {
         filterQuality: widget.filterQuality ?? FilterQuality.none,
         onTapDown: widget.onTapDown,
         onTapUp: widget.onTapUp,
-        loadingBuilder: widget.loadingBuilder, // TODO bug ???
-        errorBuilder: widget.errorBuilder, // TODO bug ???
+        loadingBuilder: widget.loadingBuilder,
+        errorBuilder: widget.errorBuilder,
         // may be used infrequently
         basePosition: widget.basePosition ?? Alignment.center,
         controller: widget.controller,

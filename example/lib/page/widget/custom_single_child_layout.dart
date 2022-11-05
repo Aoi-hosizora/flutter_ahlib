@@ -49,6 +49,23 @@ class _CustomSingleChildLayoutPageState extends State<CustomSingleChildLayoutPag
 
     restore();
 
+    Widget textLabel(String text) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+        child: Text(text),
+      );
+    }
+
+    Widget textField(TextEditingController controller) {
+      return Expanded(
+        child: TextField(
+          controller: controller,
+          keyboardType: TextInputType.number,
+          decoration: const InputDecoration(isDense: true),
+        ),
+      );
+    }
+
     var result = await showGeneralDialog<String>(
       context: context,
       barrierColor: Colors.transparent,
@@ -79,37 +96,17 @@ class _CustomSingleChildLayoutPageState extends State<CustomSingleChildLayoutPag
                       if (customizable) ...[
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Padding(padding: EdgeInsets.fromLTRB(10, 0, 10, 0), child: Text('width')),
-                            Expanded(child: TextField(controller: wCtrl, keyboardType: TextInputType.number)),
-                            const Padding(padding: EdgeInsets.fromLTRB(10, 0, 10, 0), child: Text('height')),
-                            Expanded(child: TextField(controller: hCtrl, keyboardType: TextInputType.number)),
-                            const SizedBox(width: 10),
-                          ],
+                          children: [textLabel('width'), textField(wCtrl), textLabel('height'), textField(hCtrl), const SizedBox(width: 10)],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [textLabel('left'), textField(xCtrl), textLabel('top'), textField(yCtrl), const SizedBox(width: 10)],
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Padding(padding: EdgeInsets.fromLTRB(10, 0, 10, 0), child: Text('left')),
-                            Expanded(child: TextField(controller: xCtrl, keyboardType: TextInputType.number)),
-                            const Padding(padding: EdgeInsets.fromLTRB(10, 0, 10, 0), child: Text('top')),
-                            Expanded(child: TextField(controller: yCtrl, keyboardType: TextInputType.number)),
-                            const SizedBox(width: 10),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Padding(padding: EdgeInsets.fromLTRB(10, 0, 10, 0), child: Text('barrier:')),
-                            const Padding(padding: EdgeInsets.fromLTRB(10, 0, 10, 0), child: Text('L')),
-                            Expanded(child: TextField(controller: blCtrl, keyboardType: TextInputType.number)),
-                            const Padding(padding: EdgeInsets.fromLTRB(10, 0, 10, 0), child: Text('R')),
-                            Expanded(child: TextField(controller: brCtrl, keyboardType: TextInputType.number)),
-                            const Padding(padding: EdgeInsets.fromLTRB(10, 0, 10, 0), child: Text('T')),
-                            Expanded(child: TextField(controller: btCtrl, keyboardType: TextInputType.number)),
-                            const Padding(padding: EdgeInsets.fromLTRB(10, 0, 10, 0), child: Text('B')),
-                            Expanded(child: TextField(controller: bbCtrl, keyboardType: TextInputType.number)),
-                            const SizedBox(width: 10),
+                            ...[textLabel('barrier:'), textLabel('L'), textField(blCtrl), textLabel('R'), textField(brCtrl)],
+                            ...[textLabel('T'), textField(btCtrl), textLabel('B'), textField(bbCtrl), const SizedBox(width: 10)],
                           ],
                         ),
                         Row(

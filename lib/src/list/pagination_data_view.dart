@@ -244,7 +244,7 @@ class PaginationDataViewState<T> extends State<PaginationDataView<T>> with Autom
   }
 
   bool _onScroll(ScrollNotification s) {
-    _downScrollable = !s.metrics.isShortScrollArea() && s.metrics.isInBottom();
+    _downScrollable = !s.metrics.isShortScrollArea() && s.metrics.atBottomEdge();
     return false;
   }
 

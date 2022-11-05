@@ -264,7 +264,7 @@ class _PaginationSliverDataViewPageState extends State<PaginationSliverDataViewP
                 fab: FloatingActionButton(
                   child: const Icon(Icons.vertical_align_top),
                   onPressed: () => _scrollController.scrollToTop(),
-                  heroTag: 'PaginationSliverDataViewPage',
+                  heroTag: null,
                 ),
               ),
             ),
