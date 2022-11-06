@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 /// this [PageRoute] supports customizable transition duration, transitions builder, and more,
 /// and these settings are fixed and can not be customized in these builtin [PageRoute].
 class CustomPageRoute<T> extends PageRoute<T> {
-  /// Creates a [CustomPageRoute] using given named parameters.
+  /// Creates a [CustomPageRoute] using given [context] and named parameters.
   ///
   /// Here [transitionDuration], [reverseTransitionDuration], [barrierColor], [barrierCurve]
   /// and [transitionsBuilder] will fallback to use [CustomPageRouteThemeData] if these values
@@ -36,38 +36,12 @@ class CustomPageRoute<T> extends PageRoute<T> {
     assert(opaque);
   }
 
-  /// Creates a [CustomPageRoute] in a simple way.
-  CustomPageRoute.simple(
-    BuildContext context,
-    WidgetBuilder builder, {
-    RouteSettings? settings,
-    bool fullscreenDialog = false,
-    bool maintainState = true,
-    // <<<
-    Duration? transitionDuration,
-    Duration? reverseTransitionDuration,
-    Color? barrierColor,
-    Curve? barrierCurve,
-    bool? disableCanTransitionTo,
-    bool? disableCanTransitionFrom,
-    PageTransitionsBuilder? transitionsBuilder,
-  }) : this(
-          context: context,
-          builder: builder,
-          settings: settings,
-          fullscreenDialog: fullscreenDialog,
-          maintainState: maintainState,
-          transitionDuration: transitionDuration,
-          reverseTransitionDuration: reverseTransitionDuration,
-          barrierColor: barrierColor,
-          barrierCurve: barrierCurve,
-          disableCanTransitionTo: disableCanTransitionTo,
-          disableCanTransitionFrom: disableCanTransitionFrom,
-          transitionsBuilder: transitionsBuilder,
-        );
-
   /// The build context which is used for getting [CustomPageRouteThemeData] of the route.
-  final BuildContext context;
+  ///
+  /// Note that you can set [context] to null and ignore [CustomPageRouteTheme] in subtree,
+  /// otherwise widget of [context] must not be deactivated, because looking up a deactivated
+  /// widget's ancestor is unsafe.
+  final BuildContext? context;
 
   /// The widget builder for building the primary contents of the route.
   final WidgetBuilder builder;
@@ -84,32 +58,31 @@ class CustomPageRoute<T> extends PageRoute<T> {
   final bool? _disableCanTransitionFrom;
   final PageTransitionsBuilder? _transitionsBuilder;
 
+  // Gets [CustomPageRouteThemeData] from nullable [context].
+  CustomPageRouteThemeData? get _theme => context == null ? null : CustomPageRouteTheme.of(context!);
+
   /// The duration the transition going forwards.
   @override
   Duration get transitionDuration {
-    final theme = CustomPageRouteTheme.of(context);
-    return _transitionDuration ?? theme?.transitionDuration ?? const Duration(milliseconds: 300);
+    return _transitionDuration ?? _theme?.transitionDuration ?? const Duration(milliseconds: 300);
   }
 
   /// The duration the transition going in reverse.
   @override
   Duration get reverseTransitionDuration {
-    final theme = CustomPageRouteTheme.of(context);
-    return _reverseTransitionDuration ?? theme?.reverseTransitionDuration ?? transitionDuration;
+    return _reverseTransitionDuration ?? _theme?.reverseTransitionDuration ?? transitionDuration;
   }
 
   /// The color to use for the modal barrier.
   @override
   Color? get barrierColor {
-    final theme = CustomPageRouteTheme.of(context);
-    return _barrierColor ?? theme?.barrierColor ?? Colors.transparent;
+    return _barrierColor ?? _theme?.barrierColor ?? Colors.transparent;
   }
 
   /// The curve that is used for animating the modal barrier in and out.
   @override
   Curve get barrierCurve {
-    final theme = CustomPageRouteTheme.of(context);
-    return _barrierCurve ?? theme?.barrierCurve ?? Curves.ease;
+    return _barrierCurve ?? _theme?.barrierCurve ?? Curves.ease;
   }
 
   /// Mirrors to [ModalRoute.barrierLabel].
@@ -122,20 +95,17 @@ class CustomPageRoute<T> extends PageRoute<T> {
 
   /// The flag to disable this route's transition animation when next route is pushed or popped.
   bool get disableCanTransitionTo {
-    final theme = CustomPageRouteTheme.of(context);
-    return _disableCanTransitionTo ?? theme?.disableCanTransitionTo ?? false;
+    return _disableCanTransitionTo ?? _theme?.disableCanTransitionTo ?? false;
   }
 
   /// The flag to disable transition previous route's animation when this route is pushed or popped.
   bool get disableCanTransitionFrom {
-    final theme = CustomPageRouteTheme.of(context);
-    return _disableCanTransitionFrom ?? theme?.disableCanTransitionFrom ?? false;
+    return _disableCanTransitionFrom ?? _theme?.disableCanTransitionFrom ?? false;
   }
 
   /// The function which defines a [CustomPageRoute] page transition animation.
   PageTransitionsBuilder? get transitionsBuilder {
-    final theme = CustomPageRouteTheme.of(context);
-    return _transitionsBuilder ?? theme?.transitionsBuilder;
+    return _transitionsBuilder ?? _theme?.transitionsBuilder;
   }
 
   @override
@@ -201,19 +171,17 @@ class CustomPageRouteThemeData with Diagnosticable {
     this.transitionsBuilder,
   });
 
-  /// The duration the transition going forwards, which all defaults to `Duration(milliseconds: 300)`
-  /// in both [MaterialPageRoute] and [CupertinoPageRoute].
+  /// The duration the transition going forwards, defaults to `Duration(milliseconds: 300)`.
   final Duration? transitionDuration;
 
-  /// The duration the transition going in reverse, which defaults to null, and it means
+  /// The duration the transition going in reverse, defaults to null, and it means
   /// equalling to [transitionDuration].
   final Duration? reverseTransitionDuration;
 
-  /// The color to use for the modal barrier, which defaults to `Colors.transparent`.
+  /// The color to use for the modal barrier, defaults to `Colors.transparent`.
   final Color? barrierColor;
 
-  /// The curve that is used for animating the modal barrier in and out, which defaults to
-  /// `Curves.ease`.
+  /// The curve that is used for animating the modal barrier in and out, defaults to `Curves.ease`.
   final Curve? barrierCurve;
 
   /// The flag to disable this route's transition animation when next route is pushed or popped,
@@ -229,12 +197,12 @@ class CustomPageRouteThemeData with Diagnosticable {
   ///
   /// Actually [CustomPageRoute.canTransitionFrom] will never be called when previous route is
   /// [MaterialPageRoute] or [CupertinoPageRoute] because of [TransitionRoute._updateSecondaryAnimation]'s
-  /// short-circuit evaluation and [MaterialRouteTransitionMixin.canTransitionTo] and [CupertinoRouteTransitionMixin.canTransitionTo].
+  /// short-circuit evaluation with [MaterialRouteTransitionMixin.canTransitionTo] and [CupertinoRouteTransitionMixin.canTransitionTo].
   final bool? disableCanTransitionFrom;
 
-  /// The function which defines a [CustomPageRoute] page transition animation. You have to
-  /// set this value the same as [PageTransitionsTheme] to ensure [CustomPageRoute] have a
-  /// normal transition behavior.
+  /// The function which defines a [CustomPageRoute] page transition animation, defaults to [PageTransitionsTheme].
+  ///
+  /// You are suggested to to set this value manually to ensure [CustomPageRoute] have a normal transition behavior.
   final PageTransitionsBuilder? transitionsBuilder;
 
   /// Creates a copy of this value but with given fields replaced with the new values.
