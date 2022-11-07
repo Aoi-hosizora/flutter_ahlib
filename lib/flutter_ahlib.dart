@@ -38,6 +38,7 @@ export 'src/image/reloadable_photo_view.dart';
 // util
 export 'src/util/action_controller.dart';
 export 'src/util/dart_extension.dart';
+export 'src/util/download_file.dart';
 export 'src/util/filesize.dart';
 export 'src/util/flutter_constants.dart';
 export 'src/util/flutter_extension.dart';
