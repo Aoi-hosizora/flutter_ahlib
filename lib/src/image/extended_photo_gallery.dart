@@ -8,13 +8,13 @@ import 'package:photo_view/photo_view.dart';
 // Some code in this file keeps the same as the following source codes:
 // - PhotoViewGallery: https://github.com/bluefireteam/photo_view/blob/0.14.0/lib/photo_view_gallery.dart
 
-/// Signature for building a [ExtendedPhotoGalleryPageOptions] with given page index.
+/// The signature for building a [ExtendedPhotoGalleryPageOptions] with given page index.
 typedef ExtendedPhotoGalleryPageOptionsBuilder = ExtendedPhotoGalleryPageOptions Function(BuildContext context, int index);
 
-/// Signature for building a photo page in [ExtendedPhotoGallery] with given page index.
+/// The signature for building a photo page in [ExtendedPhotoGallery] with given page index.
 typedef ExtendedPhotoGalleryPageBuilder = Widget Function(BuildContext context, int index);
 
-/// Signature for building a page in [ExtendedPhotoGallery], with given page index and photo page builder.
+/// The signature for building a page in [ExtendedPhotoGallery], with given page index and photo page builder.
 typedef AdvancedPhotoGalleryPageBuilder = Widget Function(BuildContext context, int index, ExtendedPhotoGalleryPageBuilder photoPageBuilder);
 
 /// An extended [PhotoViewGallery], which is used to show multiple [PhotoView] widgets in a [PageView]. Extended

@@ -55,8 +55,9 @@ import 'package:flutter_ahlib/flutter_ahlib_util.dart';
 + Utils ([lib/src/util/](./lib/src/util))
     + `ActionController`
     + `BoolExtension` `IterableExtension` `LetExtension`
+    + `downloadFile`
     + `filesize`
-    + `flutter material constants ...`
+    + `Flutter material constants`
     + `StateExtension` `ScrollControllerExtension` `ScrollMetricsExtension` `PageControllerExtension` `RenderObjectExtension`
     + `hash2` ~ `hash6` `hashObjects`
     + `getMimeFromExtension` `getExtensionsFromMime` `getPreferredExtensionFromMime`
@@ -74,6 +75,7 @@ dependencies:
   flutter_cache_manager: ^3.3.0
   flutter_staggered_grid_view: ^0.6.1
   http: ^0.13.4
+  path: 1.8.0
   photo_view: ^0.14.0
 
 dev_dependencies:

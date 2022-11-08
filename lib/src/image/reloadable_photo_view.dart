@@ -7,13 +7,13 @@ import 'package:photo_view/photo_view.dart';
 // - PhotoView: https://github.com/bluefireteam/photo_view/blob/0.14.0/lib/photo_view.dart
 // - ImageWrapper: https://github.com/bluefireteam/photo_view/blob/0.14.0/lib/src/photo_view_wrappers.dart
 
-/// Signature for building an [ImageProvider] with given [ValueKey], which can be used to reload image.
+/// The signature for building an [ImageProvider] with given [ValueKey], which can be used to reload image.
 typedef ImageProviderBuilder = ImageProvider Function(ValueKey<String> key);
 
-/// Signature for creating a replacement widget to render while the image is loading.
+/// The signature for creating a replacement widget to render while the image is loading.
 typedef LoadingPlaceholderBuilder = Widget Function(BuildContext context, ImageChunkEvent? event);
 
-/// Signature for creating a replacement widget to render while it is failed to load the image.
+/// The signature for creating a replacement widget to render while it is failed to load the image.
 typedef ErrorPlaceholderBuilder = Widget Function(BuildContext context, Object error, StackTrace? stackTrace);
 
 /// A reloadable [PhotoView], which uses given [ValueKey] for [ImageProvider] (such as [LocalOrCachedNetworkImageProvider]),
