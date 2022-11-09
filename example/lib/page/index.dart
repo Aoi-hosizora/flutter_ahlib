@@ -1,27 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_ahlib_example/page/image/local_or_cached_network_image_provider.dart';
 import 'package:flutter_ahlib_example/page/image/extended_photo_gallery.dart';
+import 'package:flutter_ahlib_example/page/image/local_or_cached_network_image_provider.dart';
 import 'package:flutter_ahlib_example/page/image/reloadable_photo_view.dart';
 import 'package:flutter_ahlib_example/page/list/append_indicator.dart';
 import 'package:flutter_ahlib_example/page/list/pagination_nosliver_data_view.dart';
 import 'package:flutter_ahlib_example/page/list/pagination_sliver_data_view.dart';
 import 'package:flutter_ahlib_example/page/list/refreshable_nosliver_data_view.dart';
 import 'package:flutter_ahlib_example/page/list/refreshable_sliver_data_view.dart';
+import 'package:flutter_ahlib_example/page/util/extended_logger.dart';
 import 'package:flutter_ahlib_example/page/util/flutter_extension.dart';
+import 'package:flutter_ahlib_example/page/widget/animated_fab.dart';
 import 'package:flutter_ahlib_example/page/widget/app_bar_action_button.dart';
 import 'package:flutter_ahlib_example/page/widget/custom_ink_feature.dart';
 import 'package:flutter_ahlib_example/page/widget/custom_ink_response.dart';
 import 'package:flutter_ahlib_example/page/widget/custom_page_route.dart';
 import 'package:flutter_ahlib_example/page/widget/custom_single_child_layout.dart';
 import 'package:flutter_ahlib_example/page/widget/extended_nested_scroll_view.dart';
+import 'package:flutter_ahlib_example/page/widget/extended_scrollbar.dart';
 import 'package:flutter_ahlib_example/page/widget/icon_text.dart';
 import 'package:flutter_ahlib_example/page/widget/lazy_indexed_stack.dart';
 import 'package:flutter_ahlib_example/page/widget/new_button_style.dart';
 import 'package:flutter_ahlib_example/page/widget/placeholder_text.dart';
 import 'package:flutter_ahlib_example/page/widget/popup_dialog_option.dart';
-import 'package:flutter_ahlib_example/page/widget/animated_fab.dart';
 import 'package:flutter_ahlib_example/page/widget/preloadable_page_view.dart';
-import 'package:flutter_ahlib_example/page/widget/extended_scrollbar.dart';
 import 'package:flutter_ahlib_example/page/widget/sliver_delegate.dart';
 import 'package:flutter_ahlib_example/page/widget/tab_in_page_notification.dart';
 import 'package:flutter_ahlib_example/page/widget/table_whole_row_ink_well.dart';
@@ -158,6 +159,7 @@ class _IndexPageState extends State<IndexPage> {
             spacing: 8,
             children: [
               _button('FlutterExtension', const FlutterExtensionPage()),
+              _button('ExtendedLogger', const ExtendedLoggerPage()),
             ],
           ),
         ],

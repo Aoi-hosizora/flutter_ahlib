@@ -13,6 +13,7 @@ dependencies:
   flutter_ahlib: 
     path: ../
   flutter_cache_manager: ^3.3.0
+  logger: ^1.1.0
   photo_view: ^0.14.0
 
 dev_dependencies:
