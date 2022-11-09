@@ -60,7 +60,6 @@ import 'package:flutter_ahlib/flutter_ahlib_util.dart';
     + `filesize`
     + `Flutter material constants`
     + `StateExtension` `ScrollControllerExtension` `ScrollMetricsExtension` `PageControllerExtension` `RenderObjectExtension`
-    + `hash2` ~ `hash6` `hashObjects`
     + `getMimeFromExtension` `getExtensionsFromMime` `getPreferredExtensionFromMime`
     + `Tuple2` ~ `Tuple6`
 
