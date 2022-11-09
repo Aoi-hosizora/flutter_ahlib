@@ -56,6 +56,7 @@ import 'package:flutter_ahlib/flutter_ahlib_util.dart';
     + `ActionController`
     + `BoolExtension` `IterableExtension` `LetExtension`
     + `downloadFile`
+    + `ExtendedLogger`
     + `filesize`
     + `Flutter material constants`
     + `StateExtension` `ScrollControllerExtension` `ScrollMetricsExtension` `PageControllerExtension` `RenderObjectExtension`
