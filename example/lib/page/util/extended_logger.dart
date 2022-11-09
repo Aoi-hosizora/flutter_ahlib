@@ -2,6 +2,7 @@ import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/flutter_ahlib.dart';
+import 'package:flutter_ahlib_example/main.dart';
 import 'package:logger/logger.dart';
 
 class ExtendedLoggerPage extends StatefulWidget {
@@ -16,10 +17,14 @@ class _ExtendedLoggerPageState extends State<ExtendedLoggerPage> {
   var _testError = false;
   var _stackTrace = false;
 
+  var _darkMode = false;
+  var _showCloseButton = false;
+  var _showClearButton = true;
+
   @override
   void initState() {
     super.initState();
-    _LogConsolePage.initialize();
+    _LogConsolePage.initialize(globalLogger);
   }
 
   void _doLog(Function(dynamic message, [dynamic error, StackTrace? stackTrace]) f, String s) {
@@ -66,11 +71,34 @@ class _ExtendedLoggerPageState extends State<ExtendedLoggerPage> {
             OutlinedButton(child: const Text('e'), onPressed: () => _doLog(globalLogger.e, 'e')),
             OutlinedButton(child: const Text('wtf'), onPressed: () => _doLog(globalLogger.wtf, 'f')),
             const Divider(),
+            CheckboxListTile(
+              title: const Text('dark mode'),
+              value: _darkMode,
+              onChanged: (v) => mountedSetState(() => _darkMode = v ?? false),
+              controlAffinity: ListTileControlAffinity.leading,
+            ),
+            CheckboxListTile(
+              title: const Text('show close button'),
+              value: _showCloseButton,
+              onChanged: (v) => mountedSetState(() => _showCloseButton = v ?? false),
+              controlAffinity: ListTileControlAffinity.leading,
+            ),
+            CheckboxListTile(
+              title: const Text('show clear button'),
+              value: _showClearButton,
+              onChanged: (v) => mountedSetState(() => _showClearButton = v ?? false),
+              controlAffinity: ListTileControlAffinity.leading,
+            ),
             OutlinedButton(
               child: const Text('Goto log console page'),
               onPressed: () => Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (c) => const _LogConsolePage(),
+                  builder: (c) => _LogConsolePage(
+                    darkMode: _darkMode,
+                    showCloseButton: _showCloseButton,
+                    showClearButton: _showClearButton,
+                    onExport: (s) => printLog('${"=" * 20}\n$s\n${'=' * 20}'),
+                  ),
                 ),
               ),
             ),
@@ -81,17 +109,22 @@ class _ExtendedLoggerPageState extends State<ExtendedLoggerPage> {
   }
 }
 
-// Refers to https://github.com/leisim/logger_flutter and https://github.com/fmotalleb/logger_flutter.
+// The follow code is based on leisim/logger_flutter and fmotalleb/logger_flutter, and is modified by AoiHosizora (GitHub: @Aoi-hosizora).
+//
+// Some code in these classes keeps the same as the following source codes:
+// - LogConsole: https://github.com/leisim/logger_flutter/blob/1e4d87d715/lib/src/log_console.dart
+// - LogConsole: https://github.com/FMotalleb/logger_flutter/blob/5707c9e07b/lib/src/log_console.dart
+
 class _LogConsolePage extends StatefulWidget {
   const _LogConsolePage({
     Key? key,
-    this.dark = false,
+    this.darkMode = false,
     this.showCloseButton = false,
     this.showClearButton = true,
     this.onExport,
   }) : super(key: key);
 
-  final bool dark;
+  final bool darkMode;
   final bool showCloseButton;
   final bool showClearButton;
   final void Function(String content)? onExport;
@@ -99,19 +132,21 @@ class _LogConsolePage extends StatefulWidget {
   @override
   State<_LogConsolePage> createState() => _LogConsolePageState();
 
-  static final _outputEventBuffer = ListQueue<OutputEvent>();
-  static int _bufferSize = 20;
   static var _initialized = false;
+  static final _outputEventBuffer = ListQueue<OutputEvent>();
+  static late final ExtendedLogger _logger;
+  static int _bufferSize = 20;
 
-  static void initialize({int bufferSize = 20}) {
+  static void initialize(ExtendedLogger logger, {int bufferSize = 20}) {
     if (_initialized) {
       return;
     }
 
-    _bufferSize = bufferSize;
     _initialized = true;
+    _logger = logger;
+    _bufferSize = bufferSize;
 
-    globalLogger.addOutputListener((event) {
+    _logger.addOutputListener((event) {
       if (_outputEventBuffer.length == bufferSize) {
         _outputEventBuffer.removeFirst();
       }
@@ -157,7 +192,7 @@ class _LogConsolePageState extends State<_LogConsolePage> {
       _refreshFilter();
     };
 
-    globalLogger.addOutputListener(_callback);
+    _LogConsolePage._logger.addOutputListener(_callback);
 
     _scrollController.addListener(() {
       if (!_scrollListenerEnabled) return;
@@ -170,7 +205,7 @@ class _LogConsolePageState extends State<_LogConsolePage> {
 
   @override
   void dispose() {
-    globalLogger.removeOutputListener(_callback);
+    _LogConsolePage._logger.removeOutputListener(_callback);
     super.dispose();
   }
 
@@ -224,7 +259,7 @@ class _LogConsolePageState extends State<_LogConsolePage> {
   }
 
   _RenderedEvent _renderEvent(OutputEvent event) {
-    var parser = _AnsiParser(widget.dark);
+    var parser = AnsiLogParser(widget.darkMode);
     var text = event.lines.join('\n');
     parser.parse(text);
     return _RenderedEvent(
@@ -235,207 +270,7 @@ class _LogConsolePageState extends State<_LogConsolePage> {
     );
   }
 
-  Widget _buildLogContent() {
-    return Container(
-      color: widget.dark ? Colors.black : Colors.grey[150],
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: SizedBox(
-          width: 1600,
-          child: ListView.builder(
-            shrinkWrap: true,
-            controller: _scrollController,
-            itemBuilder: (context, index) {
-              var logEntry = _filteredBuffer[index];
-              return Text.rich(
-                logEntry.span,
-                key: Key(logEntry.id.toString()),
-                style: TextStyle(fontSize: _logFontSize),
-              );
-            },
-            itemCount: _filteredBuffer.length,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTopBar() {
-    return _LogBar(
-      dark: widget.dark,
-      child: Row(
-        mainAxisSize: MainAxisSize.max,
-        children: <Widget>[
-          const Text(
-            'Log Console',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const Spacer(),
-          if (widget.showClearButton)
-            IconButton(
-              icon: const Icon(
-                Icons.delete,
-                color: Color.fromARGB(255, 254, 20, 3),
-              ),
-              onPressed: () {
-                _renderedBuffer.clear();
-                _LogConsolePage._outputEventBuffer.clear();
-                _refreshFilter();
-                setState(() {});
-              },
-            ),
-          IconButton(
-            icon: const Icon(Icons.import_export),
-            onPressed: () {
-              var content = _renderedBuffer.map((e) => e.lowerCaseText).join();
-              if (widget.onExport != null) {
-                widget.onExport?.call(content);
-              }
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () {
-              setState(() {
-                _logFontSize++;
-              });
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.remove),
-            onPressed: () {
-              setState(() {
-                _logFontSize--;
-              });
-            },
-          ),
-          if (widget.showCloseButton)
-            IconButton(
-              icon: const Icon(Icons.close),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBottomBar() {
-    return _LogBar(
-      dark: widget.dark,
-      child: Row(
-        mainAxisSize: MainAxisSize.max,
-        children: <Widget>[
-          Expanded(
-            child: TextField(
-              style: const TextStyle(fontSize: 20),
-              controller: _filterController,
-              onChanged: (s) => _refreshFilter(),
-              decoration: const InputDecoration(
-                labelText: 'Filter log output',
-                border: OutlineInputBorder(),
-              ),
-            ),
-          ),
-          const SizedBox(width: 20),
-          DropdownButton<Level>(
-            value: _filterLevel,
-            items: const [
-              DropdownMenuItem(
-                child: Text('VERBOSE'),
-                value: Level.verbose,
-              ),
-              DropdownMenuItem(
-                child: Text('DEBUG'),
-                value: Level.debug,
-              ),
-              DropdownMenuItem(
-                child: Text('INFO'),
-                value: Level.info,
-              ),
-              DropdownMenuItem(
-                child: Text('WARNING'),
-                value: Level.warning,
-              ),
-              DropdownMenuItem(
-                child: Text('ERROR'),
-                value: Level.error,
-              ),
-              DropdownMenuItem(
-                child: Text('WTF'),
-                value: Level.wtf,
-              )
-            ],
-            onChanged: (value) {
-              _filterLevel = value ?? Level.info;
-              _refreshFilter();
-            },
-          )
-        ],
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      // TODO title
-      theme: widget.dark
-          ? ThemeData(
-              brightness: Brightness.dark,
-              colorScheme: ColorScheme.fromSwatch().copyWith(secondary: Colors.blueGrey),
-            )
-          : ThemeData(
-              brightness: Brightness.light,
-              colorScheme: ColorScheme.fromSwatch().copyWith(secondary: Colors.lightBlueAccent),
-            ),
-      home: Scaffold(
-        body: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              _buildTopBar(),
-              Expanded(
-                child: _buildLogContent(),
-              ),
-              _buildBottomBar(),
-            ],
-          ),
-        ),
-        floatingActionButton: AnimatedOpacity(
-          opacity: _followBottom ? 0 : 1,
-          duration: const Duration(milliseconds: 150),
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 60),
-            child: FloatingActionButton(
-              mini: true,
-              clipBehavior: Clip.antiAlias,
-              child: Icon(
-                Icons.arrow_downward,
-                color: widget.dark ? Colors.white : Colors.lightBlue[900],
-              ),
-              onPressed: _scrollToBottom,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _LogBar extends StatelessWidget {
-  final bool dark;
-  final Widget child;
-
-  const _LogBar({Key? key, required this.dark, required this.child}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildLogBar({required bool dark, required Widget child}) {
     return SizedBox(
       height: 60,
       child: Container(
@@ -458,132 +293,142 @@ class _LogBar extends StatelessWidget {
       ),
     );
   }
-}
 
-class _AnsiParser {
-  // ignore: constant_identifier_names
-  static const TEXT = 0, BRACKET = 1, CODE = 2;
-
-  final bool dark;
-
-  _AnsiParser(this.dark);
-
-  Color? foreground;
-  Color? background;
-  List<TextSpan> spans = [];
-
-  void parse(String s) {
-    spans = [];
-    var state = TEXT;
-    StringBuffer buffer = StringBuffer();
-    var text = StringBuffer();
-    var code = 0;
-    List<int> codes = [];
-
-    for (var i = 0, n = s.length; i < n; i++) {
-      var c = s[i];
-
-      switch (state) {
-        case TEXT:
-          if (c == '\u001b') {
-            state = BRACKET;
-            buffer = StringBuffer(c);
-            code = 0;
-            codes = [];
-          } else {
-            text.write(c);
-          }
-          break;
-
-        case BRACKET:
-          buffer.write(c);
-          if (c == '[') {
-            state = CODE;
-          } else {
-            state = TEXT;
-            text.write(buffer);
-          }
-          break;
-
-        case CODE:
-          buffer.write(c);
-          var codeUnit = c.codeUnitAt(0);
-          if (codeUnit >= 48 && codeUnit <= 57) {
-            code = code * 10 + codeUnit - 48;
-            continue;
-          } else if (c == ';') {
-            codes.add(code);
-            code = 0;
-            continue;
-          } else {
-            if (text.isNotEmpty) {
-              spans.add(createSpan(text.toString()));
-              text.clear();
-            }
-            state = TEXT;
-            if (c == 'm') {
-              codes.add(code);
-              handleCodes(codes);
-            } else {
-              text.write(buffer);
-            }
-          }
-
-          break;
-      }
-    }
-
-    spans.add(createSpan(text.toString()));
-  }
-
-  void handleCodes(List<int> codes) {
-    if (codes.isEmpty) {
-      codes.add(0);
-    }
-
-    switch (codes[0]) {
-      case 0:
-        foreground = getColor(0, true);
-        background = getColor(0, false);
-        break;
-      case 38:
-        foreground = getColor(codes[2], true);
-        break;
-      case 39:
-        foreground = getColor(0, true);
-        break;
-      case 48:
-        background = getColor(codes[2], false);
-        break;
-      case 49:
-        background = getColor(0, false);
-    }
-  }
-
-  Color? getColor(int colorCode, bool foreground) {
-    switch (colorCode) {
-      case 0:
-        return foreground ? Colors.black : Colors.transparent;
-      case 12:
-        return dark ? Colors.lightBlue[300] : Colors.indigo[700];
-      case 208:
-        return dark ? Colors.orange[300] : Colors.orange[700];
-      case 196:
-        return dark ? Colors.red[300] : Colors.red[700];
-      case 199:
-        return dark ? Colors.pink[300] : Colors.pink[700];
-      //TODO: check default color
-      default:
-        return foreground ? Colors.black : Colors.transparent;
-    }
-  }
-
-  TextSpan createSpan(String text) {
-    return TextSpan(
-      text: text,
-      style: TextStyle(
-        color: foreground,
-        backgroundColor: background,
+  @override
+  Widget build(BuildContext context) {
+    return Theme(
+      data: widget.darkMode
+          ? Theme.of(context).copyWith(
+              brightness: Brightness.dark,
+              colorScheme: ColorScheme.fromSwatch().copyWith(secondary: Colors.blueGrey),
+            )
+          : Theme.of(context).copyWith(
+              brightness: Brightness.light,
+              colorScheme: ColorScheme.fromSwatch().copyWith(secondary: Colors.lightBlueAccent),
+            ),
+      child: Scaffold(
+        body: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _buildLogBar(
+                dark: widget.darkMode,
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    const Text(
+                      'Log Console',
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    const Spacer(),
+                    if (widget.showClearButton)
+                      IconButton(
+                        icon: const Icon(Icons.delete, color: Color.fromARGB(255, 254, 20, 3)),
+                        onPressed: () {
+                          _renderedBuffer.clear();
+                          _LogConsolePage._outputEventBuffer.clear();
+                          _refreshFilter();
+                          setState(() {});
+                        },
+                      ),
+                    IconButton(
+                      icon: const Icon(Icons.import_export),
+                      onPressed: () => widget.onExport?.call(_renderedBuffer.map((e) => e.lowerCaseText).join()),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.add),
+                      onPressed: () => mountedSetState(() => _logFontSize++),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.remove),
+                      onPressed: () => mountedSetState(() => _logFontSize--),
+                    ),
+                    if (widget.showCloseButton)
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Container(
+                  color: widget.darkMode ? Colors.black : Colors.grey[150],
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: SizedBox(
+                      // width: 1600, // TODO <<<
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        controller: _scrollController,
+                        itemCount: _filteredBuffer.length,
+                        itemBuilder: (context, index) {
+                          var logEntry = _filteredBuffer[index];
+                          return Text.rich(
+                            logEntry.span,
+                            key: Key(logEntry.id.toString()),
+                            style: TextStyle(fontSize: _logFontSize),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              _buildLogBar(
+                dark: widget.darkMode,
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        style: const TextStyle(fontSize: 20),
+                        controller: _filterController,
+                        onChanged: (s) => _refreshFilter(),
+                        decoration: const InputDecoration(
+                          labelText: 'Filter log output',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 20),
+                    DropdownButton<Level>(
+                      value: _filterLevel,
+                      items: const [
+                        DropdownMenuItem(child: Text('VERBOSE'), value: Level.verbose),
+                        DropdownMenuItem(child: Text('DEBUG'), value: Level.debug),
+                        DropdownMenuItem(child: Text('INFO'), value: Level.info),
+                        DropdownMenuItem(child: Text('WARNING'), value: Level.warning),
+                        DropdownMenuItem(child: Text('ERROR'), value: Level.error),
+                        DropdownMenuItem(child: Text('WTF'), value: Level.wtf),
+                      ],
+                      onChanged: (value) {
+                        _filterLevel = value ?? Level.info;
+                        _refreshFilter();
+                      },
+                    )
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        floatingActionButton: AnimatedOpacity(
+          opacity: _followBottom ? 0 : 1,
+          duration: const Duration(milliseconds: 150),
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 60),
+            child: FloatingActionButton(
+              mini: true,
+              clipBehavior: Clip.antiAlias,
+              child: Icon(
+                Icons.arrow_downward,
+                color: widget.darkMode ? Colors.white : Colors.lightBlue[900],
+              ),
+              onPressed: _scrollToBottom,
+            ),
+          ),
+        ),
       ),
     );
   }
