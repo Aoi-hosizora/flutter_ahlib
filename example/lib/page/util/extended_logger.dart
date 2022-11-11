@@ -32,6 +32,7 @@ class _ExtendedLoggerPageState extends State<ExtendedLoggerPage> {
   void initState() {
     super.initState();
     globalLogger = ExtendedLogger(
+      filter: ProductionFilter(),
       output: MultiOutput([ConsoleOutput(), PrintLogOutput()]),
       printer: PrettyPrinter(printTime: true),
     );
@@ -93,6 +94,7 @@ class _ExtendedLoggerPageState extends State<ExtendedLoggerPage> {
                     DropdownMenuItem(child: Text('logfmt'), value: 'logfmt'),
                     DropdownMenuItem(child: Text('prefix (pretty)'), value: 'prefix (pretty)'),
                     DropdownMenuItem(child: Text('prefix (simple)'), value: 'prefix (simple)'),
+                    DropdownMenuItem(child: Text('preferred'), value: 'preferred'),
                   ],
                   underline: Container(color: Colors.transparent),
                   onChanged: (value) {
@@ -111,6 +113,9 @@ class _ExtendedLoggerPageState extends State<ExtendedLoggerPage> {
                       case 'prefix (simple)':
                         globalLogger.changePrinter(PrefixPrinter(SimplePrinter(printTime: false)));
                         break;
+                      case 'preferred':
+                        globalLogger.changePrinter(PreferredPrinter());
+                        break;
                       case 'pretty':
                       default:
                         globalLogger.changePrinter(PrettyPrinter(printTime: true));
@@ -121,12 +126,12 @@ class _ExtendedLoggerPageState extends State<ExtendedLoggerPage> {
               ],
             ),
             const Divider(),
-            OutlinedButton(child: const Text('v'), onPressed: () => _doLog(globalLogger.v, 'v')),
-            OutlinedButton(child: const Text('d'), onPressed: () => _doLog(globalLogger.d, 'd')),
-            OutlinedButton(child: const Text('i'), onPressed: () => _doLog(globalLogger.i, 'i')),
-            OutlinedButton(child: const Text('w'), onPressed: () => _doLog(globalLogger.w, 'w')),
-            OutlinedButton(child: const Text('e'), onPressed: () => _doLog(globalLogger.e, 'e')),
-            OutlinedButton(child: const Text('wtf'), onPressed: () => _doLog(globalLogger.wtf, 'f')),
+            OutlinedButton(child: const Text('logger.v'), onPressed: () => _doLog(globalLogger.v, 'v')),
+            OutlinedButton(child: const Text('logger.d'), onPressed: () => _doLog(globalLogger.d, 'd')),
+            OutlinedButton(child: const Text('logger.i'), onPressed: () => _doLog(globalLogger.i, 'i')),
+            OutlinedButton(child: const Text('logger.w'), onPressed: () => _doLog(globalLogger.w, 'w')),
+            OutlinedButton(child: const Text('logger.e'), onPressed: () => _doLog(globalLogger.e, 'e')),
+            OutlinedButton(child: const Text('logger.wtf'), onPressed: () => _doLog(globalLogger.wtf, 'f')),
             OutlinedButton(
               child: Text('period - ${_period ? "on" : "off"}'),
               onPressed: () async {
@@ -145,9 +150,7 @@ class _ExtendedLoggerPageState extends State<ExtendedLoggerPage> {
               child: const Text('Goto log console page'),
               onPressed: () => Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (c) => _LogConsolePage(
-                    onExport: (s) => printLog('onExport: s.length == ${s.length}'),
-                  ),
+                  builder: (c) => const _LogConsolePage(),
                 ),
               ),
             ),
@@ -164,13 +167,15 @@ class _ExtendedLoggerPageState extends State<ExtendedLoggerPage> {
 // - LogConsole: https://github.com/leisim/logger_flutter/blob/1e4d87d715/lib/src/log_console.dart
 // - LogConsole: https://github.com/FMotalleb/logger_flutter/blob/5707c9e07b/lib/src/log_console.dart
 
-class _LogConsolePage extends StatefulWidget {
-  const _LogConsolePage({
-    Key? key,
-    this.onExport,
-  }) : super(key: key);
+class _PlainOutputEvent {
+  final OutputEvent origin;
+  final String plainText;
 
-  final void Function(String content)? onExport;
+  _PlainOutputEvent(this.origin, this.plainText);
+}
+
+class _LogConsolePage extends StatefulWidget {
+  const _LogConsolePage({Key? key}) : super(key: key);
 
   @override
   State<_LogConsolePage> createState() => _LogConsolePageState();
@@ -178,7 +183,7 @@ class _LogConsolePage extends StatefulWidget {
   static var _initialized = false;
   static var _logger = globalLogger;
   static var _bufferSize = 20;
-  static final _eventBuffer = ListQueue<Tuple2<DateTime, OutputEvent>>();
+  static final _eventBuffer = ListQueue<_PlainOutputEvent>();
 
   static void initialize(ExtendedLogger logger, {int bufferSize = 20}) {
     if (!_initialized) {
@@ -202,25 +207,17 @@ class _LogConsolePage extends StatefulWidget {
     if (_eventBuffer.length == _bufferSize) {
       _eventBuffer.removeFirst();
     }
-    _eventBuffer.add(Tuple2(DateTime.now(), ev));
+    var text = ev.lines.join('\n');
+    var plainText = ansiEscapeCodeToPlainText(text);
+    _eventBuffer.add(_PlainOutputEvent(ev, plainText));
   }
 }
 
-class _RenderedEvent {
-  final Level level;
-  final DateTime time;
-  final String text;
-  final String rendered;
-
-  _RenderedEvent(this.level, this.time, this.text, this.rendered);
-}
-
 class _LogConsolePageState extends State<_LogConsolePage> {
-  late final _scrollController = ScrollController()..addListener(_onScrolled);
+  final _scrollController = ScrollController();
   final _filterController = TextEditingController();
 
-  final _renderedBuffer = ListQueue<_RenderedEvent>();
-  final _filteredBuffer = <_RenderedEvent>[];
+  final _filteredBuffer = <_PlainOutputEvent>[];
   var _filterLevel = Level.verbose;
   var _logFontSize = 14.0;
 
@@ -230,48 +227,37 @@ class _LogConsolePageState extends State<_LogConsolePage> {
   @override
   void initState() {
     super.initState();
-    for (var ev in _LogConsolePage._eventBuffer) {
-      _renderedBuffer.add(_renderEvent(ev.item1, ev.item2));
-    }
-    _updateFilteredBuffer();
-    _LogConsolePage._logger.addOutputListener(_callback);
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      _scrollController.addListener(_onScrolled);
+      _updateFilteredBuffer();
+      _LogConsolePage._logger.addOutputListener(_callback);
+    });
   }
 
   @override
   void dispose() {
     _LogConsolePage._logger.removeOutputListener(_callback);
+    _scrollController.dispose();
+    _filterController.dispose();
     super.dispose();
   }
 
   void _callback(OutputEvent ev) {
-    if (_renderedBuffer.length == _LogConsolePage._bufferSize) {
-      _renderedBuffer.removeFirst();
-    }
-    _renderedBuffer.add(_renderEvent(DateTime.now(), ev));
     _updateFilteredBuffer();
   }
 
-  _RenderedEvent _renderEvent(DateTime time, OutputEvent ev) {
-    var text = ev.lines.join('\n');
-    var plainText = ansiEscapeCodeToPlainText(text);
-    var rendered = '[${ev.level.name}] [${time.toIso8601String()}]\n$plainText';
-    return _RenderedEvent(ev.level, time, plainText, rendered);
-  }
-
   void _updateFilteredBuffer() {
-    var newBuffer = _renderedBuffer.where((ev) {
-      if (ev.level.index < _filterLevel.index) {
+    var filtered = _LogConsolePage._eventBuffer.where((ev) {
+      if (ev.origin.level.index < _filterLevel.index) {
         return false; // match level
       }
       if (_filterController.text.isEmpty) {
         return true; // empty filter query text
       }
-      var query = _filterController.text;
-      return ev.text.toLowerCase().contains(query.toLowerCase());
-    }).toList();
-
+      return ev.plainText.toLowerCase().contains(_filterController.text.toLowerCase());
+    });
     _filteredBuffer.clear();
-    _filteredBuffer.addAll(newBuffer);
+    _filteredBuffer.addAll(filtered);
     if (mounted) setState(() {});
 
     if (_followBottom) {
@@ -315,56 +301,54 @@ class _LogConsolePageState extends State<_LogConsolePage> {
             icon: const Icon(Icons.delete),
             tooltip: 'Clear',
             onPressed: () {
-              _renderedBuffer.clear();
               _filteredBuffer.clear();
               _LogConsolePage._eventBuffer.clear();
-              setState(() {});
+              if (mounted) setState(() {});
             },
           ),
-          if (widget.onExport != null)
-            IconButton(
-              icon: const Icon(Icons.ios_share),
-              tooltip: 'Export logs',
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (c) => SimpleDialog(
-                    title: const Text('Export logs'),
-                    children: [
-                      TextDialogOption(
-                        text: const Text('All logs'),
-                        onPressed: () {
-                          Navigator.of(c).pop();
-                          widget.onExport!.call(_renderedBuffer.map((e) => e.text).join('\n'));
-                        },
-                      ),
-                      TextDialogOption(
-                        text: const Text('Only filtered logs'),
-                        onPressed: () {
-                          Navigator.of(c).pop();
-                          widget.onExport!.call(_filteredBuffer.map((e) => e.text).join('\n'));
-                        },
-                      )
-                    ],
+          IconButton(
+            icon: const Icon(Icons.ios_share),
+            tooltip: 'Export logs',
+            onPressed: () => showDialog(
+              context: context,
+              builder: (c) => SimpleDialog(
+                title: const Text('Export logs'),
+                children: [
+                  TextDialogOption(
+                    text: const Text('All logs'),
+                    onPressed: () {
+                      Navigator.of(c).pop();
+                      var logs = _LogConsolePage._eventBuffer.map((e) => e.plainText).join('\n');
+                      printLog('export: logs.length == ${logs.length}');
+                    },
                   ),
-                );
-              },
+                  TextDialogOption(
+                    text: const Text('Only filtered logs'),
+                    onPressed: () {
+                      Navigator.of(c).pop();
+                      var logs = _filteredBuffer.map((e) => e.plainText).join('\n');
+                      printLog('export: logs.length == ${logs.length}');
+                    },
+                  )
+                ],
+              ),
             ),
+          ),
         ],
       ),
-      body: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: SizedBox(
-          width: 1600,
-          child: Scrollbar(
-            controller: _scrollController,
-            child: SingleChildScrollView(
-              controller: _scrollController,
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-              scrollDirection: Axis.vertical,
+      body: Scrollbar(
+        controller: _scrollController,
+        child: SingleChildScrollView(
+          controller: _scrollController,
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          scrollDirection: Axis.vertical,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: SizedBox(
+              width: 2000,
               child: SelectableText(
-                _filteredBuffer.map((el) => el.rendered).join('\n'),
-                style: TextStyle(fontSize: _logFontSize),
+                _filteredBuffer.map((el) => el.plainText).join('\n'),
+                style: TextStyle(fontFamily: 'monospace', fontSize: _logFontSize),
               ),
             ),
           ),
@@ -373,37 +357,38 @@ class _LogConsolePageState extends State<_LogConsolePage> {
       bottomNavigationBar: BottomAppBar(
         color: Colors.grey[200],
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           height: kToolbarHeight,
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           child: Row(
-            mainAxisSize: MainAxisSize.max,
             children: [
               Expanded(
                 child: TextField(
-                  style: const TextStyle(fontSize: 20),
                   controller: _filterController,
-                  onChanged: (s) => _updateFilteredBuffer(),
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                     labelText: 'Filter log output',
                   ),
+                  style: const TextStyle(fontSize: 20),
+                  onChanged: (s) => _updateFilteredBuffer(),
                 ),
               ),
               const SizedBox(width: 10),
               DropdownButton<Level>(
                 value: _filterLevel,
                 items: const [
-                  DropdownMenuItem(child: Text('VERBOSE'), value: Level.verbose),
-                  DropdownMenuItem(child: Text('DEBUG'), value: Level.debug),
-                  DropdownMenuItem(child: Text('INFO'), value: Level.info),
-                  DropdownMenuItem(child: Text('WARNING'), value: Level.warning),
-                  DropdownMenuItem(child: Text('ERROR'), value: Level.error),
-                  DropdownMenuItem(child: Text('WTF'), value: Level.wtf),
+                  DropdownMenuItem(child: Text('verbose'), value: Level.verbose),
+                  DropdownMenuItem(child: Text('debug'), value: Level.debug),
+                  DropdownMenuItem(child: Text('info'), value: Level.info),
+                  DropdownMenuItem(child: Text('warning'), value: Level.warning),
+                  DropdownMenuItem(child: Text('error'), value: Level.error),
+                  DropdownMenuItem(child: Text('wtf'), value: Level.wtf),
                 ],
                 underline: Container(color: Colors.transparent),
                 onChanged: (value) {
-                  _filterLevel = value ?? Level.info;
-                  _updateFilteredBuffer();
+                  if (value != null) {
+                    _filterLevel = value;
+                    _updateFilteredBuffer();
+                  }
                 },
               ),
             ],
@@ -414,9 +399,9 @@ class _LogConsolePageState extends State<_LogConsolePage> {
         opacity: _followBottom ? 0 : 1,
         duration: const Duration(milliseconds: 150),
         child: FloatingActionButton(
-          mini: true,
-          clipBehavior: Clip.antiAlias,
           child: const Icon(Icons.arrow_downward),
+          heroTag: null,
+          mini: true,
           onPressed: _scrollToBottom,
         ),
       ),

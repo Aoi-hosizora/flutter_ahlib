@@ -5,8 +5,6 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path_;
 
-// TODO add test
-
 /// An enum type for [DownloadOption], which is used to describe how to download.
 enum DownloadBehavior {
   /// Prefers using cache, if given cache key is not found in [CacheManager], it will download the file
@@ -157,6 +155,7 @@ Future<File> downloadFile({
       return Future.value(option.redecideHandler!.call(null, null));
     });
   }
+  // await filepathFuture; // TODO
 
   // 3. check file existence asynchronously
   var fileFuture = filepathFuture.then((filepath) async {
@@ -187,6 +186,7 @@ Future<File> downloadFile({
   }).onError((e, s) {
     return Future.error(DownloadException._fromError(e!, s), s);
   });
+  // await fileFuture; // TODO
 
   try {
     // 4. check cache, save cached data to file
@@ -296,7 +296,10 @@ class DownloadException implements Exception {
   String toString() {
     var msg = 'DownloadException [$_type]: $message';
     if (_stackTrace != null) {
-      msg += '\nSource stack:\n$stackTrace';
+      var traceString = stackTrace.toString();
+      if (traceString.isNotEmpty) {
+        msg += '\nSource stack:\n$stackTrace';
+      }
     }
     return msg;
   }

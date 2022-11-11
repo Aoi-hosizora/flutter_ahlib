@@ -1,6 +1,6 @@
 import 'package:logger/logger.dart';
 
-// Note: The file is based on leisim/logger and FMotalleb/logger, and is modified by AoiHosizora (GitHub: @Aoi-hosizora).
+// Note: The file is partly based on leisim/logger and FMotalleb/logger, and is modified by AoiHosizora (GitHub: @Aoi-hosizora).
 //
 // Some code in this file keeps the same as the following source codes:
 // - Logger: https://github.com/leisim/logger/blob/7e510ec1cb/lib/src/logger.dart
@@ -12,13 +12,6 @@ typedef OutputEventCallback = void Function(OutputEvent event);
 /// The global [ExtendedLogger] for assistant, which defaults the default [ExtendedLogger].
 /// You can replace this value to your own logger.
 var globalLogger = ExtendedLogger();
-
-/// Parses given text which contains ANSI escape code to plain text.
-String ansiEscapeCodeToPlainText(String s) {
-  return s.replaceAll(RegExp('\u001b\\[.+?m'), '');
-}
-
-// TODO add my prefix printer
 
 /// This [Logger] is extended from https://github.com/leisim/logger, which contains some
 /// new instance method, such as [changePrinter] and [addOutputListener].
@@ -150,5 +143,103 @@ class ExtendedLogger {
     _filter.destroy();
     _printer.destroy();
     _output.destroy();
+  }
+}
+
+/// Parses given text which contains ANSI escape code to plain text.
+String ansiEscapeCodeToPlainText(String s) {
+  return s.replaceAll(RegExp('\x1b\\[.+?m'), '');
+}
+
+/// This is an implementation of [LogPrinter], which is preferred by Aoi-Hosizora :)
+///
+/// Format:
+/// ```
+/// [DBG] [00:05:56] xxx
+///                  xxx
+///          [Error] xxx
+///                  xxx
+///          [Trace] xxx
+///                  xxx
+///                  xxx
+/// ```
+class PreferredPrinter extends LogPrinter {
+  PreferredPrinter({
+    this.printError = true,
+    this.printTrace = true,
+    this.timeOnly = true,
+    this.errorMaxLines = 8,
+    this.traceMaxLines = 8,
+  }) : super();
+
+  /// The flag to print error message.
+  final bool printError;
+
+  /// The flag to print stack trace.
+  final bool printTrace;
+
+  /// The flag to print time rather than date-time.
+  final bool timeOnly;
+
+  /// The max lines count of error message.
+  final int errorMaxLines;
+
+  /// The max lines count of stack trace.
+  final int traceMaxLines;
+
+  late final _levelMap = <Level, String>{
+    Level.verbose: 'VBS',
+    Level.debug: 'DBG',
+    Level.info: 'INF',
+    Level.warning: 'WRN',
+    Level.error: 'ERR',
+    Level.wtf: 'WTF',
+  };
+
+  String _twoDigit(int n) {
+    return n.toString().padLeft(2, '0');
+  }
+
+  @override
+  List<String> log(LogEvent event) {
+    var now = DateTime.now();
+    var mLines = event.message.toString().split('\n');
+    if (mLines.isEmpty) {
+      return [];
+    }
+
+    var levelString = _levelMap[event.level] ?? '?';
+    var timeString = timeOnly
+        ? '${_twoDigit(now.hour)}:${_twoDigit(now.minute)}:${_twoDigit(now.second)}' //
+        : '${_twoDigit(now.month)}/${_twoDigit(now.day)} ${_twoDigit(now.hour)}:${_twoDigit(now.minute)}:${_twoDigit(now.second)}';
+    var mPrefix = '[$levelString] [$timeString] '; // "[DBG] [00:05:56] " / "[DBG] [2022/11/11 00:05:56] "
+    var out = <String>[
+      '$mPrefix${mLines.first}',
+      for (int i = 1; i < mLines.length; i++) ' ' * mPrefix.length + mLines[i],
+    ];
+
+    if (printError && event.error != null) {
+      var eLines = event.error.toString().split('\n');
+      if (eLines.isNotEmpty) {
+        var ePrefix = ' ' * (mPrefix.length - 8) + '[Error] '; // "         [Error] " / "                    [Error] "
+        out.addAll([
+          '$ePrefix${eLines.first}',
+          for (int i = 1; i < eLines.length && i < errorMaxLines; i++) ' ' * ePrefix.length + eLines[i],
+        ]);
+      }
+    }
+
+    if (printTrace && event.stackTrace != null) {
+      var tLines = event.stackTrace.toString().split('\n');
+      if (tLines.isNotEmpty) {
+        var tPrefix = ' ' * (mPrefix.length - 8) + '[Trace] '; // "         [Trace] " / "                    [Trace] "
+        out.addAll([
+          '$tPrefix${tLines.first}',
+          for (int i = 1; i < tLines.length && i < traceMaxLines; i++) ' ' * tPrefix.length + tLines[i],
+        ]);
+      }
+    }
+
+    return out;
   }
 }
