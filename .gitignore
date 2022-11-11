@@ -49,4 +49,5 @@ app.*.map.json
 ### Project ###
 publish.sh
 /example/pubspec.lock
+coverage/
 test.jpg

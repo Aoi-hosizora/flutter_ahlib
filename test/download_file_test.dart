@@ -6,6 +6,10 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as path_;
 
+const _testImageUrl = 'https://user-images.githubusercontent.com/31433480/139594297-c68369d4-32d9-4f8b-8727-ccaf2d1a53f6.jpg';
+const _testFakeUrl = 'https://userxxx-images.githubusercontent.com/31433480/139594297-c68369d4-32d9-4f8b-8727-ccaf2d1a53f6.jpg';
+const _filePath = './test.jpg';
+
 dynamic Function() _wrapFunction(Future<void> Function() f) {
   Future<void> _ensureDeleted(String filepath) async {
     var f = File(filepath);
@@ -17,15 +21,17 @@ dynamic Function() _wrapFunction(Future<void> Function() f) {
   return () async {
     var cache = DefaultCacheManager();
     try {
-      await _ensureDeleted('./test.jpg');
+      await _ensureDeleted(_filePath);
       await _ensureDeleted('./test (2).jpg');
       await _ensureDeleted('./test (3).jpg');
+      await cache.removeFile(_testImageUrl);
       await cache.removeFile('key');
       await f();
     } finally {
-      await _ensureDeleted('./test.jpg');
+      await _ensureDeleted(_filePath);
       await _ensureDeleted('./test (2).jpg');
       await _ensureDeleted('./test (3).jpg');
+      await cache.removeFile(_testImageUrl);
       await cache.removeFile('key');
     }
   };
@@ -39,51 +45,54 @@ Future<void> _expectFile(File f, String basename, {int? filesize}) async {
   } else if (filesize > 0) {
     expect((await f.stat()).size, filesize);
   } else {
-    expect((await f.stat()).size != filesize, true);
+    expect((await f.stat()).size > filesize, true);
   }
 }
 
-const _testImageUrl = 'https://user-images.githubusercontent.com/31433480/139594297-c68369d4-32d9-4f8b-8727-ccaf2d1a53f6.jpg';
-const _testFakeUrl = 'https://userxxx-images.githubusercontent.com/31433480/139594297-c68369d4-32d9-4f8b-8727-ccaf2d1a53f6.jpg';
-
 void main() {
-  group('downloadFile_normal', () {
-    test('normal_downloading', _wrapFunction(() async {
-      var f = await downloadFile(url: _testImageUrl, filepath: './test.jpg');
+  group('downloadFile normal', () {
+    test('download in default', _wrapFunction(() async {
+      var f = await downloadFile(url: _testImageUrl, filepath: _filePath);
       await _expectFile(f, 'test.jpg');
     }));
 
-    test('prefer_cache', _wrapFunction(() async {
+    test('prefer cache', _wrapFunction(() async {
       await DefaultCacheManager().putFile(_testImageUrl, Uint8List(1024), key: 'key');
-      var f = await downloadFile(url: _testImageUrl, filepath: './test.jpg', cacheKey: 'key', option: const DownloadOption(behavior: DownloadBehavior.preferUsingCache));
+      var f = await downloadFile(url: _testImageUrl, filepath: _filePath, cacheKey: 'key', option: const DownloadOption(behavior: DownloadBehavior.preferUsingCache));
       await _expectFile(f, 'test.jpg', filesize: 1024); // == 1024 (use cache)
     }));
 
-    test('force_download', _wrapFunction(() async {
+    test('force download', _wrapFunction(() async {
       await DefaultCacheManager().putFile(_testImageUrl, Uint8List(1024), key: 'key');
-      var f = await downloadFile(url: _testImageUrl, filepath: './test.jpg', cacheKey: 'key', option: const DownloadOption(behavior: DownloadBehavior.forceDownload));
-      await _expectFile(f, 'test.jpg', filesize: -1024); // != 1024 (no use cache)
+      var f = await downloadFile(url: _testImageUrl, filepath: _filePath, cacheKey: 'key', option: const DownloadOption(behavior: DownloadBehavior.forceDownload));
+      await _expectFile(f, 'test.jpg', filesize: -1024); // > 1024 (no use cache)
     }));
 
-    test('redecide_filepath', _wrapFunction(() async {
+    test('redecide filepath', _wrapFunction(() async {
       var f = await downloadFile(url: _testImageUrl, filepath: './test.xxx', option: DownloadOption(redecideHandler: (_, mime) => './test.${getPreferredExtensionFromMime(mime ?? '') ?? 'xxx'}'));
       await _expectFile(f, 'test.jpg');
     }));
 
-    test('redecide_and_ignore_error', _wrapFunction(() async {
-      var f = await downloadFile(url: _testImageUrl, filepath: './test.xxx', option: DownloadOption(redecideHandler: (_, __) => './test.jpg', ignoreHeadError: true, headTimeout: const Duration(milliseconds: 1)));
+    test('redecide (ignore error)', _wrapFunction(() async {
+      var f = await downloadFile(url: _testImageUrl, filepath: './test.xxx', option: DownloadOption(redecideHandler: (_, __) => _filePath, ignoreHeadError: true, headTimeout: const Duration(milliseconds: 1)));
       await _expectFile(f, 'test.jpg');
     }));
 
-    test('add_suffix', _wrapFunction(() async {
-      await File('./test.jpg').create();
+    test('overwrite conflict', _wrapFunction(() async {
+      await File(_filePath).create();
+      var f = await downloadFile(url: _testImageUrl, filepath: _filePath, option: DownloadOption(conflictHandler: (_) async => DownloadConflictBehavior.overwrite));
+      await _expectFile(f, 'test.jpg');
+    }));
+
+    test('add suffix', _wrapFunction(() async {
+      await File(_filePath).create();
       await File('./test (2).jpg').create();
-      var f = await downloadFile(url: _testImageUrl, filepath: './test.jpg', option: DownloadOption(conflictHandler: (_) async => DownloadConflictBehavior.addSuffix, suffixBuilder: (i) => ' ($i)' /* => default */));
+      var f = await downloadFile(url: _testImageUrl, filepath: _filePath, option: DownloadOption(conflictHandler: (_) async => DownloadConflictBehavior.addSuffix, suffixBuilder: (i) => ' ($i)' /* => default */));
       await _expectFile(f, 'test (3).jpg');
     }));
 
-    test('update_cache', _wrapFunction(() async {
-      var f = await downloadFile(url: _testImageUrl, filepath: './test.jpg', cacheKey: 'key', option: const DownloadOption(alsoUpdateCache: true, maxAgeForCache: Duration(seconds: 1)));
+    test('update cache', _wrapFunction(() async {
+      var f = await downloadFile(url: _testImageUrl, filepath: _filePath, cacheKey: 'key', option: const DownloadOption(alsoUpdateCache: true, maxAgeForCache: Duration(seconds: 1)));
       await _expectFile(f, 'test.jpg');
       var info = await DefaultCacheManager().getFileFromCache('key');
       expect(info != null, true);
@@ -92,22 +101,34 @@ void main() {
     }));
   });
 
-  group('downloadFile_error', () {
-    test('download_error', _wrapFunction(() async {
+  group('downloadFile error', () {
+    test('wrong url format', _wrapFunction(() async {
       try {
-        await downloadFile(url: _testFakeUrl, filepath: './test.jpg');
+        await downloadFile(url: '::Not valid URI::', filepath: _filePath);
       } on DownloadException catch (e) {
         print(e);
-        expect(e.type == DownloadErrorType.download || e.type == DownloadErrorType.head, true);
+        expect(e.type, DownloadErrorType.other);
+        expect(e.error is FormatException, true);
         return;
       }
       fail('should throw DownloadException');
     }));
 
-    test('notAllow_conflict', _wrapFunction(() async {
-      await File('./test.jpg').create();
+    test('head or download error', _wrapFunction(() async {
       try {
-        await downloadFile(url: _testImageUrl, filepath: './test.jpg', option: DownloadOption(conflictHandler: (_) async => DownloadConflictBehavior.notAllow));
+        await downloadFile(url: _testFakeUrl, filepath: _filePath);
+      } on DownloadException catch (e) {
+        print(e);
+        expect(e.type == DownloadErrorType.head || e.type == DownloadErrorType.download, true);
+        return;
+      }
+      fail('should throw DownloadException');
+    }));
+
+    test('notAllow conflict', _wrapFunction(() async {
+      await File(_filePath).create();
+      try {
+        await downloadFile(url: _testImageUrl, filepath: _filePath, option: DownloadOption(conflictHandler: (_) async => DownloadConflictBehavior.notAllow));
       } on DownloadException catch (e) {
         print(e);
         expect(e.type, DownloadErrorType.conflict);
@@ -116,9 +137,9 @@ void main() {
       fail('should throw DownloadException');
     }));
 
-    test('cache_miss_not_found', _wrapFunction(() async {
+    test('cache miss (not found)', _wrapFunction(() async {
       try {
-        await downloadFile(url: _testImageUrl, filepath: './test.jpg', option: const DownloadOption(behavior: DownloadBehavior.mustUseCache));
+        await downloadFile(url: _testImageUrl, filepath: _filePath, cacheKey: 'key', option: const DownloadOption(behavior: DownloadBehavior.mustUseCache));
       } on DownloadException catch (e) {
         print(e);
         expect(e.type, DownloadErrorType.cacheMiss);
@@ -127,11 +148,11 @@ void main() {
       fail('should throw DownloadException');
     }));
 
-    test('cache_miss_invalid', _wrapFunction(() async {
+    test('cache miss (invalid)', _wrapFunction(() async {
       await DefaultCacheManager().putFile(_testImageUrl, Uint8List(1024), key: 'key', maxAge: const Duration(milliseconds: 500));
       await Future.delayed(const Duration(seconds: 1));
       try {
-        await downloadFile(url: _testImageUrl, filepath: './test.jpg', option: const DownloadOption(behavior: DownloadBehavior.mustUseCache));
+        await downloadFile(url: _testImageUrl, filepath: _filePath, cacheKey: 'key', option: const DownloadOption(behavior: DownloadBehavior.mustUseCache));
       } on DownloadException catch (e) {
         print(e);
         expect(e.type, DownloadErrorType.cacheMiss);
@@ -140,7 +161,7 @@ void main() {
       fail('should throw DownloadException');
     }));
 
-    test('head_timeout', _wrapFunction(() async {
+    test('head timeout', _wrapFunction(() async {
       try {
         await downloadFile(url: _testImageUrl, filepath: './test.xxx', option: DownloadOption(redecideHandler: (_, __) => '', ignoreHeadError: false, headTimeout: const Duration(milliseconds: 1)));
       } on DownloadException catch (e) {
@@ -151,9 +172,9 @@ void main() {
       fail('should throw DownloadException');
     }));
 
-    test('download_timeout', _wrapFunction(() async {
+    test('download timeout', _wrapFunction(() async {
       try {
-        await downloadFile(url: _testImageUrl, filepath: './test.jpg', option: const DownloadOption(downloadTimeout: Duration(milliseconds: 1)));
+        await downloadFile(url: _testImageUrl, filepath: _filePath, option: const DownloadOption(downloadTimeout: Duration(milliseconds: 1)));
       } on DownloadException catch (e) {
         print(e);
         expect(e.type, DownloadErrorType.download);

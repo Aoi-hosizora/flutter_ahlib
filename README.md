@@ -49,7 +49,7 @@ import 'package:flutter_ahlib/flutter_ahlib_util.dart';
     + `UpdatableDataView`
 + Image widgets ([lib/src/image/](./lib/src/image))
     + `ExtendedPhotoGallery` `ExtendedPhotoGalleryState`
-    + `loadLocalOrNetworkImage` `loadLocalOrNetworkImageCodec`
+    + `loadLocalOrNetworkImageBytes` `loadLocalOrNetworkImageCodec`
     + `LocalOrCachedNetworkImageProvider`
     + `MultiImageStreamCompleter`
     + `ReloadablePhotoView` `ReloadablePhotoViewState`
@@ -76,6 +76,7 @@ dependencies:
   flutter_cache_manager: ^3.3.0
   flutter_staggered_grid_view: ^0.6.1
   http: ^0.13.4
+  logger: ^1.1.0
   path: 1.8.0
   photo_view: ^0.14.0
 

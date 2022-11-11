@@ -51,6 +51,7 @@ String _defaultSuffixBuilder(int index) {
   return ' ($index)';
 }
 
+// A result type for async task, which contains actual data and task error.
 class _AsyncResult<T extends Object, E extends Object> {
   T? data;
   E? error;
@@ -62,9 +63,6 @@ class _AsyncResult<T extends Object, E extends Object> {
   T unwrap() {
     if (error != null) {
       throw error!;
-    }
-    if (data == null) {
-      throw ArgumentError('Unexpect null data when error is null.');
     }
     return data!;
   }
@@ -270,7 +268,7 @@ enum DownloadErrorType {
   /// Represents exceptions occurred when http GET request for downloading is failed.
   download,
 
-  /// Represents some other exceptions.
+  /// Represents some other exceptions, such as [FormatException].
   other,
 }
 

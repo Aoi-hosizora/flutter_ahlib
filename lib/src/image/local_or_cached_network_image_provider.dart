@@ -1,9 +1,10 @@
-import 'dart:async' show StreamController;
+import 'dart:async' show StreamController, scheduleMicrotask;
 import 'dart:io' as io show File;
+import 'dart:ui' as ui show Codec;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_ahlib/src/image/local_or_cached_network_image_provider.dart' as image_provider;
+import 'package:flutter_ahlib/src/image/load_local_or_network_image.dart';
 import 'package:flutter_ahlib/src/image/multi_image_stream_completer.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
@@ -15,16 +16,13 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 /// An [ImageProvider] for loading image from local file or network using a cache.
 ///
-/// [file] and [url] (or [fileFuture] and [urlFuture]) must at lease have one non-null value.
-///
-/// If given [file] (or [fileFuture]) is not null and exists, this provider will load image
-/// from this file.
-///
-/// If given [file] is not null but does not exist, behavior will depend on [fileMustExist].
-/// An exception will be thrown if it is set to true, otherwise [url] will be used as fallback.
-///
-/// If given [url] is not null, this provider will load image from given network [url].
-class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.LocalOrCachedNetworkImageProvider> {
+/// Some tips of parameters:
+/// 1. At lease one of [file] and [url] (or result of [fileFuture] and [urlFuture]) must be non-null value.
+/// 2. If given [file] (or result of [fileFuture]) is not null and exists, this provider will load image from this file.
+/// 3. If given [file] is not null but does not exist, behavior will depend on [fileMustExist]. An exception will be thrown if true, otherwise [url] will be used as fallback.
+/// 4. If given [file] is null while given [url] is not null, this provider will load image from this web url.
+/// 5. Only [file] (or [fileFuture]), [url] (or [urlFuture]), [scale], [maxWidth], [maxHeight] will be used to determine whether it represents the same image.
+class LocalOrCachedNetworkImageProvider extends ImageProvider<LocalOrCachedNetworkImageProvider> {
   /// Creates [LocalOrCachedNetworkImageProvider] with nullable [file] and [url].
   const LocalOrCachedNetworkImageProvider({
     // general
@@ -35,8 +33,8 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
     // local
     this.fileMustExist = true,
     // network
-    this.maxHeight,
     this.maxWidth,
+    this.maxHeight,
     this.headers,
     this.cacheManager,
     this.cacheKey,
@@ -68,14 +66,14 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
         url = null,
         fileFuture = null,
         urlFuture = null,
-  // network
-        maxHeight = null,
+        // network
         maxWidth = null,
+        maxHeight = null,
         asyncHeadFirst = false,
         headers = null,
         cacheManager = null,
         cacheKey = null,
-  // callback
+        // callback
         onUrlLoading = null,
         onUrlLoaded = null;
 
@@ -86,8 +84,8 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
     required String this.url,
     this.scale = 1.0,
     // network
-    this.maxHeight,
     this.maxWidth,
+    this.maxHeight,
     this.headers,
     this.cacheManager,
     this.cacheKey,
@@ -100,9 +98,9 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
         file = null,
         fileFuture = null,
         urlFuture = null,
-  // local
+        // local
         fileMustExist = true,
-  // callback
+        // callback
         onFileLoading = null,
         onFileLoaded = null;
 
@@ -116,8 +114,8 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
     // local
     this.fileMustExist = true,
     // network
-    this.maxHeight,
     this.maxWidth,
+    this.maxHeight,
     this.headers,
     this.cacheManager,
     this.cacheKey,
@@ -139,7 +137,7 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
   /// The key that can be used to reload the image in force when different [Key] passed.
   final Key? key;
 
-  /// The flag that describes if xxxFuture parameters used or not.
+  // The flag that describes if xxxFuture parameters used or not.
   final bool _useFuture;
 
   /// The local file of the image to load.
@@ -161,7 +159,7 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
   // for local
   // =========
 
-  /// The flag for deciding whether to throw exception, pr use [url] as fallback, when given
+  /// The flag for deciding whether to throw exception or use [url] as fallback, when given
   /// [file] does not exist, defaults to true.
   final bool fileMustExist;
 
@@ -169,22 +167,22 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
   // for network
   // ===========
 
-  /// The maximum height of the loaded network image. If not null and using an [ImageCacheManager]
-  /// the image is resized on disk to fit the height.
-  final int? maxHeight;
-
-  /// The maximum width of the loaded network image. If not null and using an [ImageCacheManager]
-  /// the image is resized on disk to fit the width.
+  /// If this value is not null and [ImageCacheManager] is used, the image will be resized on
+  /// disk to fit the width. This value will be ignored if a normal [cacheManager] is used.
   final int? maxWidth;
 
-  /// The flag for loading image from network, is used to check if need to send head request
-  /// in asynchronous to get its real size, defaults to false.
+  /// If this value is not null and [ImageCacheManager] is used, the image will be resized on
+  /// disk to fit the height. This value will be ignored if a normal [cacheManager] is used.
+  final int? maxHeight;
+
+  /// The flag for checking whether need to send HEAD request asynchronously to get network
+  /// image's real size, defaults to false.
   final bool asyncHeadFirst;
 
-  /// The headers for loading image from network, such as authentication.
+  /// The headers for requesting network image, such as "Authorization" and "Referer".
   final Map<String, String>? headers;
 
-  /// The cache manager from which network image files are loaded.
+  /// The cache manager which is used to check whether network image has already been loaded.
   final BaseCacheManager? cacheManager;
 
   /// The cache key for network image and will be stored in [cacheManager], defaults to [url]
@@ -196,18 +194,18 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
   // =========
 
   /// The callback function to be called when the local image starts to load.
-  final Function()? onFileLoading;
+  final void Function()? onFileLoading;
 
-  /// The callback function to be called when the network image starts to load or download.
-  final Function()? onUrlLoading;
+  /// The callback function to be called when the network image starts to load.
+  final void Function()? onUrlLoading;
 
   /// The callback function to be called when the local image finished loading. Here null
   /// [err] represents it succeeded, otherwise represents it failed.
-  final Function(Object? err)? onFileLoaded;
+  final void Function(Object? err)? onFileLoaded;
 
-  /// The callback function to be called when the network image finished loading or
-  /// downloading. Here null [err] represents it succeeded, otherwise represents it failed.
-  final Function(Object? err)? onUrlLoaded;
+  /// The callback function to be called when the network image finished loading. Here null
+  /// [err] represents it succeeded, otherwise represents it failed.
+  final void Function(Object? err)? onUrlLoaded;
 
   @override
   Future<LocalOrCachedNetworkImageProvider> obtainKey(ImageConfiguration configuration) {
@@ -215,10 +213,39 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
   }
 
   @override
-  ImageStreamCompleter load(image_provider.LocalOrCachedNetworkImageProvider key, DecoderCallback decode) {
+  ImageStreamCompleter load(LocalOrCachedNetworkImageProvider key, DecoderCallback decode) {
+    assert(key == this);
     final chunkEvents = StreamController<ImageChunkEvent>();
+    Stream<ui.Codec> stream = loadLocalOrNetworkImageCodec(
+      options: LoadImageOption(
+        file: file,
+        url: url,
+        fileFuture: fileFuture,
+        urlFuture: urlFuture,
+        scale: scale,
+        fileMustExist: fileMustExist,
+        maxWidth: maxWidth,
+        maxHeight: maxHeight,
+        asyncHeadFirst: asyncHeadFirst,
+        headers: headers,
+        cacheManager: cacheManager,
+        cacheKey: cacheKey,
+        onFileLoading: onFileLoading,
+        onUrlLoading: onUrlLoading,
+        onFileLoaded: onFileLoaded,
+        onUrlLoaded: onUrlLoaded,
+      ),
+      decode: decode,
+      chunkEvents: chunkEvents,
+      evictImageAsync: () => scheduleMicrotask(() {
+        // Depending on where the exception was thrown, the image cache may not have had
+        // a chance to track the key in the cache at all. Schedule a microtask to give
+        // the cache a chance to add the key.
+        PaintingBinding.instance?.imageCache?.evict(key);
+      }),
+    );
     return MultiImageStreamCompleter(
-      codec: _loadAsync(key, chunkEvents, decode),
+      codec: stream,
       chunkEvents: chunkEvents.stream,
       scale: key.scale ?? 1.0,
       informationCollector: () sync* {
@@ -234,7 +261,7 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
   @override
   bool operator ==(dynamic other) {
     if (other is LocalOrCachedNetworkImageProvider) {
-      if (!(key == other.key && _useFuture == other._useFuture && scale == other.scale && maxHeight == other.maxHeight && maxWidth == other.maxWidth)) {
+      if (!(key == other.key && _useFuture == other._useFuture && scale == other.scale && maxWidth == other.maxWidth && maxHeight == other.maxHeight)) {
         return false;
       }
 
@@ -254,9 +281,9 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
   @override
   int get hashCode {
     if (_useFuture) {
-      return hashValues(key, fileFuture, urlFuture, scale, maxHeight, maxWidth);
+      return hashValues(key, fileFuture, urlFuture, scale, maxWidth, maxHeight);
     }
-    return hashValues(key, file, url, scale, maxHeight, maxWidth);
+    return hashValues(key, file, url, scale, maxWidth, maxHeight);
   }
 
   @override
@@ -264,14 +291,8 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
     if (_useFuture) {
       return '$runtimeType(fileFuture: <future>, urlFuture: <future>, scale: $scale, ...)';
     }
-    var path = 'null';
-    if (file?.path != null) {
-      path = '"${file?.path ?? '?'}"';
-    }
-    var url = 'null';
-    if (this.url != null) {
-      url = '"${this.url ?? '?'}"';
-    }
+    var path = file?.path == null ? 'null' : '"${file?.path ?? '?'}"';
+    var url = this.url != null ? 'null' : '"${this.url ?? '?'}"';
     return '$runtimeType(file: $path, url: $url, scale: $scale, ...)';
   }
 }
