@@ -51,6 +51,25 @@ String _defaultSuffixBuilder(int index) {
   return ' ($index)';
 }
 
+class _AsyncResult<T extends Object, E extends Object> {
+  T? data;
+  E? error;
+
+  _AsyncResult.ok(T this.data) : error = null;
+
+  _AsyncResult.err(E this.error) : data = null;
+
+  T unwrap() {
+    if (error != null) {
+      throw error!;
+    }
+    if (data == null) {
+      throw ArgumentError('Unexpect null data when error is null.');
+    }
+    return data!;
+  }
+}
+
 /// A data class for [downloadFile], which is used to describe some downloading options.
 class DownloadOption {
   const DownloadOption({
@@ -110,7 +129,7 @@ Future<File> downloadFile({
   required String url,
   required String filepath,
   Map<String, String>? headers,
-  CacheManager? cacheManager,
+  BaseCacheManager? cacheManager,
   String? cacheKey,
   DownloadOption? option,
 }) async {
@@ -127,11 +146,11 @@ Future<File> downloadFile({
   }
 
   // 2. make http HEAD request asynchronously
-  Future<String> filepathFuture;
+  Future<_AsyncResult<String, DownloadException>> filepathFuture;
   if (option.redecideHandler == null) {
-    filepathFuture = Future.value(filepath);
+    filepathFuture = Future.value(_AsyncResult.ok(filepath));
   } else {
-    filepathFuture = Future<String>.microtask(() async {
+    filepathFuture = Future<_AsyncResult<String, DownloadException>>.microtask(() async {
       http.Response resp;
       try {
         var future = http.head(uri, headers: headers);
@@ -147,18 +166,21 @@ Future<File> downloadFile({
       if (resp.statusCode != 200 && resp.statusCode != 201) {
         throw DownloadException._head('Got invalid status code ${resp.statusCode} from "$url".');
       }
-      return option.redecideHandler!.call(resp.headers, resp.headers['content-type'] ?? '');
+      var filepath = option.redecideHandler!.call(resp.headers, resp.headers['content-type'] ?? '');
+      return _AsyncResult.ok(filepath);
     }).onError((e, s) {
       if (!option!.ignoreHeadError) {
-        return Future.error(DownloadException._fromError(e!, s), s);
+        var err = DownloadException._fromError(e!, s);
+        return Future.value(_AsyncResult.err(err));
       }
-      return Future.value(option.redecideHandler!.call(null, null));
+      var filepath = option.redecideHandler!.call(null, null);
+      return Future.value(_AsyncResult.ok(filepath));
     });
   }
-  // await filepathFuture; // TODO
 
   // 3. check file existence asynchronously
-  var fileFuture = filepathFuture.then((filepath) async {
+  var fileFuture = filepathFuture.then<_AsyncResult<File, DownloadException>>((result) async {
+    var filepath = result.unwrap();
     var newFile = File(filepath);
     if (await newFile.exists()) {
       var behavior = await option!.conflictHandler.call(filepath);
@@ -182,11 +204,11 @@ Future<File> downloadFile({
       }
     }
     await newFile.create(recursive: true);
-    return newFile;
+    return _AsyncResult.ok(newFile);
   }).onError((e, s) {
-    return Future.error(DownloadException._fromError(e!, s), s);
+    var err = DownloadException._fromError(e!, s);
+    return Future.value(_AsyncResult.err(err));
   });
-  // await fileFuture; // TODO
 
   try {
     // 4. check cache, save cached data to file
@@ -197,7 +219,7 @@ Future<File> downloadFile({
           throw DownloadException._cacheMiss('There is no valid data for "$cacheKey" in cache.');
         }
       } else {
-        var destination = await fileFuture;
+        var destination = (await fileFuture).unwrap();
         return await cached.file.copy(destination.path);
       }
     }
@@ -224,12 +246,11 @@ Future<File> downloadFile({
     if (option.alsoUpdateCache) {
       unawaited(cacheManager.putFile(url, data, key: cacheKey, maxAge: option.maxAgeForCache));
     }
-    var targetFile = await fileFuture;
+    var targetFile = (await fileFuture).unwrap();
     return await targetFile.writeAsBytes(data, flush: true);
   } catch (e, s) {
     try {
-      var targetFile = await fileFuture;
-      await targetFile.delete(); // clear failed file
+      await (await fileFuture).data?.delete(); // clear failed file
     } catch (_) {}
     throw DownloadException._fromError(e, s);
   }

@@ -5,12 +5,16 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/scheduler.dart';
 
+// Note: The file is based on Baseflow/flutter_cached_network_image.
+//
+// Some code in this file keeps the same as the following source codes:
+// - MultiImageStreamCompleter: https://github.com/Baseflow/flutter_cached_network_image/blob/v3.1.0/cached_network_image/lib/src/image_provider/multi_image_stream_completer.dart
+
 /// Slows down animations by this factor to help in development.
 double get timeDilation => _timeDilation;
 double _timeDilation = 1.0;
 
-/// An ImageStreamCompleter with support for loading multiple images. This class keeps the same as
-/// https://github.com/Baseflow/flutter_cached_network_image/blob/v3.1.0/cached_network_image/lib/src/image_provider/multi_image_stream_completer.dart.
+/// An ImageStreamCompleter with support for loading multiple images.
 class MultiImageStreamCompleter extends ImageStreamCompleter {
   /// The constructor to create an MultiImageStreamCompleter. The [codec]
   /// should be a stream with the images that should be shown. The

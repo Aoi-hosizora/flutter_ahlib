@@ -97,7 +97,6 @@ void main() {
       try {
         await downloadFile(url: _testFakeUrl, filepath: './test.jpg');
       } on DownloadException catch (e) {
-        print(1);
         print(e);
         expect(e.type == DownloadErrorType.download || e.type == DownloadErrorType.head, true);
         return;
@@ -110,7 +109,6 @@ void main() {
       try {
         await downloadFile(url: _testImageUrl, filepath: './test.jpg', option: DownloadOption(conflictHandler: (_) async => DownloadConflictBehavior.notAllow));
       } on DownloadException catch (e) {
-        print(2);
         print(e);
         expect(e.type, DownloadErrorType.conflict);
         return;
@@ -122,7 +120,6 @@ void main() {
       try {
         await downloadFile(url: _testImageUrl, filepath: './test.jpg', option: const DownloadOption(behavior: DownloadBehavior.mustUseCache));
       } on DownloadException catch (e) {
-        print(3);
         print(e);
         expect(e.type, DownloadErrorType.cacheMiss);
         return;
@@ -136,7 +133,6 @@ void main() {
       try {
         await downloadFile(url: _testImageUrl, filepath: './test.jpg', option: const DownloadOption(behavior: DownloadBehavior.mustUseCache));
       } on DownloadException catch (e) {
-        print(4);
         print(e);
         expect(e.type, DownloadErrorType.cacheMiss);
         return;
@@ -148,7 +144,6 @@ void main() {
       try {
         await downloadFile(url: _testImageUrl, filepath: './test.xxx', option: DownloadOption(redecideHandler: (_, __) => '', ignoreHeadError: false, headTimeout: const Duration(milliseconds: 1)));
       } on DownloadException catch (e) {
-        print(5);
         print(e);
         expect(e.type, DownloadErrorType.head);
         return;
@@ -160,7 +155,6 @@ void main() {
       try {
         await downloadFile(url: _testImageUrl, filepath: './test.jpg', option: const DownloadOption(downloadTimeout: Duration(milliseconds: 1)));
       } on DownloadException catch (e) {
-        print(6);
         print(e);
         expect(e.type, DownloadErrorType.download);
         return;

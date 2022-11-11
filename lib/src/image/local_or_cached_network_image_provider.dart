@@ -1,14 +1,11 @@
-import 'dart:async' show Future, StreamController, scheduleMicrotask;
+import 'dart:async' show StreamController;
 import 'dart:io' as io show File;
-import 'dart:ui' as ui show Codec;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_ahlib/src/image/local_or_cached_network_image_provider.dart' as image_provider;
+import 'package:flutter_ahlib/src/image/multi_image_stream_completer.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-
-import 'local_or_cached_network_image_provider.dart' as image_provider;
-import 'multi_image_stream_completer.dart';
-import 'package:http/http.dart' as http show head;
 
 // Note: The file is based on Baseflow/flutter_cached_network_image, and is modified by AoiHosizora (GitHub: @Aoi-hosizora).
 //
@@ -71,14 +68,14 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
         url = null,
         fileFuture = null,
         urlFuture = null,
-        // network
+  // network
         maxHeight = null,
         maxWidth = null,
         asyncHeadFirst = false,
         headers = null,
         cacheManager = null,
         cacheKey = null,
-        // callback
+  // callback
         onUrlLoading = null,
         onUrlLoaded = null;
 
@@ -103,9 +100,9 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
         file = null,
         fileFuture = null,
         urlFuture = null,
-        // local
+  // local
         fileMustExist = true,
-        // callback
+  // callback
         onFileLoading = null,
         onFileLoaded = null;
 
@@ -232,203 +229,6 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<image_provider.Loc
         );
       },
     );
-  }
-
-  Stream<ui.Codec> _loadAsync(
-    image_provider.LocalOrCachedNetworkImageProvider key,
-    StreamController<ImageChunkEvent> chunkEvents,
-    DecoderCallback decode,
-  ) async* {
-    assert(key == this);
-
-    // 1. get file and url
-    io.File? file;
-    String? url;
-    if (!_useFuture) {
-      file = this.file;
-      url = this.url;
-    } else {
-      assert(fileFuture != null && urlFuture != null);
-      file = await fileFuture!;
-      url = await urlFuture!;
-    }
-    assert(file != null || url != null);
-
-    // 2. check file and url validity
-    var useFile = false;
-    var useUrl = false;
-    if (file == null) {
-      useUrl = true;
-    } else {
-      var existed = await file.exists();
-      if (existed) {
-        useFile = true;
-      } else if (fileMustExist) {
-        throw Exception('Image file "${file.path}" is not found.');
-      } else if (url != null) {
-        useUrl = true;
-      } else {
-        throw Exception('Image file "${file.path}" is not found and given url is null.');
-      }
-    }
-
-    // load local image
-    if (useFile) {
-      onFileLoading?.call();
-      yield* _loadLocalImageAsync(
-        file!,
-        chunkEvents,
-        decode,
-        onFileLoaded,
-      );
-    }
-
-    // load cached network image
-    if (useUrl) {
-      onUrlLoading?.call();
-      yield* _loadCachedNetworkImageAsync(
-        url!,
-        cacheKey,
-        chunkEvents,
-        decode,
-        cacheManager ?? DefaultCacheManager(),
-        maxHeight,
-        maxWidth,
-        asyncHeadFirst,
-        headers,
-        onUrlLoaded,
-        () => PaintingBinding.instance?.imageCache?.evict(key),
-      );
-    }
-  }
-
-  Stream<ui.Codec> _loadLocalImageAsync(
-    io.File file,
-    StreamController<ImageChunkEvent> chunkEvents,
-    DecoderCallback decode,
-    Function(Object?)? onFinish,
-  ) async* {
-    try {
-      var bytes = await file.readAsBytes();
-      var decoded = await decode(bytes);
-      yield decoded;
-      onFinish?.call(null);
-    } catch (e) {
-      onFinish?.call(e);
-
-      // chunkEvents.addError(e);
-      // =>
-      // ══╡ EXCEPTION CAUGHT BY IMAGE RESOURCE SERVICE ╞════════════════════════════════════════════════════
-      // The following _Exception was thrown loading an image:
-      // Exception: Image file "/sdcard/DCIM/testx.jpg" is not found.
-      //
-      // When the exception was thrown, this was the stack:
-      //
-      // Image provider: LocalOrCachedNetworkImageProvider(...)
-      //  Image key: LocalOrCachedNetworkImageProvider(...):
-      //   LocalOrCachedNetworkImageProvider(...)
-      // ════════════════════════════════════════════════════════════════════════════════════════════════════
-
-      rethrow; // <<< use rethrow is better than chunkEvents.addError
-      // =>
-      // ══╡ EXCEPTION CAUGHT BY IMAGE RESOURCE SERVICE ╞════════════════════════════════════════════════════
-      // The following _Exception was thrown resolving an image codec:
-      // Exception: Image file "/sdcard/DCIM/testx.jpg" is not found.
-      //
-      // When the exception was thrown, this was the stack:
-      // #0      LocalOrCachedNetworkImageProvider._loadLocalImageAsync
-      // (package:flutter_ahlib/src/image/local_or_cached_network_image_provider.dart:157:9)
-      // <asynchronous suspension>
-      //
-      // Image provider: LocalOrCachedNetworkImageProvider(...)
-      //  Image key: LocalOrCachedNetworkImageProvider(...):
-      //   LocalOrCachedNetworkImageProvider(...)
-      // ════════════════════════════════════════════════════════════════════════════════════════════════════
-    } finally {
-      await chunkEvents.close();
-    }
-  }
-
-  Stream<ui.Codec> _loadCachedNetworkImageAsync(
-    String url,
-    String? cacheKey,
-    StreamController<ImageChunkEvent> chunkEvents,
-    DecoderCallback decode,
-    BaseCacheManager cacheManager,
-    int? maxHeight,
-    int? maxWidth,
-    bool asyncHeadFirst,
-    Map<String, String>? headers,
-    Function(Object?)? onFinish,
-    Function() evictImage,
-  ) async* {
-    try {
-      assert(
-          cacheManager is ImageCacheManager || (maxWidth == null && maxHeight == null),
-          'To resize the image with a CacheManager the '
-          'CacheManager needs to be an ImageCacheManager. maxWidth and '
-          'maxHeight will be ignored when a normal CacheManager is used.');
-
-      var stream = cacheManager is ImageCacheManager
-          ? cacheManager.getImageFile(
-              url,
-              key: cacheKey,
-              maxHeight: maxHeight,
-              maxWidth: maxWidth,
-              withProgress: true,
-              headers: headers,
-            ) // also download
-          : cacheManager.getFileStream(
-              url,
-              key: cacheKey,
-              withProgress: true,
-              headers: headers,
-            );
-
-      // get real size from http head request
-      int? imageSize;
-      if (asyncHeadFirst) {
-        var uriUrl = Uri.parse(url);
-        http.head(uriUrl, headers: {
-          'Accept': '*/*',
-          ...(headers ?? {}),
-        }).then((data) {
-          imageSize = int.tryParse(data.headers['content-length'] ?? '');
-        }).catchError((_) {
-          // ignore any error
-        });
-      }
-
-      // await stream info
-      await for (var result in stream) {
-        if (result is DownloadProgress) {
-          chunkEvents.add(ImageChunkEvent(
-            cumulativeBytesLoaded: result.downloaded,
-            expectedTotalBytes: result.totalSize ?? imageSize,
-          ));
-        }
-        if (result is FileInfo) {
-          var file = result.file;
-          var bytes = await file.readAsBytes();
-          var decoded = await decode(bytes);
-          yield decoded;
-        }
-      }
-      onFinish?.call(null);
-    } catch (e) {
-      // Depending on where the exception was thrown, the image cache may not have had
-      // a chance to track the key in the cache at all. Schedule a microtask to give
-      // the cache a chance to add the key.
-      scheduleMicrotask(() {
-        evictImage();
-      });
-
-      onFinish?.call(e);
-      // chunkEvents.addError(e);
-      rethrow; // <<< use rethrow is better than chunkEvents.addError
-    } finally {
-      await chunkEvents.close();
-    }
   }
 
   @override
