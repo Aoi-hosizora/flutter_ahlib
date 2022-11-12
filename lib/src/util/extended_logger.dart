@@ -54,37 +54,37 @@ class ExtendedLogger {
   }
 
   /// Logs a message at [Level.verbose] level.
-  void v(dynamic message, [dynamic error, StackTrace? stackTrace]) {
-    log(Level.verbose, message, error, stackTrace);
+  void v(dynamic message, [dynamic error, StackTrace? stackTrace, bool? ignoreOutput]) {
+    log(Level.verbose, message, error, stackTrace, ignoreOutput);
   }
 
   /// Logs a message at [Level.debug] level.
-  void d(dynamic message, [dynamic error, StackTrace? stackTrace]) {
-    log(Level.debug, message, error, stackTrace);
+  void d(dynamic message, [dynamic error, StackTrace? stackTrace, bool? ignoreOutput]) {
+    log(Level.debug, message, error, stackTrace, ignoreOutput);
   }
 
   /// Logs a message at [Level.info] level.
-  void i(dynamic message, [dynamic error, StackTrace? stackTrace]) {
-    log(Level.info, message, error, stackTrace);
+  void i(dynamic message, [dynamic error, StackTrace? stackTrace, bool? ignoreOutput]) {
+    log(Level.info, message, error, stackTrace, ignoreOutput);
   }
 
   /// Logs a message at [Level.warning] level.
-  void w(dynamic message, [dynamic error, StackTrace? stackTrace]) {
-    log(Level.warning, message, error, stackTrace);
+  void w(dynamic message, [dynamic error, StackTrace? stackTrace, bool? ignoreOutput]) {
+    log(Level.warning, message, error, stackTrace, ignoreOutput);
   }
 
   /// Logs a message at [Level.error] level.
-  void e(dynamic message, [dynamic error, StackTrace? stackTrace]) {
-    log(Level.error, message, error, stackTrace);
+  void e(dynamic message, [dynamic error, StackTrace? stackTrace, bool? ignoreOutput]) {
+    log(Level.error, message, error, stackTrace, ignoreOutput);
   }
 
   /// Logs a message at [Level.wtf] level.
-  void wtf(dynamic message, [dynamic error, StackTrace? stackTrace]) {
-    log(Level.wtf, message, error, stackTrace);
+  void wtf(dynamic message, [dynamic error, StackTrace? stackTrace, bool? ignoreOutput]) {
+    log(Level.wtf, message, error, stackTrace, ignoreOutput);
   }
 
   /// Logs a message at given [level].
-  void log(Level level, dynamic message, [dynamic error, StackTrace? stackTrace]) {
+  void log(Level level, dynamic message, [dynamic error, StackTrace? stackTrace, bool? ignoreOutput]) {
     if (!_active) {
       throw ArgumentError('Logger has already been closed.');
     }
@@ -102,9 +102,11 @@ class ExtendedLogger {
       if (output.isNotEmpty) {
         var outputEvent = OutputEvent(level, output);
         // Issues with log output should NOT influence the main software behavior.
-        try {
-          _output.output(outputEvent);
-        } catch (_) {}
+        if (ignoreOutput == null || ignoreOutput == false) {
+          try {
+            _output.output(outputEvent);
+          } catch (_) {}
+        }
         for (var lis in _outputListeners) {
           try {
             lis.call(outputEvent); // <<< Added by AoiHosizora
@@ -203,8 +205,8 @@ class PreferredPrinter extends LogPrinter {
   @override
   List<String> log(LogEvent event) {
     var now = DateTime.now();
-    var mLines = event.message.toString().split('\n');
-    if (mLines.isEmpty) {
+    var mString = event.message.toString().trim();
+    if (mString.isEmpty) {
       return [];
     }
 
@@ -213,14 +215,16 @@ class PreferredPrinter extends LogPrinter {
         ? '${_twoDigit(now.hour)}:${_twoDigit(now.minute)}:${_twoDigit(now.second)}' //
         : '${_twoDigit(now.month)}/${_twoDigit(now.day)} ${_twoDigit(now.hour)}:${_twoDigit(now.minute)}:${_twoDigit(now.second)}';
     var mPrefix = '[$levelString] [$timeString] '; // "[DBG] [00:05:56] " / "[DBG] [2022/11/11 00:05:56] "
+    var mLines = mString.split('\n');
     var out = <String>[
       '$mPrefix${mLines.first}',
       for (int i = 1; i < mLines.length; i++) ' ' * mPrefix.length + mLines[i],
     ];
 
     if (printError && event.error != null) {
-      var eLines = event.error.toString().split('\n');
-      if (eLines.isNotEmpty) {
+      var eString = event.error.toString().trim();
+      if (eString.isNotEmpty) {
+        var eLines = eString.split('\n');
         var ePrefix = ' ' * (mPrefix.length - 8) + '[Error] '; // "         [Error] " / "                    [Error] "
         out.addAll([
           '$ePrefix${eLines.first}',
@@ -230,8 +234,9 @@ class PreferredPrinter extends LogPrinter {
     }
 
     if (printTrace && event.stackTrace != null) {
-      var tLines = event.stackTrace.toString().split('\n');
-      if (tLines.isNotEmpty) {
+      var tString = event.stackTrace.toString().trim();
+      if (tString.isNotEmpty) {
+        var tLines = tString.split('\n');
         var tPrefix = ' ' * (mPrefix.length - 8) + '[Trace] '; // "         [Trace] " / "                    [Trace] "
         out.addAll([
           '$tPrefix${tLines.first}',

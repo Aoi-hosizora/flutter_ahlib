@@ -315,9 +315,9 @@ class DownloadException implements Exception {
   String toString() {
     var msg = 'DownloadException [$_type]: $message';
     if (_stackTrace != null) {
-      var traceString = stackTrace.toString();
+      var traceString = stackTrace.toString().trim();
       if (traceString.isNotEmpty) {
-        msg += '\nSource stack:\n$stackTrace';
+        msg += '\nSource stack:\n$traceString';
       }
     }
     return msg;

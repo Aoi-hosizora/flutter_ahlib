@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io' show File, HttpException;
 import 'dart:typed_data';
 
@@ -21,10 +22,12 @@ dynamic Function() _wrapFunction(Future<void> Function() f) {
     var cache = DefaultCacheManager();
     try {
       await _ensureDeleted(_filePath);
+      await cache.removeFile(_testImageUrl);
       await cache.removeFile('key');
       await f();
     } finally {
       await _ensureDeleted(_filePath);
+      await cache.removeFile(_testImageUrl);
       await cache.removeFile('key');
     }
   };
@@ -146,38 +149,61 @@ void main() {
       fail('should throw Exception');
     }));
 
+    test('download timeout', _wrapFunction(() async {
+      try {
+        await _toBytes(loadLocalOrNetworkImageBytes(option: const LoadImageOption(url: _testImageUrl, networkTimeout: Duration(milliseconds: 1)), evictImageAsync: () {}));
+      } catch (e) {
+        print(e);
+        expect(e is TimeoutException, true);
+        return;
+      }
+      fail('should throw Exception');
+    }));
+
     test('not future wrong argument', _wrapFunction(() async {
-      try {
-        await _toBytes(loadLocalOrNetworkImageBytes(option: const LoadImageOption(file: null, url: null))); // all null
+      () async {
+        try {
+          await _toBytes(loadLocalOrNetworkImageBytes(option: const LoadImageOption(file: null, url: null))); // all null
+        } catch (e) {
+          print(e);
+          expect(e is ArgumentError, true);
+          return;
+        }
         fail('should throw Exception');
-      } catch (e) {
-        print(e);
-        expect(e is ArgumentError, true);
-      }
-      try {
-        await _toBytes(loadLocalOrNetworkImageBytes(option: LoadImageOption(url: _testImageUrl, cacheManager: CacheManager(Config('x')), maxHeight: 1))); // wrong cache manager
+      }();
+      () async {
+        try {
+          await _toBytes(loadLocalOrNetworkImageBytes(option: LoadImageOption(url: _testImageUrl, cacheManager: CacheManager(Config('x')), maxHeight: 1))); // wrong cache manager
+        } catch (e) {
+          print(e);
+          expect(e is ArgumentError, true);
+          return;
+        }
         fail('should throw Exception');
-      } catch (e) {
-        print(e);
-        expect(e is ArgumentError, true);
-      }
+      }();
     }));
 
     test('future wrong argument', _wrapFunction(() async {
-      try {
-        await _toBytes(loadLocalOrNetworkImageBytes(option: LoadImageOption(fileFuture: null, urlFuture: Future.value(null)))); // null future
+      () async {
+        try {
+          await _toBytes(loadLocalOrNetworkImageBytes(option: LoadImageOption(fileFuture: null, urlFuture: Future.value(null)))); // null future
+        } catch (e) {
+          print(e);
+          expect(e is ArgumentError, true);
+          return;
+        }
         fail('should throw Exception');
-      } catch (e) {
-        print(e);
-        expect(e is ArgumentError, true);
-      }
-      try {
-        await _toBytes(loadLocalOrNetworkImageBytes(option: LoadImageOption(fileFuture: Future.value(null), urlFuture: Future.value(null)))); // all results are null
+      }();
+      () async {
+        try {
+          await _toBytes(loadLocalOrNetworkImageBytes(option: LoadImageOption(fileFuture: Future.value(null), urlFuture: Future.value(null)))); // all results are null
+        } catch (e) {
+          print(e);
+          expect(e is ArgumentError, true);
+          return;
+        }
         fail('should throw Exception');
-      } catch (e) {
-        print(e);
-        expect(e is ArgumentError, true);
-      }
+      }();
     }));
   });
 }

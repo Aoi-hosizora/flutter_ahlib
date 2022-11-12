@@ -6,12 +6,12 @@
 [![License](https://img.shields.io/badge/license-mit-blue.svg)](./LICENSE)
 
 + A personal flutter library, contains some useful widgets and utils.
-+ Please visit https://pub.dev/packages/flutter_ahlib for this library.
++ Please visit https://pub.dev/packages/flutter_ahlib for this library. Note that this library only passed tests in Flutter 2.x.
 
 ### Usage
 
 ```dart
-// Import the whole library, including common widgets, list widgets, image widgets and utils.
+// Import the whole library, including common widgets, list widgets, image widgets and utilities.
 import 'package:flutter_ahlib/flutter_ahlib.dart';
 
 // Only import the util library.
@@ -53,7 +53,7 @@ import 'package:flutter_ahlib/flutter_ahlib_util.dart';
     + `LocalOrCachedNetworkImageProvider`
     + `MultiImageStreamCompleter`
     + `ReloadablePhotoView` `ReloadablePhotoViewState`
-+ Utils ([lib/src/util/](./lib/src/util))
++ Utilities ([lib/src/util/](./lib/src/util))
     + `ActionController`
     + `BoolExtension` `IterableExtension` `LetExtension`
     + `downloadFile`

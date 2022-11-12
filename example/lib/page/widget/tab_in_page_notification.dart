@@ -40,12 +40,11 @@ class _TabInPageNotificationPageState extends State<TabInPageNotificationPage> {
         currentIndex: _currentIndex,
         items: ['A', 'B', 'C']
             .map(
-              (t) =>
-              BottomNavigationBarItem(
+              (t) => BottomNavigationBarItem(
                 icon: const Icon(Icons.chevron_right),
                 label: t,
               ),
-        )
+            )
             .toList(),
         onTap: (index) {
           _currentIndex = index;
@@ -99,14 +98,8 @@ class __PageBState extends State<_PageB> with SingleTickerProviderStateMixin {
       children: [
         TabBar(
           controller: _controller,
-          unselectedLabelColor: Theme
-              .of(context)
-              .textTheme
-              .bodyText1!
-              .color,
-          labelColor: Theme
-              .of(context)
-              .primaryColor,
+          unselectedLabelColor: Theme.of(context).textTheme.bodyText1!.color,
+          labelColor: Theme.of(context).primaryColor,
           indicatorColor: Colors.transparent,
           isScrollable: true,
           tabs: const [

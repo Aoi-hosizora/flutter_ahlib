@@ -149,7 +149,7 @@ class _CustomSingleChildLayoutPageState extends State<CustomSingleChildLayoutPag
                   ),
                   onTap: () => Navigator.of(context).pop(),
                 ),
-              )
+              ),
             ],
           ),
         ),
@@ -194,7 +194,7 @@ class _CustomSingleChildLayoutPageState extends State<CustomSingleChildLayoutPag
                     OutlinedButton(
                       onPressed: () => Navigator.of(context).pop('dismiss'),
                       child: const Text('dismiss'),
-                    )
+                    ),
                   ],
                 ),
               ),

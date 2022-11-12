@@ -25,6 +25,7 @@ class _ExtendedLoggerPageState extends State<ExtendedLoggerPage> {
   var _longText = false;
   var _testError = false;
   var _stackTrace = false;
+  var _ignoreOutput = false;
   var _printer = 'pretty';
   var _period = false;
 
@@ -45,11 +46,12 @@ class _ExtendedLoggerPageState extends State<ExtendedLoggerPage> {
     super.dispose();
   }
 
-  void _doLog(Function(dynamic message, [dynamic error, StackTrace? stackTrace]) f, String s) {
+  void _doLog(Function(dynamic message, [dynamic error, StackTrace? stackTrace, bool? ignoreOnce]) f, String s) {
     f(
       !_longText ? s : List.generate(5, (i) => '$s$s$s$i').join('\n'),
       !_testError ? null : ArgumentError(!_longText ? 'test error' : List.generate(5, (i) => 'test error $i').join('\n')),
       !_stackTrace ? null : StackTrace.current,
+      _ignoreOutput,
     );
   }
 
@@ -79,6 +81,12 @@ class _ExtendedLoggerPageState extends State<ExtendedLoggerPage> {
               title: const Text('with stack trace'),
               value: _stackTrace,
               onChanged: (v) => mountedSetState(() => _stackTrace = v ?? false),
+              controlAffinity: ListTileControlAffinity.leading,
+            ),
+            CheckboxListTile(
+              title: const Text('ignore output'),
+              value: _ignoreOutput,
+              onChanged: (v) => mountedSetState(() => _ignoreOutput = v ?? false),
               controlAffinity: ListTileControlAffinity.leading,
             ),
             Row(
@@ -180,14 +188,14 @@ class _LogConsolePage extends StatefulWidget {
   @override
   State<_LogConsolePage> createState() => _LogConsolePageState();
 
-  static var _initialized = false;
+  static var initialized = false;
   static var _logger = globalLogger;
   static var _bufferSize = 20;
   static final _eventBuffer = ListQueue<_PlainOutputEvent>();
 
   static void initialize(ExtendedLogger logger, {int bufferSize = 20}) {
-    if (!_initialized) {
-      _initialized = true;
+    if (!initialized) {
+      initialized = true;
       _logger = logger;
       _bufferSize = bufferSize;
       _eventBuffer.clear();
@@ -196,10 +204,10 @@ class _LogConsolePage extends StatefulWidget {
   }
 
   static void finalize() {
-    if (_initialized) {
+    if (initialized) {
       _logger.removeOutputListener(_callback);
       _eventBuffer.clear();
-      _initialized = false;
+      initialized = false;
     }
   }
 
@@ -329,71 +337,77 @@ class _LogConsolePageState extends State<_LogConsolePage> {
                       var logs = _filteredBuffer.map((e) => e.plainText).join('\n');
                       printLog('export: logs.length == ${logs.length}');
                     },
-                  )
+                  ),
                 ],
               ),
             ),
           ),
         ],
       ),
-      body: Scrollbar(
-        controller: _scrollController,
-        child: SingleChildScrollView(
-          controller: _scrollController,
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-          scrollDirection: Axis.vertical,
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: SizedBox(
-              width: 2000,
-              child: SelectableText(
-                _filteredBuffer.map((el) => el.plainText).join('\n'),
-                style: TextStyle(fontFamily: 'monospace', fontSize: _logFontSize),
+      body: Column(
+        children: [
+          Expanded(
+            child: Scrollbar(
+              controller: _scrollController,
+              child: SingleChildScrollView(
+                controller: _scrollController,
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                scrollDirection: Axis.vertical,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: SizedBox(
+                    width: 2000,
+                    child: SelectableText(
+                      _filteredBuffer.map((el) => el.plainText).join('\n'),
+                      style: TextStyle(fontFamily: 'monospace', fontSize: _logFontSize),
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
-        ),
-      ),
-      bottomNavigationBar: BottomAppBar(
-        color: Colors.grey[200],
-        child: Container(
-          height: kToolbarHeight,
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-          child: Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _filterController,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Filter log output',
+          BottomAppBar(
+            color: Colors.white,
+            child: Container(
+              height: kToolbarHeight,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _filterController,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Filter log...',
+                      ),
+                      style: const TextStyle(fontSize: 20),
+                      onChanged: (s) => _updateFilteredBuffer(),
+                    ),
                   ),
-                  style: const TextStyle(fontSize: 20),
-                  onChanged: (s) => _updateFilteredBuffer(),
-                ),
-              ),
-              const SizedBox(width: 10),
-              DropdownButton<Level>(
-                value: _filterLevel,
-                items: const [
-                  DropdownMenuItem(child: Text('verbose'), value: Level.verbose),
-                  DropdownMenuItem(child: Text('debug'), value: Level.debug),
-                  DropdownMenuItem(child: Text('info'), value: Level.info),
-                  DropdownMenuItem(child: Text('warning'), value: Level.warning),
-                  DropdownMenuItem(child: Text('error'), value: Level.error),
-                  DropdownMenuItem(child: Text('wtf'), value: Level.wtf),
+                  const SizedBox(width: 10),
+                  DropdownButton<Level>(
+                    value: _filterLevel,
+                    items: const [
+                      DropdownMenuItem(child: Text('verbose'), value: Level.verbose),
+                      DropdownMenuItem(child: Text('debug'), value: Level.debug),
+                      DropdownMenuItem(child: Text('info'), value: Level.info),
+                      DropdownMenuItem(child: Text('warning'), value: Level.warning),
+                      DropdownMenuItem(child: Text('error'), value: Level.error),
+                      DropdownMenuItem(child: Text('wtf'), value: Level.wtf),
+                    ],
+                    underline: Container(color: Colors.transparent),
+                    onChanged: (value) {
+                      if (value != null) {
+                        _filterLevel = value;
+                        _updateFilteredBuffer();
+                      }
+                    },
+                  ),
                 ],
-                underline: Container(color: Colors.transparent),
-                onChanged: (value) {
-                  if (value != null) {
-                    _filterLevel = value;
-                    _updateFilteredBuffer();
-                  }
-                },
               ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
       floatingActionButton: AnimatedOpacity(
         opacity: _followBottom ? 0 : 1,

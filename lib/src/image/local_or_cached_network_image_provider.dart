@@ -33,12 +33,13 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<LocalOrCachedNetwo
     // local
     this.fileMustExist = true,
     // network
-    this.maxWidth,
-    this.maxHeight,
     this.headers,
     this.cacheManager,
     this.cacheKey,
+    this.maxWidth,
+    this.maxHeight,
     this.asyncHeadFirst = false,
+    this.networkTimeout,
     // callback
     this.onFileLoading,
     this.onUrlLoading,
@@ -67,12 +68,13 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<LocalOrCachedNetwo
         fileFuture = null,
         urlFuture = null,
         // network
-        maxWidth = null,
-        maxHeight = null,
-        asyncHeadFirst = false,
         headers = null,
         cacheManager = null,
         cacheKey = null,
+        maxWidth = null,
+        maxHeight = null,
+        asyncHeadFirst = false,
+        networkTimeout = null,
         // callback
         onUrlLoading = null,
         onUrlLoaded = null;
@@ -84,12 +86,13 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<LocalOrCachedNetwo
     required String this.url,
     this.scale = 1.0,
     // network
-    this.maxWidth,
-    this.maxHeight,
     this.headers,
     this.cacheManager,
     this.cacheKey,
+    this.maxWidth,
+    this.maxHeight,
     this.asyncHeadFirst = false,
+    this.networkTimeout,
     // callback
     this.onUrlLoading,
     this.onUrlLoaded,
@@ -114,12 +117,13 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<LocalOrCachedNetwo
     // local
     this.fileMustExist = true,
     // network
-    this.maxWidth,
-    this.maxHeight,
     this.headers,
     this.cacheManager,
     this.cacheKey,
+    this.maxWidth,
+    this.maxHeight,
     this.asyncHeadFirst = false,
+    this.networkTimeout,
     // callbacks
     this.onFileLoading,
     this.onUrlLoading,
@@ -167,6 +171,16 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<LocalOrCachedNetwo
   // for network
   // ===========
 
+  /// The headers for requesting network image, such as "Authorization" and "Referer".
+  final Map<String, String>? headers;
+
+  /// The cache manager which is used to check whether network image has already been loaded.
+  final BaseCacheManager? cacheManager;
+
+  /// The cache key for network image and will be stored in [cacheManager], defaults to [url]
+  /// or [urlFuture] itself.
+  final String? cacheKey;
+
   /// If this value is not null and [ImageCacheManager] is used, the image will be resized on
   /// disk to fit the width. This value will be ignored if a normal [cacheManager] is used.
   final int? maxWidth;
@@ -179,15 +193,8 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<LocalOrCachedNetwo
   /// image's real size, defaults to false.
   final bool asyncHeadFirst;
 
-  /// The headers for requesting network image, such as "Authorization" and "Referer".
-  final Map<String, String>? headers;
-
-  /// The cache manager which is used to check whether network image has already been loaded.
-  final BaseCacheManager? cacheManager;
-
-  /// The cache key for network image and will be stored in [cacheManager], defaults to [url]
-  /// or [urlFuture] itself.
-  final String? cacheKey;
+  /// The timeout duration for network image loading, defaults to null, which means not to check.
+  final Duration? networkTimeout;
 
   // =========
   // callbacks
@@ -224,12 +231,13 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<LocalOrCachedNetwo
         urlFuture: urlFuture,
         scale: scale,
         fileMustExist: fileMustExist,
-        maxWidth: maxWidth,
-        maxHeight: maxHeight,
-        asyncHeadFirst: asyncHeadFirst,
         headers: headers,
         cacheManager: cacheManager,
         cacheKey: cacheKey,
+        maxWidth: maxWidth,
+        maxHeight: maxHeight,
+        asyncHeadFirst: asyncHeadFirst,
+        networkTimeout: networkTimeout,
         onFileLoading: onFileLoading,
         onUrlLoading: onUrlLoading,
         onFileLoaded: onFileLoaded,

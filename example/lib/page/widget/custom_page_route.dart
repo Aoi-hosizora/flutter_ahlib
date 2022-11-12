@@ -102,6 +102,7 @@ class _TestButtons extends StatelessWidget {
         transitionDuration: slowTransition ? const Duration(milliseconds: 1000) : null,
         reverseTransitionDuration: slowTransition ? const Duration(milliseconds: 600) : null,
         barrierColor: customBarrierColor ? Colors.black45 : null,
+        barrierCurve: Curves.easeIn,
         disableCanTransitionTo: disableCanTransitionTo,
       ),
       child: Builder(

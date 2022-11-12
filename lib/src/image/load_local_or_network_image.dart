@@ -17,12 +17,13 @@ class LoadImageOption {
     this.urlFuture,
     this.scale = 1.0,
     this.fileMustExist = true,
-    this.maxWidth,
-    this.maxHeight,
     this.headers,
     this.cacheManager,
     this.cacheKey,
+    this.maxWidth,
+    this.maxHeight,
     this.asyncHeadFirst = false,
+    this.networkTimeout,
     this.onFileLoading,
     this.onUrlLoading,
     this.onFileLoaded,
@@ -37,12 +38,13 @@ class LoadImageOption {
   final Future<String?>? urlFuture;
   final double? scale;
   final bool fileMustExist;
-  final int? maxWidth;
-  final int? maxHeight;
-  final bool asyncHeadFirst;
   final Map<String, String>? headers;
   final BaseCacheManager? cacheManager;
   final String? cacheKey;
+  final int? maxWidth;
+  final int? maxHeight;
+  final bool asyncHeadFirst;
+  final Duration? networkTimeout;
   final void Function()? onFileLoading;
   final void Function()? onUrlLoading;
   final void Function(Object? err)? onFileLoaded;
@@ -120,12 +122,13 @@ Stream<Uint8List> loadLocalOrNetworkImageBytes({
       url: url!,
       chunkEvents: chunkEvents,
       evictImageAsync: evictImageAsync,
+      headers: option.headers,
       cacheManager: option.cacheManager,
       cacheKey: option.cacheKey,
       maxWidth: option.maxWidth,
       maxHeight: option.maxHeight,
       asyncHeadFirst: option.asyncHeadFirst,
-      headers: option.headers,
+      networkTimeout: option.networkTimeout,
       onLoaded: option.onUrlLoaded,
     );
   }
@@ -174,12 +177,13 @@ Stream<Uint8List> _loadCachedNetworkImageBytes({
   required String url,
   StreamController<ImageChunkEvent>? chunkEvents,
   void Function()? evictImageAsync,
+  required Map<String, String>? headers,
   required BaseCacheManager? cacheManager,
   required String? cacheKey,
   required int? maxWidth,
   required int? maxHeight,
   required bool asyncHeadFirst,
-  required Map<String, String>? headers,
+  required Duration? networkTimeout,
   required void Function(Object?)? onLoaded,
 }) async* {
   cacheManager ??= DefaultCacheManager();
@@ -214,6 +218,9 @@ Stream<Uint8List> _loadCachedNetworkImageBytes({
     Stream<FileResponse> stream = cacheManager is ImageCacheManager // (such as DefaultCacheManager)
         ? cacheManager.getImageFile(url, key: cacheKey, withProgress: true, headers: headers, maxWidth: maxWidth, maxHeight: maxHeight)
         : cacheManager.getFileStream(url, key: cacheKey, withProgress: true, headers: headers);
+    if (networkTimeout != null) {
+      stream = stream.timeout(networkTimeout);
+    }
     await for (var result in stream) {
       if (result is DownloadProgress) {
         var ev = ImageChunkEvent(
