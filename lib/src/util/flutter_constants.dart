@@ -163,6 +163,9 @@ const Duration kSnackBarDisplayDuration = Duration(milliseconds: 4000);
 const double kTabHeight = 46.0;
 
 /// Defined in src/material/tabs.dart, used by [TabBar].
+const double kTabDefaultIndicatorWeight = 2.0;
+
+/// Defined in src/material/tabs.dart, used by [TabBar].
 const double kTextAndIconTabHeight = 72.0;
 
 /// Defined in src/material/text_selection.dart, used by [TextSelection].

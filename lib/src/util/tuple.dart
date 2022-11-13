@@ -2,6 +2,25 @@ import 'dart:ui';
 
 // Refers to: https://github.com/google/tuple.dart/blob/master/lib/tuple.dart.
 
+/// Represents a 1-tuple, which can be used to wrap simple type as referable type.
+class Tuple1<T> {
+  Tuple1(this.item);
+
+  /// The item of the tuple;
+  T item;
+
+  @override
+  String toString() => '[$item]';
+
+  @override
+  bool operator ==(Object other) {
+    return other is Tuple1 && other.item == item;
+  }
+
+  @override
+  int get hashCode => item.hashCode;
+}
+
 /// Represents a 2-tuple, or pair.
 class Tuple2<T1, T2> {
   Tuple2(this.item1, this.item2);

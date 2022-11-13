@@ -409,14 +409,16 @@ class _LogConsolePageState extends State<_LogConsolePage> {
           ),
         ],
       ),
-      floatingActionButton: AnimatedOpacity(
-        opacity: _followBottom ? 0 : 1,
-        duration: const Duration(milliseconds: 150),
-        child: FloatingActionButton(
-          child: const Icon(Icons.arrow_downward),
-          heroTag: null,
-          mini: true,
-          onPressed: _scrollToBottom,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: kToolbarHeight),
+        child: AnimatedFab(
+          show: !_followBottom,
+          fab: FloatingActionButton(
+            child: const Icon(Icons.arrow_downward),
+            heroTag: null,
+            mini: true,
+            onPressed: _scrollToBottom,
+          ),
         ),
       ),
     );

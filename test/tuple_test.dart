@@ -2,6 +2,36 @@ import 'package:flutter_ahlib/flutter_ahlib_util.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  group('Tuple1', () {
+    test('constructor', () {
+      var t1 = Tuple1('1');
+      var t2 = Tuple1('1');
+      var t3 = Tuple1('1 ');
+
+      // ignore: unnecessary_type_check
+      expect(t1 is Tuple1<String>, true);
+
+      expect(t1.item, '1');
+      expect(t1.toString(), '[1]');
+      expect(t1 == t2, true);
+      expect(t1 == t3, false);
+    });
+
+    test('referable', () {
+      var t1 = Tuple1(1);
+      void update(Tuple1<int> data) {
+        data.item = 2;
+      }
+
+      expect(t1.item, 1);
+      var t2 = Tuple1(t1.item);
+      expect(t1 == t2, true);
+      update(t2);
+      expect(t2.item, 2);
+      expect(t1 == t2, false);
+    });
+  });
+
   group('Tuple2', () {
     test('constructor', () {
       var t1 = Tuple2(1, '2');
