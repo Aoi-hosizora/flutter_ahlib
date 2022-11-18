@@ -86,7 +86,14 @@ Stream<Uint8List> loadLocalOrNetworkImageBytes({
   if (file == null) {
     useUrl = true;
   } else {
-    var existed = await file.exists();
+    var existed = false;
+    try {
+      existed = await file.exists();
+    } catch (_) {
+      if (option.fileMustExist) {
+        rethrow; // throw exceptions if fileMustExist flag is true
+      }
+    }
     if (existed) {
       useFile = true;
     } else if (option.fileMustExist) {

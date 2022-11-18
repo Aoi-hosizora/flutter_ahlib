@@ -187,6 +187,9 @@ class _ScrollAnimatedFabState extends State<ScrollAnimatedFab> with SingleTicker
 
   /// Subscribes the scroll offset and direction from given scroll controller.
   void _scrollListener() {
+    if (!widget.scrollController.hasClients) {
+      return;
+    }
     bool canShow = false;
     var pos = widget.scrollController.position;
     switch (widget.condition) {
@@ -251,6 +254,9 @@ class AnimatedFabController {
     assert(_animController != null, 'animation controller must not be null');
     return _animController!;
   }
+
+  /// Returns true if there is an [AnimationController] attached to the controller.
+  bool get hasClient => _animController != null;
 
   /// Returns true if the fab has already shown.
   bool get isShown => animController.value == 1.0;

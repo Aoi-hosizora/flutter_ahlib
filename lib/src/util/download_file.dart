@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io' show File;
 
+import 'package:flutter_ahlib/src/util/task_result.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path_;
@@ -49,23 +50,6 @@ Future<DownloadConflictBehavior> _defaultConflictHandler(String filepath) async 
 /// The default filepath suffix builder for [DownloadOption].
 String _defaultSuffixBuilder(int index) {
   return ' ($index)';
-}
-
-// A result type for async task, which contains actual data and task error.
-class _AsyncResult<T extends Object, E extends Object> {
-  T? data;
-  E? error;
-
-  _AsyncResult.ok(T this.data) : error = null;
-
-  _AsyncResult.err(E this.error) : data = null;
-
-  T unwrap() {
-    if (error != null) {
-      throw error!;
-    }
-    return data!;
-  }
 }
 
 /// A data class for [downloadFile], which is used to describe some downloading options.
@@ -144,11 +128,11 @@ Future<File> downloadFile({
   }
 
   // 2. make http HEAD request asynchronously
-  Future<_AsyncResult<String, DownloadException>> filepathFuture;
+  Future<TaskResult<String, DownloadException>> filepathFuture;
   if (option.redecideHandler == null) {
-    filepathFuture = Future.value(_AsyncResult.ok(filepath));
+    filepathFuture = Future.value(Ok(filepath));
   } else {
-    filepathFuture = Future<_AsyncResult<String, DownloadException>>.microtask(() async {
+    filepathFuture = Future<TaskResult<String, DownloadException>>.microtask(() async {
       http.Response resp;
       try {
         var future = http.head(uri, headers: headers);
@@ -165,19 +149,19 @@ Future<File> downloadFile({
         throw DownloadException._head('Got invalid status code ${resp.statusCode} from "$url".');
       }
       var filepath = option.redecideHandler!.call(resp.headers, resp.headers['content-type'] ?? '');
-      return _AsyncResult.ok(filepath);
+      return Ok(filepath);
     }).onError((e, s) {
       if (!option!.ignoreHeadError) {
         var err = DownloadException._fromError(e!, s);
-        return Future.value(_AsyncResult.err(err));
+        return Future.value(Err(err));
       }
       var filepath = option.redecideHandler!.call(null, null);
-      return Future.value(_AsyncResult.ok(filepath));
+      return Future.value(Ok(filepath));
     });
   }
 
   // 3. check file existence asynchronously
-  var fileFuture = filepathFuture.then<_AsyncResult<File, DownloadException>>((result) async {
+  var fileFuture = filepathFuture.then<TaskResult<File, DownloadException>>((result) async {
     var filepath = result.unwrap();
     var newFile = File(filepath);
     if (await newFile.exists()) {
@@ -202,10 +186,10 @@ Future<File> downloadFile({
       }
     }
     await newFile.create(recursive: true);
-    return _AsyncResult.ok(newFile);
+    return Ok(newFile);
   }).onError((e, s) {
     var err = DownloadException._fromError(e!, s);
-    return Future.value(_AsyncResult.err(err));
+    return Future.value(Err(err));
   });
 
   try {
