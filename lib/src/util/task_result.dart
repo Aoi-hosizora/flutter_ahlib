@@ -1,18 +1,19 @@
 import 'dart:async';
+import 'dart:ui';
 
-import 'package:flutter/cupertino.dart';
-
-/// A type that represent either ok(success) or err(failure), and is referred from rust's
-/// `std::Result`.
+/// A type that represents either ok/success or err/failure result, and is referred from
+/// rust's `std::Result` enum.
 ///
 /// Note that if you want to catch exceptions from async task such as [Future.microtask],
-/// you can not only use [runZonedGuarded], but also set the type of returned value to
-/// [Future<Result>] and await the [Future] whenever you want.
+/// you can not only use [runZonedGuarded], but also use [Future<Result>] as return type
+/// and await the [Future] whenever you want.
 abstract class TaskResult<T extends Object, E extends Object> {
-  /// Creates an ok result, with given nullable data.
+  /// Creates an ok result, with given non-null data. Note that this constructor can not
+  /// be used to instantiate [TaskResult], use [Ok] instead.
   const TaskResult.ok(T this._data) : _error = null;
 
-  /// Creates an err result, with given non-null data.
+  /// Creates an err result, with given non-null data. Note that this constructor can not
+  /// be used to instantiate [TaskResult], use [Err] instead.
   const TaskResult.err(E this._error) : _data = null;
 
   final T? _data;
@@ -24,7 +25,7 @@ abstract class TaskResult<T extends Object, E extends Object> {
   /// Returns the error of the result, this value will not be null if [isErr] is true.
   E? get error => _error;
 
-  /// Returns true if the result is ok, which means [error] is null.
+  /// Returns true if the result is ok, which means [data] is not null.
   bool get isOk => _data != null;
 
   /// Returns true if the result is err, which means [error] is not null.
@@ -274,61 +275,90 @@ Future<TaskResult<T, E>> resultFromAsyncFunc<T extends Object, E extends Object>
 
 /// An extension of [Future<TaskResult>] type, which has the same methods as [TaskResult].
 extension TaskResultFutureExtension<T extends Object, E extends Object> on Future<TaskResult<T, E>> {
+  /// Mirrors to [TaskResult.data].
   Future<T?> get data => then((r) => r.data);
 
+  /// Mirrors to [TaskResult.error].
   Future<E?> get error => then((r) => r.error);
 
+  /// Mirrors to [TaskResult.isOk].
   Future<bool> get isOk => then((r) => r.isOk);
 
+  /// Mirrors to [TaskResult.isErr].
   Future<bool> get isErr => then((r) => r.isErr);
 
+  /// Mirrors to [TaskResult.expect].
   Future<T> expect(Object msg) => then((r) => r.expect(msg));
 
+  /// Mirrors to [TaskResult.unwrap].
   Future<T> unwrap() => then((r) => r.unwrap());
 
+  /// Mirrors to [TaskResult.unwrapOr].
   Future<T> unwrapOr(T defaultValue) => then((r) => r.unwrapOr(defaultValue));
 
+  /// Mirrors to [TaskResult.unwrapOrElse].
   Future<T> unwrapOrElse(T Function(E error) op) => then((r) => r.unwrapOrElse(op));
 
+  /// Mirrors to [TaskResult.unwrapOrElseAsync].
   Future<T> unwrapOrElseAsync(FutureOr<T> Function(E error) op) => then((r) => r.unwrapOrElseAsync(op));
 
+  /// Mirrors to [TaskResult.expectErr].
   Future<E> expectErr(Object msg) => then((r) => r.expectErr(msg));
 
+  /// Mirrors to [TaskResult.unwrapErr].
   Future<E> unwrapErr() => then((r) => r.unwrapErr());
 
+  /// Mirrors to [TaskResult.inspect].
   Future<TaskResult<T, E>> inspect(void Function(T data) op) => then((r) => r.inspect(op));
 
+  /// Mirrors to [TaskResult.inspectAsync].
   Future<TaskResult<T, E>> inspectAsync(FutureOr<void> Function(T data) op) => then((r) => r.inspectAsync(op));
 
+  /// Mirrors to [TaskResult.inspectErr].
   Future<TaskResult<T, E>> inspectErr(void Function(E error) op) => then((r) => r.inspectErr(op));
 
+  /// Mirrors to [TaskResult.inspectErrAsync].
   Future<TaskResult<T, E>> inspectErrAsync(FutureOr<void> Function(E error) op) => then((r) => r.inspectErrAsync(op));
 
+  /// Mirrors to [TaskResult.map].
   Future<TaskResult<U, E>> map<U extends Object>(U Function(T data) op) => then((r) => r.map(op));
 
+  /// Mirrors to [TaskResult.mapAsync].
   Future<TaskResult<U, E>> mapAsync<U extends Object>(FutureOr<U> Function(T data) op) => then((r) => r.mapAsync(op));
 
+  /// Mirrors to [TaskResult.mapOr].
   Future<TaskResult<U, E>> mapOr<U extends Object>(U defaultValue, U Function(T data) op) => then((r) => r.mapOr(defaultValue, op));
 
+  /// Mirrors to [TaskResult.mapOrAsync].
   Future<TaskResult<U, E>> mapOrAsync<U extends Object>(U defaultValue, FutureOr<U> Function(T data) op) => then((r) => r.mapOrAsync(defaultValue, op));
 
+  /// Mirrors to [TaskResult.mapOrElse].
   Future<TaskResult<U, E>> mapOrElse<U extends Object>(U Function(E error) defaultValue, U Function(T data) op) => then((r) => r.mapOrElse(defaultValue, op));
 
+  /// Mirrors to [TaskResult.mapOrElseAsync].
   Future<TaskResult<U, E>> mapOrElseAsync<U extends Object>(FutureOr<U> Function(E error) defaultValue, FutureOr<U> Function(T data) op) => then((r) => r.mapOrElseAsync(defaultValue, op));
 
+  /// Mirrors to [TaskResult.mapErr].
   Future<TaskResult<T, F>> mapErr<F extends Object>(F Function(E error) op) => then((r) => r.mapErr(op));
 
+  /// Mirrors to [TaskResult.mapErrAsync].
   Future<TaskResult<T, F>> mapErrAsync<F extends Object>(FutureOr<F> Function(E error) op) async => then((r) => r.mapErrAsync(op));
 
+  /// Mirrors to [TaskResult.and].
   Future<TaskResult<U, E>> and<U extends Object>(TaskResult<U, E> res) => then((r) => r.and(res));
 
+  /// Mirrors to [TaskResult.andThen].
   Future<TaskResult<U, E>> andThen<U extends Object>(TaskResult<U, E> Function(T data) op) => then((r) => r.andThen(op));
 
+  /// Mirrors to [TaskResult.andThenAsync].
   Future<TaskResult<U, E>> andThenAsync<U extends Object>(FutureOr<TaskResult<U, E>> Function(T data) op) => then((r) => r.andThenAsync(op));
 
+  /// Mirrors to [TaskResult.or].
   Future<TaskResult<T, F>> or<F extends Object>(TaskResult<T, F> res) => then((r) => r.or(res));
 
+  /// Mirrors to [TaskResult.orElse].
   Future<TaskResult<T, F>> orElse<F extends Object>(TaskResult<T, F> Function(E error) op) => then((r) => r.orElse(op));
 
+  /// Mirrors to [TaskResult.orElseAsync].
   Future<TaskResult<T, F>> orElseAsync<F extends Object>(FutureOr<TaskResult<T, F>> Function(E error) op) => then((r) => r.orElseAsync(op));
 }

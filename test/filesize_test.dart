@@ -24,13 +24,16 @@ void main() {
       expect(filesize(1030, 4), '1.0059 KB');
       expect(filesize(1536, 4), '1.5000 KB');
       expect(filesize(2048, 4), '2 KB');
-    });
+      expect(filesize(1024, 4, true), '1.0000 KB');
+      expect(filesize(2048, 4, true), '2.0000 KB');
 
-    test('space', () {
-      expect(filesize(1023, 0, true), '1023 B');
-      expect(filesize(1023, 1, true), '1023 B');
-      expect(filesize(1023, 0, false), '1023B');
-      expect(filesize(1023, 1, false), '1023B');
+      expect(filesizeWithoutSpace(1023, 4), '1023B');
+      expect(filesizeWithoutSpace(1024, 4), '1KB');
+      expect(filesizeWithoutSpace(1030, 4), '1.0059KB');
+      expect(filesizeWithoutSpace(1536, 4), '1.5000KB');
+      expect(filesizeWithoutSpace(2048, 4), '2KB');
+      expect(filesizeWithoutSpace(1024, 4, true), '1.0000KB');
+      expect(filesizeWithoutSpace(2048, 4, true), '2.0000KB');
     });
   });
 }

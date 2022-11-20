@@ -58,10 +58,11 @@ import 'package:flutter_ahlib/flutter_ahlib_util.dart';
     + `BoolExtension` `IterableExtension` `LetExtension`
     + `downloadFile`
     + `ExtendedLogger` `PreferredPrinter`
-    + `filesize`
+    + `filesize` `filesizeWithoutSpace`
     + `Flutter material constants`
     + `StateExtension` `ScrollControllerExtension` `ScrollMetricsExtension` `PageControllerExtension` `RenderObjectExtension`
     + `getMimeFromExtension` `getExtensionsFromMime` `getPreferredExtensionFromMime`
+    + `TaskResult` `Ok` `Err` `TaskResultFutureExtension`
     + `Tuple2` ~ `Tuple6`
 
 ### Dependencies

@@ -80,6 +80,11 @@ void main() {
       expect(controller.invoke<int Function()>('3')!(), 3);
 
       expect(controller.invokeWhere((k) => k == '1' || k == '2'), [null, 2]);
+
+      controller.dispose();
+      expect(controller.containsAction('1'), false);
+      expect(controller.containsAction('2'), false);
+      expect(controller.containsAction('3'), false);
     });
   });
 }
