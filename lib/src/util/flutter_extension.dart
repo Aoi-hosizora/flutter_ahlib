@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
@@ -102,7 +104,7 @@ extension PageControllerExtension on PageController {
   // TabController:
   // - animateTo(int value, {Duration? duration, Curve curve = Curves.ease})
   // - set index(int value)
-  // - get offset(double value)
+  // - set offset(double value)
 
   /// The default [Curve] for [defaultAnimateToPage].
   static const _kPageAnimationCurve = Curves.ease;
@@ -140,5 +142,47 @@ extension RenderObjectExtension on RenderObject {
   /// Casts the [RenderObject] to [RenderBox].
   RenderBox? toRenderBox() {
     return this as RenderBox?;
+  }
+}
+
+/// An extension for [BuildContext].
+extension BuildContextExtension on BuildContext {
+  ///
+  T? visitDescendantElementsDFS<T extends Object>(T? Function(Element) checker) {
+    T? out;
+
+    void visit(Element el) {
+      if (out != null) {
+        return;
+      }
+      var t = checker(el);
+      if (t != null) {
+        out = t;
+        return;
+      }
+      el.visitChildElements(visit);
+    }
+
+    visitChildElements(visit);
+    return out;
+  }
+
+  ///
+  T? visitDescendantElementsBFS<T extends Object>(T? Function(Element) checker) {
+    var queue = ListQueue<Element>();
+
+    visitChildElements((el) => queue.addLast(el));
+    while (queue.isNotEmpty) {
+      var el = queue.first;
+      queue.removeFirst();
+
+      var t = checker(el);
+      if (t != null) {
+        return t;
+      }
+      el.visitChildElements((el) => queue.addLast(el));
+    }
+
+    return null;
   }
 }

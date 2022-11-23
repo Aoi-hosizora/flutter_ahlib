@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_ahlib/flutter_ahlib.dart';
 import 'package:flutter_ahlib_example/page/image/extended_photo_gallery.dart';
 import 'package:flutter_ahlib_example/page/image/local_or_cached_network_image_provider.dart';
 import 'package:flutter_ahlib_example/page/image/reloadable_photo_view.dart';
@@ -19,12 +20,12 @@ import 'package:flutter_ahlib_example/page/widget/extended_nested_scroll_view.da
 import 'package:flutter_ahlib_example/page/widget/extended_scrollbar.dart';
 import 'package:flutter_ahlib_example/page/widget/icon_text.dart';
 import 'package:flutter_ahlib_example/page/widget/lazy_indexed_stack.dart';
+import 'package:flutter_ahlib_example/page/widget/nested_page_view_notifier.dart';
 import 'package:flutter_ahlib_example/page/widget/new_button_style.dart';
 import 'package:flutter_ahlib_example/page/widget/placeholder_text.dart';
 import 'package:flutter_ahlib_example/page/widget/popup_dialog_option.dart';
 import 'package:flutter_ahlib_example/page/widget/preloadable_page_view.dart';
 import 'package:flutter_ahlib_example/page/widget/sliver_delegate.dart';
-import 'package:flutter_ahlib_example/page/widget/tab_in_page_notification.dart';
 import 'package:flutter_ahlib_example/page/widget/table_whole_row_ink_well.dart';
 import 'package:flutter_ahlib_example/page/widget/text_group.dart';
 import 'package:flutter_ahlib_example/page/widget/text_selection_config.dart';
@@ -91,6 +92,7 @@ class _IndexPageState extends State<IndexPage> {
       body: _listView(
         padding: const EdgeInsets.all(6),
         children: [
+          _button('TestPage', const TestPage()),
           Align(
             alignment: Alignment.center,
             child: _text('Widget Examples'),
@@ -106,7 +108,7 @@ class _IndexPageState extends State<IndexPage> {
               _button('LazyIndexedStack', const LazyIndexedStackPage()),
               _button('SliverDelegate', const SliverDelegatePage()),
               _button('TextGroup', const TextGroupPage()),
-              _button('TabInPageNotification', const TabInPageNotificationPage()),
+              _button('NestedPageViewNotifier', const NestedPageViewNotifierPage()),
               _button('CustomInkFeature', const CustomInkFeaturePage()),
               _button('NewButtonStyle', const NewButtonThemePage()),
               _button('PreloadablePageView', const PreloadablePageViewPage()),
@@ -164,6 +166,109 @@ class _IndexPageState extends State<IndexPage> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class AlwaysOverscrollPhysics extends ClampingScrollPhysics {
+  const AlwaysOverscrollPhysics({ScrollPhysics? parent}) : super(parent: parent);
+
+  @override
+  AlwaysOverscrollPhysics applyTo(ScrollPhysics? ancestor) {
+    return AlwaysOverscrollPhysics(parent: buildParent(ancestor));
+  }
+
+  @override
+  double applyBoundaryConditions(ScrollMetrics position, double value) {
+    return value - position.pixels;
+  }
+}
+
+class TestPage extends StatefulWidget {
+  const TestPage({Key? key}) : super(key: key);
+
+  @override
+  State<TestPage> createState() => _TestPageState();
+}
+
+class _TestPageState extends State<TestPage> with SingleTickerProviderStateMixin {
+  final _length = 4;
+  late final _tabController = TabController(length: _length, vsync: this);
+  final _drawerKey = GlobalKey<CustomDrawerControllerState>();
+  var _drawerOpening = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        NotificationListener(
+          onNotification: (n) {
+            if (n is OverscrollNotification && n.dragDetails != null) {
+              if (n.dragDetails!.delta.dx > 0) {
+                if (!_drawerOpening) {
+                  _drawerOpening = true;
+                  if (_tabController.length > 1) {
+                    if (mounted) setState(() {});
+                  }
+                }
+                _drawerKey.currentState?.move(n.dragDetails!);
+              } else if (_drawerOpening && n.dragDetails!.delta.dx < 0) {
+                _drawerKey.currentState?.move(n.dragDetails!);
+              }
+            }
+            if (n is ScrollEndNotification && _drawerOpening) {
+              _drawerOpening = false;
+              if (_tabController.length > 1) {
+                if (mounted) setState(() {});
+              }
+              _drawerKey.currentState?.settle(n.dragDetails ?? DragEndDetails());
+            }
+            if (n is OverscrollIndicatorNotification && _drawerOpening) {
+              n.disallowIndicator();
+            }
+            return false;
+          },
+          child: Scaffold(
+            drawerEdgeDragWidth: 50,
+            drawer: const Drawer(
+              child: Center(
+                child: Text('yyy'),
+              ),
+            ),
+            appBar: AppBar(
+              title: const Text('TestPage'),
+            ),
+            body: TabBarView(
+              controller: _tabController,
+              physics: !_drawerOpening ? const AlwaysScrollableScrollPhysics() : const AlwaysOverscrollPhysics(),
+              children: [
+                for (var i = 0; i < _length; i++)
+                  Row(
+                    children: [
+                      Container(width: 20, color: Colors.purple),
+                      Container(width: 50 - 20, color: Colors.grey),
+                      Expanded(
+                        child: Container(
+                          color: [Colors.red, Colors.yellow, Colors.blue, Colors.green][i % 4],
+                        ),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
+          ),
+        ),
+        CustomDrawerController(
+          key: _drawerKey,
+          edgeDragWidth: 20,
+          alignment: DrawerAlignment.start,
+          child: const Drawer(
+            child: Center(
+              child: Text('xxx'),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
