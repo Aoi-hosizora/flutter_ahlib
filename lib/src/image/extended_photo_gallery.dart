@@ -3,9 +3,9 @@ import 'package:flutter_ahlib/src/image/reloadable_photo_view.dart';
 import 'package:flutter_ahlib/src/widget/preloadable_page_view.dart';
 import 'package:photo_view/photo_view.dart';
 
-// Note: The file is based on bluefireteam/photo_view, and is modified by AoiHosizora (GitHub: @Aoi-hosizora).
+// Note: This file is based on bluefireteam/photo_view, and is modified by AoiHosizora (GitHub: @Aoi-hosizora).
 //
-// Some code in this file keeps the same as the following source codes:
+// Some code in this file keeps the same as the following source code:
 // - PhotoViewGallery: https://github.com/bluefireteam/photo_view/blob/0.14.0/lib/photo_view_gallery.dart
 
 /// The signature for building a [ExtendedPhotoGalleryPageOptions] with given page index.
@@ -120,7 +120,7 @@ class ExtendedPhotoGallery extends StatefulWidget {
   /// An object that controls the [PageView] inside [ExtendedPhotoGallery].
   final PageController? pageController;
 
-  /// The flag for whether the page view scrolls in the reading direction.
+  /// The flag to determine whether the page view scrolls in the reading direction.
   final bool reverse;
 
   /// The [ScrollPhysics] for the internal [PageView].
@@ -131,11 +131,11 @@ class ExtendedPhotoGallery extends StatefulWidget {
 
   // for extended settings
 
-  /// The flag to call [onPageChanged] when page changing is finished. Note that listeners in
-  /// [PageController] will still be called when round value of page offset changed.
+  /// The flag to call [onPageChanged] when page changing is finished. Note that listeners in [PageController]
+  /// will still be called when round value of page offset changed.
   final bool changePageWhenFinished;
 
-  /// The flag for keeping main axis size of each photo page to origin size (which is the same as default identical
+  /// The flag to keep main axis size of each photo page to origin size (which is the same as default identical
   /// viewport fraction), defaults to false.
   ///
   /// Note that if [fractionWidthFactor] or [fractionHeightFactor] set to null or non-positive number, the actial

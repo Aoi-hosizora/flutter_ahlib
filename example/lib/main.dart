@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'flutter_ahlib_example',
+      title: 'flutter_ahlib example',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ).withSplashFactory(CustomInkRipple.preferredSplashFactory),

@@ -5,9 +5,9 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
-// Note: The file is based on Flutter's source code, and is modified by AoiHosizora (GitHub: @Aoi-hosizora).
+// Note: This file is based on Flutter's source code, and is modified by AoiHosizora (GitHub: @Aoi-hosizora).
 //
-// Some code in this file keeps the same as the following source codes:
+// Some code in this file keeps the same as the following source code:
 // - InkRipple: https://github.com/flutter/flutter/blob/2.10.5/packages/flutter/lib/src/material/ink_ripple.dart
 // - InkSplash: https://github.com/flutter/flutter/blob/2.10.5/packages/flutter/lib/src/material/ink_splash.dart
 
@@ -56,8 +56,8 @@ class CustomInkRippleSetting {
   /// _kFadeOutIntervalStart. See [_confirmedFadeOutInterval].
   final Duration confirmedFadeOutInterval;
 
-  /// The flag which is used to make the start of fade-out animation wait for the
-  /// end of radius-ripple and fade-in animations forwarding, when ink is confirmed.
+  /// The flag to make the start of fade-out animation wait for the end of radius-ripple
+  /// and fade-in animations forwarding, when ink is confirmed.
   final bool confirmedFadeOutWaitForForwarding;
 
   /// The fade-out duration when ink is canceled, which refers to original
@@ -91,7 +91,7 @@ class CustomInkRippleSetting {
   /// The default, or said, the original settings of [InkRipple] in Flutter.
   static const CustomInkRippleSetting defaultSetting = CustomInkRippleSetting();
 
-  /// The preferred [CustomInkRipple] setting by Aoi-hosizora :)
+  /// The preferred [CustomInkRipple] setting by AoiHosizora :)
   static const CustomInkRippleSetting preferredSetting = CustomInkRippleSetting(
     unconfirmedRippleDuration: Duration(milliseconds: 300) /* 1000 -> 300 */,
     unconfirmedFadeInDuration: Duration(milliseconds: 75) /* 75 -> 75 */,
@@ -402,7 +402,7 @@ class CustomInkSplashSetting {
     confirmedFadeOutInterval: Duration(milliseconds: 0),
   );
 
-  /// The preferred [CustomInkSplash] setting by Aoi-hosizora :)
+  /// The preferred [CustomInkSplash] setting by AoiHosizora :)
   static const CustomInkSplashSetting preferredSetting = CustomInkSplashSetting(
     unconfirmedSplashDuration: Duration(milliseconds: 300) /* 1000 -> 300 */,
     confirmedSplashVelocity: 0.5, // 1.0 -> 0.5

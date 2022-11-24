@@ -1,6 +1,7 @@
 import 'dart:ui';
 
-// Refers to: https://github.com/google/tuple.dart/blob/master/lib/tuple.dart.
+// Reference:
+// - https://github.com/google/tuple.dart/blob/master/lib/tuple.dart
 
 /// Represents a 1-tuple, which can be used to wrap simple type as referable type.
 class Tuple1<T> {

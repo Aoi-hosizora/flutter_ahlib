@@ -5,9 +5,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/scheduler.dart';
 
-// Note: The file is based on Baseflow/flutter_cached_network_image.
+// Note: This file is completely based on Baseflow/flutter_cached_network_image.
 //
-// Some code in this file keeps the same as the following source codes:
+// Some code in this file keeps the same as the following source code:
 // - MultiImageStreamCompleter: https://github.com/Baseflow/flutter_cached_network_image/blob/v3.1.0/cached_network_image/lib/src/image_provider/multi_image_stream_completer.dart
 
 /// Slows down animations by this factor to help in development.

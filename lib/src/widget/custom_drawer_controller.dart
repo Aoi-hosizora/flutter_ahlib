@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 
 // Note: This file is based on Flutter's source code, and is modified by AoiHosizora (GitHub: @Aoi-hosizora).
 //
-// Some code in this file keeps the same as the following source codes:
+// Some code in this file keeps the same as the following source code:
 // - DrawerController: https://github.com/flutter/flutter/blob/2.10.5/packages/flutter/lib/src/material/drawer.dart
 
 const double _kWidth = 304.0;
@@ -19,7 +19,7 @@ const Duration _kBaseSettleDuration = Duration(milliseconds: 246);
 /// widgets. Note that it is allowed to use methods such as [CustomDrawerControllerState.move]
 /// to control its offset, and this is the only difference from [DrawerController].
 ///
-/// This widget is rarely used directly, and is designed depended on [ExtendedDrawerScaffold].
+/// This widget is rarely used directly, and is designed depended on [DrawerScaffold].
 class CustomDrawerController extends StatefulWidget {
   const CustomDrawerController({
     GlobalKey? key,
@@ -155,7 +155,7 @@ class CustomDrawerControllerState extends State<CustomDrawerController> with Tic
 
   final GlobalKey _drawerKey = GlobalKey();
 
-  // The accessibility of this property is modified by AoiHosizora.
+  // The property accessibility is modified by AoiHosizora.
   /// Returns the width of drawer.
   double get width {
     final RenderBox? box = _drawerKey.currentContext?.findRenderObject() as RenderBox?;
@@ -165,7 +165,7 @@ class CustomDrawerControllerState extends State<CustomDrawerController> with Tic
 
   bool _previouslyOpened = false;
 
-  // The accessibility of this method is modified by AoiHosizora.
+  // The method accessibility is modified by AoiHosizora.
   /// Updates the drawer's offset by given [DragUpdateDetails].
   void move(DragUpdateDetails details) {
     double delta = details.primaryDelta! / width;
@@ -190,7 +190,7 @@ class CustomDrawerControllerState extends State<CustomDrawerController> with Tic
     _previouslyOpened = opened;
   }
 
-  // The accessibility of this method is modified by AoiHosizora.
+  // The method accessibility is modified by AoiHosizora.
   /// Settles the drawer by given [DragEndDetails].
   void settle(DragEndDetails details) {
     if (_controller.isDismissed) return;

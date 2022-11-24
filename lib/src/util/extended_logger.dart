@@ -1,8 +1,8 @@
 import 'package:logger/logger.dart';
 
-// Note: The file is partly based on leisim/logger and FMotalleb/logger, and is modified by AoiHosizora (GitHub: @Aoi-hosizora).
+// Note: Part of the file is based on leisim/logger and FMotalleb/logger, and is modified by AoiHosizora (GitHub: @Aoi-hosizora).
 //
-// Some code in this file keeps the same as the following source codes:
+// Some code in this file keeps the same as the following source code:
 // - Logger: https://github.com/leisim/logger/blob/7e510ec1cb/lib/src/logger.dart
 // - Logger: https://github.com/FMotalleb/logger/blob/5bf51b0f59/lib/src/logger_fork.dart
 
@@ -153,7 +153,7 @@ String ansiEscapeCodeToPlainText(String s) {
   return s.replaceAll(RegExp('\x1b\\[.+?m'), '');
 }
 
-/// This is an implementation of [LogPrinter], which is preferred by Aoi-Hosizora :)
+/// This is an implementation of [LogPrinter], which is preferred by AoiHosizora :)
 ///
 /// Format:
 /// ```

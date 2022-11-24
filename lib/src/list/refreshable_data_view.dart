@@ -6,9 +6,6 @@ import 'package:flutter_ahlib/src/widget/extended_scrollbar.dart';
 import 'package:flutter_ahlib/src/widget/sliver_delegate.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
-/// The duration for refreshing list after clearing the data.
-const _kFlashListDuration = Duration(milliseconds: 50);
-
 /// An implementation of [UpdatableDataView] for refreshable data, including [RefreshIndicator], [PlaceholderText], [Scrollbar] and some
 /// scroll views, such as [ListView], [SliverList] with [CustomScrollView], [MasonryGridView], [SliverMasonryGrid] with [CustomScrollView].
 class RefreshableDataView<T> extends UpdatableDataView<T> {
@@ -197,7 +194,7 @@ class RefreshableDataViewState<T> extends State<RefreshableDataView<T>> with Aut
       if (widget.data.isNotEmpty) {
         widget.data.clear();
         if (mounted) setState(() {});
-        await Future.delayed(_kFlashListDuration);
+        await Future.delayed(kFlashListDuration);
       }
       widget.data.addAll(list);
       widget.setting.onAppend?.call(null, list);
@@ -229,11 +226,11 @@ class RefreshableDataViewState<T> extends State<RefreshableDataView<T>> with Aut
 
     Widget separatorBuilder(BuildContext c, int idx) {
       if (idx < tl) {
-        return const SizedBox(height: 0);
+        return const SizedBox.shrink();
       } else if (idx < tl + dl - 1) {
-        return widget.separator ?? const SizedBox(height: 0);
+        return widget.separator ?? const SizedBox.shrink();
       } else {
-        return const SizedBox(height: 0);
+        return const SizedBox.shrink();
       }
     }
 
@@ -255,7 +252,7 @@ class RefreshableDataViewState<T> extends State<RefreshableDataView<T>> with Aut
         reverse: widget.setting.reverse ?? false,
         shrinkWrap: widget.setting.shrinkWrap ?? false,
         cacheExtent: widget.setting.cacheExtent,
-        dragStartBehavior: widget.setting.dragStartBehavior ??  DragStartBehavior.start,
+        dragStartBehavior: widget.setting.dragStartBehavior ?? DragStartBehavior.start,
         keyboardDismissBehavior: widget.setting.keyboardDismissBehavior ?? ScrollViewKeyboardDismissBehavior.manual,
         restorationId: widget.setting.restorationId,
         clipBehavior: widget.setting.clipBehavior ?? Clip.hardEdge,
@@ -272,7 +269,7 @@ class RefreshableDataViewState<T> extends State<RefreshableDataView<T>> with Aut
       reverse: widget.setting.reverse ?? false,
       shrinkWrap: widget.setting.shrinkWrap ?? false,
       cacheExtent: widget.setting.cacheExtent,
-      dragStartBehavior: widget.setting.dragStartBehavior ??  DragStartBehavior.start,
+      dragStartBehavior: widget.setting.dragStartBehavior ?? DragStartBehavior.start,
       keyboardDismissBehavior: widget.setting.keyboardDismissBehavior ?? ScrollViewKeyboardDismissBehavior.manual,
       restorationId: widget.setting.restorationId,
       clipBehavior: widget.setting.clipBehavior ?? Clip.hardEdge,
@@ -307,7 +304,7 @@ class RefreshableDataViewState<T> extends State<RefreshableDataView<T>> with Aut
         reverse: widget.setting.reverse ?? false,
         shrinkWrap: widget.setting.shrinkWrap ?? false,
         cacheExtent: widget.setting.cacheExtent,
-        dragStartBehavior: widget.setting.dragStartBehavior ??  DragStartBehavior.start,
+        dragStartBehavior: widget.setting.dragStartBehavior ?? DragStartBehavior.start,
         keyboardDismissBehavior: widget.setting.keyboardDismissBehavior ?? ScrollViewKeyboardDismissBehavior.manual,
         restorationId: widget.setting.restorationId,
         clipBehavior: widget.setting.clipBehavior ?? Clip.hardEdge,
@@ -326,7 +323,7 @@ class RefreshableDataViewState<T> extends State<RefreshableDataView<T>> with Aut
       reverse: widget.setting.reverse ?? false,
       shrinkWrap: widget.setting.shrinkWrap ?? false,
       cacheExtent: widget.setting.cacheExtent,
-      dragStartBehavior: widget.setting.dragStartBehavior ??  DragStartBehavior.start,
+      dragStartBehavior: widget.setting.dragStartBehavior ?? DragStartBehavior.start,
       keyboardDismissBehavior: widget.setting.keyboardDismissBehavior ?? ScrollViewKeyboardDismissBehavior.manual,
       restorationId: widget.setting.restorationId,
       clipBehavior: widget.setting.clipBehavior ?? Clip.hardEdge,

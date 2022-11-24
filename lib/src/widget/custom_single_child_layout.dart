@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-/// A customizable [SingleChildLayoutDelegate] which is used by [CustomSingleChildLayout]
-/// or [RenderCustomSingleChildLayoutBox]. Here this delegate will use given function
+/// A customizable [SingleChildLayoutDelegate] which is used by [CustomSingleChildLayout] or
+/// [RenderCustomSingleChildLayoutBox]. Here this delegate will use given function
 /// parameters as override methods.
 class CustomSingleChildLayoutDelegate extends SingleChildLayoutDelegate {
   const CustomSingleChildLayoutDelegate({
@@ -21,7 +21,7 @@ class CustomSingleChildLayoutDelegate extends SingleChildLayoutDelegate {
   /// The position where the child should be placed.
   final Offset Function(Size size, Size childSize)? positionGetter;
 
-  /// The flag which represents new new instance is different with the old one.
+  /// The checker function to determine whether new instance is different from the old one.
   final bool Function()? relayoutChecker;
 
   @override

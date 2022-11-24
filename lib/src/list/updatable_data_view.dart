@@ -3,6 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/src/list/append_indicator.dart';
 import 'package:flutter_ahlib/src/widget/placeholder_text.dart';
 
+/// The duration for refreshing list after clearing the data.
+const kFlashListDuration = Duration(milliseconds: 50);
+
+/// The duration for fake refreshing when nothing.
+const kFakeRefreshDuration = Duration(milliseconds: 250);
+
 /// An abstract widget for updatable data view, implemented by [RefreshableDataView] and [PaginationDataView].
 abstract class UpdatableDataView<T> extends StatefulWidget {
   const UpdatableDataView({Key? key}) : super(key: key);
@@ -198,10 +204,10 @@ class UpdatableDataViewSetting<T> {
   /// The switcher to update list only when returned data is not empty, defaults to false, only used for pagination.
   final bool? updateOnlyIfNotEmpty;
 
-  /// The flag for ensure keeping scroll offset when data appended, default to false, only used for pagination.
+  /// The flag to ensure keeping scroll offset when data appended, default to false, only used for pagination.
   final bool? ensureKeepScrollOffsetWhenAppend;
 
-  /// The flag for scrolling down automatically when data appended, defaults to true, only used for pagination.
+  /// The flag to scroll down automatically when data appended, defaults to true, only used for pagination.
   final bool? automaticallyScrollDownWhenAppend;
 
   /// The callback when start refreshing.

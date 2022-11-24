@@ -522,7 +522,7 @@ class _PlaceholderTextState extends State<PlaceholderText> {
       // unreachable
       // ===========
       default:
-        return const SizedBox(height: 0); // dummy
+        return const SizedBox.shrink(); // dummy
     }
   }
 }

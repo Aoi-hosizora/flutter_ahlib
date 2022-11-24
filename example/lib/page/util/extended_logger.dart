@@ -171,7 +171,7 @@ class _ExtendedLoggerPageState extends State<ExtendedLoggerPage> {
 
 // The follow code is based on leisim/logger_flutter and fmotalleb/logger_flutter, and is modified by AoiHosizora (GitHub: @Aoi-hosizora).
 //
-// Some code in these classes keeps the same as the following source codes:
+// Some code in these classes keeps the same as the following source code:
 // - LogConsole: https://github.com/leisim/logger_flutter/blob/1e4d87d715/lib/src/log_console.dart
 // - LogConsole: https://github.com/FMotalleb/logger_flutter/blob/5707c9e07b/lib/src/log_console.dart
 
@@ -229,32 +229,24 @@ class _LogConsolePageState extends State<_LogConsolePage> {
   var _filterLevel = Level.verbose;
   var _logFontSize = 14.0;
 
-  var _enableScrollListener = true;
-  var _followBottom = false;
-
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance?.addPostFrameCallback((_) {
-      _scrollController.addListener(_onScrolled);
       _updateFilteredBuffer();
-      _LogConsolePage._logger.addOutputListener(_callback);
+      _LogConsolePage._logger.addOutputListener(_updateFilteredBuffer);
     });
   }
 
   @override
   void dispose() {
-    _LogConsolePage._logger.removeOutputListener(_callback);
+    _LogConsolePage._logger.removeOutputListener(_updateFilteredBuffer);
     _scrollController.dispose();
     _filterController.dispose();
     super.dispose();
   }
 
-  void _callback(OutputEvent ev) {
-    _updateFilteredBuffer();
-  }
-
-  void _updateFilteredBuffer() {
+  void _updateFilteredBuffer([dynamic _]) {
     var filtered = _LogConsolePage._eventBuffer.where((ev) {
       if (ev.origin.level.index < _filterLevel.index) {
         return false; // match level
@@ -268,25 +260,11 @@ class _LogConsolePageState extends State<_LogConsolePage> {
     _filteredBuffer.addAll(filtered);
     if (mounted) setState(() {});
 
-    if (_followBottom) {
-      _scrollToBottom();
+    if (_scrollController.hasClients && _scrollController.position.atBottomEdge()) {
+      WidgetsBinding.instance?.addPostFrameCallback((_) {
+        _scrollController.scrollToBottom();
+      });
     }
-  }
-
-  void _onScrolled() {
-    if (_enableScrollListener) {
-      _followBottom = _scrollController.offset >= _scrollController.position.maxScrollExtent;
-      if (mounted) setState(() {});
-    }
-  }
-
-  void _scrollToBottom() async {
-    _enableScrollListener = false;
-    WidgetsBinding.instance?.addPostFrameCallback((_) async {
-      await _scrollController.scrollToBottom();
-      _enableScrollListener = true;
-      _onScrolled();
-    });
   }
 
   @override
@@ -351,9 +329,9 @@ class _LogConsolePageState extends State<_LogConsolePage> {
               controller: _scrollController,
               child: SingleChildScrollView(
                 controller: _scrollController,
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                 scrollDirection: Axis.vertical,
                 child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                   scrollDirection: Axis.horizontal,
                   child: SizedBox(
                     width: 2000,
@@ -409,18 +387,20 @@ class _LogConsolePageState extends State<_LogConsolePage> {
           ),
         ],
       ),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: kToolbarHeight),
-        child: AnimatedFab(
-          show: !_followBottom,
-          fab: FloatingActionButton(
-            child: const Icon(Icons.arrow_downward),
-            heroTag: null,
-            mini: true,
-            onPressed: _scrollToBottom,
-          ),
-        ),
-      ),
+      floatingActionButton: _filteredBuffer.isEmpty
+          ? null
+          : Padding(
+              padding: const EdgeInsets.only(bottom: kToolbarHeight),
+              child: ScrollAnimatedFab(
+                scrollController: _scrollController,
+                condition: ScrollAnimatedCondition.reverseDirection,
+                fab: FloatingActionButton(
+                  child: const Icon(Icons.vertical_align_bottom),
+                  heroTag: null,
+                  onPressed: () => _scrollController.scrollToBottom(),
+                ),
+              ),
+            ),
     );
   }
 }

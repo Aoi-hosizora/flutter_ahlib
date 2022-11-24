@@ -5,7 +5,7 @@
 [![pub package](https://img.shields.io/pub/v/flutter_ahlib.svg)](https://pub.dev/packages/flutter_ahlib)
 [![License](https://img.shields.io/badge/license-mit-blue.svg)](./LICENSE)
 
-+ A personal flutter library, contains some useful widgets and utils.
++ A personal flutter library, contains some useful widgets and utilities.
 + Please visit https://pub.dev/packages/flutter_ahlib for this library. Note that this library only passed tests in Flutter 2.x.
 
 ### Usage
@@ -29,8 +29,8 @@ import 'package:flutter_ahlib/flutter_ahlib_util.dart';
     + `CustomPageRoute` `CustomPageRouteTheme` `NoPopGestureCupertinoPageTransitionsBuilder`
     + `CustomScrollPhysics` `CustomScrollPhysicsController`
     + `CustomSingleChildLayoutDelegate`
-    + `ExtendedDrawerScaffold` `ExtendedDrawerScaffoldState`
-    + `ExtendedNestedScrollView`
+    + `DrawerScaffold` `DrawerScaffoldState`
+    + `ExtendedNestedScrollView` `ExtendedNestedScrollViewState`
     + `ExtendedScrollbar`
     + `IconText`
     + `LazyIndexedStack`

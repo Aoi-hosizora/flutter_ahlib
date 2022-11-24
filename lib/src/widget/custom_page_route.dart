@@ -46,10 +46,8 @@ class CustomPageRoute<T> extends PageRoute<T> {
   /// The widget builder for building the primary contents of the route.
   final WidgetBuilder builder;
 
-  /// The flag describing whether the route should remain in memory when it is inactive.
   @override
   final bool maintainState;
-
   final Duration? _transitionDuration;
   final Duration? _reverseTransitionDuration;
   final Color? _barrierColor;

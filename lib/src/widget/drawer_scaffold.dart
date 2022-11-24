@@ -3,16 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/src/widget/custom_drawer_controller.dart';
 import 'package:flutter_ahlib/src/widget/custom_scroll_physics.dart';
 
-// Note: Some contents in this file are based on Flutter's source code, and is modified by AoiHosizora (GitHub: @Aoi-hosizora).
+// Note: Part of this file is based on Flutter's source code, and is modified by AoiHosizora (GitHub: @Aoi-hosizora).
 //
-// Some code in this file keeps the same as the following source codes:
+// Some code in this file keeps the same as the following source code:
 // - Scaffold: https://github.com/flutter/flutter/blob/2.10.5/packages/flutter/lib/src/material/scaffold.dart
 // - AppBar: https://github.com/flutter/flutter/blob/2.10.5/packages/flutter/lib/src/material/app_bar.dart
 
 /// An extended [Scaffold] with [Drawer], mainly for making [Drawer] openable when
 /// [PageView] or [TabBarView] is overscrolled horizontally.
-class ExtendedDrawerScaffold extends StatefulWidget {
-  const ExtendedDrawerScaffold({
+class DrawerScaffold extends StatefulWidget {
+  const DrawerScaffold({
     Key? key,
     required this.body,
     this.drawer,
@@ -84,19 +84,19 @@ class ExtendedDrawerScaffold extends StatefulWidget {
   final bool extendBodyBehindAppBar;
   final String? restorationId;
 
-  /// Finds the [ExtendedDrawerScaffoldState] from the closest instance of this
-  /// class that encloses the given context.
-  static ExtendedDrawerScaffoldState? of(BuildContext context) {
-    return context.findAncestorStateOfType<ExtendedDrawerScaffoldState>();
+  /// Finds the [DrawerScaffoldState] from the closest instance of this class the
+  /// encloses the given context.
+  static DrawerScaffoldState? of(BuildContext context) {
+    return context.findAncestorStateOfType<DrawerScaffoldState>();
   }
 
   @override
-  ExtendedDrawerScaffoldState createState() => ExtendedDrawerScaffoldState();
+  DrawerScaffoldState createState() => DrawerScaffoldState();
 }
 
-/// The state of [ExtendedDrawerScaffold], you can use [openDrawer] and [closeDrawer]
-/// to control the drawer's offset.
-class ExtendedDrawerScaffoldState extends State<ExtendedDrawerScaffold> with RestorationMixin {
+/// The state of [DrawerScaffold], you can use [openDrawer] and [closeDrawer] to
+/// control the drawer's offset.
+class DrawerScaffoldState extends State<DrawerScaffold> with RestorationMixin {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   /// Returns the origin [ScaffoldState] of this widget.

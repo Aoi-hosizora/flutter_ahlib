@@ -8,9 +8,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-// Note: The file is based on Flutter's source code, and is modified by AoiHosizora (GitHub: @Aoi-hosizora).
+// Note: This file is based on Flutter's source code, and is modified by AoiHosizora (GitHub: @Aoi-hosizora).
 //
-// Some code in this file keeps the same as the following source codes:
+// Some code in this file keeps the same as the following source code:
 // - InkResponse: https://github.com/flutter/flutter/blob/2.10.5/packages/flutter/lib/src/material/ink_well.dart
 
 /// A customizable [InkWell] with [getRadius], [getRect] for ink feature.

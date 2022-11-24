@@ -8,9 +8,9 @@ import 'package:flutter_ahlib/src/image/load_local_or_network_image.dart';
 import 'package:flutter_ahlib/src/image/multi_image_stream_completer.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
-// Note: The file is based on Baseflow/flutter_cached_network_image, and is modified by AoiHosizora (GitHub: @Aoi-hosizora).
+// Note: This file is based on Baseflow/flutter_cached_network_image, and is modified by AoiHosizora (GitHub: @Aoi-hosizora).
 //
-// Some code in this file keeps the same as the following source codes:
+// Some code in this file keeps the same as the following source code:
 // - CachedNetworkImageProvider: https://github.com/Baseflow/flutter_cached_network_image/blob/v3.1.0/cached_network_image/lib/src/image_provider/cached_network_image_provider.dart
 // - ImageLoader: https://github.com/Baseflow/flutter_cached_network_image/blob/v3.1.0/cached_network_image/lib/src/image_provider/_image_loader.dart
 
@@ -141,7 +141,7 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<LocalOrCachedNetwo
   /// The key that can be used to reload the image in force when different [Key] passed.
   final Key? key;
 
-  // The flag that describes if xxxFuture parameters used or not.
+  // Describes whether xxxFuture parameters used or not.
   final bool _useFuture;
 
   /// The local file of the image to load.
@@ -163,7 +163,7 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<LocalOrCachedNetwo
   // for local
   // =========
 
-  /// The flag for deciding whether to throw exception or use [url] as fallback, when given
+  /// The flag to decide whether to throw exception or use [url] as fallback, when given
   /// [file] does not exist, defaults to true.
   final bool fileMustExist;
 
@@ -189,8 +189,8 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<LocalOrCachedNetwo
   /// disk to fit the height. This value will be ignored if a normal [cacheManager] is used.
   final int? maxHeight;
 
-  /// The flag for checking whether need to send HEAD request asynchronously to get network
-  /// image's real size, defaults to false.
+  /// The flag to check whether need to send HEAD request asynchronously to get network image's
+  /// real size, defaults to false.
   final bool asyncHeadFirst;
 
   /// The timeout duration for network image loading, defaults to null, which means not to check.

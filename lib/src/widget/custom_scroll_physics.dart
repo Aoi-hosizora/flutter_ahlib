@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-// Note: The file is referred from network blog, and is modified by AoiHosizora (GitHub: @Aoi-hosizora).
-//
 // Reference:
 // - https://blog.csdn.net/ww897532167/article/details/125520964
 
@@ -58,12 +56,12 @@ class CustomScrollPhysicsController {
     this.disableScrollLeft = false,
   });
 
-  /// The flag for disabling scrolling right (or said, swiping left), even if current
-  /// offset lands on the middle of items, defaults to false.
+  /// The flag to disable scrolling right (or said, swiping left), even if current offset
+  /// lands on the middle of items, defaults to false.
   bool disableScrollRight;
 
-  /// The flag for disabling scrolling left (or said, swiping right), even if current
-  /// offset lands on the middle of items, defaults to false.
+  /// The flag to disable scrolling left (or said, swiping right), even if current offset
+  /// lands on the middle of items, defaults to false.
   bool disableScrollLeft;
 
   // Stores the last scroll value, is used in applyBoundaryConditions.

@@ -2,9 +2,9 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-// Note: Some contents of this file are based on Flutter's source code, and is modified by AoiHosizora (GitHub: @Aoi-hosizora).
+// Note: Part of this file is based on Flutter's source code, and is modified by AoiHosizora (GitHub: @Aoi-hosizora).
 //
-// Some code in this file keeps the same as the following source codes:
+// Some code in this file keeps the same as the following source code:
 // - IconButton: https://github.com/flutter/flutter/blob/2.10.5/packages/flutter/lib/src/material/icon_button.dart
 // - AppBar: https://github.com/flutter/flutter/blob/2.10.5/packages/flutter/lib/src/material/app_bar.dart
 
@@ -280,7 +280,7 @@ class AppBarActionButton extends StatelessWidget {
     return Builder(
       builder: (c) =>
           _build(c) ?? //
-          const SizedBox(width: 0, height: 0) /* display a blank with fixed width */,
+          const SizedBox.shrink() /* display a blank with fixed width */,
     );
   }
 }

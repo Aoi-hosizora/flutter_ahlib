@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// An extended [Scrollbar], this widget uses [ScrollbarTheme] to enrich builtin [Scrollbar].
+/// An extended [Scrollbar]. This widget uses [ScrollbarTheme] to enrich builtin [Scrollbar].
 class ExtendedScrollbar extends StatelessWidget {
   const ExtendedScrollbar({
     Key? key,

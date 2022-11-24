@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/flutter_ahlib.dart';
 
-class NewButtonThemePage extends StatefulWidget {
-  const NewButtonThemePage({Key? key}) : super(key: key);
+class NewButtonStylePage extends StatefulWidget {
+  const NewButtonStylePage({Key? key}) : super(key: key);
 
   @override
-  State<NewButtonThemePage> createState() => _NewButtonThemePageState();
+  State<NewButtonStylePage> createState() => _NewButtonStylePageState();
 }
 
 enum InkFeature {
@@ -17,7 +17,7 @@ enum InkFeature {
 
 // ignore_for_file: deprecated_member_use
 
-class _NewButtonThemePageState extends State<NewButtonThemePage> {
+class _NewButtonStylePageState extends State<NewButtonStylePage> {
   InkFeature? _inkFeature = InkFeature.defaultInkRipple;
 
   Widget _radio(InkFeature value, String title) {

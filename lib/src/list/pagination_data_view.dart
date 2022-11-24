@@ -8,12 +8,6 @@ import 'package:flutter_ahlib/src/widget/extended_scrollbar.dart';
 import 'package:flutter_ahlib/src/widget/sliver_delegate.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
-/// The duration for refreshing list after clearing the data.
-const _kFlashListDuration = Duration(milliseconds: 50);
-
-/// The duration for fake refreshing when nothing.
-const _kFakeRefreshDuration = Duration(milliseconds: 250);
-
 /// A data model for [PaginationDataView], represents the returned data.
 class PagedList<T> {
   const PagedList({
@@ -267,7 +261,7 @@ class PaginationDataViewState<T> extends State<PaginationDataView<T>> with Autom
 
     // handle nothing directly
     if (!reset && _nextIndicator == widget.paginationSetting.nothingIndicator) {
-      return Future.delayed(_kFakeRefreshDuration).then((_) {
+      return Future.delayed(kFakeRefreshDuration).then((_) {
         _loading = false;
         _errorMessage = '';
         _currentIndicator = _nextIndicator;
@@ -301,7 +295,7 @@ class PaginationDataViewState<T> extends State<PaginationDataView<T>> with Autom
         if (widget.data.isNotEmpty) {
           widget.data.clear();
           if (mounted) setState(() {});
-          await Future.delayed(_kFlashListDuration);
+          await Future.delayed(kFlashListDuration);
         }
         widget.data.addAll(list.list);
       } else {
@@ -355,11 +349,11 @@ class PaginationDataViewState<T> extends State<PaginationDataView<T>> with Autom
 
     Widget separatorBuilder(BuildContext c, int idx) {
       if (idx < tl) {
-        return const SizedBox(height: 0);
+        return const SizedBox.shrink();
       } else if (idx < tl + dl - 1) {
-        return widget.separator ?? const SizedBox(height: 0);
+        return widget.separator ?? const SizedBox.shrink();
       } else {
-        return const SizedBox(height: 0);
+        return const SizedBox.shrink();
       }
     }
 

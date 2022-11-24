@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 
-// Note: The file is based on bluefireteam/photo_view, and is modified by AoiHosizora (GitHub: @Aoi-hosizora).
+// Note: This file is based on bluefireteam/photo_view, and is modified by AoiHosizora (GitHub: @Aoi-hosizora).
 //
-// Some code in this file keeps the same as the following source codes:
+// Some code in this file keeps the same as the following source code:
 // - PhotoView: https://github.com/bluefireteam/photo_view/blob/0.14.0/lib/photo_view.dart
 // - ImageWrapper: https://github.com/bluefireteam/photo_view/blob/0.14.0/lib/src/photo_view_wrappers.dart
 

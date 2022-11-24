@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-// Note: The file is based on Flutter's source code, and is collected by AoiHosizora (GitHub: @Aoi-hosizora).
+// Note: This file is based on Flutter's source code, and is collected by AoiHosizora (GitHub: @Aoi-hosizora).
 //
-// These constants are all collected from the following source codes:
+// These constants keep the same as the following package:
 // - material package: https://github.com/flutter/flutter/tree/2.10.5/packages/flutter/lib/src/material
 // - cupertino package: https://github.com/flutter/flutter/tree/2.10.5/packages/flutter/lib/src/cupertino
 

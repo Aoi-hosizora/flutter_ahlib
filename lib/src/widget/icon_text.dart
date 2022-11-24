@@ -16,7 +16,7 @@ enum IconTextAlignment {
 }
 
 /// The default space of [IconText].
-const _kDefaultSpace = 15.0;
+const kIconTextDefaultSpace = 15.0;
 
 /// A wrapped [Icon] and [Text] with [Row] and [Column].
 class IconText extends StatelessWidget {
@@ -27,7 +27,7 @@ class IconText extends StatelessWidget {
     this.iconPadding = EdgeInsets.zero,
     this.textPadding = EdgeInsets.zero,
     this.alignment = IconTextAlignment.l2r,
-    this.space = _kDefaultSpace,
+    this.space = kIconTextDefaultSpace,
     this.mainAxisAlignment = MainAxisAlignment.start,
     this.mainAxisSize = MainAxisSize.max,
     this.crossAxisAlignment = CrossAxisAlignment.center,
@@ -41,7 +41,7 @@ class IconText extends StatelessWidget {
     required List<Widget> this.texts,
     this.iconPadding = EdgeInsets.zero,
     this.alignment = IconTextAlignment.l2r,
-    this.space = _kDefaultSpace,
+    this.space = kIconTextDefaultSpace,
     this.mainAxisAlignment = MainAxisAlignment.start,
     this.mainAxisSize = MainAxisSize.max,
     this.crossAxisAlignment = CrossAxisAlignment.center,
@@ -101,7 +101,7 @@ class IconText extends StatelessWidget {
           crossAxisAlignment: crossAxisAlignment,
           children: [
             pIcon,
-            SizedBox(height: 0, width: space ?? _kDefaultSpace),
+            SizedBox(height: 0, width: space ?? kIconTextDefaultSpace),
             if (pText != null) pText,
             if (texts != null) ...texts!,
           ],
@@ -115,7 +115,7 @@ class IconText extends StatelessWidget {
           children: [
             if (pText != null) pText,
             if (texts != null) ...texts!,
-            SizedBox(height: 0, width: space ?? _kDefaultSpace),
+            SizedBox(height: 0, width: space ?? kIconTextDefaultSpace),
             pIcon,
           ],
         );
@@ -127,7 +127,7 @@ class IconText extends StatelessWidget {
           crossAxisAlignment: crossAxisAlignment,
           children: [
             pIcon,
-            SizedBox(height: space ?? _kDefaultSpace, width: 0),
+            SizedBox(height: space ?? kIconTextDefaultSpace, width: 0),
             if (pText != null) pText,
             if (texts != null) ...texts!,
           ],
@@ -141,13 +141,13 @@ class IconText extends StatelessWidget {
           children: [
             if (pText != null) pText,
             if (texts != null) ...texts!,
-            SizedBox(height: space ?? _kDefaultSpace, width: 0),
+            SizedBox(height: space ?? kIconTextDefaultSpace, width: 0),
             pIcon,
           ],
         );
       default:
         // Unreachable
-        return const SizedBox(height: 0); // dummy
+        return const SizedBox.shrink(); // dummy
     }
   }
 }

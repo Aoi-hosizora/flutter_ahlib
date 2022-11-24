@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/src/widget/custom_ink_feature.dart';
 
-// Refers to: https://docs.google.com/document/d/1yohSuYrvyya5V1hB6j9pJskavCdVq9sVeTqSoEPsWH0.
+// Reference:
+// - https://docs.google.com/document/d/1yohSuYrvyya5V1hB6j9pJskavCdVq9sVeTqSoEPsWH0
 //
 // Old Widget    | Old Theme   | New Widget     | New Theme
 // --------------+-------------+----------------+--------------------
@@ -208,19 +209,19 @@ ButtonStyle outlineButtonStyle(
   return style;
 }
 
-/// The preferred splash color for [TextButton], [OutlinedButton], [InkWell], [InkResponse], etc by Aoi-hosizora :)
+/// The preferred splash color for [TextButton], [OutlinedButton], [InkWell], [InkResponse], etc by AoiHosizora :)
 const double preferredSplashColorOpacity = 0.20;
 
-/// The preferred splash color for [Table] by Aoi-hosizora :)
+/// The preferred splash color for [Table] by AoiHosizora :)
 const double preferredSplashColorOpacityForTable = 0.16;
 
-/// The preferred splash color for light [ElevatedButton] by Aoi-hosizora :)
+/// The preferred splash color for light [ElevatedButton] by AoiHosizora :)
 const double preferredSplashColorOpacityForLightElevated = 0.26;
 
-/// The preferred splash color for dark [ElevatedButton] by Aoi-hosizora :)
+/// The preferred splash color for dark [ElevatedButton] by AoiHosizora :)
 const double preferredSplashColorOpacityForDarkElevated = 0.40;
 
-/// Returns the preferred [TextButton]'s [ButtonStyle] by Aoi-hosizora :)
+/// Returns the preferred [TextButton]'s [ButtonStyle] by AoiHosizora :)
 ButtonStyle preferredTextButtonStyle(
   ColorScheme colorScheme, [
   double splashColorOpacity = preferredSplashColorOpacity,
@@ -231,7 +232,7 @@ ButtonStyle preferredTextButtonStyle(
       splashFactory: CustomInkRipple.preferredSplashFactory,
     );
 
-/// Returns the preferred [ElevatedButton]'s [ButtonStyle] by Aoi-hosizora :)
+/// Returns the preferred [ElevatedButton]'s [ButtonStyle] by AoiHosizora :)
 ButtonStyle preferredElevatedButtonStyle(
   ColorScheme colorScheme, [
   double splashColorOpacityForLight = preferredSplashColorOpacityForLightElevated,
@@ -240,11 +241,13 @@ ButtonStyle preferredElevatedButtonStyle(
     raisedButtonStyle(
       primary: colorScheme.primary,
       onPrimary: colorScheme.onPrimary,
-      splashColor: colorScheme.onPrimary.computeLuminance() < 0.5 ? colorScheme.onPrimary.withOpacity(splashColorOpacityForLight) : colorScheme.onPrimary.withOpacity(splashColorOpacityForDark), // <<<
+      splashColor: colorScheme.onPrimary.computeLuminance() < 0.5 //
+          ? colorScheme.onPrimary.withOpacity(splashColorOpacityForLight)
+          : colorScheme.onPrimary.withOpacity(splashColorOpacityForDark), // <<<
       splashFactory: CustomInkRipple.preferredSplashFactory,
     );
 
-/// Returns the preferred [OutlinedButton]'s [ButtonStyle] by Aoi-hosizora :)
+/// Returns the preferred [OutlinedButton]'s [ButtonStyle] by AoiHosizora :)
 ButtonStyle preferredOutlinedButtonStyle(
   ColorScheme colorScheme, [
   double splashColorOpacity = preferredSplashColorOpacity,

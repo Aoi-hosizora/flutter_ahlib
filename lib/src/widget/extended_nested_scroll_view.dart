@@ -10,17 +10,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 
-// Note: The file is based on Flutter's source code, and is modified by AoiHosizora (GitHub: @Aoi-hosizora).
+// Note: This file is based on Flutter's source code, and is modified by AoiHosizora (GitHub: @Aoi-hosizora).
 //
-// Some code in this file keeps the same as the following source codes:
+// Some code in this file keeps the same as the following source code:
 // - NestedScrollView: https://github.com/flutter/flutter/blob/2.10.5/packages/flutter/lib/src/widget/nested_scroll_view.dart
 //
-// References:
+// Reference:
 // - https://github.com/fluttercandies/extended_nested_scroll_view/blob/master/lib/src/extended_nested_scroll_view_part.dart
 // - https://juejin.cn/post/6844903713887223821
 
 /// An extended [NestedScrollView], mainly for [NestedScrollView] with a [TabBarView]
-/// or [PageView], which may use multiple [ScrollController].
+/// or [PageView], which may use multiple [ScrollController]-s.
 class ExtendedNestedScrollView extends StatefulWidget {
   const ExtendedNestedScrollView({
     Key? key,

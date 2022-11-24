@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/flutter_ahlib.dart';
 import 'package:flutter_ahlib_example/main.dart';
 
-class ExtendedDrawerScaffoldPage extends StatefulWidget {
-  const ExtendedDrawerScaffoldPage({Key? key}) : super(key: key);
+class DrawerScaffoldPage extends StatefulWidget {
+  const DrawerScaffoldPage({Key? key}) : super(key: key);
 
   @override
-  State<ExtendedDrawerScaffoldPage> createState() => _ExtendedDrawerScaffoldPageState();
+  State<DrawerScaffoldPage> createState() => _DrawerScaffoldPageState();
 }
 
-class _ExtendedDrawerScaffoldPageState extends State<ExtendedDrawerScaffoldPage> with TickerProviderStateMixin {
+class _DrawerScaffoldPageState extends State<DrawerScaffoldPage> with TickerProviderStateMixin {
   var _length = 4;
   var _hasDrawer = true;
   var _hasEndDrawer = true;
@@ -22,9 +22,9 @@ class _ExtendedDrawerScaffoldPageState extends State<ExtendedDrawerScaffoldPage>
 
   @override
   Widget build(BuildContext context) {
-    return ExtendedDrawerScaffold(
+    return DrawerScaffold(
       appBar: AppBar(
-        title: const Text('ExtendedDrawerScaffold Example'),
+        title: const Text('DrawerScaffold Example'),
         leading: _useAppBarActionButton
             ? AppBarActionButton.leading(
                 context: context,
@@ -93,39 +93,54 @@ class _ExtendedDrawerScaffoldPageState extends State<ExtendedDrawerScaffoldPage>
           ),
           Column(
             children: [
-              SwitchListTile(
-                title: const Text('only single page'),
-                value: _length == 1,
-                onChanged: (v) {
-                  _length = v ? 1 : 4;
-                  _tabController = TabController(length: _length, vsync: this);
-                  if (mounted) setState(() {});
-                },
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text('only single page'),
+                  Switch(
+                    value: _length == 1,
+                    onChanged: (b) {
+                      _length = b ? 1 : 4;
+                      _tabController = TabController(length: _length, vsync: this);
+                      if (mounted) setState(() {});
+                    },
+                  ),
+                ],
               ),
-              SwitchListTile(
-                title: const Text('hasDrawer'),
-                value: _hasDrawer,
-                onChanged: (v) => mountedSetState(() => _hasDrawer = v),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text('hasDrawer'),
+                  Switch(value: _hasDrawer, onChanged: (b) => mountedSetState(() => _hasDrawer = b)),
+                ],
               ),
-              SwitchListTile(
-                title: const Text('hasEndDrawer'),
-                value: _hasEndDrawer,
-                onChanged: (v) => mountedSetState(() => _hasEndDrawer = v),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text('hasEndDrawer'),
+                  Switch(value: _hasEndDrawer, onChanged: (b) => mountedSetState(() => _hasEndDrawer = b)),
+                ],
               ),
-              SwitchListTile(
-                title: const Text('neverScrollable'),
-                value: _neverScrollable,
-                onChanged: (v) => mountedSetState(() => _neverScrollable = v),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text('neverScrollable'),
+                  Switch(value: _neverScrollable, onChanged: (b) => mountedSetState(() => _neverScrollable = b)),
+                ],
               ),
-              SwitchListTile(
-                title: const Text('hasPhysicsController'),
-                value: _hasPhysicsController,
-                onChanged: (v) => mountedSetState(() => _hasPhysicsController = v),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text('hasPhysicsController'),
+                  Switch(value: _hasPhysicsController, onChanged: (b) => mountedSetState(() => _hasPhysicsController = b)),
+                ],
               ),
-              SwitchListTile(
-                title: const Text('useAppBarActionButton'),
-                value: _useAppBarActionButton,
-                onChanged: (v) => mountedSetState(() => _useAppBarActionButton = v),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text('useAppBarActionButton'),
+                  Switch(value: _useAppBarActionButton, onChanged: (b) => mountedSetState(() => _useAppBarActionButton = b)),
+                ],
               ),
             ],
           ),
@@ -135,19 +150,19 @@ class _ExtendedDrawerScaffoldPageState extends State<ExtendedDrawerScaffoldPage>
               children: [
                 ElevatedButton(
                   child: const Text('drawer'),
-                  onPressed: () => ExtendedDrawerScaffold.of(c)?.openDrawer(),
+                  onPressed: () => DrawerScaffold.of(c)?.openDrawer(),
                 ),
                 ElevatedButton(
                   child: const Text('end drawer'),
-                  onPressed: () => ExtendedDrawerScaffold.of(c)?.openEndDrawer(),
+                  onPressed: () => DrawerScaffold.of(c)?.openEndDrawer(),
                 ),
                 ElevatedButton(
                   child: const Text('drawer 2'),
-                  onPressed: () => ExtendedDrawerScaffold.of(c)?.scaffoldState?.openDrawer(),
+                  onPressed: () => DrawerScaffold.of(c)?.scaffoldState?.openDrawer(),
                 ),
                 ElevatedButton(
                   child: const Text('end drawer 2'),
-                  onPressed: () => ExtendedDrawerScaffold.of(c)?.scaffoldState?.openEndDrawer(),
+                  onPressed: () => DrawerScaffold.of(c)?.scaffoldState?.openEndDrawer(),
                 ),
               ],
             ),

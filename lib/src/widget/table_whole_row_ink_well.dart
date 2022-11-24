@@ -82,7 +82,7 @@ class TableWholeRowInkWell extends CustomInkResponse {
           getRect: (box) => getTableRowRect(box),
         );
 
-  /// The preferred [TableWholeRowInkWell] constructor by Aoi-hosizora :)
+  /// The preferred [TableWholeRowInkWell] constructor by AoiHosizora :)
   TableWholeRowInkWell.preferred({
     Key? key,
     required Widget child,

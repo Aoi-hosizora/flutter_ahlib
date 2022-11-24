@@ -71,7 +71,7 @@ class VideoProgressIndicator extends StatefulWidget {
   /// The size of indicator thumb, which is suggested to be larger than [indicatorHeight], defaults to 12.0.
   final double? thumbSize;
 
-  /// The flag whether allow scrub indicator to control the progress of video player.
+  /// The flag to allow scrub indicator to control the progress of video player.
   final bool? allowScrubbing;
 
   /// The callback when scrubbing started.

@@ -104,7 +104,7 @@ class _PlaceholderTextPageState extends State<PlaceholderTextPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text('empty'), // TODO Use SwitchListTile
+                      const Text('empty'),
                       Switch(value: _empty, onChanged: (b) => mountedSetState(() => _empty = b)),
                     ],
                   ),

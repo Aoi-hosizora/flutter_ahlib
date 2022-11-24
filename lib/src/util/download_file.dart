@@ -76,7 +76,7 @@ class DownloadOption {
   /// get response and [ignoreHeadError] is true, null header and null contentType will be passed.
   final RedecideFilepathHandler? redecideHandler;
 
-  /// The flag for ignoring errors when making http HEAD request, otherwise it will throw [DownloadException]
+  /// The flag to ignore errors when making http HEAD request, otherwise it will throw [DownloadException]
   /// with [DownloadErrorType.head].
   final bool ignoreHeadError;
 
@@ -87,8 +87,8 @@ class DownloadOption {
   /// defaults to " ($index)". Note that is will only be used for [DownloadConflictBehavior.addSuffix].
   final FilepathSuffixBuilder suffixBuilder;
 
-  /// The flag for updating cache only when data downloading is finished. Note that if valid data is
-  /// found from cache and used to save file, the cache item will never be updated.
+  /// The flag to update cache only when data downloading is finished. Note that if valid data is found
+  /// from cache and used to save file, the cache item will never be updated.
   final bool alsoUpdateCache;
 
   /// The max age duration for cache updating, defaults to `const Duration(days: 30)`.

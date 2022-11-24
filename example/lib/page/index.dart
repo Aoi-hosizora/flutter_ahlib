@@ -17,7 +17,7 @@ import 'package:flutter_ahlib_example/page/widget/custom_ink_response.dart';
 import 'package:flutter_ahlib_example/page/widget/custom_page_route.dart';
 import 'package:flutter_ahlib_example/page/widget/custom_scroll_physics.dart';
 import 'package:flutter_ahlib_example/page/widget/custom_single_child_layout.dart';
-import 'package:flutter_ahlib_example/page/widget/extended_drawer_scaffold.dart';
+import 'package:flutter_ahlib_example/page/widget/drawer_scaffold.dart';
 import 'package:flutter_ahlib_example/page/widget/extended_nested_scroll_view.dart';
 import 'package:flutter_ahlib_example/page/widget/extended_scrollbar.dart';
 import 'package:flutter_ahlib_example/page/widget/icon_text.dart';
@@ -89,7 +89,7 @@ class _IndexPageState extends State<IndexPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Flutter Ahlib Example'),
+        title: const Text('flutter_ahlib Example'),
       ),
       body: _listView(
         padding: const EdgeInsets.all(6),
@@ -111,7 +111,7 @@ class _IndexPageState extends State<IndexPage> {
               _button('TextGroup', const TextGroupPage()),
               _button('NestedPageViewNotifier', const NestedPageViewNotifierPage()),
               _button('CustomInkFeature', const CustomInkFeaturePage()),
-              _button('NewButtonStyle', const NewButtonThemePage()),
+              _button('NewButtonStyle', const NewButtonStylePage()),
               _button('PreloadablePageView', const PreloadablePageViewPage()),
               _button('TextSelectionConfig', const TextSelectionConfigPage()),
               _button('CustomInkResponse', const CustomInkResponsePage()),
@@ -123,9 +123,9 @@ class _IndexPageState extends State<IndexPage> {
               _button('CustomSingleChildLayout', const CustomSingleChildLayoutPage()),
               _button('AppBarActionButton', const AppBarActionButtonPage()),
               _button('CustomPageRoute', const CustomPageRoutePage()),
+              _button('DrawerScaffold', const DrawerScaffoldPage()),
               _button('CustomDrawerController', const CustomDrawerControllerPage()),
               _button('CustomScrollPhysics', const CustomScrollPhysicsPage()),
-              _button('ExtendedDrawerScaffold', const ExtendedDrawerScaffoldPage()),
             ],
           ),
           Align(

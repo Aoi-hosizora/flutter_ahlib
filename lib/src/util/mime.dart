@@ -1,6 +1,4 @@
-// Note: The source code is referred from the following links.
-//
-// References:
+// Reference:
 // - https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
 // - https://pub.dev/packages/mime_type
 
