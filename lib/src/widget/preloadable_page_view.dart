@@ -177,6 +177,7 @@ class _PreloadablePageViewState extends State<PreloadablePageView> {
         viewportBuilder: (BuildContext context, ViewportOffset position) {
           return Viewport(
             cacheExtent: widget.preloadPagesCount < 1 ? 0 : pageMainAxisHintSize * widget.preloadPagesCount - 1,
+            cacheExtentStyle: CacheExtentStyle.pixel,
             // cacheExtent: widget.allowImplicitScrolling ? 1.0 : 0.0,
             // cacheExtentStyle: CacheExtentStyle.viewport,
             axisDirection: axisDirection,

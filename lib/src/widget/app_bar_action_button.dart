@@ -74,7 +74,7 @@ class AppBarActionButton extends StatelessWidget {
     required VoidCallback? onPressed,
     String? tooltip,
     VoidCallback? onLongPress,
-    // <<<
+    // ===
     double? iconSize,
     VisualDensity? visualDensity,
     EdgeInsetsGeometry padding = const EdgeInsets.all(8.0),
@@ -162,7 +162,7 @@ class AppBarActionButton extends StatelessWidget {
       onPressed: onPressed,
       tooltip: tooltip,
       onLongPress: onLongPress,
-      // <<<
+      // ===
       iconSize: iconSize ?? theme?.iconSize ?? 24,
       visualDensity: visualDensity ?? theme?.visualDensity,
       padding: padding ?? theme?.padding ?? const EdgeInsets.all(8.0),
@@ -250,7 +250,7 @@ class AppBarActionButton extends StatelessWidget {
         onPressed: onPressed,
         tooltip: forceTooltip ?? tooltip,
         onLongPress: forceOnLongPress,
-        // <<<
+        // ===
         iconSize: iconSize,
         visualDensity: visualDensity,
         padding: padding,

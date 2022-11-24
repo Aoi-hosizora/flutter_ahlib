@@ -31,6 +31,7 @@ export 'src/widget/app_bar_action_button.dart';
 export 'src/widget/custom_ink_feature.dart';
 export 'src/widget/custom_ink_response.dart';
 export 'src/widget/custom_page_route.dart';
+export 'src/widget/custom_scroll_physics.dart';
 export 'src/widget/custom_single_child_layout.dart';
 export 'src/widget/extended_drawer_scaffold.dart';
 export 'src/widget/extended_nested_scroll_view.dart';

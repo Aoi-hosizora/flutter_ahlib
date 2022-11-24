@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_ahlib/flutter_ahlib.dart';
 import 'package:flutter_ahlib_example/page/image/extended_photo_gallery.dart';
 import 'package:flutter_ahlib_example/page/image/local_or_cached_network_image_provider.dart';
 import 'package:flutter_ahlib_example/page/image/reloadable_photo_view.dart';
@@ -15,7 +14,9 @@ import 'package:flutter_ahlib_example/page/widget/app_bar_action_button.dart';
 import 'package:flutter_ahlib_example/page/widget/custom_ink_feature.dart';
 import 'package:flutter_ahlib_example/page/widget/custom_ink_response.dart';
 import 'package:flutter_ahlib_example/page/widget/custom_page_route.dart';
+import 'package:flutter_ahlib_example/page/widget/custom_scroll_physics.dart';
 import 'package:flutter_ahlib_example/page/widget/custom_single_child_layout.dart';
+import 'package:flutter_ahlib_example/page/widget/extended_drawer_scaffold.dart';
 import 'package:flutter_ahlib_example/page/widget/extended_nested_scroll_view.dart';
 import 'package:flutter_ahlib_example/page/widget/extended_scrollbar.dart';
 import 'package:flutter_ahlib_example/page/widget/icon_text.dart';
@@ -92,7 +93,6 @@ class _IndexPageState extends State<IndexPage> {
       body: _listView(
         padding: const EdgeInsets.all(6),
         children: [
-          _button('TestPage', const TestPage()),
           Align(
             alignment: Alignment.center,
             child: _text('Widget Examples'),
@@ -122,6 +122,8 @@ class _IndexPageState extends State<IndexPage> {
               _button('CustomSingleChildLayout', const CustomSingleChildLayoutPage()),
               _button('AppBarActionButton', const AppBarActionButtonPage()),
               _button('CustomPageRoute', const CustomPageRoutePage()),
+              _button('CustomScrollPhysics', const CustomScrollPhysicsPage()),
+              _button('ExtendedDrawerScaffold', const ExtendedDrawerScaffoldPage()),
             ],
           ),
           Align(
@@ -166,109 +168,6 @@ class _IndexPageState extends State<IndexPage> {
           ),
         ],
       ),
-    );
-  }
-}
-
-class AlwaysOverscrollPhysics extends ClampingScrollPhysics {
-  const AlwaysOverscrollPhysics({ScrollPhysics? parent}) : super(parent: parent);
-
-  @override
-  AlwaysOverscrollPhysics applyTo(ScrollPhysics? ancestor) {
-    return AlwaysOverscrollPhysics(parent: buildParent(ancestor));
-  }
-
-  @override
-  double applyBoundaryConditions(ScrollMetrics position, double value) {
-    return value - position.pixels;
-  }
-}
-
-class TestPage extends StatefulWidget {
-  const TestPage({Key? key}) : super(key: key);
-
-  @override
-  State<TestPage> createState() => _TestPageState();
-}
-
-class _TestPageState extends State<TestPage> with SingleTickerProviderStateMixin {
-  final _length = 4;
-  late final _tabController = TabController(length: _length, vsync: this);
-  final _drawerKey = GlobalKey<CustomDrawerControllerState>();
-  var _drawerOpening = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        NotificationListener(
-          onNotification: (n) {
-            if (n is OverscrollNotification && n.dragDetails != null) {
-              if (n.dragDetails!.delta.dx > 0) {
-                if (!_drawerOpening) {
-                  _drawerOpening = true;
-                  if (_tabController.length > 1) {
-                    if (mounted) setState(() {});
-                  }
-                }
-                _drawerKey.currentState?.move(n.dragDetails!);
-              } else if (_drawerOpening && n.dragDetails!.delta.dx < 0) {
-                _drawerKey.currentState?.move(n.dragDetails!);
-              }
-            }
-            if (n is ScrollEndNotification && _drawerOpening) {
-              _drawerOpening = false;
-              if (_tabController.length > 1) {
-                if (mounted) setState(() {});
-              }
-              _drawerKey.currentState?.settle(n.dragDetails ?? DragEndDetails());
-            }
-            if (n is OverscrollIndicatorNotification && _drawerOpening) {
-              n.disallowIndicator();
-            }
-            return false;
-          },
-          child: Scaffold(
-            drawerEdgeDragWidth: 50,
-            drawer: const Drawer(
-              child: Center(
-                child: Text('yyy'),
-              ),
-            ),
-            appBar: AppBar(
-              title: const Text('TestPage'),
-            ),
-            body: TabBarView(
-              controller: _tabController,
-              physics: !_drawerOpening ? const AlwaysScrollableScrollPhysics() : const AlwaysOverscrollPhysics(),
-              children: [
-                for (var i = 0; i < _length; i++)
-                  Row(
-                    children: [
-                      Container(width: 20, color: Colors.purple),
-                      Container(width: 50 - 20, color: Colors.grey),
-                      Expanded(
-                        child: Container(
-                          color: [Colors.red, Colors.yellow, Colors.blue, Colors.green][i % 4],
-                        ),
-                      ),
-                    ],
-                  ),
-              ],
-            ),
-          ),
-        ),
-        CustomDrawerController(
-          key: _drawerKey,
-          edgeDragWidth: 20,
-          alignment: DrawerAlignment.start,
-          child: const Drawer(
-            child: Center(
-              child: Text('xxx'),
-            ),
-          ),
-        ),
-      ],
     );
   }
 }
