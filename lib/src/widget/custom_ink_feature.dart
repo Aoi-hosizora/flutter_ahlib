@@ -147,7 +147,7 @@ class CustomInkRippleSetting {
 
 /// The factory of [CustomInkRipple], you can use [CustomInkRipple.splashFactory]
 /// to create a default [CustomInkRipple], you can also use this class with [setting]
-/// field to create a custom [CustomInkRipple].
+/// field to create a customizable [CustomInkRipple].
 class CustomInkRippleFactory extends InteractiveInkFeatureFactory {
   const CustomInkRippleFactory({
     this.setting = CustomInkRippleSetting.defaultSetting,
@@ -428,7 +428,7 @@ class CustomInkSplashSetting {
 
 /// The factory of [CustomInkSplash], you can use [CustomInkSplash.splashFactory]
 /// to create a default [CustomInkSplash], you can also use this class with [setting]
-/// field to create a custom [CustomInkSplash].
+/// field to create a customizable [CustomInkSplash].
 class CustomInkSplashFactory extends InteractiveInkFeatureFactory {
   const CustomInkSplashFactory({
     this.setting = CustomInkSplashSetting.defaultSetting,

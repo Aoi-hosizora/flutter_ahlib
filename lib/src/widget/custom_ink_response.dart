@@ -13,7 +13,7 @@ import 'package:flutter/material.dart';
 // Some code in this file keeps the same as the following source codes:
 // - InkResponse: https://github.com/flutter/flutter/blob/2.10.5/packages/flutter/lib/src/material/ink_well.dart
 
-/// A custom [InkWell] with [getRadius], [getRect] for ink feature.
+/// A customizable [InkWell] with [getRadius], [getRect] for ink feature.
 class CustomInkWell extends CustomInkResponse {
   const CustomInkWell({
     Key? key,
@@ -76,10 +76,10 @@ class CustomInkWell extends CustomInkResponse {
         );
 }
 
-/// A custom [InkResponse] with [getRadius], [getRect] for ink feature.
+/// A customizable [InkResponse] with [getRadius], [getRect] for ink feature.
 ///
 /// Note that you can set [containedInkWell] to true and set [highlightShape]
-/// to [BoxShape.rectangle] to get a custom [InkWell], or said, [CustomInkWell].
+/// to [BoxShape.rectangle] to get a customizable [InkWell], or said, [CustomInkWell].
 class CustomInkResponse extends StatefulWidget {
   const CustomInkResponse({
     Key? key,

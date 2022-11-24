@@ -11,6 +11,7 @@ import 'package:flutter_ahlib_example/page/util/extended_logger.dart';
 import 'package:flutter_ahlib_example/page/util/flutter_extension.dart';
 import 'package:flutter_ahlib_example/page/widget/animated_fab.dart';
 import 'package:flutter_ahlib_example/page/widget/app_bar_action_button.dart';
+import 'package:flutter_ahlib_example/page/widget/custom_drawer_controller.dart';
 import 'package:flutter_ahlib_example/page/widget/custom_ink_feature.dart';
 import 'package:flutter_ahlib_example/page/widget/custom_ink_response.dart';
 import 'package:flutter_ahlib_example/page/widget/custom_page_route.dart';
@@ -122,6 +123,7 @@ class _IndexPageState extends State<IndexPage> {
               _button('CustomSingleChildLayout', const CustomSingleChildLayoutPage()),
               _button('AppBarActionButton', const AppBarActionButtonPage()),
               _button('CustomPageRoute', const CustomPageRoutePage()),
+              _button('CustomDrawerController', const CustomDrawerControllerPage()),
               _button('CustomScrollPhysics', const CustomScrollPhysicsPage()),
               _button('ExtendedDrawerScaffold', const ExtendedDrawerScaffoldPage()),
             ],

@@ -2,6 +2,12 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+// Note: Some content of this file is based on Flutter's source code, and is modified by AoiHosizora (GitHub: @Aoi-hosizora).
+//
+// Some code in this file keeps the same as the following source codes:
+// - IconButton: https://github.com/flutter/flutter/blob/2.10.5/packages/flutter/lib/src/material/icon_button.dart
+// - AppBar: https://github.com/flutter/flutter/blob/2.10.5/packages/flutter/lib/src/material/app_bar.dart
+
 /// An extended [IconButton] that uses [AppBarActionButtonThemeData] as its default theme,
 /// can be used to show action button with consistent theme in [AppBar].
 class AppBarActionButton extends StatelessWidget {
@@ -11,7 +17,7 @@ class AppBarActionButton extends StatelessWidget {
     required this.onPressed,
     this.tooltip,
     this.onLongPress,
-    // <<<
+    // ===
     this.iconSize /* 24 */,
     this.visualDensity,
     this.padding /* const EdgeInsets.all(8.0) */,
@@ -31,7 +37,7 @@ class AppBarActionButton extends StatelessWidget {
   })  : assert(splashRadius == null || splashRadius > 0),
         super(key: key);
 
-  // not contained in theme
+  // The following fields are not contained in theme.
 
   /// Mirrors to [IconButton.icon].
   final Widget icon;
@@ -46,7 +52,8 @@ class AppBarActionButton extends StatelessWidget {
   /// Note that [onLongPress] will make [tooltip] unavailable.
   final VoidCallback? onLongPress;
 
-  // contained in theme, except for focusNode
+  // The following fields are all contained in theme, except for focusNode.
+
   final double? iconSize;
   final VisualDensity? visualDensity;
   final EdgeInsetsGeometry? padding;
@@ -64,10 +71,7 @@ class AppBarActionButton extends StatelessWidget {
   final bool? enableFeedback;
   final BoxConstraints? constraints;
 
-  // Note: This function is based on Flutter's source code, and is modified by AoiHosizora (GitHub: @Aoi-hosizora).
-  //
-  // Some code in this function keeps the same as the following source codes:
-  // - IconButton: https://github.com/flutter/flutter/blob/2.10.5/packages/flutter/lib/src/material/icon_button.dart
+  // This function is based on Flutter's source code, and is modified by AoiHosizora.
   Widget _buildIconButton({
     required BuildContext context,
     required Widget icon,
@@ -271,7 +275,7 @@ class AppBarActionButton extends StatelessWidget {
     }
 
     if (!forceUseBuilder) {
-      return _build(context); // null-able
+      return _build(context); // nullable
     }
     return Builder(
       builder: (c) =>

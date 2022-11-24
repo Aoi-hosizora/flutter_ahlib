@@ -23,10 +23,13 @@ import 'package:flutter_ahlib/flutter_ahlib_util.dart';
 + Common widgets ([lib/src/widget/](./lib/src/widget))
     + `AnimatedFab` `ScrollAnimatedFab` `AnimatedFabController`
     + `AppBarActionButtonTheme` `AppBarActionButton`
+    + `CustomDrawerController` `CustomDrawerControllerState`
     + `CustomInkRipple` `CustomInkSplash`
     + `CustomInkWell` `CustomInkResponse`
     + `CustomPageRoute` `CustomPageRouteTheme` `NoPopGestureCupertinoPageTransitionsBuilder`
+    + `CustomScrollPhysics` `CustomScrollPhysicsController`
     + `CustomSingleChildLayoutDelegate`
+    + `ExtendedDrawerScaffold` `ExtendedDrawerScaffoldState`
     + `ExtendedNestedScrollView`
     + `ExtendedScrollbar`
     + `IconText`

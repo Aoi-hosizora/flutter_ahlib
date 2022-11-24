@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-/// A custom [SingleChildLayoutDelegate] which is used by [CustomSingleChildLayout] or [RenderCustomSingleChildLayoutBox],
-/// the custom delegate uses function parameters as override methods.
+/// A customizable [SingleChildLayoutDelegate] which is used by [CustomSingleChildLayout]
+/// or [RenderCustomSingleChildLayoutBox]. Here this delegate will use given function
+/// parameters as override methods.
 class CustomSingleChildLayoutDelegate extends SingleChildLayoutDelegate {
   const CustomSingleChildLayoutDelegate({
     this.sizeGetter,

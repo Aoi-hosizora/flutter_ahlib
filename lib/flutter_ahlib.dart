@@ -28,6 +28,7 @@ export 'src/util/tuple.dart';
 // widget
 export 'src/widget/animated_fab.dart';
 export 'src/widget/app_bar_action_button.dart';
+export 'src/widget/custom_drawer_controller.dart';
 export 'src/widget/custom_ink_feature.dart';
 export 'src/widget/custom_ink_response.dart';
 export 'src/widget/custom_page_route.dart';

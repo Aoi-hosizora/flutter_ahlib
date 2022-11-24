@@ -2,9 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-/// A custom [PageRoute] which is similar to [MaterialPageRoute] or [CupertinoPageRoute], but
-/// this [PageRoute] supports customizable transition duration, transitions builder, and more,
-/// and these settings are fixed and can not be customized in these builtin [PageRoute].
+/// A customizable [PageRoute] which is similar to [MaterialPageRoute] or [CupertinoPageRoute],
+/// but this [PageRoute] supports customizable transition duration, transitions builder, and
+/// more, and these settings are fixed and can not be customized in these builtin [PageRoute].
 class CustomPageRoute<T> extends PageRoute<T> {
   /// Creates a [CustomPageRoute] using given [context] and named parameters.
   ///
