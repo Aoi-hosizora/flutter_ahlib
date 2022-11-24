@@ -17,7 +17,9 @@ const Duration _kBaseSettleDuration = Duration(milliseconds: 246);
 
 /// A customizable [DrawerController] which provides interactive behavior for [Drawer]
 /// widgets. Note that it is allowed to use methods such as [CustomDrawerControllerState.move]
-/// to control its offset.
+/// to control its offset, and this is the only difference from [DrawerController].
+///
+/// This widget is rarely used directly, and is designed depended on [ExtendedDrawerScaffold].
 class CustomDrawerController extends StatefulWidget {
   const CustomDrawerController({
     GlobalKey? key,
@@ -33,12 +35,12 @@ class CustomDrawerController extends StatefulWidget {
 
   final Widget child;
   final DrawerAlignment alignment;
+  final bool isDrawerOpen;
   final DrawerCallback? drawerCallback;
   final DragStartBehavior dragStartBehavior;
   final Color? scrimColor;
-  final bool enableOpenDragGesture;
   final double? edgeDragWidth;
-  final bool isDrawerOpen;
+  final bool enableOpenDragGesture;
 
   @override
   CustomDrawerControllerState createState() => CustomDrawerControllerState();
@@ -46,7 +48,7 @@ class CustomDrawerController extends StatefulWidget {
 
 /// The State for [CustomDrawerController]. Note that here [controller], [move], [settle],
 /// [open] and [close] methods are exposed to public.
-class CustomDrawerControllerState extends State<CustomDrawerController> with SingleTickerProviderStateMixin {
+class CustomDrawerControllerState extends State<CustomDrawerController> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
@@ -153,7 +155,9 @@ class CustomDrawerControllerState extends State<CustomDrawerController> with Sin
 
   final GlobalKey _drawerKey = GlobalKey();
 
-  double get _width {
+  // The accessibility of this property is modified by AoiHosizora.
+  /// Returns the width of drawer.
+  double get width {
     final RenderBox? box = _drawerKey.currentContext?.findRenderObject() as RenderBox?;
     if (box != null) return box.size.width;
     return _kWidth; // drawer not being shown currently
@@ -164,7 +168,7 @@ class CustomDrawerControllerState extends State<CustomDrawerController> with Sin
   // The accessibility of this method is modified by AoiHosizora.
   /// Updates the drawer's offset by given [DragUpdateDetails].
   void move(DragUpdateDetails details) {
-    double delta = details.primaryDelta! / _width;
+    double delta = details.primaryDelta! / width;
     switch (widget.alignment) {
       case DrawerAlignment.start:
         break;
@@ -191,7 +195,7 @@ class CustomDrawerControllerState extends State<CustomDrawerController> with Sin
   void settle(DragEndDetails details) {
     if (_controller.isDismissed) return;
     if (details.velocity.pixelsPerSecond.dx.abs() >= _kMinFlingVelocity) {
-      double visualVelocity = details.velocity.pixelsPerSecond.dx / _width;
+      double visualVelocity = details.velocity.pixelsPerSecond.dx / width;
       switch (widget.alignment) {
         case DrawerAlignment.start:
           break;

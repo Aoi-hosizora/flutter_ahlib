@@ -17,22 +17,6 @@ class _CustomScrollPhysicsPageState extends State<CustomScrollPhysicsPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('CustomScrollPhysics Example'),
-        actions: [
-          IconButton(
-            icon: const Text('1'),
-            onPressed: () {
-              _singlePage = true;
-              if (mounted) setState(() {});
-            },
-          ),
-          IconButton(
-            icon: const Text('4'),
-            onPressed: () {
-              _singlePage = false;
-              if (mounted) setState(() {});
-            },
-          ),
-        ],
       ),
       body: Column(
         children: [
@@ -42,11 +26,16 @@ class _CustomScrollPhysicsPageState extends State<CustomScrollPhysicsPage> {
                 controller: _physicsController,
               ),
               children: [
-                Container(
-                  color: Colors.yellow,
-                  child: const Center(child: Text('Page 1')),
-                ),
+                if (_singlePage)
+                  Container(
+                    color: Colors.grey,
+                    child: const Center(child: Text('The only page')),
+                  ),
                 if (!_singlePage) ...[
+                  Container(
+                    color: Colors.yellow,
+                    child: const Center(child: Text('Page 1')),
+                  ),
                   Container(
                     color: Colors.green,
                     child: const Center(child: Text('Page 2')),
@@ -66,6 +55,11 @@ class _CustomScrollPhysicsPageState extends State<CustomScrollPhysicsPage> {
           Column(
             children: [
               SwitchListTile(
+                title: const Text('only single page'),
+                value: _singlePage,
+                onChanged: (v) => mountedSetState(() => _singlePage = v),
+              ),
+              SwitchListTile(
                 title: const Text('disableScrollLeft'),
                 value: _physicsController.disableScrollLeft,
                 onChanged: (v) => mountedSetState(() => _physicsController.disableScrollLeft = v),
@@ -74,16 +68,6 @@ class _CustomScrollPhysicsPageState extends State<CustomScrollPhysicsPage> {
                 title: const Text('disableScrollRight'),
                 value: _physicsController.disableScrollRight,
                 onChanged: (v) => mountedSetState(() => _physicsController.disableScrollRight = v),
-              ),
-              SwitchListTile(
-                title: const Text('alwaysScrollable'),
-                value: _physicsController.alwaysScrollable,
-                onChanged: (v) => mountedSetState(() => _physicsController.alwaysScrollable = v),
-              ),
-              SwitchListTile(
-                title: const Text('bouncingScroll'),
-                value: _physicsController.bouncingScroll,
-                onChanged: (v) => mountedSetState(() => _physicsController.bouncingScroll = v),
               ),
             ],
           ),

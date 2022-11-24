@@ -1,27 +1,22 @@
 import 'package:flutter/material.dart';
 
-// Note: The file is based on code from network blog, and is modified by AoiHosizora (GitHub: @Aoi-hosizora).
+// Note: The file is referred from network blog, and is modified by AoiHosizora (GitHub: @Aoi-hosizora).
 //
 // Reference:
 // - https://blog.csdn.net/ww897532167/article/details/125520964
 
-// A global ClampingScrollPhysics which is used for [createBallisticSimulation].
-const _clampingScrollPhysics = ClampingScrollPhysics();
-
-// A global BouncingScrollPhysics which is used for [createBallisticSimulation].
-const _bouncingScrollPhysics = BouncingScrollPhysics();
-
-/// A customizable [ScrollPhysics] which determines the physics of scrollables by given
-/// [CustomScrollPhysicsController]. Here if there is no change to [controller], the physics
-/// behavior defaults to [ClampingScrollPhysics] with always scrollable.
+/// A customizable [ScrollPhysics] which determines [Scrollable] physics by given
+/// [CustomScrollPhysicsController]. If there is no change on [controller], it will
+/// default to how [ClampingScrollPhysics] behaves and always accept user scroll.
 @immutable
-class CustomScrollPhysics extends ScrollPhysics {
+class CustomScrollPhysics extends ClampingScrollPhysics {
   const CustomScrollPhysics({
     ScrollPhysics? parent,
     required this.controller,
   }) : super(parent: parent);
 
-  /// The controller of [CustomScrollPhysics], it will influence scrollables physics.
+  /// The controller of [CustomScrollPhysics], it is mutable and will influence the
+  /// physics of [Scrollable] dynamically.
   final CustomScrollPhysicsController controller;
 
   @override
@@ -34,11 +29,6 @@ class CustomScrollPhysics extends ScrollPhysics {
 
   @override
   double applyBoundaryConditions(ScrollMetrics position, double value) {
-    if (controller.bouncingScroll) {
-      // make it just like BouncingScrollPhysics
-      return 0;
-    }
-
     final lastScrollValue = controller._lastScrollValue;
     if (lastScrollValue != null) {
       if (value > lastScrollValue && controller.disableScrollRight) {
@@ -57,44 +47,25 @@ class CustomScrollPhysics extends ScrollPhysics {
 
   @override
   bool shouldAcceptUserOffset(ScrollMetrics position) {
-    return controller.alwaysScrollable;
-  }
-
-  @override
-  Simulation? createBallisticSimulation(ScrollMetrics position, double velocity) {
-    // just call global ScrollPhysics's createBallisticSimulation method
-    if (controller.bouncingScroll) {
-      return _bouncingScrollPhysics.createBallisticSimulation(position, velocity);
-    }
-    return _clampingScrollPhysics.createBallisticSimulation(position, velocity);
+    return true; // default to AlwaysScrollableScrollPhysics
   }
 }
 
-/// The controller of [CustomScrollPhysics], which determines the physics of scrollables.
+/// The controller of [CustomScrollPhysics], which determines the physics of [Scrollable].
 class CustomScrollPhysicsController {
-  /// Creates a default [CustomScrollPhysicsController], which makes [CustomScrollPhysics]
-  /// behave the same as [ClampingScrollPhysics].
   CustomScrollPhysicsController({
     this.disableScrollRight = false,
     this.disableScrollLeft = false,
-    this.alwaysScrollable = true,
-    this.bouncingScroll = false,
   });
 
-  /// The flag to disable scrolling right (or said, swiping left), defaults to false.
+  /// The flag for disabling scrolling right (or said, swiping left), even if current
+  /// offset lands on the middle of items, defaults to false.
   bool disableScrollRight;
 
-  /// The flag to disable scrolling left (or said, swiping right), defaults to false.
+  /// The flag for disabling scrolling left (or said, swiping right), even if current
+  /// offset lands on the middle of items, defaults to false.
   bool disableScrollLeft;
 
-  /// The flag to make scrollables always accept user scroll offset, like [AlwaysScrollableScrollPhysics],
-  /// defaults to true.
-  bool alwaysScrollable;
-
-  /// The flag to make [CustomScrollPhysics] behave like [BouncingScrollPhysics], defaults
-  /// to false.
-  bool bouncingScroll;
-
-  // Stores the last scroll value, used in [ScrollPhysics.applyBoundaryConditions].
+  // Stores the last scroll value, is used in applyBoundaryConditions.
   double? _lastScrollValue;
 }

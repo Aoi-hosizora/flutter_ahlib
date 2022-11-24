@@ -3,29 +3,36 @@ import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/src/widget/custom_drawer_controller.dart';
 import 'package:flutter_ahlib/src/widget/custom_scroll_physics.dart';
 
-// Note: Some content of this file is based on Flutter's source code, and is modified by AoiHosizora (GitHub: @Aoi-hosizora).
+// Note: Some contents in this file are based on Flutter's source code, and is modified by AoiHosizora (GitHub: @Aoi-hosizora).
 //
 // Some code in this file keeps the same as the following source codes:
 // - Scaffold: https://github.com/flutter/flutter/blob/2.10.5/packages/flutter/lib/src/material/scaffold.dart
 // - AppBar: https://github.com/flutter/flutter/blob/2.10.5/packages/flutter/lib/src/material/app_bar.dart
 
-///
+/// An extended [Scaffold] with [Drawer], mainly for making [Drawer] openable when
+/// [PageView] or [TabBarView] is overscrolled horizontally.
 class ExtendedDrawerScaffold extends StatefulWidget {
   const ExtendedDrawerScaffold({
     Key? key,
-    this.appBar,
     required this.body,
-    required this.drawer,
+    this.drawer,
+    this.endDrawer,
     this.physicsController,
+    // ===
+    this.drawerDragStartBehavior = DragStartBehavior.start,
+    this.drawerScrimColor,
+    this.onDrawerChanged,
+    this.onEndDrawerChanged,
+    this.drawerEdgeDragWidth,
+    this.endDrawerEdgeDragWidth,
+    this.drawerEnableOpenDragGesture = true,
+    this.endDrawerEnableOpenDragGesture = true,
+    // ===
+    this.appBar,
     this.floatingActionButton,
     this.floatingActionButtonLocation,
     this.floatingActionButtonAnimator,
     this.persistentFooterButtons,
-    this.onDrawerChanged,
-    this.drawerDragStartBehavior = DragStartBehavior.start,
-    this.drawerScrimColor,
-    this.drawerEdgeDragWidth,
-    this.drawerEnableOpenDragGesture = true,
     this.bottomNavigationBar,
     this.bottomSheet,
     this.backgroundColor,
@@ -36,27 +43,38 @@ class ExtendedDrawerScaffold extends StatefulWidget {
     this.restorationId,
   }) : super(key: key);
 
-  ///
-  final PreferredSizeWidget? appBar;
-
-  ///
+  /// The body of [Scaffold]. [PageView] or [TabBarView] in [body] will listened
+  /// its scroll event, and is used to control [Drawer]'s opening and closing.
   final Widget body;
 
-  ///
-  final Widget drawer;
+  /// The drawer of [Scaffold].
+  final Widget? drawer;
 
-  ///
+  /// The end drawer of [Scaffold].
+  final Widget? endDrawer;
+
+  /// The [CustomScrollPhysicsController] used in [body]. This controller will be
+  /// used to refine [PageView] or [TabBarView] physics when [drawer] is opening.
   final CustomScrollPhysicsController? physicsController;
 
+  // ===
+
+  final DragStartBehavior drawerDragStartBehavior;
+  final Color? drawerScrimColor;
+  final DrawerCallback? onDrawerChanged;
+  final DrawerCallback? onEndDrawerChanged;
+  final double? drawerEdgeDragWidth;
+  final double? endDrawerEdgeDragWidth;
+  final bool drawerEnableOpenDragGesture;
+  final bool endDrawerEnableOpenDragGesture;
+
+  // ===
+
+  final PreferredSizeWidget? appBar;
   final Widget? floatingActionButton;
   final FloatingActionButtonLocation? floatingActionButtonLocation;
   final FloatingActionButtonAnimator? floatingActionButtonAnimator;
   final List<Widget>? persistentFooterButtons;
-  final DrawerCallback? onDrawerChanged;
-  final DragStartBehavior drawerDragStartBehavior;
-  final Color? drawerScrimColor;
-  final double? drawerEdgeDragWidth;
-  final bool drawerEnableOpenDragGesture;
   final Widget? bottomNavigationBar;
   final Widget? bottomSheet;
   final Color? backgroundColor;
@@ -66,7 +84,8 @@ class ExtendedDrawerScaffold extends StatefulWidget {
   final bool extendBodyBehindAppBar;
   final String? restorationId;
 
-  ///
+  /// Finds the [ExtendedDrawerScaffoldState] from the closest instance of this
+  /// class that encloses the given context.
   static ExtendedDrawerScaffoldState? of(BuildContext context) {
     return context.findAncestorStateOfType<ExtendedDrawerScaffoldState>();
   }
@@ -75,22 +94,55 @@ class ExtendedDrawerScaffold extends StatefulWidget {
   ExtendedDrawerScaffoldState createState() => ExtendedDrawerScaffoldState();
 }
 
-///
+/// The state of [ExtendedDrawerScaffold], you can use [openDrawer] and [closeDrawer]
+/// to control the drawer's offset.
 class ExtendedDrawerScaffoldState extends State<ExtendedDrawerScaffold> with RestorationMixin {
-  final _drawerKey = GlobalKey<CustomDrawerControllerState>();
-  final _drawerOpened = RestorableBool(false);
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  ///
+  /// Returns the origin [ScaffoldState] of this widget.
+  ScaffoldState? get scaffoldState => _scaffoldKey.currentState;
+
+  final _drawerKey = GlobalKey<CustomDrawerControllerState>();
+  final _endDrawerKey = GlobalKey<CustomDrawerControllerState>();
+  final _drawerOpened = RestorableBool(false);
+  final _endDrawerOpened = RestorableBool(false);
+
+  /// Returns true if the drawer is opened.
   bool get isDrawerOpen => _drawerOpened.value;
 
-  ///
+  /// Returns true if the end drawer is opened.
+  bool get isEndDrawerOpen => _endDrawerOpened.value;
+
+  /// Returns true if this scaffold has a non-null drawer.
+  bool get hasDrawer => widget.drawer != null;
+
+  /// Returns true if this scaffold has a non-null end drawer.
+  bool get hasEndDrawer => widget.endDrawer != null;
+
+  /// Opens the drawer manually.
   void openDrawer() {
+    if (_endDrawerKey.currentState != null && _endDrawerOpened.value) {
+      _endDrawerKey.currentState!.close();
+    }
     _drawerKey.currentState?.open();
   }
 
-  ///
+  /// Closes the drawer manually.
   void closeDrawer() {
     _drawerKey.currentState?.close();
+  }
+
+  /// Opens the end drawer manually.
+  void openEndDrawer() {
+    if (_drawerKey.currentState != null && _drawerOpened.value) {
+      _drawerKey.currentState!.close();
+    }
+    _endDrawerKey.currentState?.open();
+  }
+
+  /// Closes the end drawer manually.
+  void closeEndDrawer() {
+    _endDrawerKey.currentState?.close();
   }
 
   void _drawerOpenedCallback(bool isOpened) {
@@ -101,19 +153,30 @@ class ExtendedDrawerScaffoldState extends State<ExtendedDrawerScaffold> with Res
     }
   }
 
+  void _endDrawerOpenedCallback(bool isOpened) {
+    if (_endDrawerOpened.value != isOpened) {
+      _endDrawerOpened.value = isOpened;
+      if (mounted) setState(() {});
+      widget.onEndDrawerChanged?.call(isOpened);
+    }
+  }
+
   @override
   String? get restorationId => widget.restorationId;
 
   @override
   void restoreState(RestorationBucket? oldBucket, bool initialRestore) {
     registerForRestoration(_drawerOpened, 'drawer_open');
+    registerForRestoration(_endDrawerOpened, 'end_drawer_open');
   }
 
   var _overscrolling = false;
+  var _overscrollingForEndDrawer = false;
 
-  void _updateOverscrolling(bool newValue) {
+  void _updateOverscrolling(bool newValue, [bool endDrawer = false]) {
     if (!_overscrolling && newValue) {
       _overscrolling = true;
+      _overscrollingForEndDrawer = endDrawer;
       widget.physicsController?.disableScrollLeft = true;
       widget.physicsController?.disableScrollRight = true;
       if (mounted) setState(() {});
@@ -126,137 +189,124 @@ class ExtendedDrawerScaffoldState extends State<ExtendedDrawerScaffold> with Res
   }
 
   bool _onNotification(Notification n) {
+    var drawerGesture = widget.drawer != null && widget.drawerEnableOpenDragGesture;
+    var endDrawerGesture = widget.endDrawer != null && widget.drawerEnableOpenDragGesture;
+    if (!drawerGesture && !endDrawerGesture) {
+      return false;
+    }
+
     if (n is OverscrollNotification && n.dragDetails != null) {
-      if (n.dragDetails!.delta.dx > 0) {
-        _updateOverscrolling(true);
-        _drawerKey.currentState?.move(n.dragDetails!);
-      } else if (_overscrolling && n.dragDetails!.delta.dx < 0) {
-        _drawerKey.currentState?.move(n.dragDetails!);
+      if (!_overscrolling) {
+        if (n.dragDetails!.delta.dx > 0 && drawerGesture) {
+          _updateOverscrolling(true, false); // forDrawer
+          closeEndDrawer();
+          _drawerKey.currentState?.move(n.dragDetails!);
+        } else if (n.dragDetails!.delta.dx < 0 && endDrawerGesture) {
+          _updateOverscrolling(true, true); // forEndDrawer
+          closeDrawer();
+          _endDrawerKey.currentState?.move(n.dragDetails!);
+        }
+      } else {
+        if (!_overscrollingForEndDrawer) {
+          _drawerKey.currentState?.move(n.dragDetails!);
+        } else {
+          _endDrawerKey.currentState?.move(n.dragDetails!);
+        }
       }
     }
+
     if (n is OverscrollIndicatorNotification && _overscrolling) {
       n.disallowIndicator();
     }
+
     if (n is ScrollEndNotification && _overscrolling) {
       _updateOverscrolling(false);
-      _drawerKey.currentState?.settle(n.dragDetails ?? DragEndDetails());
+      if (!_overscrollingForEndDrawer) {
+        _drawerKey.currentState?.settle(n.dragDetails ?? DragEndDetails());
+      } else {
+        _endDrawerKey.currentState?.settle(n.dragDetails ?? DragEndDetails());
+      }
     }
 
     // for multiple pages but scroll updated supported
     if (n is ScrollUpdateNotification && _overscrolling) {
       if (n.dragDetails != null) {
-        _drawerKey.currentState?.move(n.dragDetails!);
+        if (!_overscrollingForEndDrawer) {
+          _drawerKey.currentState?.move(n.dragDetails!);
+        } else {
+          _endDrawerKey.currentState?.move(n.dragDetails!);
+        }
       } else {
         _updateOverscrolling(false);
-        _drawerKey.currentState?.settle(DragEndDetails());
+        if (!_overscrollingForEndDrawer) {
+          _drawerKey.currentState?.settle(DragEndDetails());
+        } else {
+          _endDrawerKey.currentState?.settle(DragEndDetails());
+        }
       }
     }
 
     return false;
   }
 
-  // This function is based on Flutter's source code, and is modified by AoiHosizora.
-  PreferredSizeWidget? _buildAppBar() {
-    if (widget.appBar == null || widget.appBar! is! AppBar) {
-      return widget.appBar;
-    }
-
-    final AppBar givenAppBar = widget.appBar! as AppBar;
-    final ThemeData theme = Theme.of(context);
-    final ColorScheme colorScheme = theme.colorScheme;
-    final AppBarTheme appBarTheme = AppBarTheme.of(context);
-    final bool backwardsCompatibility = givenAppBar.backwardsCompatibility ?? appBarTheme.backwardsCompatibility ?? false; // ignore: deprecated_member_use
-    final Color foregroundColor = givenAppBar.foregroundColor ?? //
-        appBarTheme.foregroundColor ??
-        (colorScheme.brightness == Brightness.dark ? colorScheme.onSurface : colorScheme.onPrimary);
-    IconThemeData overallIconTheme = backwardsCompatibility //
-        ? givenAppBar.iconTheme ?? appBarTheme.iconTheme ?? theme.primaryIconTheme
-        : givenAppBar.iconTheme ?? appBarTheme.iconTheme ?? theme.iconTheme.copyWith(color: foregroundColor);
-
-    Widget? leading = givenAppBar.leading;
-    if (leading == null && givenAppBar.automaticallyImplyLeading) {
-      leading = IconButton(
-        icon: const Icon(Icons.menu),
-        iconSize: overallIconTheme.size ?? 24,
-        onPressed: openDrawer, // <<<
-        tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
-      );
-    }
-    if (leading != null) {
-      leading = ConstrainedBox(
-        constraints: BoxConstraints.tightFor(width: givenAppBar.leadingWidth ?? kToolbarHeight),
-        child: leading,
-      );
-    }
-
-    return AppBar(
-      leading: leading,
-      automaticallyImplyLeading: givenAppBar.automaticallyImplyLeading,
-      title: givenAppBar.title,
-      actions: givenAppBar.actions,
-      flexibleSpace: givenAppBar.flexibleSpace,
-      bottom: givenAppBar.bottom,
-      elevation: givenAppBar.elevation,
-      shadowColor: givenAppBar.shadowColor,
-      shape: givenAppBar.shape,
-      backgroundColor: givenAppBar.backgroundColor,
-      foregroundColor: givenAppBar.foregroundColor,
-      iconTheme: givenAppBar.iconTheme,
-      actionsIconTheme: givenAppBar.actionsIconTheme,
-      primary: givenAppBar.primary,
-      centerTitle: givenAppBar.centerTitle,
-      excludeHeaderSemantics: givenAppBar.excludeHeaderSemantics,
-      titleSpacing: givenAppBar.titleSpacing,
-      toolbarOpacity: givenAppBar.toolbarOpacity,
-      bottomOpacity: givenAppBar.bottomOpacity,
-      toolbarHeight: givenAppBar.toolbarHeight,
-      leadingWidth: givenAppBar.leadingWidth,
-      toolbarTextStyle: givenAppBar.toolbarTextStyle,
-      titleTextStyle: givenAppBar.titleTextStyle,
-      systemOverlayStyle: givenAppBar.systemOverlayStyle,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        NotificationListener(
-          onNotification: _onNotification,
-          child: Scaffold(
-            appBar: _buildAppBar() /* <<< */,
-            body: widget.body,
-            drawer: widget.drawer /* <<< */,
-            floatingActionButton: widget.floatingActionButton,
-            floatingActionButtonLocation: widget.floatingActionButtonLocation,
-            floatingActionButtonAnimator: widget.floatingActionButtonAnimator,
-            persistentFooterButtons: widget.persistentFooterButtons,
-            onDrawerChanged: widget.onDrawerChanged,
-            drawerDragStartBehavior: widget.drawerDragStartBehavior,
-            drawerScrimColor: widget.drawerScrimColor,
-            drawerEdgeDragWidth: widget.drawerEdgeDragWidth,
-            drawerEnableOpenDragGesture: widget.drawerEnableOpenDragGesture,
-            bottomNavigationBar: widget.bottomNavigationBar,
-            bottomSheet: widget.bottomSheet,
-            backgroundColor: widget.backgroundColor,
-            resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
-            primary: widget.primary,
-            extendBody: widget.extendBody,
-            extendBodyBehindAppBar: widget.extendBodyBehindAppBar,
-            // restorationId: widget.restorationId,
+        Scaffold(
+          key: _scaffoldKey,
+          body: NotificationListener(
+            onNotification: _onNotification,
+            child: widget.body,
           ),
+          drawer: widget.drawer,
+          endDrawer: widget.endDrawer,
+          // ===
+          appBar: widget.appBar,
+          drawerDragStartBehavior: widget.drawerDragStartBehavior,
+          drawerScrimColor: widget.drawerScrimColor,
+          onDrawerChanged: widget.onDrawerChanged,
+          onEndDrawerChanged: widget.onEndDrawerChanged,
+          drawerEdgeDragWidth: null,
+          drawerEnableOpenDragGesture: false,
+          endDrawerEnableOpenDragGesture: false,
+          // ===
+          floatingActionButton: widget.floatingActionButton,
+          floatingActionButtonLocation: widget.floatingActionButtonLocation,
+          floatingActionButtonAnimator: widget.floatingActionButtonAnimator,
+          persistentFooterButtons: widget.persistentFooterButtons,
+          bottomNavigationBar: widget.bottomNavigationBar,
+          bottomSheet: widget.bottomSheet,
+          backgroundColor: widget.backgroundColor,
+          resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
+          primary: widget.primary,
+          extendBody: widget.extendBody,
+          extendBodyBehindAppBar: widget.extendBodyBehindAppBar,
         ),
-        CustomDrawerController(
-          key: _drawerKey,
-          alignment: DrawerAlignment.start,
-          drawerCallback: _drawerOpenedCallback,
-          dragStartBehavior: widget.drawerDragStartBehavior,
-          scrimColor: widget.drawerScrimColor,
-          edgeDragWidth: widget.drawerEdgeDragWidth,
-          enableOpenDragGesture: true /* <<< */,
-          isDrawerOpen: _drawerOpened.value,
-          child: widget.drawer,
-        ),
+        if (widget.drawer != null)
+          CustomDrawerController(
+            key: _drawerKey,
+            alignment: DrawerAlignment.start,
+            drawerCallback: _drawerOpenedCallback,
+            dragStartBehavior: widget.drawerDragStartBehavior,
+            scrimColor: widget.drawerScrimColor,
+            edgeDragWidth: widget.drawerEdgeDragWidth,
+            enableOpenDragGesture: widget.drawerEnableOpenDragGesture,
+            isDrawerOpen: _drawerOpened.value,
+            child: widget.drawer!,
+          ),
+        if (widget.endDrawer != null)
+          CustomDrawerController(
+            key: _endDrawerKey,
+            alignment: DrawerAlignment.end,
+            drawerCallback: _endDrawerOpenedCallback,
+            dragStartBehavior: widget.drawerDragStartBehavior,
+            scrimColor: widget.drawerScrimColor,
+            edgeDragWidth: widget.endDrawerEdgeDragWidth,
+            enableOpenDragGesture: widget.endDrawerEnableOpenDragGesture,
+            isDrawerOpen: _endDrawerOpened.value,
+            child: widget.endDrawer!,
+          ),
       ],
     );
   }

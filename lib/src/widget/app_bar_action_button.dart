@@ -2,7 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-// Note: Some content of this file is based on Flutter's source code, and is modified by AoiHosizora (GitHub: @Aoi-hosizora).
+// Note: Some contents of this file are based on Flutter's source code, and is modified by AoiHosizora (GitHub: @Aoi-hosizora).
 //
 // Some code in this file keeps the same as the following source codes:
 // - IconButton: https://github.com/flutter/flutter/blob/2.10.5/packages/flutter/lib/src/material/icon_button.dart
@@ -222,7 +222,7 @@ class AppBarActionButton extends StatelessWidget {
   }) {
     Widget? _build(BuildContext context) {
       final scaffold = Scaffold.maybeOf(context);
-      final hasDrawer = scaffold?.hasDrawer ?? false;
+      final hasDrawer = scaffold?.hasDrawer ?? false; // no consideration of hasEndDrawer
 
       final parentRoute = ModalRoute.of(context);
       final canPop = parentRoute?.canPop ?? false;

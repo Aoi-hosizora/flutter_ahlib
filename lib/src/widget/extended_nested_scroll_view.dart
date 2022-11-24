@@ -19,8 +19,8 @@ import 'package:flutter/scheduler.dart';
 // - https://github.com/fluttercandies/extended_nested_scroll_view/blob/master/lib/src/extended_nested_scroll_view_part.dart
 // - https://juejin.cn/post/6844903713887223821
 
-/// This is an extended [NestedScrollView], mainly for [NestedScrollView] with a [TabBarView] or
-/// [PageView], which may use multiple [ScrollController].
+/// An extended [NestedScrollView], mainly for [NestedScrollView] with a [TabBarView]
+/// or [PageView], which may use multiple [ScrollController].
 class ExtendedNestedScrollView extends StatefulWidget {
   const ExtendedNestedScrollView({
     Key? key,
@@ -52,18 +52,18 @@ class ExtendedNestedScrollView extends StatefulWidget {
   final String? restorationId;
   final ScrollBehavior? scrollBehavior;
 
-  /// The inner scroll controller count (or page count) for [ExtendedNestedScrollView]. Note
-  /// that this value should be larger than zero.
+  /// The inner scroll controller count (or page count). Note that this value should
+  /// be larger than zero.
   final int innerControllerCount;
 
-  /// The current active inner scroll controller index. Note that only the active controller's
-  /// [ScrollPosition] will attach to [ExtendedNestedScrollView] outer nested scroll controller.
-  /// Note that this value should be larger than [innerControllerCount].
+  /// The active inner scroll controller index. Note that only the active controller's
+  /// [ScrollPosition] will attach to [ExtendedNestedScrollView] outer nested scroll
+  /// controller. Note that this value should be larger than [innerControllerCount].
   final int activeControllerIndex;
 
-  /// The body builder for [ExtendedNestedScrollView]. This builder passes all inner scroll
-  /// controllers as its second parameter, and it should be used for each page's scroll view.
-  /// And note that possibly you need to wrap some pages with [PrimaryScrollController].
+  /// The body widget builder. This builder passes all inner scroll controllers as its
+  /// second parameter, and it should be used for each page's scroll view. Note that
+  /// possibly you need to wrap some pages with [PrimaryScrollController].
   final Widget Function(BuildContext context, List<ScrollController> innerControllers) bodyBuilder;
 
   static SliverOverlapAbsorberHandle sliverOverlapAbsorberHandleFor(BuildContext context) {

@@ -20,7 +20,7 @@ class _CustomDrawerControllerPageState extends State<CustomDrawerControllerPage>
           IconButton(
             icon: const Icon(Icons.menu),
             onPressed: () {
-              if (_drawerKey.currentState?.controller.value != 1) {
+              if (_drawerKey.currentState?.controller.value != 1.0) {
                 // not completely opened => open
                 _drawerKey.currentState?.open();
               } else {
