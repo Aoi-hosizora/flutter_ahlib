@@ -14,12 +14,16 @@ class _NestedPageViewNotifierPageState extends State<NestedPageViewNotifierPage>
   var _currentIndex = 0;
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
     WidgetsBinding.instance?.addPostFrameCallback((_) {
-      _pageController = context.findDescendantElementBFS<PageController>(
-        (el) => (el.widget is! PageView) ? null : (el.widget as PageView).controller,
-      )!; // <<< use visitDescendantElementsBFS
+      _pageController = context.findDescendantElementBFS<PageController>((el) => el.asIf<PageView>()?.controller)!; // <<< use visitDescendantElementsBFS
     });
     _controller.addListener(() {
       _currentIndex = _controller.index.toInt();

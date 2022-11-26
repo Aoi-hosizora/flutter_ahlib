@@ -68,16 +68,36 @@ extension IterableExtension<T> on Iterable<T> {
   T? get lastOrNull => isEmpty ? null : last;
 }
 
-/// An extension for any values, and it only contains kotlin-like [let] function.
-extension LetExtension<T extends Object> on T {
+/// An extension for any non-null values.
+extension ObjectExtension<T extends Object> on T {
+  /// This method works the same as `is` keyword.
+  bool is_<U>() {
+    return this is U;
+  }
+
+  /// This method works the same as `as` keyword.
+  ///
+  /// Note that if current value type does not match given [U], it will throw _CastError.
+  U as_<U>() {
+    return this as U;
+  }
+
+  /// Casts to [U] type and returns the value if possible, otherwise return null.
+  U? asIf<U>() {
+    if (this is! U) {
+      return null;
+    }
+    return this as U;
+  }
+
   /// Calls given function when current value is not null.
   R let<R>(R Function(T value) func) {
     return func.call(this);
   }
 }
 
-/// An extension for [Future], and it only contains kotlin-like [let] function.
-extension FutureLetExtension<T extends Object> on Future<T?> {
+/// An extension for [Future].
+extension FutureExtension<T extends Object> on Future<T?> {
   /// Calls given function when current value is not null.
   Future<R?> futureLet<R>(R Function(T value) func) async {
     T? value = await this;

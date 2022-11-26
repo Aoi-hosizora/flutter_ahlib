@@ -1,6 +1,17 @@
 import 'package:flutter_ahlib/flutter_ahlib_util.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+void expectThrow(void Function() f, String typeString) {
+  try {
+    f();
+  } catch (e) {
+    print(e);
+    expect(e.runtimeType.toString(), typeString);
+    return;
+  }
+  fail('should throw exception');
+}
+
 void main() {
   group('ActionController', () {
     test('an empty ctrl', () {
@@ -67,15 +78,17 @@ void main() {
       controller.addAction('2', () => 2);
       controller.addAction('3', () => () => 3);
 
-      // expect(controller.getAction('1'), () => null);
+      expect(controller.getAction('1') is Null Function(), true);
       expect(controller.containsAction('1'), true);
       expect(controller.invoke('1'), null);
+      expectThrow(() => controller.getAction<int Function()>('1'), '_CastError'); // <<< `as` failed
 
-      // expect(controller.getAction('2'), () => 2);
+      expect(controller.getAction('2') is int Function(), true);
       expect(controller.containsAction('2'), true);
       expect(controller.invoke<int>('2'), 2);
+      expectThrow(() => controller.invoke<String>('2'), '_CastError'); // <<< `as` failed
 
-      // expect(controller.getAction('3'), () => () => 3);
+      expect(controller.getAction('3') is int Function() Function(), true);
       expect(controller.containsAction('3'), true);
       expect(controller.invoke<int Function()>('3')!(), 3);
 

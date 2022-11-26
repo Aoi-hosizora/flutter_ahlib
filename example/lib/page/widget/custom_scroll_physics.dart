@@ -12,7 +12,6 @@ class _CustomScrollPhysicsPageState extends State<CustomScrollPhysicsPage> {
   final _physicsController = CustomScrollPhysicsController();
   var _single = false;
   var _hasController = true;
-  var _bouncingPhysics = false;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +27,6 @@ class _CustomScrollPhysicsPageState extends State<CustomScrollPhysicsPage> {
               Expanded(
                 child: PageView(
                   physics: CustomScrollPhysics(
-                    parent: _bouncingPhysics ? const BouncingScrollPhysics() : null,
                     controller: _hasController ? _physicsController : null,
                   ),
                   children: [
@@ -61,7 +59,6 @@ class _CustomScrollPhysicsPageState extends State<CustomScrollPhysicsPage> {
               Expanded(
                 child: ListView.separated(
                   physics: CustomScrollPhysics(
-                    parent: _bouncingPhysics ? const BouncingScrollPhysics() : null,
                     controller: _hasController ? _physicsController : null,
                   ),
                   itemCount: !_single ? 50 : 1,
@@ -103,13 +100,6 @@ class _CustomScrollPhysicsPageState extends State<CustomScrollPhysicsPage> {
                 children: [
                   const Text('hasController'),
                   Switch(value: _hasController, onChanged: (b) => mountedSetState(() => _hasController = b)),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text('bouncingPhysics'), // only for testing temporarily
-                  Switch(value: _bouncingPhysics, onChanged: (b) => mountedSetState(() => _bouncingPhysics = b)),
                 ],
               ),
             ],

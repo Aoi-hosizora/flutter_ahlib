@@ -16,6 +16,13 @@ class _ExtendedNestedScrollViewPageState extends State<ExtendedNestedScrollViewP
     });
 
   @override
+  void dispose() {
+    _scrollController.dispose();
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: ExtendedNestedScrollView(

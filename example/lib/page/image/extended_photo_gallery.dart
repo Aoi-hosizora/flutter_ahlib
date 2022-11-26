@@ -25,7 +25,7 @@ class _ExtendedPhotoGalleryPageState extends State<ExtendedPhotoGalleryPage> {
 
   final _controller = PageController(viewportFraction: 1.08);
   final _galleryKey = GlobalKey<ExtendedPhotoGalleryState>();
-  final CacheManager _cache = DefaultCacheManager();
+  final _cache = DefaultCacheManager();
 
   var _currentIndex = 0;
   var _correctUrl = false;
@@ -37,6 +37,12 @@ class _ExtendedPhotoGalleryPageState extends State<ExtendedPhotoGalleryPage> {
     WidgetsBinding.instance?.addPostFrameCallback((_) {
       if (mounted) setState(() {});
     });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -195,7 +201,7 @@ class _AdvancedPageState extends State<_AdvancedPage> {
 
   var _controller = PageController(viewportFraction: 1.0, initialPage: 0);
   final _galleryKey = GlobalKey<ExtendedPhotoGalleryState>();
-  final CacheManager _cache = DefaultCacheManager();
+  final _cache = DefaultCacheManager();
 
   var _containsSpacer = false;
   var _keepViewportMainAxisSize = true;

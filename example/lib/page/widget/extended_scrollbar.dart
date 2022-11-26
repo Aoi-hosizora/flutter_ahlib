@@ -13,6 +13,12 @@ class _ExtendedScrollbarPageState extends State<ExtendedScrollbarPage> {
   var _useTheme = false;
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(

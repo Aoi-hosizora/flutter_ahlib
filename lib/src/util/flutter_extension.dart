@@ -132,21 +132,41 @@ extension PageControllerExtension on PageController {
 /// An extension for [RenderObject].
 extension RenderObjectExtension on RenderObject {
   /// Returns the [Rect] which contains the size (semantic bound size) and position (in the coordinate
-  /// system of root node) of render object.
-  Rect getBoundInRootAncestorCoordinate() {
-    var translation = getTransformTo(null).getTranslation();
+  /// system of root node if given [ancestor] is null) of render object.
+  Rect getBoundInAncestorCoordinate([RenderObject? ancestor]) {
+    var translation = getTransformTo(ancestor).getTranslation();
     var size = semanticBounds.size;
     return Rect.fromLTWH(translation.x, translation.y, size.width, size.height);
   }
 
   /// Casts the [RenderObject] to [RenderBox].
   RenderBox? toRenderBox() {
-    return this as RenderBox?;
+    if (this is! RenderBox) {
+      return null;
+    }
+    return this as RenderBox;
   }
 }
 
 /// An extension for [BuildContext].
 extension BuildContextExtension on BuildContext {
+  /// Casts the [BuildContext] to [Element].
+  Element? toElement() {
+    if (this is! Element) {
+      return null;
+    }
+    return this as Element;
+  }
+
+  /// Finds the current [RenderBox] which inherits from [RenderObject] for the widget.
+  RenderBox? findRenderBox() {
+    var renderObject = findRenderObject();
+    if (renderObject == null || renderObject is! RenderBox) {
+      return null;
+    }
+    return renderObject;
+  }
+
   /// Visits descendant child element and finds some non-null objects using given [checker] and DFS algorithm.
   /// Note that this method will return all found objects if given non-positive [count].
   List<T> findDescendantElementsDFS<T extends Object>(int count, T? Function(Element element) checker) {
@@ -160,7 +180,6 @@ extension BuildContextExtension on BuildContext {
       var t = checker(el);
       if (t != null) {
         out.add(t);
-        return;
       }
       el.visitChildElements(visit);
     }

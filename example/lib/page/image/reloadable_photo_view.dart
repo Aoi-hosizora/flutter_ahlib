@@ -19,7 +19,7 @@ class _ReloadablePhotoViewPageState extends State<ReloadablePhotoViewPage> {
   ];
 
   final _keys = List.generate(3, (_) => GlobalKey<ReloadablePhotoViewState>());
-  final CacheManager _cache = DefaultCacheManager();
+  final _cache = DefaultCacheManager();
 
   PhotoViewScaleState _customScaleStateCycle(PhotoViewScaleState actual) {
     switch (actual) {

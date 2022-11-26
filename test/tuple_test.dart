@@ -1,6 +1,17 @@
 import 'package:flutter_ahlib/flutter_ahlib_util.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+void expectThrow(void Function() f, String typeString) {
+  try {
+    f();
+  } catch (e) {
+    print(e);
+    expect(e.runtimeType.toString(), typeString);
+    return;
+  }
+  fail('should throw exception');
+}
+
 void main() {
   group('Tuple1', () {
     test('constructor', () {
@@ -60,6 +71,10 @@ void main() {
       expect(t2 is Tuple2<dynamic, dynamic>, true);
       // ignore: unnecessary_type_check
       expect(t3 is Tuple2<int, String>, true);
+
+      expectThrow(() => Tuple2.fromList([1]), 'ArgumentError');
+      expectThrow(() => Tuple2<int, String>.fromList([1, 1]), '_CastError');
+      expectThrow(() => Tuple2<double, int>.fromList([1, 1.1]), '_CastError');
 
       expect(t2.item1, 1);
       expect(t2.item2, '2');
@@ -126,6 +141,9 @@ void main() {
       expect(t2 is Tuple6<dynamic, dynamic, dynamic, dynamic, dynamic, dynamic>, true);
       // ignore: unnecessary_type_check
       expect(t3 is Tuple6<int, String, double, bool, List<int>, Set<int>>, true);
+
+      expectThrow(() => Tuple6.fromList([1]), 'ArgumentError');
+      expectThrow(() => Tuple6<int, int, int, int, int, String>.fromList([1, 1, 1, 1, 1, 1]), '_CastError');
 
       expect(t2.item1, 1);
       expect(t2.item2, '2');

@@ -70,6 +70,8 @@ class ActionController {
   }
 
   /// Gets the action by the given [key], returns null if not found.
+  ///
+  /// Note that if found action's type does not match given [T], it will throw _CastError.
   Action<T>? getAction<T>([dynamic key = '']) {
     var action = _actions[key];
     if (action != null) {
@@ -79,6 +81,8 @@ class ActionController {
   }
 
   /// Invokes an action by the given [key], returns null if not found.
+  ///
+  /// Note that if found action's type does not match given [T], it will throw _CastError.
   T? invoke<T>([dynamic key = '']) {
     var r = _actions[key]?.call();
     if (r != null) {

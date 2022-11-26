@@ -33,6 +33,8 @@ class Tuple2<T1, T2> {
   T2 item2;
 
   /// Creates a new tuple value with the specified list [items].
+  ///
+  /// Note that if given items length is less than 2, or types do not match tuple type, this constructor will throw error.
   factory Tuple2.fromList(List items) {
     if (items.length != 2) {
       throw ArgumentError('items must have length 2');
@@ -69,6 +71,8 @@ class Tuple3<T1, T2, T3> {
   T3 item3;
 
   /// Creates a new tuple value with the specified list [items].
+  ///
+  /// Note that if given items length is less than 3, or types do not match tuple type, this constructor will throw error.
   factory Tuple3.fromList(List items) {
     if (items.length != 3) {
       throw ArgumentError('items must have length 3');
@@ -108,6 +112,8 @@ class Tuple4<T1, T2, T3, T4> {
   T4 item4;
 
   /// Creates a new tuple value with the specified list [items].
+  ///
+  /// Note that if given items length is less than 4, or types do not match tuple type, this constructor will throw error.
   factory Tuple4.fromList(List items) {
     if (items.length != 4) {
       throw ArgumentError('items must have length 4');
@@ -150,6 +156,8 @@ class Tuple5<T1, T2, T3, T4, T5> {
   T5 item5;
 
   /// Creates a new tuple value with the specified list [items].
+  ///
+  /// Note that if given items length is less than 5, or types do not match tuple type, this constructor will throw error.
   factory Tuple5.fromList(List items) {
     if (items.length != 5) {
       throw ArgumentError('items must have length 5');
@@ -195,6 +203,8 @@ class Tuple6<T1, T2, T3, T4, T5, T6> {
   T6 item6;
 
   /// Creates a new tuple value with the specified list [items].
+  ///
+  /// Note that if given items length is less than 6, or types do not match tuple type, this constructor will throw error.
   factory Tuple6.fromList(List items) {
     if (items.length != 6) {
       throw ArgumentError('items must have length 6');

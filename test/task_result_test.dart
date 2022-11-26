@@ -7,14 +7,16 @@ import 'package:flutter_test/flutter_test.dart';
 Future<void> expectThrow(FutureOr<void> Function() f, dynamic o) async {
   try {
     await f();
-    fail('should throw exception');
   } catch (e) {
+    // print(e);
     if (o is Function(dynamic)) {
       o(e);
     } else {
       expect(e, o);
     }
+    return;
   }
+  fail('should throw exception');
 }
 
 Future<T> v<T>(T t) async {

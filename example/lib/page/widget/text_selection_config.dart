@@ -12,6 +12,12 @@ class _TextSelectionConfigPageState extends State<TextSelectionConfigPage> {
   final _controller = TextEditingController();
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(

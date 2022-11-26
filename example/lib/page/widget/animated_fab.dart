@@ -15,6 +15,13 @@ class _AnimatedFabPageState extends State<AnimatedFabPage> {
   var _show = true;
 
   @override
+  void dispose() {
+    _controller.dispose();
+    _fabController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(

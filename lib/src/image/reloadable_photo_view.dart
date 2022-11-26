@@ -143,7 +143,7 @@ class ReloadablePhotoViewState extends State<ReloadablePhotoView> {
   /// Example:
   /// ```
   /// final _photoViewKey = GlobalKey<ReloadablePhotoViewState>();
-  /// final CacheManager _cache = DefaultCacheManager();
+  /// final _cache = DefaultCacheManager();
   ///
   /// ReloadablePhotoView(
   ///   key: _photoViewKey,

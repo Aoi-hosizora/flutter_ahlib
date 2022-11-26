@@ -1,6 +1,17 @@
 import 'package:flutter_ahlib/flutter_ahlib_util.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+void expectThrow(void Function() f, String typeString) {
+  try {
+    f();
+  } catch (e) {
+    print(e);
+    expect(e.runtimeType.toString(), typeString);
+    return;
+  }
+  fail('should throw exception');
+}
+
 void main() {
   group('BoolExtension', () {
     test('ifTrue', () {
@@ -71,7 +82,69 @@ void main() {
     });
   });
 
-  group('LetExtension', () {
+  group('ObjectExtension', () {
+    test('is & as', () {
+      Object objI = 1;
+      Object objD = 1.1;
+      Object objS = '1';
+      Object? objN;
+      expect(objI.is_<int>(), true);
+      expect(objD.is_<double>(), true);
+      expect(objS.is_<String>(), true);
+      expect(objI.is_<double>(), false);
+      expect(objD.is_<String>(), false);
+      expect(objS.is_<int>(), false);
+      expect(objN?.is_(), null);
+
+      dynamic dynI = 1;
+      dynamic dynD = 1.1;
+      dynamic dynS = '1';
+      dynamic dynN;
+      expect((dynI as Object?)?.as_<int>(), 1);
+      expect((dynD as Object?)?.as_<double>(), 1.1);
+      expect((dynS as Object?)?.as_<String>(), '1');
+      expectThrow(() => dynI?.as_<double>(), '_CastError');
+      expectThrow(() => dynD?.as_<String>(), '_CastError');
+      expectThrow(() => dynS?.as_<int>(), '_CastError');
+      expectThrow(() => dynN as Object, '_CastError'); // type 'Null' is not a subtype of type 'Object' in type cast
+      expect((dynN as Object?)?.as_(), null);
+
+      expect(objI.asIf<int>(), 1);
+      expect(objD.asIf<double>(), 1.1);
+      expect(objS.asIf<String>(), '1');
+      expect(objI.asIf<double>(), null);
+      expect(objD.asIf<String>(), null);
+      expect(objS.asIf<int>(), null);
+      expect(dynI?.asIf<int>(), 1);
+      expect(dynD?.asIf<double>(), 1.1);
+      expect(dynS?.asIf<String>(), '1');
+      expect(dynI?.asIf<double>(), null);
+      expect(dynD?.asIf<String>(), null);
+      expect(dynS?.asIf<int>(), null);
+
+      int i = 1;
+      double d = 1.1;
+      String s = '1';
+      int? ni = i;
+      double? nd = d;
+      String? ns = s;
+      expect(i.is_<int?>(), true);
+      expect(d.is_<double?>(), true);
+      expect(s.is_<String?>(), true);
+      expect(ni.is_<int>(), true);
+      expect(nd.is_<double>(), true);
+      expect(ns.is_<String>(), true);
+      expect(ni.as_<int>(), i);
+      expect(nd.as_<double>(), d);
+      expect(ns.as_<String>(), s);
+      ni = null;
+      nd = null;
+      ns = null;
+      expect(ni?.is_<int>(), null);
+      expect(nd?.is_<double>(), null);
+      expect(ns?.is_<String>(), null);
+    });
+
     test('let', () {
       expect(0.let((int v) => v), 0); // let<int>
       expect(0.let((int v) => 1), 1); // let<int>
@@ -87,7 +160,9 @@ void main() {
         expect(value, true);
       }();
     });
+  });
 
+  group('FutureExtension', () {
     test('futureLet', () async {
       expect(await Future.value(0).futureLet((int v) => v), 0); // futureLet<int>
       expect(await Future.value(0).futureLet((int v) => 1), 1); // futureLet<int>

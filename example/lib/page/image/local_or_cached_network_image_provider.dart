@@ -58,7 +58,7 @@ class _TestPage extends StatefulWidget {
 class _TestPageState extends State<_TestPage> {
   // https://github.com/Baseflow/flutter_cached_network_image/issues/468#issuecomment-789757758
   // https://github.com/Baseflow/flutter_cached_network_image/issues/468#issuecomment-1153510183
-  final CacheManager _cache = DefaultCacheManager();
+  final _cache = DefaultCacheManager();
   final _vn1 = ValueNotifier<String>('');
   final _vn2 = ValueNotifier<String>('');
   var _correctFile = false;

@@ -16,8 +16,14 @@ class _PaginationNoSliverDataViewPageState extends State<PaginationNoSliverDataV
   var _listOrGrid = true;
   var _isEmpty = false;
   var _isError = false;
-  // final _data = <String>['1', '2', '3', '4', '5'];
-  final _data = <String>[];
+  final _data = <String>[]; // <String>['1', '2', '3', '4', '5']
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _fabController.dispose();
+    super.dispose();
+  }
 
   Future<PagedList<String>> _getData({required int page}) async {
     printLog('_getData: $page');

@@ -64,6 +64,12 @@ class _Page1State extends State<_Page1> {
   var _lessItems = false;
 
   @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Scrollbar(
@@ -149,6 +155,13 @@ class _Page2 extends StatefulWidget {
 class _Page2State extends State<_Page2> {
   final _pageController = PageController();
   final _textController = TextEditingController();
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    _textController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -341,12 +354,13 @@ class _Page3State extends State<_Page3> {
           _fab(
             icon: Icons.check,
             onPressed: () {
+              var renderObjects = _ctnrKeys.map((k) => k.currentContext?.findRenderObject()).toList();
               printLog('MediaQuery top padding: ${MediaQuery.of(context).padding.top}, kToolbarHeight: $kToolbarHeight, kTextTabBarHeight: $kTextTabBarHeight');
-              printLog('Rect0: ${_ctnrKeys[0].currentContext?.findRenderObject()?.getBoundInRootAncestorCoordinate()}');
-              printLog('Rect1: ${_ctnrKeys[1].currentContext?.findRenderObject()?.getBoundInRootAncestorCoordinate()}');
-              printLog('Rect2: ${_ctnrKeys[2].currentContext?.findRenderObject()?.getBoundInRootAncestorCoordinate()}');
-              printLog('Rect3: ${_ctnrKeys[3].currentContext?.findRenderObject()?.getBoundInRootAncestorCoordinate()}');
-              printLog('Rect4: ${_ctnrKeys[4].currentContext?.findRenderObject()?.getBoundInRootAncestorCoordinate()}');
+              printLog('Rect0: root => ${renderObjects[0]?.getBoundInAncestorCoordinate()}, page => ${renderObjects[0]?.getBoundInAncestorCoordinate(context.findRenderObject())}');
+              printLog('Rect1: root => ${renderObjects[1]?.getBoundInAncestorCoordinate()}, page => ${renderObjects[1]?.getBoundInAncestorCoordinate(context.findRenderObject())}');
+              printLog('Rect2: root => ${renderObjects[2]?.getBoundInAncestorCoordinate()}, page => ${renderObjects[2]?.getBoundInAncestorCoordinate(context.findRenderObject())}');
+              printLog('Rect3: root => ${renderObjects[3]?.getBoundInAncestorCoordinate()}, page => ${renderObjects[3]?.getBoundInAncestorCoordinate(context.findRenderObject())}');
+              printLog('Rect4: root => ${renderObjects[4]?.getBoundInAncestorCoordinate()}, page => ${renderObjects[4]?.getBoundInAncestorCoordinate(context.findRenderObject())}');
             },
           ),
           _fab(
@@ -359,6 +373,10 @@ class _Page3State extends State<_Page3> {
   }
 }
 
+class SampleText extends Text {
+  const SampleText(String data, {Key? key}) : super(data, key: key);
+}
+
 class _Page4 extends StatefulWidget {
   const _Page4({Key? key}) : super(key: key);
 
@@ -367,11 +385,116 @@ class _Page4 extends StatefulWidget {
 }
 
 class _Page4State extends State<_Page4> {
+  var _text = '';
+
+  SampleText? _checker(Element el) {
+    var type = el.widget.runtimeType.toString();
+    if (!type.startsWith('_')) {
+      _text += '$type\n';
+    }
+    return el.widget.asIf<SampleText>();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Text('TODO'),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const SampleText('test 1'),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SampleText('test 2'),
+                const Text(' '),
+                Row(
+                  children: const [
+                    SampleText('test 3'),
+                    Text(' '),
+                    SampleText('test 4'),
+                  ],
+                ),
+              ],
+            ),
+            const Divider(),
+            OutlinedButton(
+              child: const Text('Find all texts (DFS)'),
+              onPressed: () {
+                _text = 'DFS all:\n';
+                var found = context.findDescendantElementsDFS<SampleText>(-1, _checker);
+                printLog('$_text${_text.split('\n').length}');
+                printLog('found texts: ' + (found.map((w) => '"${w.data}"')).join(' | '));
+              },
+            ),
+            const SizedBox(height: 4),
+            OutlinedButton(
+              child: const Text('Find all texts (BFS)'),
+              onPressed: () {
+                _text = 'BFS all:\n';
+                var found = context.findDescendantElementsBFS<SampleText>(-1, _checker);
+                printLog('$_text${_text.split('\n').length}');
+                printLog('found texts: ' + (found.map((w) => '"${w.data}"')).join(' | '));
+              },
+            ),
+            const SizedBox(height: 4),
+            ElevatedButton(
+              child: const Text('Find first 5 texts (DFS)'),
+              onPressed: () {
+                _text = 'DFS 5:\n';
+                var found = context.findDescendantElementsDFS<SampleText>(5, _checker);
+                printLog('$_text${_text.split('\n').length}');
+                printLog('found texts: ' + (found.map((w) => '"${w.data}"')).join(' | '));
+              },
+            ),
+            const SizedBox(height: 4),
+            ElevatedButton(
+              child: const Text('Find first 5 texts (BFS)'),
+              onPressed: () {
+                _text = 'BFS 5:\n';
+                var found = context.findDescendantElementsBFS<SampleText>(5, _checker);
+                printLog('$_text${_text.split('\n').length}');
+                printLog('found texts: ' + (found.map((w) => '"${w.data}"')).join(' | '));
+              },
+            ),
+            const SizedBox(height: 4),
+            TextButton(
+              child: const Text('find the first text (DFS)'),
+              onPressed: () {
+                _text = 'DFS 1:\n';
+                var textWidget = context.findDescendantElementDFS<SampleText>(_checker);
+                printLog('$_text${_text.split('\n').length}');
+                printLog('found text: "${textWidget?.data}"');
+              },
+            ),
+            const SizedBox(height: 4),
+            TextButton(
+              child: const Text('find the first text (BFS)'),
+              onPressed: () {
+                _text = 'BFS 1:\n';
+                var textWidget = context.findDescendantElementBFS<SampleText>(_checker);
+                printLog('$_text${_text.split('\n').length}');
+                printLog('found text: "${textWidget?.data}"');
+              },
+            ),
+            const Divider(),
+            const SampleText('test 5'),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SampleText('test 6'),
+                const Text(' '),
+                Row(
+                  children: const [
+                    SampleText('test 7'),
+                    Text(' '),
+                    SampleText('test 8'),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

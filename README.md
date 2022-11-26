@@ -6,7 +6,7 @@
 [![License](https://img.shields.io/badge/license-mit-blue.svg)](./LICENSE)
 
 + A personal flutter library, contains some useful widgets and utilities.
-+ Please visit https://pub.dev/packages/flutter_ahlib for this library. Note that this library only passed tests in Flutter 2.x.
++ Please visit https://pub.dev/packages/flutter_ahlib for this library. Note that this library only passes tests in Flutter 2.x.
 
 ### Usage
 
@@ -34,12 +34,12 @@ import 'package:flutter_ahlib/flutter_ahlib_util.dart';
     + `ExtendedScrollbar`
     + `IconText`
     + `LazyIndexedStack`
-    + `flatButtonStyle` `raisedButtonStyle` `outlineButtonStyle`
+    + `NestedPageViewNotifier`
+    + `flatButtonStyle` `raisedButtonStyle` `outlineButtonStyle` `ThemeDataExtension`
     + `PlaceholderText`
     + `TextDialogOption` `IconTextDialogOption` `CircularProgressDialogOption`
     + `PreloadablePageView`
     + `SliverHeaderDelegate` `SliverSeparatedListDelegate` `SliverSeparatedListBuilderDelegate`
-    + `TabInPageNotification`
     + `TableWholeRowInkWell` `TableCellHelper`
     + `TextGroup`
     + `TextSelectionConfig` `TextSelectionWithColorHandle`
@@ -58,12 +58,12 @@ import 'package:flutter_ahlib/flutter_ahlib_util.dart';
     + `ReloadablePhotoView` `ReloadablePhotoViewState`
 + Utilities ([lib/src/util/](./lib/src/util))
     + `ActionController`
-    + `BoolExtension` `IterableExtension` `LetExtension`
+    + `BoolExtension` `IterableExtension` `ObjectExtension` `FutureExtension`
     + `downloadFile`
     + `ExtendedLogger` `PreferredPrinter`
     + `filesize` `filesizeWithoutSpace`
     + `Flutter material constants`
-    + `StateExtension` `ScrollControllerExtension` `ScrollMetricsExtension` `PageControllerExtension` `RenderObjectExtension`
+    + `StateExtension` `ScrollControllerExtension` `ScrollMetricsExtension` `PageControllerExtension` `RenderObjectExtension` `BuildContextExtension`
     + `getMimeFromExtension` `getExtensionsFromMime` `getPreferredExtensionFromMime`
     + `TaskResult` `Ok` `Err` `TaskResultFutureExtension`
     + `Tuple2` ~ `Tuple6`

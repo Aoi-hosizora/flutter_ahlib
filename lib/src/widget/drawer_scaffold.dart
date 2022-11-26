@@ -5,25 +5,27 @@ import 'package:flutter_ahlib/src/widget/custom_drawer_controller.dart';
 import 'package:flutter_ahlib/src/widget/custom_scroll_physics.dart';
 
 /// An extended [Scaffold] with [Drawer], mainly for making [Drawer] openable when [PageView]
-/// or [TabBarView] is overscrolled horizontally.
+/// or [TabBarView] is overscrolled horizontally, and customizing more drawer drag triggers.
 class DrawerScaffold extends StatefulWidget {
   const DrawerScaffold({
     Key? key,
     required this.body,
     this.drawer,
     this.endDrawer,
+    this.drawerEnableOverscrollGesture = true,
+    this.endDrawerEnableOverscrollGesture = true,
     this.physicsController,
+    this.drawerEnableOpenDragGesture = true,
+    this.endDrawerEnableOpenDragGesture = true,
+    this.drawerEdgeDragWidth,
+    this.endDrawerEdgeDragWidth,
     this.drawerExtraDragTriggers,
     this.endDrawerExtraDragTriggers,
-    // ===
     this.drawerDragStartBehavior = DragStartBehavior.start,
     this.drawerScrimColor,
     this.onDrawerChanged,
     this.onEndDrawerChanged,
-    this.drawerEdgeDragWidth,
-    this.endDrawerEdgeDragWidth,
-    this.drawerEnableOpenDragGesture = true,
-    this.endDrawerEnableOpenDragGesture = true,
+    // ===
     this.appBar,
     this.floatingActionButton,
     this.floatingActionButtonLocation,
@@ -57,28 +59,64 @@ class DrawerScaffold extends StatefulWidget {
   /// button, both [Scaffold.of] and [DrawerScaffold.of] work.
   final Widget? endDrawer;
 
-  /// The [CustomScrollPhysicsController] used in [body]. This controller will be used to
-  /// refine [PageView] or [TabBarView]'s scroll physics when [drawer] is opening.
+  /// The flag to enable [PageView] or [TabBarView]'s overscroll gesture to open [drawer].
+  /// Note that this behavior is never related to [drawerEnableOpenDragGesture].
+  final bool drawerEnableOverscrollGesture;
+
+  /// The flag to enable [PageView] or [TabBarView]'s overscroll gesture to open [endDrawer].
+  /// Note that this behavior is never related to [endDrawerEnableOpenDragGesture].
+  final bool endDrawerEnableOverscrollGesture;
+
+  /// The [CustomScrollPhysicsController] used in [body]. This controller is used to refine
+  /// [PageView] or [TabBarView]'s scroll physics when [drawer] is opening when and only when
+  /// [drawerEnableOverscrollGesture] or [endDrawerEnableOverscrollGesture] is true.
   final CustomScrollPhysicsController? physicsController;
 
+  /// The flag to enable drag gesture to open [drawer]. This flag influences not only edge
+  /// horizontal dragging (with [drawerEdgeDragWidth]), but also [drawerExtraDragTriggers].
+  final bool drawerEnableOpenDragGesture;
+
+  /// The flag to enable drag gesture to open [endDrawer]. This flag influences not only edge
+  /// horizontal dragging (with [endDrawerEdgeDragWidth]), but also [endDrawerExtraDragTriggers].
+  final bool endDrawerEnableOpenDragGesture;
+
+  /// Mirrors to [Scaffold.drawerEdgeDragWidth] and for [drawer]. This field only works when
+  /// [drawerEnableOpenDragGesture] is true.
+  final double? drawerEdgeDragWidth;
+
+  /// Mirrors to [Scaffold.drawerEdgeDragWidth] but for [endDrawer]. This field only works when
+  /// [endDrawerEnableOpenDragGesture] is true.
+  final double? endDrawerEdgeDragWidth;
+
   /// The extra [DrawerDragTrigger] for [drawer], which can be used to enable more spaces to
-  /// respond drag gesture for opening [drawer].
+  /// respond drag gesture for opening [drawer], when [drawerEnableOpenDragGesture] is true.
+  ///
+  /// Note that if you want [endDrawer] also have the symmetric drag trigger, just set
+  /// [DrawerDragTrigger.forBothSide] to true and not need to add to [endDrawerExtraDragTriggers].
   final List<DrawerDragTrigger>? drawerExtraDragTriggers;
 
   /// The extra [DrawerDragTrigger] for [endDrawer], which can be used to enable more spaces
-  /// to respond drag gesture for opening [endDrawer].
+  /// to respond drag gesture for opening [endDrawer], when [endDrawerEnableOpenDragGesture] is
+  /// true.
+  ///
+  /// Note that if you want [drawer] also have the symmetric drag trigger, just set
+  /// [DrawerDragTrigger.forBothSide] to true and not need to add to [drawerExtraDragTriggers].
   final List<DrawerDragTrigger>? endDrawerExtraDragTriggers;
+
+  /// Mirrors to [Scaffold.drawerDragStartBehavior].
+  final DragStartBehavior drawerDragStartBehavior;
+
+  /// Mirrors to [Scaffold.drawerScrimColor].
+  final Color? drawerScrimColor;
+
+  /// Mirrors to [Scaffold.onDrawerChanged].
+  final DrawerCallback? onDrawerChanged;
+
+  /// Mirrors to [Scaffold.onEndDrawerChanged].
+  final DrawerCallback? onEndDrawerChanged;
 
   // ===
 
-  final DragStartBehavior drawerDragStartBehavior;
-  final Color? drawerScrimColor;
-  final DrawerCallback? onDrawerChanged;
-  final DrawerCallback? onEndDrawerChanged;
-  final double? drawerEdgeDragWidth;
-  final double? endDrawerEdgeDragWidth;
-  final bool drawerEnableOpenDragGesture;
-  final bool endDrawerEnableOpenDragGesture;
   final PreferredSizeWidget? appBar;
   final Widget? floatingActionButton;
   final FloatingActionButtonLocation? floatingActionButtonLocation;
@@ -209,8 +247,8 @@ class DrawerScaffoldState extends State<DrawerScaffold> with RestorationMixin {
   }
 
   bool _onNotification(Notification n) {
-    var drawerGesture = widget.drawer != null && widget.drawerEnableOpenDragGesture;
-    var endDrawerGesture = widget.endDrawer != null && widget.drawerEnableOpenDragGesture;
+    var drawerGesture = widget.drawer != null && widget.drawerEnableOverscrollGesture;
+    var endDrawerGesture = widget.endDrawer != null && widget.endDrawerEnableOverscrollGesture;
     if (!drawerGesture && !endDrawerGesture) {
       return false;
     }
@@ -269,28 +307,81 @@ class DrawerScaffoldState extends State<DrawerScaffold> with RestorationMixin {
     return false;
   }
 
-  List<Widget> _buildDrawerDragTriggers({required bool isEndDrawer, required CustomDrawerControllerState drawerState}) {
+  var _dragTriggering = false;
+  var _dragTriggeringForEndDrawer = false;
+
+  void _onHorizontalDrag(
+    DragUpdateDetails? updateDetails,
+    DragEndDetails? endDetails,
+    CustomDrawerControllerState? drawerState,
+    CustomDrawerControllerState? endDrawerState,
+  ) {
+    if (updateDetails != null) {
+      if (!_dragTriggering) {
+        if (updateDetails.delta.dx > 0 && drawerState != null) {
+          _dragTriggering = true;
+          _dragTriggeringForEndDrawer = false; // forDrawer
+          drawerState.move(updateDetails);
+        } else if (updateDetails.delta.dx < 0 && endDrawerState != null) {
+          _dragTriggering = true;
+          _dragTriggeringForEndDrawer = true; // forEndDrawer
+          endDrawerState.move(updateDetails);
+        }
+      } else {
+        if (!_dragTriggeringForEndDrawer) {
+          drawerState?.move(updateDetails);
+        } else {
+          endDrawerState?.move(updateDetails);
+        }
+      }
+    }
+
+    if (endDetails != null) {
+      if (_dragTriggering) {
+        if (!_dragTriggeringForEndDrawer) {
+          drawerState?.settle(endDetails);
+        } else {
+          endDrawerState?.settle(endDetails);
+        }
+        _dragTriggering = false;
+        _dragTriggeringForEndDrawer = false;
+      }
+    }
+  }
+
+  List<Widget> _buildDrawerDragTriggers({required bool isEndDrawer}) {
+    var drawerState = widget.drawer != null && widget.drawerEnableOpenDragGesture ? _drawerKey.currentState : null;
+    var endDrawerState = widget.endDrawer != null && widget.endDrawerEnableOpenDragGesture ? _endDrawerKey.currentState : null;
+    var thisDrawerState = !isEndDrawer ? drawerState : endDrawerState;
+    if (thisDrawerState == null) {
+      return [];
+    }
     var dragTriggers = !isEndDrawer ? widget.drawerExtraDragTriggers : widget.endDrawerExtraDragTriggers;
     if (dragTriggers == null || dragTriggers.isEmpty) {
       return [];
     }
 
-    var out = <Widget>[];
+    var triggerWidgets = <Widget>[];
     for (var trigger in dragTriggers) {
-      var dragAreaWidth = trigger.dragWidth ?? (!isEndDrawer ? widget.drawerEdgeDragWidth : widget.endDrawerEdgeDragWidth);
+      var dragAreaWidth = trigger.dragWidth;
+      dragAreaWidth ??= !isEndDrawer ? widget.drawerEdgeDragWidth : widget.endDrawerEdgeDragWidth;
       dragAreaWidth ??= kDrawerEdgeDragWidth + (!isEndDrawer ? MediaQuery.of(context).padding.left : MediaQuery.of(context).padding.right);
-      Widget v = Positioned(
+
+      Widget triggerWidget = Positioned(
         left: trigger.left,
         top: trigger.top,
         right: trigger.right,
         bottom: trigger.bottom,
-        width: trigger.width,
         height: trigger.height,
         child: Align(
-          alignment: drawerState.drawerOuterAlignment,
+          alignment: thisDrawerState.drawerOuterAlignment,
           child: GestureDetector(
-            onHorizontalDragUpdate: drawerState.move,
-            onHorizontalDragEnd: drawerState.settle,
+            onHorizontalDragUpdate: !trigger.forBothSide //
+                ? thisDrawerState.move
+                : (details) => _onHorizontalDrag(details, null, drawerState, endDrawerState),
+            onHorizontalDragEnd: !trigger.forBothSide //
+                ? thisDrawerState.settle
+                : (details) => _onHorizontalDrag(null, details, drawerState, endDrawerState),
             behavior: HitTestBehavior.translucent,
             excludeFromSemantics: true,
             dragStartBehavior: widget.drawerDragStartBehavior,
@@ -298,9 +389,27 @@ class DrawerScaffoldState extends State<DrawerScaffold> with RestorationMixin {
           ),
         ),
       );
-      out.add(v);
+      triggerWidgets.add(triggerWidget);
     }
-    return out;
+
+    return triggerWidgets;
+  }
+
+  @override
+  void didUpdateWidget(covariant DrawerScaffold oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.drawer != widget.drawer || //
+        oldWidget.endDrawer != widget.endDrawer ||
+        oldWidget.drawerEnableOverscrollGesture != widget.drawerEnableOverscrollGesture ||
+        oldWidget.endDrawerEnableOverscrollGesture != widget.endDrawerEnableOverscrollGesture ||
+        oldWidget.drawerEnableOpenDragGesture != widget.drawerEnableOpenDragGesture ||
+        oldWidget.endDrawerEnableOpenDragGesture != widget.endDrawerEnableOpenDragGesture ||
+        oldWidget.drawerEdgeDragWidth != widget.drawerEdgeDragWidth ||
+        oldWidget.endDrawerEdgeDragWidth != widget.endDrawerEdgeDragWidth) {
+      WidgetsBinding.instance?.addPostFrameCallback((_) {
+        if (mounted) setState(() {});
+      });
+    }
   }
 
   @override
@@ -317,15 +426,15 @@ class DrawerScaffoldState extends State<DrawerScaffold> with RestorationMixin {
           ),
           drawer: widget.drawer,
           endDrawer: widget.endDrawer,
-          // ===
-          appBar: widget.appBar,
+          drawerEnableOpenDragGesture: false,
+          endDrawerEnableOpenDragGesture: false,
+          drawerEdgeDragWidth: null,
           drawerDragStartBehavior: widget.drawerDragStartBehavior,
           drawerScrimColor: widget.drawerScrimColor,
           onDrawerChanged: widget.onDrawerChanged,
           onEndDrawerChanged: widget.onEndDrawerChanged,
-          drawerEdgeDragWidth: null,
-          drawerEnableOpenDragGesture: false,
-          endDrawerEnableOpenDragGesture: false,
+          // ===
+          appBar: widget.appBar,
           floatingActionButton: widget.floatingActionButton,
           floatingActionButtonLocation: widget.floatingActionButtonLocation,
           floatingActionButtonAnimator: widget.floatingActionButtonAnimator,
@@ -339,47 +448,37 @@ class DrawerScaffoldState extends State<DrawerScaffold> with RestorationMixin {
           extendBodyBehindAppBar: widget.extendBodyBehindAppBar,
         ),
 
-        // TODO drawer drag triggers
+        // drawer drag triggers
+        if (widget.endDrawer != null) ..._buildDrawerDragTriggers(isEndDrawer: true),
+        if (widget.drawer != null) ..._buildDrawerDragTriggers(isEndDrawer: false),
 
-        // end drawer
-        if (widget.endDrawer != null) ...[
-          if (_endDrawerKey.currentState != null && widget.endDrawerEnableOpenDragGesture)
-            ..._buildDrawerDragTriggers(
-              isEndDrawer: true,
-              drawerState: _endDrawerKey.currentState!,
-            ),
+        // end drawer controller
+        if (widget.endDrawer != null)
           CustomDrawerController(
             key: _endDrawerKey,
+            child: widget.endDrawer!,
+            isDrawerOpen: _endDrawerOpened.value,
             alignment: DrawerAlignment.end,
-            drawerCallback: _endDrawerOpenedCallback,
+            enableOpenDragGesture: widget.endDrawerEnableOpenDragGesture,
+            edgeDragWidth: widget.endDrawerEdgeDragWidth,
             dragStartBehavior: widget.drawerDragStartBehavior,
             scrimColor: widget.drawerScrimColor,
-            edgeDragWidth: widget.endDrawerEdgeDragWidth,
-            enableOpenDragGesture: widget.endDrawerEnableOpenDragGesture,
-            isDrawerOpen: _endDrawerOpened.value,
-            child: widget.endDrawer!,
+            drawerCallback: _endDrawerOpenedCallback,
           ),
-        ],
 
-        // drawer
-        if (widget.drawer != null) ...[
-          if (_drawerKey.currentState != null && widget.drawerEnableOpenDragGesture)
-            ..._buildDrawerDragTriggers(
-              isEndDrawer: false,
-              drawerState: _drawerKey.currentState!,
-            ),
+        // drawer controller
+        if (widget.drawer != null)
           CustomDrawerController(
             key: _drawerKey,
+            child: widget.drawer!,
+            isDrawerOpen: _drawerOpened.value,
             alignment: DrawerAlignment.start,
-            drawerCallback: _drawerOpenedCallback,
+            enableOpenDragGesture: widget.drawerEnableOpenDragGesture,
+            edgeDragWidth: widget.drawerEdgeDragWidth,
             dragStartBehavior: widget.drawerDragStartBehavior,
             scrimColor: widget.drawerScrimColor,
-            edgeDragWidth: widget.drawerEdgeDragWidth,
-            enableOpenDragGesture: widget.drawerEnableOpenDragGesture,
-            isDrawerOpen: _drawerOpened.value,
-            child: widget.drawer!,
+            drawerCallback: _drawerOpenedCallback,
           ),
-        ],
       ],
     );
   }
@@ -392,30 +491,56 @@ class DrawerDragTrigger {
     this.top,
     this.right,
     this.bottom,
-    this.width,
     this.height,
     this.dragWidth,
+    this.forBothSide = false,
   });
 
   /// The trigger's left offset in scaffold.
   final double? left;
 
-  /// The trigger's top offset in scaffold.
+  /// The trigger's top offset in scaffold. Note that [MediaQuery]'s top padding should be
+  /// taken into consideration.
   final double? top;
 
   /// The trigger's right offset in scaffold.
   final double? right;
 
-  /// The trigger's bottom offset in scaffold.
+  /// The trigger's bottom offset in scaffold. Note that [MediaQuery]'s bottom padding should
+  /// be taken into consideration.
   final double? bottom;
-
-  /// The trigger's width.
-  final double? width;
 
   /// The trigger's height.
   final double? height;
 
   /// The width of the area within which a horizontal swipe will open the drawer, defaults to
-  /// [DrawerScaffold.drawerEdgeDragWidth] or [DrawerScaffold.endDrawerEdgeDragWidth].
+  /// [DrawerScaffold.drawerEdgeDragWidth] or [DrawerScaffold.endDrawerEdgeDragWidth]. If the
+  /// corresponding value is null, it will fallback to 20.0 with [MediaQuery] horizontal padding.
   final double? dragWidth;
+
+  /// The flag to enable trigger dragging to open both drawer and end drawer if exists,
+  /// defaults to false, which means overlapped trigger will only respond one side drawer.
+  final bool forBothSide;
+
+  @override
+  String toString() {
+    return 'DrawerDragTrigger(left: $left, top: $top, right: $right, bottom: $bottom, height: $height, dragWidth: $dragWidth, forBothSide: $forBothSide)';
+  }
+
+  @override
+  int get hashCode {
+    return hashValues(left, top, right, bottom, height, dragWidth, forBothSide);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is DrawerDragTrigger && //
+        left == other.left &&
+        top == other.top &&
+        right == other.right &&
+        bottom == other.bottom &&
+        height == other.height &&
+        dragWidth == other.dragWidth &&
+        forBothSide == other.forBothSide;
+  }
 }

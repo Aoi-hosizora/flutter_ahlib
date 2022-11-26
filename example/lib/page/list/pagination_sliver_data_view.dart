@@ -18,6 +18,13 @@ class _PaginationSliverDataViewPageState extends State<PaginationSliverDataViewP
   var _isError = false;
   final _data = <String>[];
 
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _fabController.dispose();
+    super.dispose();
+  }
+
   Future<PagedList<String>> _getData({required int page}) async {
     printLog('_getData: $page');
     if (page > 5) {

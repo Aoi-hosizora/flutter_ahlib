@@ -18,6 +18,13 @@ class _RefreshableSliverDataViewPageState extends State<RefreshableSliverDataVie
   var _isError = false;
   final _data = <String>[];
 
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _fabController.dispose();
+    super.dispose();
+  }
+
   Future<List<String>> _getData() async {
     printLog('_getData');
     await Future.delayed(const Duration(milliseconds: 1500));
