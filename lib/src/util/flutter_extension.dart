@@ -2,16 +2,22 @@ import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter_ahlib/src/util/flutter_constants.dart';
 
 /// An extension for [State].
 extension StateExtension<T extends StatefulWidget> on State<T> {
-  /// Equals to call `if (mounted) setState(() {});`
-  void mountedSetState(void Function() func) {
+  /// Equals to call `if (mounted) setState(func);`
+  void mountedSetState(VoidCallback func) {
     if (mounted) {
       // ignore: invalid_use_of_protected_member
-      setState(() => func());
+      setState(func);
     }
   }
+}
+
+/// Calculates a width that can make a dialog ([AlertDialog] or [SimpleDialog]) fill with the screen width.
+double getDialogMaxWidth(BuildContext context) {
+  return MediaQuery.of(context).size.width - (MediaQuery.of(context).padding + kDialogDefaultInsetPadding + kAlertDialogDefaultContentPadding).horizontal;
 }
 
 /// An extension for [ScrollController].

@@ -134,16 +134,16 @@ class CustomPageRoute<T> extends PageRoute<T> {
   }
 }
 
-/// An [InheritedWidget] that associates an [CustomPageRouteThemeData] with a subtree.
+/// An inherited widget that associates an [CustomPageRouteThemeData] with a subtree.
 class CustomPageRouteTheme extends InheritedWidget {
   const CustomPageRouteTheme({
     Key? key,
-    required CustomPageRouteThemeData this.data,
+    required this.data,
     required Widget child,
   }) : super(key: key, child: child);
 
   /// The data associated with the subtree.
-  final CustomPageRouteThemeData? data;
+  final CustomPageRouteThemeData data;
 
   /// Returns the data most closely associated with the given context.
   static CustomPageRouteThemeData? of(BuildContext context) {

@@ -57,16 +57,21 @@ class _CustomScrollPhysicsPageState extends State<CustomScrollPhysicsPage> {
                 ),
               ),
               Expanded(
-                child: ListView.separated(
+                child: DefaultScrollPhysics(
                   physics: CustomScrollPhysics(
                     controller: _hasController ? _physicsController : null,
                   ),
-                  itemCount: !_single ? 50 : 1,
-                  separatorBuilder: (_, __) => const Divider(height: 0, thickness: 1),
-                  itemBuilder: (_, i) => ListTile(
-                    dense: true,
-                    title: Text('Item ${i + 1}'),
-                    onTap: () {},
+                  child: Builder(
+                    builder: (c) => ListView.separated(
+                      physics: DefaultScrollPhysics.of(c), // <<<
+                      itemCount: !_single ? 50 : 1,
+                      separatorBuilder: (_, __) => const Divider(height: 0, thickness: 1),
+                      itemBuilder: (_, i) => ListTile(
+                        dense: true,
+                        title: Text('Item ${i + 1}'),
+                        onTap: () {},
+                      ),
+                    ),
                   ),
                 ),
               ),

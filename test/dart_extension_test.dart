@@ -107,7 +107,8 @@ void main() {
       expectThrow(() => dynD?.as_<String>(), '_CastError');
       expectThrow(() => dynS?.as_<int>(), '_CastError');
       expectThrow(() => dynN as Object, '_CastError'); // type 'Null' is not a subtype of type 'Object' in type cast
-      expect((dynN as Object?)?.as_(), null);
+      expect((dynN as Object?)?.as_(), null); // => null dynamic to Object?
+      expect((dynN as int?)?.as_(), null); // => null dynamic to int?
 
       expect(objI.asIf<int>(), 1);
       expect(objD.asIf<double>(), 1.1);

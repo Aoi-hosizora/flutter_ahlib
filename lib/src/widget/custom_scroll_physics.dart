@@ -6,6 +6,9 @@ import 'package:flutter/material.dart';
 /// A customizable [ScrollPhysics] which determines [Scrollable] physics by given
 /// [CustomScrollPhysicsController]. If there is no change on [controller], it will
 /// default to how [ClampingScrollPhysics] behaves and always accept user scroll.
+///
+/// Note that you can use [DefaultScrollPhysics] inherited widget to define a
+/// default physics, and use [DefaultScrollPhysics.of] to get it in children.
 @immutable
 class CustomScrollPhysics extends ScrollPhysics {
   const CustomScrollPhysics({
@@ -70,4 +73,27 @@ class CustomScrollPhysicsController {
 
   // Stores the last scroll value, is used in applyBoundaryConditions.
   double? _lastScrollValue;
+}
+
+/// An inherited widget that associates an [ScrollPhysics] with a subtree.
+class DefaultScrollPhysics extends InheritedWidget {
+  const DefaultScrollPhysics({
+    Key? key,
+    required this.physics,
+    required Widget child,
+  }) : super(key: key, child: child);
+
+  /// The data associated with the subtree.
+  final ScrollPhysics physics;
+
+  /// Returns the data most closely associated with the given context.
+  static ScrollPhysics? of(BuildContext context) {
+    final result = context.dependOnInheritedWidgetOfExactType<DefaultScrollPhysics>();
+    return result?.physics;
+  }
+
+  @override
+  bool updateShouldNotify(DefaultScrollPhysics oldWidget) {
+    return physics != oldWidget.physics;
+  }
 }

@@ -285,16 +285,16 @@ class AppBarActionButton extends StatelessWidget {
   }
 }
 
-/// An [InheritedWidget] that associates an [AppBarActionButtonThemeData] with a subtree.
+/// An inherited widget that associates an [AppBarActionButtonThemeData] with a subtree.
 class AppBarActionButtonTheme extends InheritedWidget {
   const AppBarActionButtonTheme({
     Key? key,
-    required AppBarActionButtonThemeData this.data,
+    required this.data,
     required Widget child,
   }) : super(key: key, child: child);
 
   /// The data associated with the subtree.
-  final AppBarActionButtonThemeData? data;
+  final AppBarActionButtonThemeData data;
 
   /// Returns the data most closely associated with the given context.
   static AppBarActionButtonThemeData? of(BuildContext context) {

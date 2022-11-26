@@ -368,9 +368,9 @@ class DrawerScaffoldState extends State<DrawerScaffold> with RestorationMixin {
       dragAreaWidth ??= kDrawerEdgeDragWidth + (!isEndDrawer ? MediaQuery.of(context).padding.left : MediaQuery.of(context).padding.right);
 
       Widget triggerWidget = Positioned(
-        left: trigger.left,
+        left: trigger.left ?? (!isEndDrawer ? 0 : null),
+        right: trigger.right ?? (isEndDrawer ? 0 : null),
         top: trigger.top,
-        right: trigger.right,
         bottom: trigger.bottom,
         height: trigger.height,
         child: Align(
@@ -488,23 +488,23 @@ class DrawerScaffoldState extends State<DrawerScaffold> with RestorationMixin {
 class DrawerDragTrigger {
   const DrawerDragTrigger({
     this.left,
-    this.top,
     this.right,
+    this.top,
     this.bottom,
     this.height,
     this.dragWidth,
     this.forBothSide = false,
   });
 
-  /// The trigger's left offset in scaffold.
+  /// The trigger's left offset in scaffold, defaults to 0.0 if it is drawer's trigger.
   final double? left;
+
+  /// The trigger's right offset in scaffold, defaults to 0.0 if it is end drawer's trigger.
+  final double? right;
 
   /// The trigger's top offset in scaffold. Note that [MediaQuery]'s top padding should be
   /// taken into consideration.
   final double? top;
-
-  /// The trigger's right offset in scaffold.
-  final double? right;
 
   /// The trigger's bottom offset in scaffold. Note that [MediaQuery]'s bottom padding should
   /// be taken into consideration.

@@ -46,11 +46,17 @@ const EdgeInsets kAlertDialogDefaultTitlePadding = EdgeInsets.fromLTRB(24.0, 24.
 /// Defined in src/material/dialog.dart, used by [AlertDialog].
 const EdgeInsets kAlertDialogDefaultContentPadding = EdgeInsets.fromLTRB(24.0, 20.0, 24.0, 24.0);
 
+/// Defined in src/material/dialog.dart, used by [AlertDialog].
+const EdgeInsets kAlertDialogDefaultButtonPadding = EdgeInsets.symmetric(horizontal: 8.0);
+
 /// Defined in src/material/dialog.dart, used by [SimpleDialog].
 const EdgeInsets kSimpleDialogDefaultTitlePadding = EdgeInsets.fromLTRB(24.0, 24.0, 24.0, 0.0);
 
 /// Defined in src/material/dialog.dart, used by [SimpleDialog].
 const EdgeInsets kSimpleDialogDefaultContentPadding = EdgeInsets.fromLTRB(0.0, 12.0, 0.0, 16.0);
+
+/// Defined in src/material/dialog.dart, used by [SimpleDialog].
+const EdgeInsets kSimpleDialogDefaultOptionPadding = EdgeInsets.symmetric(vertical: 8.0, horizontal: 24.0);
 
 /// Defined in src/material/divider.dart, used by [Divider].
 const double kDividerDefaultHeight = 16.0;

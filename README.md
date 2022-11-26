@@ -27,7 +27,7 @@ import 'package:flutter_ahlib/flutter_ahlib_util.dart';
     + `CustomInkRipple` `CustomInkSplash`
     + `CustomInkWell` `CustomInkResponse`
     + `CustomPageRoute` `CustomPageRouteTheme` `NoPopGestureCupertinoPageTransitionsBuilder`
-    + `CustomScrollPhysics` `CustomScrollPhysicsController`
+    + `CustomScrollPhysics` `CustomScrollPhysicsController` `DefaultCustomScrollPhysics`
     + `CustomSingleChildLayoutDelegate`
     + `DrawerScaffold` `DrawerScaffoldState`
     + `ExtendedNestedScrollView` `ExtendedNestedScrollViewState`
