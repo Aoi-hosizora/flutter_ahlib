@@ -10,21 +10,61 @@ class FlutterExtensionPage extends StatefulWidget {
 }
 
 class _FlutterExtensionPageState extends State<FlutterExtensionPage> with SingleTickerProviderStateMixin {
-  late final _tabController = TabController(vsync: this, length: 3);
+  late final _tabController = TabController(vsync: this, length: 4);
+  final _tabs = const [
+    Tab(text: 'Scrollable related'),
+    Tab(text: 'PageView related'),
+    Tab(text: 'RenderObject related'),
+    Tab(text: 'BuildContext related'),
+  ];
+  final _pages = const [
+    _Page1(),
+    _Page2(),
+    _Page3(),
+    _Page4(),
+  ];
 
-  Widget _fab({required IconData icon, required VoidCallback onPressed}) {
-    return FloatingActionButton(
-      child: Icon(icon),
-      heroTag: null,
-      mini: true,
-      onPressed: onPressed,
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('FlutterExtension Example'),
+        bottom: TabBar(
+          controller: _tabController,
+          isScrollable: true,
+          tabs: _tabs,
+        ),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: _pages,
+      ),
     );
   }
+}
 
+Widget _fab({required IconData icon, required VoidCallback onPressed}) {
+  return FloatingActionButton(
+    child: Icon(icon),
+    heroTag: null,
+    mini: true,
+    onPressed: onPressed,
+  );
+}
+
+class _Page1 extends StatefulWidget {
+  const _Page1({Key? key}) : super(key: key);
+
+  @override
+  State<_Page1> createState() => _Page1State();
+}
+
+class _Page1State extends State<_Page1> {
   final _scrollController = ScrollController();
   var _lessItems = false;
 
-  Widget _page1() {
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       body: Scrollbar(
         controller: _scrollController,
@@ -60,12 +100,12 @@ class _FlutterExtensionPageState extends State<FlutterExtensionPage> with Single
           const SizedBox(height: 6),
           _fab(
             icon: Icons.keyboard_arrow_up,
-            onPressed: () => _scrollController.scrollUp(),
+            onPressed: () => _scrollController.scrollLess(),
           ),
           const SizedBox(height: 6),
           _fab(
             icon: Icons.keyboard_arrow_down,
-            onPressed: () => _scrollController.scrollDown(),
+            onPressed: () => _scrollController.scrollMore(),
           ),
           const SizedBox(height: 6),
           _fab(
@@ -97,11 +137,21 @@ class _FlutterExtensionPageState extends State<FlutterExtensionPage> with Single
       ),
     );
   }
+}
 
+class _Page2 extends StatefulWidget {
+  const _Page2({Key? key}) : super(key: key);
+
+  @override
+  State<_Page2> createState() => _Page2State();
+}
+
+class _Page2State extends State<_Page2> {
   final _pageController = PageController();
   final _textController = TextEditingController();
 
-  Widget _page2() {
+  @override
+  Widget build(BuildContext context) {
     const itemCount = 30;
     return Scaffold(
       body: Stack(
@@ -198,43 +248,53 @@ class _FlutterExtensionPageState extends State<FlutterExtensionPage> with Single
       ),
     );
   }
+}
 
+class _Page3 extends StatefulWidget {
+  const _Page3({Key? key}) : super(key: key);
+
+  @override
+  State<_Page3> createState() => _Page3State();
+}
+
+class _Page3State extends State<_Page3> {
   final _ctnrKeys = List.generate(5, (_) => GlobalKey<State<StatefulWidget>>());
   var _showInList = false;
 
-  Widget _page3() {
-    Widget _block(double? l, double? t, double? r, double? b, int number) {
-      return Positioned(
-        left: l,
-        top: t,
-        right: r,
-        bottom: b,
-        child: Container(
-          key: _ctnrKeys[number],
-          width: 50,
-          height: 50,
-          alignment: Alignment.center,
-          color: Colors.red,
-          child: Text('$number'),
-        ),
-      );
-    }
+  Widget _block(double? l, double? t, double? r, double? b, int number) {
+    return Positioned(
+      left: l,
+      top: t,
+      right: r,
+      bottom: b,
+      child: Container(
+        key: _ctnrKeys[number],
+        width: 50,
+        height: 50,
+        alignment: Alignment.center,
+        color: Colors.red,
+        child: Text('$number'),
+      ),
+    );
+  }
 
-    Widget _line(int number) {
-      return Align(
-        alignment: Alignment.topCenter,
-        child: Container(
-          margin: const EdgeInsets.only(bottom: 200),
-          key: _ctnrKeys[number],
-          width: 100,
-          height: 100,
-          alignment: Alignment.center,
-          color: Colors.red,
-          child: Text('$number'),
-        ),
-      );
-    }
+  Widget _line(int number) {
+    return Align(
+      alignment: Alignment.topCenter,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 200),
+        key: _ctnrKeys[number],
+        width: 100,
+        height: 100,
+        alignment: Alignment.center,
+        color: Colors.red,
+        child: Text('$number'),
+      ),
+    );
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       body: !_showInList
           ? Stack(
@@ -297,29 +357,21 @@ class _FlutterExtensionPageState extends State<FlutterExtensionPage> with Single
       ),
     );
   }
+}
 
+class _Page4 extends StatefulWidget {
+  const _Page4({Key? key}) : super(key: key);
+
+  @override
+  State<_Page4> createState() => _Page4State();
+}
+
+class _Page4State extends State<_Page4> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('FlutterExtension Example'),
-        bottom: TabBar(
-          controller: _tabController,
-          isScrollable: true,
-          tabs: const [
-            Tab(text: 'Scrollable related'),
-            Tab(text: 'PageView related'),
-            Tab(text: 'RenderObject related'),
-          ],
-        ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _page1(),
-          _page2(),
-          _page3(),
-        ],
+      body: Center(
+        child: Text('TODO'),
       ),
     );
   }

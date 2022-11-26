@@ -15,9 +15,9 @@ const double _kEdgeDragWidth = 20.0;
 const double _kMinFlingVelocity = 365.0;
 const Duration _kBaseSettleDuration = Duration(milliseconds: 246);
 
-/// A customizable [DrawerController] which provides interactive behavior for [Drawer]
-/// widgets. Note that it is allowed to use methods such as [CustomDrawerControllerState.move]
-/// to control its offset, and this is the only difference from [DrawerController].
+/// A customizable [DrawerController] which provides interactive behavior for [Drawer] widgets.
+/// This widget is allowed to use methods such as [CustomDrawerControllerState.move] to control
+/// its offset, and this is the only difference from [DrawerController].
 ///
 /// This widget is rarely used directly, and is designed depended on [DrawerScaffold].
 class CustomDrawerController extends StatefulWidget {
@@ -46,8 +46,8 @@ class CustomDrawerController extends StatefulWidget {
   CustomDrawerControllerState createState() => CustomDrawerControllerState();
 }
 
-/// The State for [CustomDrawerController]. Note that here [controller], [move], [settle],
-/// [open] and [close] methods are exposed to public.
+/// The State for [CustomDrawerController]. Note that here [controller], [move], [settle], [open]
+/// and [close] methods are exposed to public.
 class CustomDrawerControllerState extends State<CustomDrawerController> with TickerProviderStateMixin {
   @override
   void initState() {
@@ -242,7 +242,8 @@ class CustomDrawerControllerState extends State<CustomDrawerController> with Tic
     );
   }
 
-  AlignmentDirectional get _drawerOuterAlignment {
+  // The property accessibility is modified by AoiHosizora.
+  AlignmentDirectional get drawerOuterAlignment {
     switch (widget.alignment) {
       case DrawerAlignment.start:
         return AlignmentDirectional.centerStart;
@@ -251,7 +252,8 @@ class CustomDrawerControllerState extends State<CustomDrawerController> with Tic
     }
   }
 
-  AlignmentDirectional get _drawerInnerAlignment {
+  // The property accessibility is modified by AoiHosizora.
+  AlignmentDirectional get drawerInnerAlignment {
     switch (widget.alignment) {
       case DrawerAlignment.start:
         return AlignmentDirectional.centerEnd;
@@ -280,7 +282,7 @@ class CustomDrawerControllerState extends State<CustomDrawerController> with Tic
     if (_controller.status == AnimationStatus.dismissed) {
       if (widget.enableOpenDragGesture) {
         return Align(
-          alignment: _drawerOuterAlignment,
+          alignment: drawerOuterAlignment,
           child: GestureDetector(
             key: _gestureDetectorKey,
             onHorizontalDragUpdate: move,
@@ -338,9 +340,9 @@ class CustomDrawerControllerState extends State<CustomDrawerController> with Tic
                 ),
               ),
               Align(
-                alignment: _drawerOuterAlignment,
+                alignment: drawerOuterAlignment,
                 child: Align(
-                  alignment: _drawerInnerAlignment,
+                  alignment: drawerInnerAlignment,
                   widthFactor: _controller.value,
                   child: RepaintBoundary(
                     child: FocusScope(

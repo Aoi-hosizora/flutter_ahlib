@@ -37,6 +37,7 @@ class ExtendedNestedScrollView extends StatefulWidget {
     this.clipBehavior = Clip.hardEdge,
     this.restorationId,
     this.scrollBehavior,
+    this.onNotification,
   })  : assert(innerControllerCount > 0),
         assert(activeControllerIndex < innerControllerCount),
         super(key: key);
@@ -65,6 +66,10 @@ class ExtendedNestedScrollView extends StatefulWidget {
   /// second parameter, and it should be used for each page's scroll view. Note that
   /// possibly you need to wrap some pages with [PrimaryScrollController].
   final Widget Function(BuildContext context, List<ScrollController> innerControllers) bodyBuilder;
+
+  /// The function called when a notification of the appropriate type arrives at this
+  /// location in the tree, and it is the same as [NotificationListener.onNotification].
+  final bool Function(Notification notification)? onNotification;
 
   static SliverOverlapAbsorberHandle sliverOverlapAbsorberHandleFor(BuildContext context) {
     final _InheritedNestedScrollView? target = context.dependOnInheritedWidgetOfExactType<_InheritedNestedScrollView>();
@@ -163,28 +168,31 @@ class ExtendedNestedScrollViewState extends State<ExtendedNestedScrollView> {
         widget.scrollBehavior?.getScrollPhysics(context).applyTo(const ClampingScrollPhysics()) ??
         const ClampingScrollPhysics();
 
-    return _InheritedNestedScrollView(
-      state: this,
-      child: Builder(
-        builder: (BuildContext context) {
-          _lastHasScrolledBody = _coordinator!.hasScrolledBody;
-          return _NestedScrollViewCustomScrollView(
-            dragStartBehavior: widget.dragStartBehavior,
-            scrollDirection: widget.scrollDirection,
-            reverse: widget.reverse,
-            physics: _scrollPhysics,
-            scrollBehavior: widget.scrollBehavior ?? ScrollConfiguration.of(context).copyWith(scrollbars: false),
-            controller: _coordinator!._outerController,
-            slivers: widget._buildSlivers(
-              context,
-              _coordinator!._innerControllers, // <<<
-              _lastHasScrolledBody!,
-            ),
-            handle: _absorberHandle,
-            clipBehavior: widget.clipBehavior,
-            restorationId: widget.restorationId,
-          );
-        },
+    return NotificationListener(
+      onNotification: widget.onNotification,
+      child: _InheritedNestedScrollView(
+        state: this,
+        child: Builder(
+          builder: (BuildContext context) {
+            _lastHasScrolledBody = _coordinator!.hasScrolledBody;
+            return _NestedScrollViewCustomScrollView(
+              dragStartBehavior: widget.dragStartBehavior,
+              scrollDirection: widget.scrollDirection,
+              reverse: widget.reverse,
+              physics: _scrollPhysics,
+              scrollBehavior: widget.scrollBehavior ?? ScrollConfiguration.of(context).copyWith(scrollbars: false),
+              controller: _coordinator!._outerController,
+              slivers: widget._buildSlivers(
+                context,
+                _coordinator!._innerControllers, // <<<
+                _lastHasScrolledBody!,
+              ),
+              handle: _absorberHandle,
+              clipBehavior: widget.clipBehavior,
+              restorationId: widget.restorationId,
+            );
+          },
+        ),
       ),
     );
   }

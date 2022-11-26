@@ -22,13 +22,13 @@ extension ScrollControllerExtension on ScrollController {
   /// The default [Duration] for [scrollWithAnimate], [scrollToTop] and [scrollToBottom].
   static const _kScrollAnimationDuration = Duration(milliseconds: 500);
 
-  /// The default [Curve] for [scrollDown], [scrollUp].
+  /// The default [Curve] for [scrollMore], [scrollLess].
   static const _kShortScrollAnimationCurve = Curves.easeOutCubic;
 
-  /// The default [Duration] for [scrollDown] and [scrollUp].
+  /// The default [Duration] for [scrollMore] and [scrollLess].
   static const _kShortScrollAnimationDuration = Duration(milliseconds: 300);
 
-  /// The default scroll offset for [scrollDown] and [scrollUp].
+  /// The default scroll offset for [scrollMore] and [scrollLess].
   static const _kDefaultScrollOffset = 65.0;
 
   /// Scrolls to given offset with default [Curve] and [Duration].
@@ -49,13 +49,13 @@ extension ScrollControllerExtension on ScrollController {
     return scrollWithAnimate(position.maxScrollExtent, curve: curve, duration: duration);
   }
 
-  /// Scrolls down (or said, swipe up) from the current position with [scrollOffset], see [scrollWithAnimate].
-  Future<void> scrollDown({double scrollOffset = _kDefaultScrollOffset, Curve curve = _kShortScrollAnimationCurve, Duration duration = _kShortScrollAnimationDuration}) {
+  /// Scrolls more, (or said, scroll down or swipe up) from the current position with [scrollOffset], see [scrollWithAnimate].
+  Future<void> scrollMore({double scrollOffset = _kDefaultScrollOffset, Curve curve = _kShortScrollAnimationCurve, Duration duration = _kShortScrollAnimationDuration}) {
     return scrollWithAnimate(offset + scrollOffset, curve: curve, duration: duration);
   }
 
-  /// Scrolls up (or said, swipe down) from the current position with [scrollOffset], see [scrollWithAnimate].
-  Future<void> scrollUp({double scrollOffset = _kDefaultScrollOffset, Curve curve = _kShortScrollAnimationCurve, Duration duration = _kShortScrollAnimationDuration}) {
+  /// Scrolls less (or said, scroll up or swipe down) from the current position with [scrollOffset], see [scrollWithAnimate].
+  Future<void> scrollLess({double scrollOffset = _kDefaultScrollOffset, Curve curve = _kShortScrollAnimationCurve, Duration duration = _kShortScrollAnimationDuration}) {
     return scrollWithAnimate(offset - scrollOffset, curve: curve, duration: duration);
   }
 
@@ -147,17 +147,19 @@ extension RenderObjectExtension on RenderObject {
 
 /// An extension for [BuildContext].
 extension BuildContextExtension on BuildContext {
-  ///
-  T? visitDescendantElementsDFS<T extends Object>(T? Function(Element) checker) {
-    T? out;
+  /// Visits descendant child element and finds some non-null objects using given [checker] and DFS algorithm.
+  /// Note that this method will return all found objects if given non-positive [count].
+  List<T> findDescendantElementsDFS<T extends Object>(int count, T? Function(Element element) checker) {
+    var out = <T>[];
 
     void visit(Element el) {
-      if (out != null) {
+      if (count > 0 && out.length >= count) {
         return;
       }
+
       var t = checker(el);
       if (t != null) {
-        out = t;
+        out.add(t);
         return;
       }
       el.visitChildElements(visit);
@@ -167,22 +169,47 @@ extension BuildContextExtension on BuildContext {
     return out;
   }
 
-  ///
-  T? visitDescendantElementsBFS<T extends Object>(T? Function(Element) checker) {
+  /// Visits descendant child element and finds some non-null objects using given [checker] and BFS algorithm.
+  /// Note that this method will return all found objects if given non-positive [count].
+  List<T> findDescendantElementsBFS<T extends Object>(int count, T? Function(Element element) checker) {
     var queue = ListQueue<Element>();
+    var out = <T>[];
 
     visitChildElements((el) => queue.addLast(el));
     while (queue.isNotEmpty) {
+      if (count > 0 && out.length >= count) {
+        return out;
+      }
+
       var el = queue.first;
       queue.removeFirst();
-
       var t = checker(el);
       if (t != null) {
-        return t;
+        out.add(t);
       }
       el.visitChildElements((el) => queue.addLast(el));
     }
 
-    return null;
+    return out;
+  }
+
+  /// Visits descendant child element and find the only non-null object using given [checker] and DFS algorithm.
+  /// This method returns null if nothing found.
+  T? findDescendantElementDFS<T extends Object>(T? Function(Element element) checker) {
+    var found = findDescendantElementsDFS(1, checker);
+    if (found.isEmpty) {
+      return null;
+    }
+    return found.first;
+  }
+
+  /// Visits descendant child element and find the only non-null object using given [checker] and BFS algorithm.
+  /// This method returns null if nothing found.
+  T? findDescendantElementBFS<T extends Object>(T? Function(Element element) checker) {
+    var found = findDescendantElementsBFS(1, checker);
+    if (found.isEmpty) {
+      return null;
+    }
+    return found.first;
   }
 }

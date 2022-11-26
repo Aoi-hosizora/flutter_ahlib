@@ -332,7 +332,7 @@ class PaginationDataViewState<T> extends State<PaginationDataView<T>> with Autom
       }
       if (needScrollDown) {
         await WidgetsBinding.instance?.endOfFrame;
-        await widget.scrollController?.scrollDown();
+        await widget.scrollController?.scrollMore();
       }
       widget.setting.onFinalSetState?.call(); // final setState
     });

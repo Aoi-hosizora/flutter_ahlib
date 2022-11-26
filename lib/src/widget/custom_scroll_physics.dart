@@ -7,38 +7,42 @@ import 'package:flutter/material.dart';
 /// [CustomScrollPhysicsController]. If there is no change on [controller], it will
 /// default to how [ClampingScrollPhysics] behaves and always accept user scroll.
 @immutable
-class CustomScrollPhysics extends ClampingScrollPhysics {
+class CustomScrollPhysics extends ScrollPhysics {
   const CustomScrollPhysics({
-    ScrollPhysics? parent,
-    required this.controller,
+    ScrollPhysics? parent = const ClampingScrollPhysics(),
+    this.controller,
   }) : super(parent: parent);
 
   /// The controller of [CustomScrollPhysics], it is mutable and will influence the
   /// physics of [Scrollable] dynamically.
-  final CustomScrollPhysicsController controller;
+  final CustomScrollPhysicsController? controller;
 
   @override
   CustomScrollPhysics applyTo(ScrollPhysics? ancestor) {
     return CustomScrollPhysics(
-      parent: buildParent(ancestor),
+      parent: buildParent(ancestor ?? const ClampingScrollPhysics()),
       controller: controller,
     );
   }
 
   @override
   double applyBoundaryConditions(ScrollMetrics position, double value) {
-    final lastScrollValue = controller._lastScrollValue;
+    if (controller == null) {
+      return super.applyBoundaryConditions(position, value);
+    }
+
+    final lastScrollValue = controller!._lastScrollValue;
     if (lastScrollValue != null) {
-      if (value > lastScrollValue && controller.disableScrollRight) {
-        // value turns larger => scroll right, or said swipe left
+      if (value > lastScrollValue && controller!.disableScrollMore) {
+        // value turns larger => scroll more
         return value - position.pixels;
       }
-      if (value < lastScrollValue && controller.disableScrollLeft) {
-        // value turns smaller => scroll left, or said swipe left
+      if (value < lastScrollValue && controller!.disableScrollLess) {
+        // value turns smaller => scroll less
         return value - position.pixels;
       }
     }
-    controller._lastScrollValue = value;
+    controller!._lastScrollValue = value;
 
     return super.applyBoundaryConditions(position, value);
   }
@@ -52,17 +56,17 @@ class CustomScrollPhysics extends ClampingScrollPhysics {
 /// The controller of [CustomScrollPhysics], which determines the physics of [Scrollable].
 class CustomScrollPhysicsController {
   CustomScrollPhysicsController({
-    this.disableScrollRight = false,
-    this.disableScrollLeft = false,
+    this.disableScrollMore = false,
+    this.disableScrollLess = false,
   });
 
-  /// The flag to disable scrolling right (or said, swiping left), even if current offset
-  /// lands on the middle of items, defaults to false.
-  bool disableScrollRight;
+  /// The flag to disable scrolling more (or said, scroll right/down or swipe left/up),
+  /// even if current offset lands on the middle of items, defaults to false.
+  bool disableScrollMore;
 
-  /// The flag to disable scrolling left (or said, swiping right), even if current offset
-  /// lands on the middle of items, defaults to false.
-  bool disableScrollLeft;
+  /// The flag to disable scrolling less (or said, scroll left/up or swipe right/down),
+  /// even if current offset lands on the middle of items, defaults to false.
+  bool disableScrollLess;
 
   // Stores the last scroll value, is used in applyBoundaryConditions.
   double? _lastScrollValue;

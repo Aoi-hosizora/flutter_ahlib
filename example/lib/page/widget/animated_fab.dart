@@ -22,8 +22,8 @@ class _AnimatedFabPageState extends State<AnimatedFabPage> {
         actions: [
           IconButton(icon: const Icon(Icons.vertical_align_top), onPressed: () => _controller.scrollToTop()),
           IconButton(icon: const Icon(Icons.vertical_align_bottom), onPressed: () => _controller.scrollToBottom()),
-          IconButton(icon: const Text('Up'), onPressed: () => _controller.scrollUp()),
-          IconButton(icon: const Text('Down'), onPressed: () => _controller.scrollDown()),
+          IconButton(icon: const Text('Up'), onPressed: () => _controller.scrollLess()),
+          IconButton(icon: const Text('Down'), onPressed: () => _controller.scrollMore()),
         ],
       ),
       body: Scrollbar(

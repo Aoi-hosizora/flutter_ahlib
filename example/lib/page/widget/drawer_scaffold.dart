@@ -17,8 +17,17 @@ class _DrawerScaffoldPageState extends State<DrawerScaffoldPage> with TickerProv
   var _neverScrollable = false;
   var _useAppBarActionButton = false;
 
+  final _anotherTriggerKey = GlobalKey<State<StatefulWidget>>();
   late var _tabController = TabController(length: _length, vsync: this);
   final _physicsController = CustomScrollPhysicsController();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      if (mounted) setState(() {});
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,6 +63,37 @@ class _DrawerScaffoldPageState extends State<DrawerScaffoldPage> with TickerProv
       endDrawerEdgeDragWidth: 20,
       drawerEnableOpenDragGesture: true,
       endDrawerEnableOpenDragGesture: true,
+      drawerExtraDragTriggers: [
+        DrawerDragTrigger(
+          left: 0,
+          top: 0,
+          height: kToolbarHeight,
+          dragWidth: MediaQuery.of(context).size.width / 2,
+        ),
+        // TODO currently drawer will conflict with endDrawer
+        if (_anotherTriggerKey.currentContext != null)
+          DrawerDragTrigger(
+            left: 0,
+            top: (_anotherTriggerKey.currentContext!.findRenderObject() as RenderBox).getBoundInRootAncestorCoordinate().top,
+            height: 60,
+            dragWidth: MediaQuery.of(context).size.width * 3 / 4, // drawer => 3/4
+          ),
+      ],
+      endDrawerExtraDragTriggers: [
+        DrawerDragTrigger(
+          right: 0,
+          top: 0,
+          height: kToolbarHeight,
+          dragWidth: MediaQuery.of(context).size.width / 2,
+        ),
+        if (_anotherTriggerKey.currentContext != null)
+          DrawerDragTrigger(
+            right: 0,
+            top: (_anotherTriggerKey.currentContext!.findRenderObject() as RenderBox).getBoundInRootAncestorCoordinate().top,
+            height: 60,
+            dragWidth: MediaQuery.of(context).size.width * 2, // endDrawer => 1/2
+          ),
+      ],
       body: Column(
         children: [
           Expanded(
@@ -90,6 +130,38 @@ class _DrawerScaffoldPageState extends State<DrawerScaffoldPage> with TickerProv
                   ),
               ],
             ),
+          ),
+          Row(
+            key: _anotherTriggerKey,
+            children: [
+              // drawer only => 1/2
+              Container(
+                height: 60,
+                width: MediaQuery.of(context).size.width * 1 / 2,
+                color: Colors.blue.withOpacity(0.5),
+                child: const Center(
+                  child: Text('Drawer only\n1/2 + 1/4', textAlign: TextAlign.center),
+                ),
+              ),
+              // both => remained
+              Container(
+                height: 60,
+                width: MediaQuery.of(context).size.width * (1 - 1 / 2 - 1 / 4),
+                color: Colors.purple.withOpacity(0.5),
+                child: const Center(
+                  child: Text('Both\n1/4', textAlign: TextAlign.center),
+                ),
+              ),
+              // endDrawer => 1/4
+              Container(
+                height: 60,
+                width: MediaQuery.of(context).size.width / 4,
+                color: Colors.red.withOpacity(0.5),
+                child: const Center(
+                  child: Text('EndDrawer only\n1/4 + 1/4', textAlign: TextAlign.center),
+                ),
+              ),
+            ],
           ),
           Column(
             children: [

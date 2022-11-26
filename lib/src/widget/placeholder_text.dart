@@ -285,7 +285,7 @@ class PlaceholderText extends StatefulWidget {
           state: forceState ?? // use given forced state
               (displayRule == PlaceholderDisplayRule.dataFirst
                   ?
-                  // !!! dataFirst
+                  // dataFirst
                   (isEmpty == false
                       ? PlaceholderState.normal // !empty => normal
                       : isLoading == true
@@ -295,7 +295,7 @@ class PlaceholderText extends StatefulWidget {
                               : PlaceholderState.nothing) // empty && !loading && !error => nothing
                   : displayRule == PlaceholderDisplayRule.loadingFirst
                       ?
-                      // !!! loadingFirst
+                      // loadingFirst
                       (isLoading == true
                           ? PlaceholderState.loading // loading => loading
                           : isEmpty == false
@@ -304,7 +304,7 @@ class PlaceholderText extends StatefulWidget {
                                   ? PlaceholderState.error // !loading && empty && error => error
                                   : PlaceholderState.nothing) // !loading && empty && !error => nothing
                       :
-                      // !!! errorFirst
+                      // errorFirst
                       (isLoading == true
                           ? PlaceholderState.loading // loading => loading
                           : errorText != null && errorText != ''
