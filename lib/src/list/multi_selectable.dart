@@ -1,49 +1,78 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_ahlib/src/widget/lazy_indexed_stack.dart';
 
 /// A widget which simply enables multi-selection for items, these items can be [SelectableItem],
-/// or other customizable [Widget]. Note that this widget only contains related settings about
-/// multi-selection, and have no display influence on [child].
+/// or other customizable [Widget].
+///
+/// Note that items are distinguished through [Key], and these keys are unnecessary to be unique.
+/// Also note that this widget only contains related settings about multi-selection, and have no
+/// display influence on [child].
 ///
 /// Example:
 /// ```
-/// final _controller = MultiSelectableController();
+/// final _controller = MultiSelectableController<ValueKey<int>>();
 ///
-/// MultiSelectable(
+/// // use SelectableItem directly
+/// MultiSelectable<ValueKey<int>>(
 ///   controller: _controller,
 ///   stateSetter: () => mountedSetState(() {}),
-///   exitOnNoSelect: true,
+///   exitWhenNoSelect: true,
 ///   maxCount: 6,
 ///   child: ListView.builder(
 ///     itemCount: 20,
-///     itemBuilder: (c, i) => SelectableItem(
-///       key: ValueKey(i),
+///     itemBuilder: (c, i) => SelectableItem<ValueKey<int>>(
+///       key: ValueKey<int>(i),
 ///       builder: (_, key, tip) => Card(
 ///         color: tip.isNormal ? Colors.white : tip.isSelected ? Colors.yellow : Colors.grey[200],
 ///         child: ListTile(
 ///           title: Text('Item ${i + 1}'),
-///           onTap: () { if (!tip.isNormal) tip.toToggle?.call(); },
-///           onLongPress: () { if (tip.isNormal) _controller.enterMultiSelectionMode(alsoSelect: [key]); },
+///           selected: tip.selected,
+///           onTap: () => !tip.isNormal ? tip.toToggle?.call() : /* ... */,
+///           onLongPress: tip.isNormal ? () => _controller.enterMultiSelectionMode(alsoSelect: [key]) : null,
 ///         ),
 ///       ),
 ///     ),
 ///   ),
-/// ),
+/// )
+///
+/// // use SelectableCheckBoxItem
+/// MultiSelectable<ValueKey<int>>(
+///   controller: _controller,
+///   stateSetter: () => mountedSetState(() {}),
+///   exitWhenNoSelect: true,
+///   maxCount: 6,
+///   child: ListView.builder(
+///     itemCount: 20,
+///     itemBuilder: (c, i) => SelectableCheckBoxItem<ValueKey<int>>(
+///       key: ValueKey<int>(i),
+///       useFullRipple: true,
+///       builder: (_, key, tip) => Card(
+///         child: ListTile(
+///           title: Text('Item ${i + 1}'),
+///           selected: tip.selected,
+///           onTap: () { /* ... */ },
+///           onLongPress: tip.isNormal ? () => _controller.enterMultiSelectionMode(alsoSelect: [key]) : null,
+///         ),
+///       ),
+///     ),
+///   ),
+/// )
 /// ```
-class MultiSelectable extends StatefulWidget {
-  // TODO <K extends Key> ???
+class MultiSelectable<K extends Key> extends StatefulWidget {
   const MultiSelectable({
     Key? key,
     required this.controller,
     required this.stateSetter,
     required this.child,
-    this.exitOnNoSelect = true,
-    this.onChanged,
-    this.maxCount,
+    this.exitWhenNoSelect = true,
+    this.onModeChanged,
+    this.onSelectChanged,
+    this.maxSelectableCount,
     this.onReachMaxCount,
   }) : super(key: key);
 
   /// The controller of this widget, which can be used to control multi-selection.
-  final MultiSelectableController controller;
+  final MultiSelectableController<K> controller;
 
   /// The state setter of parent widget.
   final VoidCallback stateSetter;
@@ -52,28 +81,31 @@ class MultiSelectable extends StatefulWidget {
   final Widget child;
 
   /// The flag to exit multi-selection mode when there is no item selected, defaults to true.
-  final bool exitOnNoSelect;
+  final bool exitWhenNoSelect;
 
-  /// The callback that will be invoked when multi-selection state changed.
-  final void Function(Set<Key> allSelectedItems, Iterable<Key> newItems, Iterable<Key> removedItems)? onChanged;
+  /// The callback that will be invoked when enter or exit multi-selection mode.
+  final void Function(bool newInMultiSelectionMode)? onModeChanged;
 
-  /// The max selection count for multi-selection, defaults to null, which means no checking.
-  final int? maxCount;
+  /// The callback that will be invoked when some new items are selected or unselected.
+  final void Function(Set<K> allSelectedItems, Iterable<K> selectedItems, Iterable<K> unselectedItems)? onSelectChanged;
 
-  /// The callback that will be invoked when selection count equals to [maxCount].
-  final void Function(Key exceedKey)? onReachMaxCount;
+  /// The max selectable count for multi-selection, defaults to null, which means no checking.
+  final int? maxSelectableCount;
+
+  /// The callback that will be invoked when selection count equals to [maxSelectableCount].
+  final void Function(K exceedKey)? onReachMaxCount;
 
   @override
-  State<MultiSelectable> createState() => _MultiSelectableState();
+  State<MultiSelectable<K>> createState() => _MultiSelectableState<K>();
 
   /// Returns the [MultiSelectable] most closely associated with the given context.
-  static MultiSelectable? of(BuildContext context) {
-    var parent = context.findAncestorWidgetOfExactType<MultiSelectable>();
+  static MultiSelectable<K>? of<K extends Key>(BuildContext context) {
+    var parent = context.findAncestorWidgetOfExactType<MultiSelectable<K>>();
     return parent;
   }
 }
 
-class _MultiSelectableState extends State<MultiSelectable> {
+class _MultiSelectableState<K extends Key> extends State<MultiSelectable<K>> {
   @override
   void initState() {
     super.initState();
@@ -93,20 +125,19 @@ class _MultiSelectableState extends State<MultiSelectable> {
 }
 
 /// The controller of [MultiSelectable], which is used to enter/exit multi-selection mode, or
-/// select/unselect items manually. Note that items are distinguished through [Key], and these
-/// are unnecessary to be unique.
-class MultiSelectableController {
+/// select/unselect items manually.
+class MultiSelectableController<K extends Key> {
   MultiSelectableController();
 
   // The element context that contains MultiSelectable widget.
   BuildContext? _context;
 
   // The MultiSelectable widget from the attached context, returns null if context is invalid.
-  MultiSelectable? get _widget {
-    if (_context == null || _context!.widget is! MultiSelectable) {
+  MultiSelectable<K>? get _widget {
+    if (_context == null || _context!.widget is! MultiSelectable<K>) {
       return null;
     }
-    return _context!.widget as MultiSelectable;
+    return _context!.widget as MultiSelectable<K>;
   }
 
   /// Attaches [MultiSelectable]'s [BuildContext] to this controller.
@@ -129,13 +160,13 @@ class MultiSelectableController {
 
   /// Enters multi-selection mode for items and notifies parent widget. This will also mark these
   /// items selected if [alsoSelect] is not null.
-  void enterMultiSelectionMode({List<Key>? alsoSelect}) {
+  void enterMultiSelectionMode({Iterable<K>? alsoSelect}) {
     if (!_multiSelecting) {
       _multiSelecting = true;
-      if (alsoSelect == null) {
-        _widget?.stateSetter.call();
-      } else {
-        select(alsoSelect); // with stateSetter
+      _widget?.stateSetter.call();
+      _widget?.onModeChanged?.call(true);
+      if (alsoSelect != null) {
+        select(alsoSelect); // also with stateSetter
       }
     }
   }
@@ -144,54 +175,54 @@ class MultiSelectableController {
   /// items when [alsoUnselect] is true.
   void exitMultiSelectionMode({bool alsoUnselect = true}) {
     if (_multiSelecting) {
-      _multiSelecting = false;
-      if (!alsoUnselect) {
-        _widget?.stateSetter.call();
-      } else {
-        unselectAll(); // with stateSetter
+      if (alsoUnselect) {
+        unselectAll(); // also with stateSetter
       }
+      _multiSelecting = false;
+      _widget?.stateSetter.call();
+      _widget?.onModeChanged?.call(false);
     }
   }
 
-  final _selectedItems = <Key>{};
+  final _selectedItems = <K>{};
 
-  /// The selected items set.
-  Set<Key> get selectedItems => _selectedItems;
+  /// The selected item keys set. Updating this set manually is not recommend.
+  Set<K> get selectedItems => _selectedItems;
 
   /// Checks whether given item is marked as selected.
-  bool isSelected(Key item) {
+  bool isSelected(K item) {
     return _selectedItems.contains(item);
   }
 
-  /// Marks given items as selected, notifies parent widget, and calls [onChanged] if necessary.
-  void select(Iterable<Key> items) {
+  /// Marks given items as selected, notifies parent widget, and calls [onSelectChanged] if necessary.
+  void select(Iterable<K> items) {
     if (items.isNotEmpty) {
-      if (_widget?.maxCount != null && _selectedItems.length >= (_widget?.maxCount)!) {
+      if (_widget?.maxSelectableCount != null && _selectedItems.length >= (_widget?.maxSelectableCount)!) {
         _widget?.onReachMaxCount?.call(items.first);
-        return;
+      } else {
+        _selectedItems.addAll(items);
+        _widget?.stateSetter.call();
+        _widget?.onSelectChanged?.call(_selectedItems, items, []);
       }
-      _selectedItems.addAll(items);
-      _widget?.onChanged?.call(_selectedItems, items, []);
-      _widget?.stateSetter.call();
     }
   }
 
-  /// Marks given items as unselected, notifies parent widget, and calls [onChanged] if necessary.
-  void unselect(Iterable<Key> items) {
+  /// Marks given items as unselected, notifies parent widget, and calls [onSelectChanged] if necessary.
+  void unselect(Iterable<K> items) {
     if (items.isNotEmpty) {
       _selectedItems.removeAll(items);
-      _widget?.onChanged?.call(_selectedItems, [], items);
       _widget?.stateSetter.call();
+      _widget?.onSelectChanged?.call(_selectedItems, [], items);
     }
   }
 
-  /// Marks all items as unselected, notifies parent widget, and calls [onChanged] if necessary.
+  /// Marks all items as unselected, notifies parent widget, and calls [onSelectChanged] if necessary.
   void unselectAll() {
     if (_selectedItems.isNotEmpty) {
       var items = _selectedItems.toList();
       _selectedItems.clear();
-      _widget?.onChanged?.call(_selectedItems, [], items);
       _widget?.stateSetter.call();
+      _widget?.onSelectChanged?.call(_selectedItems, [], items);
     }
   }
 }
@@ -224,36 +255,44 @@ class SelectableItemTip {
   final void Function()? toToggle;
 }
 
+/// The signature for building a widget with [key] and [SelectableItemTip], used by [SelectableItem].
+typedef SelectableItemWidgetBuilder<K extends Key> = Widget Function(BuildContext context, K key, SelectableItemTip tip);
+
 /// A widget which contains logics for toggling selecting, typically is used under [MultiSelectable].
-class SelectableItem extends StatelessWidget {
+///
+/// See [MultiSelectable] for example.
+class SelectableItem<K extends Key> extends StatelessWidget {
   const SelectableItem({
-    required Key key,
+    required K key,
     required this.builder,
   })  : _key = key,
         super(key: key);
 
-  final Key _key;
+  final K _key;
 
-  /// The key used to distinguish items which must not be null.
+  /// The key used to distinguish items, which is inherited from [Key] and must not be null.
   @override
-  Key get key => _key;
+  K get key => _key;
 
-  /// The widget builder for building current item, given current key and [SelectableItemTip].
-  final Widget Function(BuildContext context, Key key, SelectableItemTip tip) builder;
+  /// The widget builder for building current item, given current [key] and [SelectableItemTip].
+  final SelectableItemWidgetBuilder<K> builder;
 
   @override
   Widget build(BuildContext context) {
-    var parent = MultiSelectable.of(context); // get multi-selection settings
+    var parent = MultiSelectable.of<K>(context); // get multi-selection settings with correct MultiSelectable<K> type
     if (parent == null) {
-      var tip = const SelectableItemTip(multiSelecting: false, selected: false);
-      return builder(context, key, tip);
+      throw ArgumentError('SelectableItem must be used under MultiSelectable');
     }
 
     var controller = parent.controller;
     SelectableItemTip tip;
     if (!controller.multiSelecting) {
-      // normal
-      tip = const SelectableItemTip(multiSelecting: false, selected: false);
+      // parent is not found || normal (not in multi-selection mode)
+      tip = const SelectableItemTip(
+        multiSelecting: false,
+        selected: false,
+        toToggle: null, // no need to toggle, ignore this field
+      );
     } else if (!controller.isSelected(key)) {
       // unselected
       tip = SelectableItemTip(
@@ -270,13 +309,111 @@ class SelectableItem extends StatelessWidget {
         selected: true,
         toToggle: () {
           controller.unselect([key]);
-          if (parent.exitOnNoSelect && controller.selectedItems.isEmpty) {
-            controller.exitMultiSelectionMode();
+          if (parent.exitWhenNoSelect && controller.selectedItems.isEmpty) {
+            controller.exitMultiSelectionMode(); // exit if there is no item selected
           }
         },
       );
     }
 
     return builder(context, key, tip);
+  }
+}
+
+/// A convenient widget which wraps [SelectableItem] and displays a [Checkbox] for toggling.
+///
+/// See [MultiSelectable] for example.
+class SelectableCheckboxItem<K extends Key> extends StatelessWidget {
+  const SelectableCheckboxItem({
+    required K key,
+    required this.itemBuilder,
+    this.switchDuration,
+    this.switchCurve,
+    this.checkboxPosition = const PositionArgument.fromLTRB(null, null, 8, 8),
+    this.checkboxBuilder,
+    this.useFullRipple = true,
+    this.fullRipplePosition = const PositionArgument.fill(),
+    this.fullRippleBuilder,
+  })  : _key = key,
+        super(key: key);
+
+  final K _key;
+
+  /// The key used to distinguish items, which is inherited from [Key] and must not be null.
+  @override
+  K get key => _key;
+
+  /// The widget builder for building current item, given current [key] and [SelectableItemTip],
+  /// which will be wrapped by [SelectableItem] and [Stack].
+  final SelectableItemWidgetBuilder<K> itemBuilder;
+
+  /// The duration for animation when showing or hiding checkbox for multi-selection mode.
+  final Duration? switchDuration;
+
+  /// The curve for animation when showing or hiding checkbox for multi-selection mode.
+  final Curve? switchCurve;
+
+  /// The [Checkbox] stack position of this widget, defaults to `PositionArgument.fromLTRB(null, null, 8, 8)`.
+  final PositionArgument checkboxPosition;
+
+  /// The [Checkbox] widget builder of this widget, defaults to use `MaterialTapTargetSize.shrinkWrap`
+  /// and `VisualDensity(horizontal: -4, vertical: -4)`.
+  final SelectableItemWidgetBuilder<K>? checkboxBuilder;
+
+  /// The flag to determine whether use the full ripple widget (such as [InkWell] in [Stack])
+  /// rather than only using [Checkbox], for toggling, defaults to true.
+  final bool useFullRipple;
+
+  /// The full ripple stack position of this widget, defaults to `PositionArgument.fill()`.
+  final PositionArgument fullRipplePosition;
+
+  /// The full ripple builder of this widget, defaults to use [Material] with [InkWell] inside.
+  final SelectableItemWidgetBuilder<K>? fullRippleBuilder;
+
+  @override
+  Widget build(BuildContext context) {
+    return SelectableItem<K>(
+      key: key,
+      builder: (c, k, t) => Stack(
+        children: [
+          itemBuilder(c, k, t),
+          Positioned(
+            left: checkboxPosition.left,
+            right: checkboxPosition.right,
+            top: checkboxPosition.top,
+            bottom: checkboxPosition.bottom,
+            child: AnimatedSwitcher(
+              duration: switchDuration ?? const Duration(milliseconds: 200),
+              reverseDuration: switchDuration ?? const Duration(milliseconds: 200),
+              switchInCurve: switchCurve ?? Curves.linear,
+              switchOutCurve: switchCurve ?? Curves.linear,
+              child: t.isNormal
+                  ? const SizedBox.shrink()
+                  : checkboxBuilder?.call(c, k, t) ??
+                      Checkbox(
+                        value: t.isSelected,
+                        onChanged: (v) => t.toToggle?.call(),
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+                      ),
+            ),
+          ),
+          if (!t.isNormal && useFullRipple)
+            Positioned(
+              left: fullRipplePosition.left,
+              right: fullRipplePosition.right,
+              top: fullRipplePosition.top,
+              bottom: fullRipplePosition.bottom,
+              child: fullRippleBuilder?.call(c, k, t) ??
+                  Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () => t.toToggle?.call(),
+                    ),
+                  ),
+            ),
+        ],
+      ),
+    );
   }
 }

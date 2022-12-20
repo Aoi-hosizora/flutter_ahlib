@@ -33,7 +33,7 @@ import 'package:flutter_ahlib/flutter_ahlib_util.dart';
     + `ExtendedNestedScrollView` `ExtendedNestedScrollViewState`
     + `ExtendedScrollbar`
     + `IconText`
-    + `LazyIndexedStack`
+    + `LazyIndexedStack` `PositionArgument`
     + `NestedPageViewNotifier`
     + `flatButtonStyle` `raisedButtonStyle` `outlineButtonStyle` `ThemeDataExtension`
     + `PlaceholderText`
@@ -47,7 +47,7 @@ import 'package:flutter_ahlib/flutter_ahlib_util.dart';
     + `StatelessWidgetWithCallback` `StatefulWidgetWithCallback`
 + List widgets ([lib/src/list/](./lib/src/list))
     + `AppendIndicator` `AppendIndicatorState`
-    + `MultiSelectable` `MultiSelectableController` `SelectableItem`
+    + `MultiSelectable` `MultiSelectableController` `SelectableItem` `SelectableCheckboxItem`
     + `RefreshableDataView` `RefreshableDataViewState`
     + `PaginationDataView` `PaginationDataViewState`
     + `UpdatableDataView`

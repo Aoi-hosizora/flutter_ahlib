@@ -109,7 +109,7 @@ enum ScrollAnimatedCondition {
   /// Shows fab when scroll view is swiped down, which makes it scrolls up.
   reverseDirection,
 
-  /// Shows fab depended by custom behavior, defaults to show.
+  /// Shows fab depended by custom behavior, defaults to show fab always.
   custom,
 }
 
@@ -183,6 +183,14 @@ class _ScrollAnimatedFabState extends State<ScrollAnimatedFab> with SingleTicker
     widget.scrollController.removeListener(_scrollListener);
     _animController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant ScrollAnimatedFab oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.condition != widget.condition || oldWidget.offset != widget.offset) {
+      _scrollListener();
+    }
   }
 
   /// Subscribes the scroll offset and direction from given scroll controller.

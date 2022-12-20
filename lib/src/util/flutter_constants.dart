@@ -165,6 +165,24 @@ const Duration kSnackBarTransitionDuration = Duration(milliseconds: 250);
 /// Defined in src/material/snack_bar.dart, used by [SnackBar].
 const Duration kSnackBarDisplayDuration = Duration(milliseconds: 4000);
 
+/// Defined in src/material/switch.dart, used by [Switch].
+const double kSwitchTrackHeight = 14.0;
+
+/// Defined in src/material/switch.dart, used by [Switch].
+const double kSwitchTrackWidth = 33.0;
+
+/// Defined in src/material/switch.dart, used by [Switch].
+const double kSwitchThumbRadius = 10.0;
+
+/// Defined in src/material/switch.dart, used by [Switch].
+const double kSwitchWidth = kSwitchTrackWidth - kSwitchTrackHeight + kMinInteractiveDimension - 8.0;
+
+/// Defined in src/material/switch.dart, used by [Switch].
+const double kSwitchHeight = kMinInteractiveDimension;
+
+/// Defined in src/material/switch.dart, used by [Switch].
+const double kSwitchHeightCollapsed = kMinInteractiveDimension - 8.0;
+
 /// Defined in src/material/tabs.dart, used by [TabBar].
 const double kTabHeight = 46.0;
 

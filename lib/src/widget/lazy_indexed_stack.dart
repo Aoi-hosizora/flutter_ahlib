@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// An [IndexedStack] loaded in lazy.
+/// An [IndexedStack] which loads children in lazy.
 class LazyIndexedStack extends StatefulWidget {
   const LazyIndexedStack({
     Key? key,
@@ -77,4 +77,73 @@ class _LazyIndexedStackState extends State<LazyIndexedStack> {
       children: _children,
     );
   }
+}
+
+/// A data class represents arguments of [Positioned] only except for its [child].
+class PositionArgument {
+  /// Creates a [PositionArgument] from given parameters.
+  const PositionArgument({
+    this.left,
+    this.top,
+    this.right,
+    this.bottom,
+    this.width,
+    this.height,
+  });
+
+  /// Creates a [PositionArgument] from given [left], [top], [right] and [bottom] in order.
+  const PositionArgument.fromLTRB(this.left, this.top, this.right, this.bottom)
+      : width = null,
+        height = null;
+
+  /// Creates a [PositionArgument] where [left], [top], [right] and [bottom] are all `value`.
+  const PositionArgument.all(double value) //
+      : this.fromLTRB(value, value, value, value);
+
+  /// Creates a [PositionArgument] where [left], [top], [right] and [bottom] default to zero.
+  const PositionArgument.fill({this.left = 0.0, this.top = 0.0, this.right = 0.0, this.bottom = 0.0})
+      : width = null,
+        height = null;
+
+  /// Creates a [PositionArgument] from given [Rect].
+  ///
+  /// This sets the [left], [top], [width], and [height] properties from the given [Rect].
+  /// The [right] and [bottom] properties are set to null.
+  PositionArgument.fromRect(Rect rect)
+      : left = rect.left,
+        top = rect.top,
+        width = rect.width,
+        height = rect.height,
+        right = null,
+        bottom = null;
+
+  /// Creates a [PositionArgument] from given [RelativeRect].
+  ///
+  /// This sets the [left], [top], [right], and [bottom] properties from the given [RelativeRect].
+  /// The [height] and [width] properties are set to null.
+  PositionArgument.fromRelativeRect(RelativeRect rect)
+      : left = rect.left,
+        top = rect.top,
+        right = rect.right,
+        bottom = rect.bottom,
+        width = null,
+        height = null;
+
+  /// Mirrors to [Positioned.left].
+  final double? left;
+
+  /// Mirrors to [Positioned.top].
+  final double? top;
+
+  /// Mirrors to [Positioned.right].
+  final double? right;
+
+  /// Mirrors to [Positioned.bottom].
+  final double? bottom;
+
+  /// Mirrors to [Positioned.width].
+  final double? width;
+
+  /// Mirrors to [Positioned.height].
+  final double? height;
 }
