@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_ahlib/flutter_ahlib.dart';
 import 'package:flutter_ahlib_example/page/image/extended_photo_gallery.dart';
 import 'package:flutter_ahlib_example/page/image/local_or_cached_network_image_provider.dart';
 import 'package:flutter_ahlib_example/page/image/reloadable_photo_view.dart';
 import 'package:flutter_ahlib_example/page/list/append_indicator.dart';
+import 'package:flutter_ahlib_example/page/list/multi_selectable.dart';
 import 'package:flutter_ahlib_example/page/list/pagination_nosliver_data_view.dart';
 import 'package:flutter_ahlib_example/page/list/pagination_sliver_data_view.dart';
 import 'package:flutter_ahlib_example/page/list/refreshable_nosliver_data_view.dart';
@@ -141,6 +143,7 @@ class _IndexPageState extends State<IndexPage> {
               _button('RefreshableSliverDataView', const RefreshableSliverDataViewPage()),
               _button('PaginationNoSliverDataView', const PaginationNoSliverDataViewPage()),
               _button('PaginationSliverDataView', const PaginationSliverDataViewPage()),
+              _button('MultiSelectable', const MultiSelectablePage()),
             ],
           ),
           Align(

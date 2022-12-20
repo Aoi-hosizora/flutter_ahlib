@@ -21,6 +21,7 @@ class ExtendedScrollbar extends StatelessWidget {
     this.crossAxisMargin,
     this.mainAxisMargin,
     this.minThumbLength,
+    this.extraMargin,
   }) : super(key: key);
 
   /// Mirrors to [Scrollbar.child].
@@ -74,6 +75,9 @@ class ExtendedScrollbar extends StatelessWidget {
   /// Mirrors to [ScrollbarThemeData.minThumbLength].
   final double? minThumbLength;
 
+  /// The extra margin for scrollbar, defaults to [EdgeInsets.zero].
+  final EdgeInsets? extraMargin;
+
   @override
   Widget build(BuildContext context) {
     return Theme(
@@ -87,18 +91,26 @@ class ExtendedScrollbar extends StatelessWidget {
               minThumbLength: minThumbLength,
             ),
       ),
-      child: Scrollbar(
-        child: child,
-        controller: controller,
-        isAlwaysShown: isAlwaysShown,
-        trackVisibility: trackVisibility,
-        showTrackOnHover: showTrackOnHover,
-        hoverThickness: hoverThickness,
-        thickness: thickness,
-        radius: radius,
-        interactive: interactive,
-        notificationPredicate: notificationPredicate,
-        scrollbarOrientation: scrollbarOrientation,
+      child: MediaQuery(
+        data: MediaQuery.of(context).copyWith(
+          padding: MediaQuery.of(context).padding + (extraMargin ?? EdgeInsets.zero),
+        ),
+        child: Scrollbar(
+          child: MediaQuery(
+            data: MediaQuery.of(context),
+            child: child,
+          ),
+          controller: controller,
+          isAlwaysShown: isAlwaysShown,
+          trackVisibility: trackVisibility,
+          showTrackOnHover: showTrackOnHover,
+          hoverThickness: hoverThickness,
+          thickness: thickness,
+          radius: radius,
+          interactive: interactive,
+          notificationPredicate: notificationPredicate,
+          scrollbarOrientation: scrollbarOrientation,
+        ),
       ),
     );
   }

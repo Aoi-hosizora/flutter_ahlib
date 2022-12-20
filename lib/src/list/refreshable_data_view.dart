@@ -404,6 +404,7 @@ class RefreshableDataViewState<T> extends State<RefreshableDataView<T>> with Aut
                             thickness: widget.setting.scrollbarThickness,
                             mainAxisMargin: widget.setting.scrollbarMainAxisMargin,
                             crossAxisMargin: widget.setting.scrollbarCrossAxisMargin,
+                            extraMargin: widget.setting.scrollbarExtraMargin,
                             controller: widget.scrollController,
                             child: view,
                           )

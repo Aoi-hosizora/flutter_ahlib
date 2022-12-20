@@ -9,6 +9,7 @@ export 'src/image/reloadable_photo_view.dart';
 
 // list
 export 'src/list/append_indicator.dart';
+export 'src/list/multi_selectable.dart';
 export 'src/list/pagination_data_view.dart';
 export 'src/list/refreshable_data_view.dart';
 export 'src/list/updatable_data_view.dart';

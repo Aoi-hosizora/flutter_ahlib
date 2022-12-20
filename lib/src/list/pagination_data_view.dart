@@ -536,6 +536,7 @@ class PaginationDataViewState<T> extends State<PaginationDataView<T>> with Autom
                                 thickness: widget.setting.scrollbarThickness,
                                 mainAxisMargin: widget.setting.scrollbarMainAxisMargin,
                                 crossAxisMargin: widget.setting.scrollbarCrossAxisMargin,
+                                extraMargin: widget.setting.scrollbarExtraMargin,
                                 controller: widget.scrollController,
                                 child: view,
                               )

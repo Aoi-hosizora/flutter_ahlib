@@ -47,6 +47,7 @@ import 'package:flutter_ahlib/flutter_ahlib_util.dart';
     + `StatelessWidgetWithCallback` `StatefulWidgetWithCallback`
 + List widgets ([lib/src/list/](./lib/src/list))
     + `AppendIndicator` `AppendIndicatorState`
+    + `MultiSelectable` `MultiSelectableController` `SelectableItem`
     + `RefreshableDataView` `RefreshableDataViewState`
     + `PaginationDataView` `PaginationDataViewState`
     + `UpdatableDataView`

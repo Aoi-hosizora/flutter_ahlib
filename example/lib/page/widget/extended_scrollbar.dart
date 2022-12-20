@@ -54,6 +54,7 @@ class _ExtendedScrollbarPageState extends State<ExtendedScrollbarPage> {
           radius: const Radius.circular(3),
           crossAxisMargin: _useTheme ? null : 3,
           mainAxisMargin: _useTheme ? null : 3,
+          extraMargin: _useTheme ? null : const EdgeInsets.only(bottom: 200),
           scrollbarOrientation: ScrollbarOrientation.right,
           thumbColor: _useTheme
               ? null

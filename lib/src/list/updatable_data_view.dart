@@ -69,6 +69,7 @@ class UpdatableDataViewSetting<T> {
     this.scrollbarThickness,
     this.scrollbarMainAxisMargin,
     this.scrollbarCrossAxisMargin,
+    this.scrollbarExtraMargin,
     // display settings for refresh indicator
     this.refreshIndicatorColor,
     this.refreshIndicatorBackgroundColor,
@@ -153,6 +154,9 @@ class UpdatableDataViewSetting<T> {
 
   /// The crossAxisMargin for [Scrollbar].
   final double? scrollbarCrossAxisMargin;
+
+  /// The extraMargin for [Scrollbar].
+  final EdgeInsets? scrollbarExtraMargin;
 
   /// The color for [RefreshIndicator], defaults to [ColorScheme.primary].
   final Color? refreshIndicatorColor;
