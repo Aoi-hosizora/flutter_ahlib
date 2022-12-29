@@ -35,7 +35,8 @@ class PreloadablePageView extends StatefulWidget {
     this.clipBehavior = Clip.hardEdge,
     this.scrollBehavior,
     this.padEnds = true,
-    this.changePageWhenFinished = false,
+    this.onPageMetricsChanged,
+    this.callPageChangedAtEnd = true,
     this.pageMainAxisHintSize,
     this.preloadPagesCount = 0,
   })  : assert(pageMainAxisHintSize == null || pageMainAxisHintSize >= 0),
@@ -60,7 +61,8 @@ class PreloadablePageView extends StatefulWidget {
     this.clipBehavior = Clip.hardEdge,
     this.scrollBehavior,
     this.padEnds = true,
-    this.changePageWhenFinished = false,
+    this.onPageMetricsChanged,
+    this.callPageChangedAtEnd = true,
     this.pageMainAxisHintSize,
     this.preloadPagesCount = 0,
   })  : assert(pageMainAxisHintSize == null || pageMainAxisHintSize >= 0),
@@ -107,9 +109,13 @@ class PreloadablePageView extends StatefulWidget {
 
   // extended
 
-  /// The flag to call [onPageChanged] when page changing is finished. Note that listeners in
-  /// [PageController] will still be called when round value of page offset changed.
-  final bool changePageWhenFinished;
+  /// The callback that will be invoked when [PageMetrics] changed, and [callPageChangedAtEnd]
+  /// has no influence on this callback.
+  final ValueChanged<PageMetrics>? onPageMetricsChanged;
+
+  /// The flag to call [onPageChanged] when page changing is finished, defaults to true, and this
+  /// means it will behave the same as builtin [PageView].
+  final bool callPageChangedAtEnd;
 
   /// A double value that represents the hint size at page main axis, is used to set the cache
   /// extent for preloading page, defaults to `MediaQuery.of(context).size`.
@@ -123,14 +129,6 @@ class PreloadablePageView extends StatefulWidget {
 }
 
 class _PreloadablePageViewState extends State<PreloadablePageView> {
-  int _lastReportedPage = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _lastReportedPage = widget.controller.initialPage;
-  }
-
   AxisDirection _getDirection(BuildContext context) {
     switch (widget.scrollDirection) {
       case Axis.horizontal:
@@ -149,24 +147,14 @@ class _PreloadablePageViewState extends State<PreloadablePageView> {
     final ScrollPhysics? physics = widget.pageSnapping
         ? _kPagePhysics.applyTo(widget.physics ?? widget.scrollBehavior?.getScrollPhysics(context)) //
         : widget.physics ?? widget.scrollBehavior?.getScrollPhysics(context);
-    final pageMainAxisHintSize = widget.pageMainAxisHintSize ?? //
+    final pageMainAxisHintSize = widget.pageMainAxisHintSize ?? // <<< Added by AoiHosizora
         (widget.scrollDirection == Axis.horizontal ? MediaQuery.of(context).size.width : MediaQuery.of(context).size.height);
 
-    return NotificationListener<ScrollNotification>(
-      onNotification: (ScrollNotification notification) {
-        if (notification.depth == 0 && widget.onPageChanged != null) {
-          if ((!widget.changePageWhenFinished && notification is ScrollUpdateNotification) || //
-              (widget.changePageWhenFinished && notification is ScrollEndNotification)) {
-            final PageMetrics metrics = notification.metrics as PageMetrics;
-            final int currentPage = metrics.page!.round();
-            if (currentPage != _lastReportedPage) {
-              _lastReportedPage = currentPage;
-              widget.onPageChanged!(currentPage);
-            }
-          }
-        }
-        return false;
-      },
+    return PageChangedListener(
+      initialPage: widget.controller.initialPage,
+      onPageChanged: widget.onPageChanged,
+      onPageMetricsChanged: widget.onPageMetricsChanged,
+      callPageChangedAtEnd: widget.callPageChangedAtEnd /* <<< Modified by AoiHosizora */,
       child: Scrollable(
         dragStartBehavior: widget.dragStartBehavior,
         axisDirection: axisDirection,
@@ -176,10 +164,8 @@ class _PreloadablePageViewState extends State<PreloadablePageView> {
         scrollBehavior: widget.scrollBehavior ?? ScrollConfiguration.of(context).copyWith(scrollbars: false),
         viewportBuilder: (BuildContext context, ViewportOffset position) {
           return Viewport(
-            cacheExtent: widget.preloadPagesCount < 1 ? 0 : pageMainAxisHintSize * widget.preloadPagesCount - 1,
-            cacheExtentStyle: CacheExtentStyle.pixel,
-            // cacheExtent: widget.allowImplicitScrolling ? 1.0 : 0.0,
-            // cacheExtentStyle: CacheExtentStyle.viewport,
+            cacheExtent: widget.preloadPagesCount < 1 ? 0 : pageMainAxisHintSize * widget.preloadPagesCount - 1 /* <<< Modified by AoiHosizora */,
+            cacheExtentStyle: CacheExtentStyle.pixel /* <<< Modified by AoiHosizora */,
             axisDirection: axisDirection,
             offset: position,
             clipBehavior: widget.clipBehavior,
@@ -193,6 +179,89 @@ class _PreloadablePageViewState extends State<PreloadablePageView> {
           );
         },
       ),
+    );
+  }
+}
+
+/// A widget which wraps [NotificationListener] for [PageView] or [TabBarView], to overwrite the
+/// behavior of these widgets' [onPageChanged] callback.
+class PageChangedListener extends StatefulWidget {
+  const PageChangedListener({
+    Key? key,
+    required this.child,
+    this.initialPage,
+    this.onPageChanged,
+    this.onPageMetricsChanged,
+    this.callPageChangedAtEnd = true,
+  }) : super(key: key);
+
+  /// The widget below this widget in the tree.
+  final Widget child;
+
+  /// The initial page value which is used to initialize the last reported page only for checking
+  /// [onPageChanged]. It is suggested to initialize to [PageController.initialPage], defaults to 0.
+  final int? initialPage;
+
+  /// The callback that will be invoked when the current page changed, and its invoking timing
+  /// also depends on [callPageChangedAtEnd].
+  final ValueChanged<int>? onPageChanged;
+
+  /// The callback that will be invoked when [PageMetrics] changed, and [callPageChangedAtEnd]
+  /// has no influence on this callback.
+  final ValueChanged<PageMetrics>? onPageMetricsChanged;
+
+  /// The flag to call [onPageChanged] when page changing is finished, defaults to true, and this
+  /// means it will behave the same as builtin [PageView].
+  ///
+  /// Note that this flag has no influence to listeners in [PageController], those will still be
+  /// called when round value of page offset changed.
+  final bool callPageChangedAtEnd;
+
+  @override
+  State<PageChangedListener> createState() => _PageChangedListenerState();
+}
+
+class _PageChangedListenerState extends State<PageChangedListener> {
+  late int _lastReportedPage = widget.initialPage ?? 0;
+
+  void _onNotification(ScrollNotification notification) {
+    // check parameters
+    if (notification.depth != 0 || widget.onPageChanged == null) {
+      return;
+    }
+
+    // get PageMetrics
+    if (notification.metrics is! PageMetrics) {
+      return;
+    }
+    final PageMetrics metrics = notification.metrics as PageMetrics;
+    widget.onPageMetricsChanged?.call(metrics);
+
+    // get page int value
+    if (!widget.callPageChangedAtEnd && notification is ScrollUpdateNotification) {
+      // continue
+    } else if (widget.callPageChangedAtEnd && notification is ScrollEndNotification) {
+      // continue
+    } else {
+      return;
+    }
+
+    // check current page equality
+    int currentPage = metrics.page!.round();
+    if (currentPage != _lastReportedPage) {
+      _lastReportedPage = currentPage;
+      widget.onPageChanged!(currentPage);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return NotificationListener<ScrollNotification>(
+      onNotification: (ScrollNotification notification) {
+        _onNotification(notification);
+        return false;
+      },
+      child: widget.child,
     );
   }
 }

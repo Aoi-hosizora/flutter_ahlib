@@ -34,10 +34,11 @@ class ExtendedPhotoGallery extends StatefulWidget {
     this.scrollPhysics,
     this.scrollDirection = Axis.horizontal,
     // for extended settings
-    this.changePageWhenFinished = false,
     this.keepViewportMainAxisSize = true,
     this.fractionWidthFactor,
     this.fractionHeightFactor,
+    this.onPageMetricsChanged,
+    this.callPageChangedAtEnd = true,
     this.pageMainAxisHintSize,
     this.preloadPagesCount = 0,
   })  : pageCount = null,
@@ -59,10 +60,11 @@ class ExtendedPhotoGallery extends StatefulWidget {
     this.scrollDirection = Axis.horizontal,
     this.scrollPhysics,
     // for extended settings
-    this.changePageWhenFinished = false,
     this.keepViewportMainAxisSize = true,
     this.fractionWidthFactor,
     this.fractionHeightFactor,
+    this.onPageMetricsChanged,
+    this.callPageChangedAtEnd = true,
     this.pageMainAxisHintSize,
     this.preloadPagesCount = 0,
   })  : pageOptions = null,
@@ -84,10 +86,11 @@ class ExtendedPhotoGallery extends StatefulWidget {
     this.scrollDirection = Axis.horizontal,
     this.scrollPhysics,
     // for extended settings
-    this.changePageWhenFinished = false,
     this.keepViewportMainAxisSize = true,
     this.fractionWidthFactor,
     this.fractionHeightFactor,
+    this.onPageMetricsChanged,
+    this.callPageChangedAtEnd = true,
     this.pageMainAxisHintSize,
     this.preloadPagesCount = 0,
   })  : pageOptions = null,
@@ -103,8 +106,8 @@ class ExtendedPhotoGallery extends StatefulWidget {
   /// Called to build photo pages for the gallery, here index should exclude non-photo pages.
   final ExtendedPhotoGalleryPageOptionsBuilder? builder;
 
-  /// Called to build all pages (not only photo pages) for the gallery, note that [builder] will be called
-  /// through [photoPageBuilder], so index passed to [photoPageBuilder] should exclude non-photo pages.
+  /// Called to build all pages (not only photo pages) for the gallery, note that [builder] will be called through
+  /// [photoPageBuilder], so index passed to [photoPageBuilder] should exclude non-photo pages.
   final AdvancedPhotoGalleryPageBuilder? advancedBuilder;
 
   // for PhotoView fallback
@@ -131,14 +134,10 @@ class ExtendedPhotoGallery extends StatefulWidget {
 
   // for extended settings
 
-  /// The flag to call [onPageChanged] when page changing is finished. Note that listeners in [PageController]
-  /// will still be called when round value of page offset changed.
-  final bool changePageWhenFinished;
-
   /// The flag to keep main axis size of each photo page to origin size (which is the same as default identical
   /// viewport fraction), defaults to false.
   ///
-  /// Note that if [fractionWidthFactor] or [fractionHeightFactor] set to null or non-positive number, the actial
+  /// Note that if [fractionWidthFactor] or [fractionHeightFactor] set to null or non-positive number, the actual
   /// fractional page factor will be depended by [keepViewportMainAxisSize] and [PageController.viewportFraction].
   final bool keepViewportMainAxisSize;
 
@@ -149,6 +148,14 @@ class ExtendedPhotoGallery extends StatefulWidget {
   /// The height factor for each fractional photo page. Note that valid [fractionHeightFactor] (positive value) will
   /// disable [keepViewportMainAxisSize] when scroll vertically.
   final double? fractionHeightFactor;
+
+  /// The callback that will be invoked when [PageMetrics] changed, and [callPageChangedAtEnd] has no influence on
+  /// this callback.
+  final ValueChanged<PageMetrics>? onPageMetricsChanged;
+
+  /// The flag to call [onPageChanged] when page changing is finished, defaults to true, and this means it will
+  /// behave the same as builtin [PageView].
+  final bool callPageChangedAtEnd;
 
   /// Mirrors to [PreloadablePageView.pageMainAxisHintSize].
   final double? pageMainAxisHintSize;
@@ -282,7 +289,8 @@ class ExtendedPhotoGalleryState extends State<ExtendedPhotoGallery> {
           heightFactor: heightFactor, // <<<
           child: _buildPage(context, index),
         ),
-        changePageWhenFinished: widget.changePageWhenFinished,
+        onPageMetricsChanged: widget.onPageMetricsChanged,
+        callPageChangedAtEnd: widget.callPageChangedAtEnd,
         pageMainAxisHintSize: widget.pageMainAxisHintSize,
         preloadPagesCount: widget.preloadPagesCount,
       ),

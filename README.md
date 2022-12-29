@@ -38,7 +38,7 @@ import 'package:flutter_ahlib/flutter_ahlib_util.dart';
     + `flatButtonStyle` `raisedButtonStyle` `outlineButtonStyle` `ThemeDataExtension`
     + `PlaceholderText`
     + `TextDialogOption` `IconTextDialogOption` `CircularProgressDialogOption`
-    + `PreloadablePageView`
+    + `PreloadablePageView` `PageChangedListener`
     + `SliverHeaderDelegate` `SliverSeparatedListDelegate` `SliverSeparatedListBuilderDelegate`
     + `TableWholeRowInkWell` `TableCellHelper`
     + `TextGroup`

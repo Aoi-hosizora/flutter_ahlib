@@ -87,48 +87,59 @@ class _MultiSelectablePageState extends State<MultiSelectablePage> {
             ],
           ),
           Expanded(
-            child: MultiSelectable<ValueKey<int>>(
-              controller: _controller,
-              stateSetter: () => mountedSetState(() {}),
-              exitWhenNoSelect: _exitWhenNoSelect,
-              onModeChanged: (multiSelection) => _showSnackBar('multiSelection: $multiSelection'),
-              onSelectChanged: (all, selected, unselected) => printLog('#all = ${all.length}, #selected = ${selected.length}, #unselected = ${unselected.length}'),
-              maxSelectableCount: _maxCount,
-              onReachMaxCount: (item) => _showSnackBar('Reached max count when selecting "Item ${item.value + 1}"!'),
-              child: ListView.separated(
-                itemCount: 20,
-                separatorBuilder: (_, __) => _useCard ? const SizedBox.shrink() : const Divider(height: 0, thickness: 0),
-                itemBuilder: (c, i) => !_useCheckbox
-                    ? SelectableItem<ValueKey<int>>(
-                        key: ValueKey<int>(i),
-                        builder: (_, key, tip) => ListTile(
-                          title: Text(_itemText(i)),
-                          selected: tip.selected,
-                          onTap: () => !tip.isNormal ? tip.toToggle?.call() : _showSnackBar('Click ${_itemText(i)}!'),
-                          onLongPress: tip.isNormal ? () => _controller.enterMultiSelectionMode(alsoSelect: [key]) : null,
-                        ).let(
-                          (listTile) => _useCard
-                              ? Card(
-                                  color: tip.isNormal ? Colors.white : (tip.isSelected ? Colors.yellow : Colors.grey[200]),
-                                  child: listTile,
-                                )
-                              : listTile,
+            child: WillPopScope(
+              onWillPop: () async {
+                if (_controller.multiSelecting) {
+                  _controller.exitMultiSelectionMode();
+                  return false;
+                }
+                return true;
+              },
+              child: MultiSelectable<ValueKey<int>>(
+                controller: _controller,
+                stateSetter: () => mountedSetState(() {}),
+                exitWhenNoSelect: _exitWhenNoSelect,
+                onModeChanged: (multiSelection) => _showSnackBar('multiSelection: $multiSelection'),
+                onSelectChanged: (all, selected, unselected) => printLog('#all = ${all.length}, #selected = ${selected.length}, #unselected = ${unselected.length}'),
+                itemSelectable: (item) => item.value != 0 && item.value != 9,
+                onInvalidSelected: (item) => _showSnackBar('"Item ${item.value + 1}" is not allowed to be selected!'),
+                maxSelectableCount: _maxCount,
+                onMaxCountReached: (item) => _showSnackBar('Reached max count when selecting "Item ${item.value + 1}"!'),
+                child: ListView.separated(
+                  itemCount: 20,
+                  separatorBuilder: (_, __) => _useCard ? const SizedBox.shrink() : const Divider(height: 0, thickness: 0),
+                  itemBuilder: (c, i) => !_useCheckbox
+                      ? SelectableItem<ValueKey<int>>(
+                          key: ValueKey<int>(i),
+                          builder: (_, key, tip) => ListTile(
+                            title: Text(_itemText(i)),
+                            selected: tip.selected,
+                            onTap: () => !tip.isNormal ? tip.toToggle?.call() : _showSnackBar('Click ${_itemText(i)}!'),
+                            onLongPress: tip.isNormal ? () => _controller.enterMultiSelectionMode(alsoSelect: [key]) : null,
+                          ).let(
+                            (listTile) => _useCard
+                                ? Card(
+                                    color: tip.isNormal ? Colors.white : (tip.isSelected ? Colors.yellow : Colors.grey[200]),
+                                    child: listTile,
+                                  )
+                                : listTile,
+                          ),
+                        )
+                      : SelectableCheckboxItem<ValueKey<int>>(
+                          key: ValueKey<int>(i),
+                          useFullRipple: _useFullRipple,
+                          checkboxPosition: _useCard ? const PositionArgument.fromLTRB(null, null, 8, 8) : const PositionArgument.fromLTRB(null, 0, 15, 0),
+                          fullRipplePosition: _useCard ? const PositionArgument.all(4) : const PositionArgument.fill(),
+                          itemBuilder: (_, key, tip) => ListTile(
+                            title: Text(_itemText(i)),
+                            selected: tip.selected,
+                            onTap: () => _showSnackBar('Click ${_itemText(i)}!'),
+                            onLongPress: tip.isNormal ? () => _controller.enterMultiSelectionMode(alsoSelect: [key]) : null,
+                          ).let(
+                            (listTile) => _useCard ? Card(child: listTile) : listTile,
+                          ),
                         ),
-                      )
-                    : SelectableCheckboxItem<ValueKey<int>>(
-                        key: ValueKey<int>(i),
-                        useFullRipple: _useFullRipple,
-                        checkboxPosition: _useCard ? const PositionArgument.fromLTRB(null, null, 8, 8) : const PositionArgument.fromLTRB(null, 0, 15, 0),
-                        fullRipplePosition: _useCard ? const PositionArgument.all(4) : const PositionArgument.fill(),
-                        itemBuilder: (_, key, tip) => ListTile(
-                          title: Text(_itemText(i)),
-                          selected: tip.selected,
-                          onTap: () => _showSnackBar('Click ${_itemText(i)}!'),
-                          onLongPress: tip.isNormal ? () => _controller.enterMultiSelectionMode(alsoSelect: [key]) : null,
-                        ).let(
-                          (listTile) => _useCard ? Card(child: listTile) : listTile,
-                        ),
-                      ),
+                ),
               ),
             ),
           ),

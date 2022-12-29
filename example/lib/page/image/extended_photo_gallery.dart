@@ -156,8 +156,8 @@ class _ExtendedPhotoGalleryPageState extends State<ExtendedPhotoGalleryPage> {
                   wantKeepAlive: true,
                 ),
                 pageController: _controller,
-                changePageWhenFinished: true,
                 keepViewportMainAxisSize: true,
+                callPageChangedAtEnd: true,
                 preloadPagesCount: _preloadCount,
               ),
               Positioned(
@@ -205,7 +205,7 @@ class _AdvancedPageState extends State<_AdvancedPage> {
 
   var _containsSpacer = false;
   var _keepViewportMainAxisSize = true;
-  var _changePageWhenFinished = true;
+  var _callPageChangedAtEnd = true;
   var _currentPageIndex = 0;
   var _currentImageIndex = 0;
 
@@ -243,10 +243,10 @@ class _AdvancedPageState extends State<_AdvancedPage> {
             },
           ),
           IconButton(
-            icon: Text(_changePageWhenFinished ? 'Finish' : 'Middle'),
-            tooltip: 'Call onPageChanged when ' + (_changePageWhenFinished ? 'page changing is finished' : 'round value of page offset changed'),
+            icon: Text(_callPageChangedAtEnd ? 'Finish' : 'Middle'),
+            tooltip: 'Call onPageChanged when ' + (_callPageChangedAtEnd ? 'page changing is finished' : 'round value of page offset changed'),
             onPressed: () async {
-              _changePageWhenFinished = !_changePageWhenFinished;
+              _callPageChangedAtEnd = !_callPageChangedAtEnd;
               if (mounted) setState(() {});
             },
           ),
@@ -335,7 +335,7 @@ class _AdvancedPageState extends State<_AdvancedPage> {
                   if (mounted) setState(() {});
                 },
                 pageController: _controller,
-                changePageWhenFinished: _changePageWhenFinished,
+                callPageChangedAtEnd: _callPageChangedAtEnd,
                 keepViewportMainAxisSize: _keepViewportMainAxisSize,
                 fractionWidthFactor: null,
                 fractionHeightFactor: null,

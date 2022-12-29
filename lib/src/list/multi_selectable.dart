@@ -67,8 +67,10 @@ class MultiSelectable<K extends Key> extends StatefulWidget {
     this.exitWhenNoSelect = true,
     this.onModeChanged,
     this.onSelectChanged,
+    this.itemSelectable,
+    this.onInvalidSelected,
     this.maxSelectableCount,
-    this.onReachMaxCount,
+    this.onMaxCountReached,
   }) : super(key: key);
 
   /// The controller of this widget, which can be used to control multi-selection.
@@ -89,11 +91,23 @@ class MultiSelectable<K extends Key> extends StatefulWidget {
   /// The callback that will be invoked when some new items are selected or unselected.
   final void Function(Set<K> allSelectedItems, Iterable<K> selectedItems, Iterable<K> unselectedItems)? onSelectChanged;
 
+  /// The predicate function for checking whether item is selectable, defaults to make all items
+  /// selectable. Note that this checking is happened before [maxSelectableCount].
+  ///
+  /// This field is useful, and it allows you to use [SelectableItemTip.toToggle] directly without
+  /// checking item manually.
+  final bool Function(K item)? itemSelectable;
+
+  /// The callback that will be invoked when an invalid item is requested to select, checking
+  /// through [itemSelectable].
+  final void Function(K invalidKey)? onInvalidSelected;
+
   /// The max selectable count for multi-selection, defaults to null, which means no checking.
+  /// Note that this checking is happened after [itemSelectable].
   final int? maxSelectableCount;
 
-  /// The callback that will be invoked when selection count equals to [maxSelectableCount].
-  final void Function(K exceedKey)? onReachMaxCount;
+  /// The callback that will be invoked when selection count reaches to [maxSelectableCount].
+  final void Function(K exceedKey)? onMaxCountReached;
 
   @override
   State<MultiSelectable<K>> createState() => _MultiSelectableState<K>();
@@ -197,13 +211,26 @@ class MultiSelectableController<K extends Key> {
   /// Marks given items as selected, notifies parent widget, and calls [onSelectChanged] if necessary.
   void select(Iterable<K> items) {
     if (items.isNotEmpty) {
-      if (_widget?.maxSelectableCount != null && _selectedItems.length >= (_widget?.maxSelectableCount)!) {
-        _widget?.onReachMaxCount?.call(items.first);
-      } else {
-        _selectedItems.addAll(items);
-        _widget?.stateSetter.call();
-        _widget?.onSelectChanged?.call(_selectedItems, items, []);
+      // check valid selection
+      if (_widget?.itemSelectable != null) {
+        for (var item in items) {
+          if (_widget!.itemSelectable!.call(item) == false) {
+            _widget?.onInvalidSelected?.call(item);
+            return;
+          }
+        }
       }
+
+      // check selection count
+      if (_widget?.maxSelectableCount != null && _selectedItems.length >= (_widget?.maxSelectableCount)!) {
+        _widget?.onMaxCountReached?.call(items.first);
+        return;
+      }
+
+      // apply selection
+      _selectedItems.addAll(items);
+      _widget?.stateSetter.call();
+      _widget?.onSelectChanged?.call(_selectedItems, items, []);
     }
   }
 
@@ -258,7 +285,9 @@ class SelectableItemTip {
 /// The signature for building a widget with [key] and [SelectableItemTip], used by [SelectableItem].
 typedef SelectableItemWidgetBuilder<K extends Key> = Widget Function(BuildContext context, K key, SelectableItemTip tip);
 
-/// A widget which contains logics for toggling selecting, typically is used under [MultiSelectable].
+/// A widget which contains selection toggling logic, typically is used under [MultiSelectable]. Note
+/// that the selection toggling interaction should be designed through [builder] by yourself. Use
+/// [SelectableCheckboxItem] if you want to simply display a [Checkbox] for selection interaction.
 ///
 /// See [MultiSelectable] for example.
 class SelectableItem<K extends Key> extends StatelessWidget {
@@ -320,7 +349,7 @@ class SelectableItem<K extends Key> extends StatelessWidget {
   }
 }
 
-/// A convenient widget which wraps [SelectableItem] and displays a [Checkbox] for toggling.
+/// A convenient widget, which wraps [SelectableItem] and displays a [Checkbox] for selection interaction.
 ///
 /// See [MultiSelectable] for example.
 class SelectableCheckboxItem<K extends Key> extends StatelessWidget {

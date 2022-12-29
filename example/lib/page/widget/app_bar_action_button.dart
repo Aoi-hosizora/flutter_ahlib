@@ -28,7 +28,7 @@ class _AppBarActionButtonPageState extends State<AppBarActionButtonPage> {
       ),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('AppBarActionButton example'),
+          title: const Text('AppBarActionButton Example'),
           leading: !_useLeading
               ? null
               : AppBarActionButton.leading(
