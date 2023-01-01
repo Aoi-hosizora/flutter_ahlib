@@ -17,6 +17,9 @@ class _DrawerScaffoldPageState extends State<DrawerScaffoldPage> with TickerProv
   var _enableOverscrollGesture = true;
   var _enableOpenDragGesture = true;
   var _useAppBarActionButton = false;
+  var _showAllTestColor = false;
+  var _implicitlyOverscrollableBody = false;
+  var _implicitlyOverscrollableScaffold = false;
 
   final _anotherTriggerKey = GlobalKey<State<StatefulWidget>>();
   late var _tabController = TabController(length: _length, vsync: this);
@@ -69,6 +72,8 @@ class _DrawerScaffoldPageState extends State<DrawerScaffoldPage> with TickerProv
       drawerEnableOverscrollGesture: _enableOverscrollGesture,
       endDrawerEnableOverscrollGesture: _enableOverscrollGesture,
       physicsController: _physicsController,
+      implicitlyOverscrollableBody: _implicitlyOverscrollableBody,
+      implicitlyOverscrollableScaffold: _implicitlyOverscrollableScaffold,
       drawerEnableOpenDragGesture: _enableOpenDragGesture,
       endDrawerEnableOpenDragGesture: _enableOpenDragGesture,
       drawerEdgeDragWidth: 40,
@@ -123,9 +128,14 @@ class _DrawerScaffoldPageState extends State<DrawerScaffoldPage> with TickerProv
       ],
       onDrawerChanged: (v) => printLog('onDrawerChanged $v'),
       onEndDrawerChanged: (v) => printLog('onEndDrawerChanged $v'),
+      testColorForDrawerDragArea: _showAllTestColor ? Colors.black.withOpacity(0.3) : null,
+      testColorForEndDrawerDragArea: _showAllTestColor ? Colors.black.withOpacity(0.3) : null,
+      testColorForDrawerDragTriggers: _showAllTestColor ? Colors.black.withOpacity(0.3) : null,
+      testColorForEndDrawerDragTriggers: _showAllTestColor ? Colors.black.withOpacity(0.3) : null,
       body: Column(
         children: [
           Expanded(
+            flex: 1,
             child: TabBarView(
               controller: _tabController,
               physics: _applyPhysicsController ? CustomScrollPhysics(controller: _physicsController) : null,
@@ -186,65 +196,89 @@ class _DrawerScaffoldPageState extends State<DrawerScaffoldPage> with TickerProv
               ),
             ],
           ),
-          Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text('only single page'),
-                  Switch(
-                    value: _length == 1,
-                    onChanged: (b) {
-                      _length = b ? 1 : 4;
-                      _tabController = TabController(length: _length, vsync: this);
-                      if (mounted) setState(() {});
-                    },
-                  ),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text('hasDrawer'),
-                  Switch(value: _hasDrawer, onChanged: (b) => mountedSetState(() => _hasDrawer = b)),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text('hasEndDrawer'),
-                  Switch(value: _hasEndDrawer, onChanged: (b) => mountedSetState(() => _hasEndDrawer = b)),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text('applyPhysicsController'),
-                  Switch(value: _applyPhysicsController, onChanged: (b) => mountedSetState(() => _applyPhysicsController = b)),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text('enableOverscrollGesture'),
-                  Switch(value: _enableOverscrollGesture, onChanged: (b) => mountedSetState(() => _enableOverscrollGesture = b)),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text('enableOpenDragGesture'),
-                  Switch(value: _enableOpenDragGesture, onChanged: (b) => mountedSetState(() => _enableOpenDragGesture = b)),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text('useAppBarActionButton'),
-                  Switch(value: _useAppBarActionButton, onChanged: (b) => mountedSetState(() => _useAppBarActionButton = b)),
-                ],
-              ),
-            ],
+          Expanded(
+            flex: 2,
+            child: ListView(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('only single page'),
+                    Switch(
+                      value: _length == 1,
+                      onChanged: (b) {
+                        _length = b ? 1 : 4;
+                        _tabController = TabController(length: _length, vsync: this);
+                        if (mounted) setState(() {});
+                      },
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('hasDrawer'),
+                    Switch(value: _hasDrawer, onChanged: (b) => mountedSetState(() => _hasDrawer = b)),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('hasEndDrawer'),
+                    Switch(value: _hasEndDrawer, onChanged: (b) => mountedSetState(() => _hasEndDrawer = b)),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('applyPhysicsController'),
+                    Switch(value: _applyPhysicsController, onChanged: (b) => mountedSetState(() => _applyPhysicsController = b)),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('enableOverscrollGesture'),
+                    Switch(value: _enableOverscrollGesture, onChanged: (b) => mountedSetState(() => _enableOverscrollGesture = b)),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('enableOpenDragGesture'),
+                    Switch(value: _enableOpenDragGesture, onChanged: (b) => mountedSetState(() => _enableOpenDragGesture = b)),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('useAppBarActionButton'),
+                    Switch(value: _useAppBarActionButton, onChanged: (b) => mountedSetState(() => _useAppBarActionButton = b)),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('implicitlyOverscrollableBody'),
+                    Switch(value: _implicitlyOverscrollableBody, onChanged: (b) => mountedSetState(() => _implicitlyOverscrollableBody = b)),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('implicitlyOverscrollableScaffold'),
+                    Switch(value: _implicitlyOverscrollableScaffold, onChanged: (b) => mountedSetState(() => _implicitlyOverscrollableScaffold = b)),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('showAllTestColor'),
+                    Switch(value: _showAllTestColor, onChanged: (b) => mountedSetState(() => _showAllTestColor = b)),
+                  ],
+                ),
+              ],
+            ),
           ),
           Builder(
             builder: (c) => Row(

@@ -31,6 +31,7 @@ class CustomDrawerController extends StatefulWidget {
     this.scrimColor,
     this.edgeDragWidth,
     this.enableOpenDragGesture = true,
+    this.testColorForDragArea,
   }) : super(key: key);
 
   final Widget child;
@@ -41,6 +42,7 @@ class CustomDrawerController extends StatefulWidget {
   final Color? scrimColor;
   final double? edgeDragWidth;
   final bool enableOpenDragGesture;
+  final Color? testColorForDragArea;
 
   @override
   CustomDrawerControllerState createState() => CustomDrawerControllerState();
@@ -290,7 +292,7 @@ class CustomDrawerControllerState extends State<CustomDrawerController> with Tic
             behavior: HitTestBehavior.translucent,
             excludeFromSemantics: true,
             dragStartBehavior: widget.dragStartBehavior,
-            child: Container(width: dragAreaWidth),
+            child: Container(width: dragAreaWidth, color: widget.testColorForDragArea),
           ),
         );
       } else {

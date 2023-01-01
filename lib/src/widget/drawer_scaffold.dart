@@ -15,6 +15,8 @@ class DrawerScaffold extends StatefulWidget {
     this.drawerEnableOverscrollGesture = true,
     this.endDrawerEnableOverscrollGesture = true,
     this.physicsController,
+    this.implicitlyOverscrollableBody = false,
+    this.implicitlyOverscrollableScaffold = false,
     this.drawerEnableOpenDragGesture = true,
     this.endDrawerEnableOpenDragGesture = true,
     this.drawerEdgeDragWidth,
@@ -25,6 +27,10 @@ class DrawerScaffold extends StatefulWidget {
     this.drawerScrimColor,
     this.onDrawerChanged,
     this.onEndDrawerChanged,
+    this.testColorForDrawerDragArea,
+    this.testColorForEndDrawerDragArea,
+    this.testColorForDrawerDragTriggers,
+    this.testColorForEndDrawerDragTriggers,
     // ===
     this.appBar,
     this.floatingActionButton,
@@ -72,6 +78,16 @@ class DrawerScaffold extends StatefulWidget {
   /// [drawerEnableOverscrollGesture] or [endDrawerEnableOverscrollGesture] is true.
   final CustomScrollPhysicsController? physicsController;
 
+  /// The flag to wrap implicit [PageView] to the whole body to make it be overscrollable,
+  /// and make the drawer be openable when scrolling the body, default to false. Note that
+  /// the priority of [implicitlyOverscrollableScaffold] is higher than this field.
+  final bool implicitlyOverscrollableBody;
+
+  /// The flag to wrap implicit [PageView] to the whole scaffold to make it be overscrollable,
+  /// and make the drawer be openable when scrolling the scaffold, default to false. Note that
+  /// the priority of this field is higher than [implicitlyOverscrollableBody].
+  final bool implicitlyOverscrollableScaffold;
+
   /// The flag to enable drag gesture to open [drawer]. This flag influences not only edge
   /// horizontal dragging (with [drawerEdgeDragWidth]), but also [drawerExtraDragTriggers].
   final bool drawerEnableOpenDragGesture;
@@ -84,8 +100,8 @@ class DrawerScaffold extends StatefulWidget {
   /// [drawerEnableOpenDragGesture] is true.
   final double? drawerEdgeDragWidth;
 
-  /// Mirrors to [Scaffold.drawerEdgeDragWidth] but for [endDrawer]. This field only works when
-  /// [endDrawerEnableOpenDragGesture] is true.
+  /// Mirrors to [Scaffold.drawerEdgeDragWidth] but for [endDrawer]. This field only works
+  /// when [endDrawerEnableOpenDragGesture] is true.
   final double? endDrawerEdgeDragWidth;
 
   /// The extra [DrawerDragTrigger] for [drawer], which can be used to enable more spaces to
@@ -96,8 +112,8 @@ class DrawerScaffold extends StatefulWidget {
   final List<DrawerDragTrigger>? drawerExtraDragTriggers;
 
   /// The extra [DrawerDragTrigger] for [endDrawer], which can be used to enable more spaces
-  /// to respond drag gesture for opening [endDrawer], when [endDrawerEnableOpenDragGesture] is
-  /// true.
+  /// to respond drag gesture for opening [endDrawer], when [endDrawerEnableOpenDragGesture]
+  /// is true.
   ///
   /// Note that if you want [drawer] also have the symmetric drag trigger, just set
   /// [DrawerDragTrigger.forBothSide] to true and not need to add to [drawerExtraDragTriggers].
@@ -114,6 +130,18 @@ class DrawerScaffold extends StatefulWidget {
 
   /// Mirrors to [Scaffold.onEndDrawerChanged].
   final DrawerCallback? onEndDrawerChanged;
+
+  /// The color for testing drawer's drag area in [DrawerController], default to null.
+  final Color? testColorForDrawerDragArea;
+
+  /// The color for testing end drawer's drag area in [DrawerController], default to null.
+  final Color? testColorForEndDrawerDragArea;
+
+  /// The color for testing drawer's drag triggers in [DrawerScaffold], default to null.
+  final Color? testColorForDrawerDragTriggers;
+
+  /// The color for testing end drawer's drag triggers in [DrawerScaffold], default to null.
+  final Color? testColorForEndDrawerDragTriggers;
 
   // ===
 
@@ -385,7 +413,10 @@ class DrawerScaffoldState extends State<DrawerScaffold> with RestorationMixin {
             behavior: HitTestBehavior.translucent,
             excludeFromSemantics: true,
             dragStartBehavior: widget.drawerDragStartBehavior,
-            child: Container(width: dragAreaWidth),
+            child: Container(
+              width: dragAreaWidth,
+              color: !isEndDrawer ? widget.testColorForDrawerDragTriggers : widget.testColorForEndDrawerDragTriggers,
+            ),
           ),
         ),
       );
@@ -395,6 +426,22 @@ class DrawerScaffoldState extends State<DrawerScaffold> with RestorationMixin {
     return triggerWidgets;
   }
 
+  Widget _wrapImplicitPageView(Widget child) {
+    return NotificationListener<OverscrollIndicatorNotification>(
+      onNotification: (n) {
+        if (n.depth == 0) {
+          n.disallowIndicator();
+          return true;
+        }
+        return false;
+      },
+      child: PageView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        children: [child],
+      ),
+    );
+  }
+
   @override
   void didUpdateWidget(covariant DrawerScaffold oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -402,6 +449,8 @@ class DrawerScaffoldState extends State<DrawerScaffold> with RestorationMixin {
         oldWidget.endDrawer != widget.endDrawer ||
         oldWidget.drawerEnableOverscrollGesture != widget.drawerEnableOverscrollGesture ||
         oldWidget.endDrawerEnableOverscrollGesture != widget.endDrawerEnableOverscrollGesture ||
+        oldWidget.implicitlyOverscrollableBody != widget.implicitlyOverscrollableBody ||
+        oldWidget.implicitlyOverscrollableScaffold != widget.implicitlyOverscrollableScaffold ||
         oldWidget.drawerEnableOpenDragGesture != widget.drawerEnableOpenDragGesture ||
         oldWidget.endDrawerEnableOpenDragGesture != widget.endDrawerEnableOpenDragGesture ||
         oldWidget.drawerEdgeDragWidth != widget.drawerEdgeDragWidth ||
@@ -414,38 +463,50 @@ class DrawerScaffoldState extends State<DrawerScaffold> with RestorationMixin {
 
   @override
   Widget build(BuildContext context) {
+    // scaffold body
+    Widget body = widget.body;
+    if (!widget.implicitlyOverscrollableScaffold && widget.implicitlyOverscrollableBody) {
+      body = _wrapImplicitPageView(body);
+    }
+
+    // origin scaffold
+    Widget scaffold = Scaffold(
+      key: _scaffoldKey,
+      body: body,
+      drawer: widget.drawer,
+      endDrawer: widget.endDrawer,
+      drawerEnableOpenDragGesture: false,
+      endDrawerEnableOpenDragGesture: false,
+      drawerEdgeDragWidth: null,
+      drawerDragStartBehavior: widget.drawerDragStartBehavior,
+      drawerScrimColor: widget.drawerScrimColor,
+      onDrawerChanged: widget.onDrawerChanged,
+      onEndDrawerChanged: widget.onEndDrawerChanged,
+      // ===
+      appBar: widget.appBar,
+      floatingActionButton: widget.floatingActionButton,
+      floatingActionButtonLocation: widget.floatingActionButtonLocation,
+      floatingActionButtonAnimator: widget.floatingActionButtonAnimator,
+      persistentFooterButtons: widget.persistentFooterButtons,
+      bottomNavigationBar: widget.bottomNavigationBar,
+      bottomSheet: widget.bottomSheet,
+      backgroundColor: widget.backgroundColor,
+      resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
+      primary: widget.primary,
+      extendBody: widget.extendBody,
+      extendBodyBehindAppBar: widget.extendBodyBehindAppBar,
+    );
+    if (widget.implicitlyOverscrollableScaffold) {
+      scaffold = _wrapImplicitPageView(scaffold);
+    }
+
     return Stack(
       fit: StackFit.expand,
       children: [
-        // origin scaffold
-        Scaffold(
-          key: _scaffoldKey,
-          body: NotificationListener(
-            onNotification: _onNotification,
-            child: widget.body,
-          ),
-          drawer: widget.drawer,
-          endDrawer: widget.endDrawer,
-          drawerEnableOpenDragGesture: false,
-          endDrawerEnableOpenDragGesture: false,
-          drawerEdgeDragWidth: null,
-          drawerDragStartBehavior: widget.drawerDragStartBehavior,
-          drawerScrimColor: widget.drawerScrimColor,
-          onDrawerChanged: widget.onDrawerChanged,
-          onEndDrawerChanged: widget.onEndDrawerChanged,
-          // ===
-          appBar: widget.appBar,
-          floatingActionButton: widget.floatingActionButton,
-          floatingActionButtonLocation: widget.floatingActionButtonLocation,
-          floatingActionButtonAnimator: widget.floatingActionButtonAnimator,
-          persistentFooterButtons: widget.persistentFooterButtons,
-          bottomNavigationBar: widget.bottomNavigationBar,
-          bottomSheet: widget.bottomSheet,
-          backgroundColor: widget.backgroundColor,
-          resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
-          primary: widget.primary,
-          extendBody: widget.extendBody,
-          extendBodyBehindAppBar: widget.extendBodyBehindAppBar,
+        // scaffold with notification listener
+        NotificationListener(
+          onNotification: _onNotification,
+          child: scaffold,
         ),
 
         // drawer drag triggers
@@ -464,6 +525,7 @@ class DrawerScaffoldState extends State<DrawerScaffold> with RestorationMixin {
             dragStartBehavior: widget.drawerDragStartBehavior,
             scrimColor: widget.drawerScrimColor,
             drawerCallback: _endDrawerOpenedCallback,
+            testColorForDragArea: widget.testColorForEndDrawerDragArea,
           ),
 
         // drawer controller
@@ -478,6 +540,7 @@ class DrawerScaffoldState extends State<DrawerScaffold> with RestorationMixin {
             dragStartBehavior: widget.drawerDragStartBehavior,
             scrimColor: widget.drawerScrimColor,
             drawerCallback: _drawerOpenedCallback,
+            testColorForDragArea: widget.testColorForDrawerDragArea,
           ),
       ],
     );

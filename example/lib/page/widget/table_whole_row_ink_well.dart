@@ -67,7 +67,7 @@ class _TableWholeRowInkWellPageState extends State<TableWholeRowInkWellPage> {
             // },
             postFrameCallbackForBuild: _helper.hasSearched()
                 ? null
-                : (_) {
+                : (_, __) {
                     printLog('postFrameCallbackForBuild');
                     if (_helper.searchForHighestCells()) {
                       printLog('postFrameCallbackForBuild setState');

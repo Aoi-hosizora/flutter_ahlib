@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/src/widget/icon_text.dart';
+import 'package:flutter_ahlib/src/util/flutter_constants.dart';
 
 /// The default padding for [TextDialogOption].
 const _kTextDialogOptionPadding = EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0); // same as SimpleDialog's titlePadding
@@ -134,4 +135,16 @@ class CircularProgressDialogOption extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Calculates a width that can make a dialog ([AlertDialog] or [SimpleDialog]) fill with the screen width.
+double getDialogMaxWidth(BuildContext context) {
+  var horizontalPadding = MediaQuery.of(context).padding + kDialogDefaultInsetPadding; // ignore content padding
+  return MediaQuery.of(context).size.width - horizontalPadding.horizontal;
+}
+
+/// Calculates a content width that can make [AlertDialog] fill with the screen width.
+double getDialogContentMaxWidth(BuildContext context) {
+  var horizontalPadding = MediaQuery.of(context).padding + kDialogDefaultInsetPadding + kAlertDialogDefaultContentPadding;
+  return MediaQuery.of(context).size.width - horizontalPadding.horizontal;
 }
