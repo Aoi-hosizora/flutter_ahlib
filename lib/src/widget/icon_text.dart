@@ -24,6 +24,7 @@ class IconText extends StatelessWidget {
     Key? key,
     required this.icon,
     required Widget this.text,
+    this.padding = EdgeInsets.zero,
     this.iconPadding = EdgeInsets.zero,
     this.textPadding = EdgeInsets.zero,
     this.alignment = IconTextAlignment.l2r,
@@ -39,6 +40,7 @@ class IconText extends StatelessWidget {
     Key? key,
     required this.icon,
     required List<Widget> this.texts,
+    this.padding = EdgeInsets.zero,
     this.iconPadding = EdgeInsets.zero,
     this.alignment = IconTextAlignment.l2r,
     this.space = kIconTextDefaultSpace,
@@ -59,14 +61,23 @@ class IconText extends StatelessWidget {
   /// The text of this widget, and its padding can be set by [textPadding]
   final Widget? text;
 
-  /// The text list of this widget, note that [textPadding] will be ignored if this value is used.
+  /// The text list of this widget, note that [textPadding] will be ignored if this value is
+  /// used.
   final List<Widget>? texts;
 
-  /// The padding of this widget's icon, default to [EdgeInsets.zero].
+  /// The padding of this widget, default to [EdgeInsets.zero], and the widget will not be
+  /// wrapped [Padding].
+  final EdgeInsets? padding;
+
+  /// The padding of this widget's icon, default to [EdgeInsets.zero], and the widget will not
+  /// be wrapped [Padding].
   final EdgeInsets? iconPadding;
 
-  /// The padding of this widget's text, default to [EdgeInsets.zero]. Note that if you want to
-  /// wrap [text] with [Flexible], you should set [textPadding] to zero.
+  /// The padding of this widget's text, default to [EdgeInsets.zero], and the widget will not
+  /// be wrapped [Padding].
+  ///
+  /// Note that if you want to wrap [text] with [Flexible], [textPadding] should be set to [EdgeInsets.zero].
+  /// And note that [textPadding] will be ignored for widgets which are constructed by [IconText.texts].
   final EdgeInsets? textPadding;
 
   /// The alignment of the icon and the text, defaults to [IconTextAlignment.l2r].
@@ -86,68 +97,93 @@ class IconText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var pIcon = (iconPadding == null || iconPadding == EdgeInsets.zero) ? icon : Padding(padding: iconPadding!, child: icon);
-    var pText = (textPadding == null || textPadding == EdgeInsets.zero) ? text : (text == null ? null : Padding(padding: textPadding!, child: text!));
-    var mainAxisAlignment = this.mainAxisAlignment ?? MainAxisAlignment.start;
-    var mainAxisSize = this.mainAxisSize ?? MainAxisSize.max;
-    var crossAxisAlignment = this.crossAxisAlignment ?? CrossAxisAlignment.center;
+    final mainAxisAlignment = this.mainAxisAlignment ?? MainAxisAlignment.start;
+    final mainAxisSize = this.mainAxisSize ?? MainAxisSize.max;
+    final crossAxisAlignment = this.crossAxisAlignment ?? CrossAxisAlignment.center;
+    final widgetSpace = space ?? kIconTextDefaultSpace;
 
+    Widget iconWidget;
+    Widget? textWidget;
+    if (iconPadding == null || iconPadding == EdgeInsets.zero) {
+      iconWidget = icon;
+    } else {
+      iconWidget = Padding(padding: iconPadding!, child: icon);
+    }
+    if (textPadding == null || textPadding == EdgeInsets.zero) {
+      textWidget = text;
+    } else if (text != null) {
+      textWidget = Padding(padding: textPadding!, child: text!);
+    } else {
+      textWidget = null; // use texts
+    }
+
+    Widget widget;
     switch (alignment ?? IconTextAlignment.l2r) {
       case IconTextAlignment.l2r:
         // Horizontal: Icon -> Text
-        return Row(
+        widget = Row(
           mainAxisAlignment: mainAxisAlignment,
           mainAxisSize: mainAxisSize,
           crossAxisAlignment: crossAxisAlignment,
           children: [
-            pIcon,
-            SizedBox(height: 0, width: space ?? kIconTextDefaultSpace),
-            if (pText != null) pText,
+            iconWidget,
+            SizedBox(height: 0, width: widgetSpace),
+            if (textWidget != null) textWidget,
             if (texts != null) ...texts!,
           ],
         );
+        break;
       case IconTextAlignment.r2l:
         // Horizontal: Text -> Icon
-        return Row(
+        widget = Row(
           mainAxisAlignment: mainAxisAlignment,
           mainAxisSize: mainAxisSize,
           crossAxisAlignment: crossAxisAlignment,
           children: [
-            if (pText != null) pText,
+            if (textWidget != null) textWidget,
             if (texts != null) ...texts!,
-            SizedBox(height: 0, width: space ?? kIconTextDefaultSpace),
-            pIcon,
+            SizedBox(height: 0, width: widgetSpace),
+            iconWidget,
           ],
         );
+        break;
       case IconTextAlignment.t2b:
         // Vertical: Icon -> Text
-        return Column(
+        widget = Column(
           mainAxisAlignment: mainAxisAlignment,
           mainAxisSize: mainAxisSize,
           crossAxisAlignment: crossAxisAlignment,
           children: [
-            pIcon,
-            SizedBox(height: space ?? kIconTextDefaultSpace, width: 0),
-            if (pText != null) pText,
+            iconWidget,
+            SizedBox(height: widgetSpace, width: 0),
+            if (textWidget != null) textWidget,
             if (texts != null) ...texts!,
           ],
         );
+        break;
       case IconTextAlignment.b2t:
         // Vertical: Text -> Icon
-        return Column(
+        widget = Column(
           mainAxisAlignment: mainAxisAlignment,
           mainAxisSize: mainAxisSize,
           crossAxisAlignment: crossAxisAlignment,
           children: [
-            if (pText != null) pText,
+            if (textWidget != null) textWidget,
             if (texts != null) ...texts!,
-            SizedBox(height: space ?? kIconTextDefaultSpace, width: 0),
-            pIcon,
+            SizedBox(height: widgetSpace, width: 0),
+            iconWidget,
           ],
         );
+        break;
       default:
         // Unreachable
-        return const SizedBox.shrink(); // dummy
+        widget = const SizedBox.shrink(); // dummy
+        break;
     }
+
+    if (padding == null || padding == EdgeInsets.zero) {
+      return widget;
+    }
+    return Padding(padding: padding!, child: widget);
   }
 }

@@ -385,7 +385,7 @@ class RefreshableDataViewState<T> extends State<RefreshableDataView<T>> with Aut
             child: PlaceholderText.from(
               forceState: _forceState,
               isEmpty: widget.data.isEmpty,
-              isLoading: _loading,
+              isLoading: _loading && widget.data.isEmpty,
               errorText: _errorMessage,
               onRefresh: () => _refreshIndicatorKey.currentState?.show(),
               onChanged: widget.setting.onPlaceholderStateChanged,

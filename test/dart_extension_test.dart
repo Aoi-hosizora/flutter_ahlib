@@ -47,7 +47,7 @@ void main() {
     });
   });
 
-  group('ListExtension', () {
+  group('IterableExtension', () {
     test('repeat', () {
       expect([].repeat(1), []);
       expect([1].repeat(0), [1]);
@@ -79,6 +79,34 @@ void main() {
       expect([1, 2].lastOrNull, 2);
       expect(<dynamic>[1, 2, null].lastOrNull, null);
       expect(<dynamic>[null, null].lastOrNull, null);
+    });
+  });
+
+  group('ListExtension', () {
+    test('replaceWhere', () {
+      expect([]..replaceWhere((el) => true, (el) => null), []);
+      expect([0]..replaceWhere((el) => false, (el) => el * 2), [0]);
+      expect([1]..replaceWhere((el) => true, (el) => el * 2), [2]);
+      expect([-2, -1, 0, 1, 2]..replaceWhere((el) => el < 0, (el) => -el), [2, 1, 0, 1, 2]);
+      expect([-2, -1, 0, 1, 2]..replaceFirstWhere((el) => el > 0, (el) => -el * 10), [-2, -1, 0, -10, 2]);
+      expect(<dynamic>[0, '1', 2, '3.4']..replaceWhere((el) => el is String, (el) => int.tryParse(el)), [0, 1, 2, null]);
+    });
+
+    test('updateWhere', () {
+      expect([]..updateWhere((el) => true, (el) {}), []);
+      expect([Tuple1(1)]..updateWhere((el) => true, (el) => el.item *= 2), [Tuple1(2)]);
+      expect(
+        [Tuple1(-2), Tuple1(-1), Tuple1(0), Tuple1(1), Tuple1(2)]..updateWhere((el) => el.item < 0, (el) => el.item *= -1),
+        [Tuple1(2), Tuple1(1), Tuple1(0), Tuple1(1), Tuple1(2)],
+      );
+      expect(
+        [Tuple1(-2), Tuple1(-1), Tuple1(0), Tuple1(1), Tuple1(2)]..updateFirstWhere((el) => el.item > 0, (el) => el.item *= -10),
+        [Tuple1(-2), Tuple1(-1), Tuple1(0), Tuple1(-10), Tuple1(2)],
+      );
+      expect(
+        <dynamic>[Tuple1(0), Tuple1<dynamic>('1'), Tuple1(2), Tuple1<dynamic>('3.4')]..updateWhere((el) => el.item is String, (el) => el.item = int.tryParse(el.item)),
+        [Tuple1(0), Tuple1(1), Tuple1(2), Tuple1(null)],
+      );
     });
   });
 

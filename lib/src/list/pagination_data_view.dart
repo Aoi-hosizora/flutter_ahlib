@@ -515,7 +515,7 @@ class PaginationDataViewState<T> extends State<PaginationDataView<T>> with Autom
               child: PlaceholderText.from(
                 forceState: _forceState,
                 isEmpty: widget.data.isEmpty,
-                isLoading: _loading,
+                isLoading: _loading && widget.data.isEmpty,
                 errorText: _errorMessage,
                 onRefresh: () => _refreshIndicatorKey.currentState?.show(),
                 onChanged: widget.setting.onPlaceholderStateChanged,

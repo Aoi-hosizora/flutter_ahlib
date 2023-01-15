@@ -59,7 +59,7 @@ import 'package:flutter_ahlib/flutter_ahlib_util.dart';
     + `ReloadablePhotoView` `ReloadablePhotoViewState`
 + Utilities ([lib/src/util/](./lib/src/util))
     + `ActionController`
-    + `BoolExtension` `IterableExtension` `ObjectExtension` `FutureExtension`
+    + `BoolExtension` `IterableExtension` `ListExtension` `ObjectExtension` `FutureExtension`
     + `downloadFile`
     + `ExtendedLogger` `PreferredPrinter`
     + `filesize` `filesizeWithoutSpace`

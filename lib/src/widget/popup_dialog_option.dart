@@ -23,6 +23,7 @@ class TextDialogOption extends StatelessWidget {
     Key? key,
     required this.text,
     required this.onPressed,
+    this.onLongPressed,
     this.padding = _kTextDialogOptionPadding,
   }) : super(key: key);
 
@@ -35,10 +36,14 @@ class TextDialogOption extends StatelessWidget {
   /// The callback that is called when this option is selected.
   final void Function() onPressed;
 
+  /// The callback that is called when this option is long pressed.
+  final void Function()? onLongPressed;
+
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onPressed,
+      onLongPress: onLongPressed,
       child: Padding(
         padding: padding,
         child: DefaultTextStyle(
@@ -57,6 +62,7 @@ class IconTextDialogOption extends StatelessWidget {
     required this.icon,
     required this.text,
     required this.onPressed,
+    this.onLongPressed,
     this.padding = _kIconTextDialogOptionPadding,
     this.space = _kIconTextDialogOptionSpace,
   }) : super(key: key);
@@ -67,27 +73,36 @@ class IconTextDialogOption extends StatelessWidget {
   /// The text widget below this widget in the tree, typically is a [Text] widget.
   final Widget text;
 
+  /// The callback that is called when this option is selected.
+  final void Function() onPressed;
+
+  /// The callback that is called when this option is long pressed.
+  final void Function()? onLongPressed;
+
   /// The padding to surround the [icon] and [text], defaults to `EdgeInsets.symmetric(horizontal: 24.0, vertical: 10.0)`.
   final EdgeInsets padding;
 
   /// The space between [icon] and [text], defaults to 15.0.
   final double space;
 
-  /// The callback that is called when this option is selected.
-  final void Function() onPressed;
-
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onPressed,
+      onLongPress: onLongPressed,
       child: Padding(
         padding: padding,
         child: DefaultTextStyle(
           style: Theme.of(context).textTheme.subtitle1!,
-          child: IconText(
-            icon: icon,
-            text: text,
-            space: space,
+          child: IconTheme(
+            data: Theme.of(context).iconTheme.copyWith(
+                  color: const Color.fromRGBO(85, 85, 85, 1.0),
+                ),
+            child: IconText(
+              icon: icon,
+              text: text,
+              space: space,
+            ),
           ),
         ),
       ),
