@@ -20,6 +20,26 @@ class CustomScrollPhysics extends ScrollPhysics {
   /// physics of [Scrollable] dynamically.
   final CustomScrollPhysicsController? controller;
 
+  /// Finds and returns the [CustomScrollPhysics] from [ScrollPhysics]'s parents.
+  static CustomScrollPhysics? findInPhysics(ScrollPhysics? physics) {
+    ScrollPhysics? currPhysics = physics;
+    CustomScrollPhysics? result;
+    while (currPhysics != null && currPhysics is! CustomScrollPhysics) {
+      currPhysics = currPhysics.parent;
+    }
+    if (currPhysics != null && currPhysics is CustomScrollPhysics) {
+      result = currPhysics;
+    }
+    return result;
+  }
+
+  /// Returns the [CustomScrollPhysics] from [Scrollable] widget most closely associated
+  /// with the given context.
+  static CustomScrollPhysics? findInAncestors(BuildContext context) {
+    final scrollable = context.findAncestorWidgetOfExactType<Scrollable>();
+    return findInPhysics(scrollable?.physics);
+  }
+
   @override
   CustomScrollPhysics applyTo(ScrollPhysics? ancestor) {
     return CustomScrollPhysics(
@@ -73,6 +93,11 @@ class CustomScrollPhysicsController {
 
   // Stores the last scroll value, is used in applyBoundaryConditions.
   double? _lastScrollValue;
+
+  @override
+  String toString() {
+    return 'CustomScrollPhysicsController(disableScrollMore: $disableScrollMore, disableScrollLess: $disableScrollLess)';
+  }
 }
 
 /// An inherited widget that associates an [ScrollPhysics] with a subtree.

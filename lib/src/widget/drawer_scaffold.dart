@@ -15,8 +15,11 @@ class DrawerScaffold extends StatefulWidget {
     this.drawerEnableOverscrollGesture = true,
     this.endDrawerEnableOverscrollGesture = true,
     this.physicsController,
+    this.onPhysicsControllerChanged,
+    this.checkPhysicsControllerForOverscroll = false,
     this.implicitlyOverscrollableBody = false,
     this.implicitlyOverscrollableScaffold = false,
+    this.implicitPageViewScrollPhysics,
     this.drawerEnableOpenDragGesture = true,
     this.endDrawerEnableOpenDragGesture = true,
     this.drawerEdgeDragWidth,
@@ -78,15 +81,27 @@ class DrawerScaffold extends StatefulWidget {
   /// [drawerEnableOverscrollGesture] or [endDrawerEnableOverscrollGesture] is true.
   final CustomScrollPhysicsController? physicsController;
 
+  /// The callback that will be invoked when something in [physicsController] changed.
+  final void Function()? onPhysicsControllerChanged;
+
+  /// The flag to decide whether to enable overscroll gesture for opening [drawer] and [endDrawer]
+  /// or not, by checking given [physicsController]. Usually this field should be used when using
+  /// nested [DrawerScaffold], which can be use to synchronize drawer open state.
+  final bool checkPhysicsControllerForOverscroll;
+
   /// The flag to wrap implicit [PageView] to the whole body to make it be overscrollable,
-  /// and make the drawer be openable when scrolling the body, default to false. Note that
+  /// and make the drawer be openable when scrolling the body, defaults to false. Note that
   /// the priority of [implicitlyOverscrollableScaffold] is higher than this field.
   final bool implicitlyOverscrollableBody;
 
   /// The flag to wrap implicit [PageView] to the whole scaffold to make it be overscrollable,
-  /// and make the drawer be openable when scrolling the scaffold, default to false. Note that
+  /// and make the drawer be openable when scrolling the scaffold, defaults to false. Note that
   /// the priority of this field is higher than [implicitlyOverscrollableBody].
   final bool implicitlyOverscrollableScaffold;
+
+  /// The scroll physics for implicit [PageView], defaults to [AlwaysScrollableScrollPhysics].
+  /// Note that it is recommended to set this to the default value, or [CustomScrollPhysics].
+  final ScrollPhysics? implicitPageViewScrollPhysics;
 
   /// The flag to enable drag gesture to open [drawer]. This flag influences not only edge
   /// horizontal dragging (with [drawerEdgeDragWidth]), but also [drawerExtraDragTriggers].
@@ -263,6 +278,7 @@ class DrawerScaffoldState extends State<DrawerScaffold> with RestorationMixin {
       _overscrollingForEndDrawer = isEndDrawer;
       widget.physicsController?.disableScrollLess = true;
       widget.physicsController?.disableScrollMore = true;
+      widget.onPhysicsControllerChanged?.call();
       if (mounted) setState(() {});
     } else if (_overscrolling && !newValue) {
       _overscrolling = false;
@@ -270,6 +286,7 @@ class DrawerScaffoldState extends State<DrawerScaffold> with RestorationMixin {
       _overscrollingForEndDrawer = false;
       widget.physicsController?.disableScrollLess = false;
       widget.physicsController?.disableScrollMore = false;
+      widget.onPhysicsControllerChanged?.call();
       if (mounted) setState(() {});
     }
   }
@@ -283,14 +300,16 @@ class DrawerScaffoldState extends State<DrawerScaffold> with RestorationMixin {
 
     if (n is OverscrollNotification && n.dragDetails != null) {
       if (!_overscrolling) {
-        if (drawerGesture && n.dragDetails!.delta.dx > 0) {
-          _updateOverscrolling(true, n.context, false); // forDrawer
-          closeEndDrawer();
-          _drawerKey.currentState?.move(n.dragDetails!);
-        } else if (endDrawerGesture && n.dragDetails!.delta.dx < 0) {
-          _updateOverscrolling(true, n.context, true); // forEndDrawer
-          closeDrawer();
-          _endDrawerKey.currentState?.move(n.dragDetails!);
+        if ((!widget.checkPhysicsControllerForOverscroll || widget.physicsController?.disableScrollMore != true)) {
+          if (drawerGesture && n.dragDetails!.delta.dx > 0) {
+            _updateOverscrolling(true, n.context, false); // forDrawer
+            closeEndDrawer();
+            _drawerKey.currentState?.move(n.dragDetails!);
+          } else if (endDrawerGesture && n.dragDetails!.delta.dx < 0) {
+            _updateOverscrolling(true, n.context, true); // forEndDrawer
+            closeDrawer();
+            _endDrawerKey.currentState?.move(n.dragDetails!);
+          }
         }
       } else if (_overscrolling && n.context == _overscrolledContext) {
         if (!_overscrollingForEndDrawer) {
@@ -436,7 +455,7 @@ class DrawerScaffoldState extends State<DrawerScaffold> with RestorationMixin {
         return false;
       },
       child: PageView(
-        physics: const AlwaysScrollableScrollPhysics(),
+        physics: widget.implicitPageViewScrollPhysics ?? const AlwaysScrollableScrollPhysics(),
         children: [child],
       ),
     );
