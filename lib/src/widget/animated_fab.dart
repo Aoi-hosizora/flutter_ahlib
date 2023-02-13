@@ -109,6 +109,12 @@ enum ScrollAnimatedCondition {
   /// Shows fab when scroll view is swiped down, which makes it scrolls up.
   reverseDirection,
 
+  /// Always shows fab.
+  forceShow,
+
+  /// Always hides fab.
+  forceHide,
+
   /// Shows fab depended by custom behavior, defaults to show fab always.
   custom,
 }
@@ -195,29 +201,50 @@ class _ScrollAnimatedFabState extends State<ScrollAnimatedFab> with SingleTicker
 
   /// Subscribes the scroll offset and direction from given scroll controller.
   void _scrollListener() {
-    if (!widget.scrollController.hasClients) {
-      return;
+    ScrollPosition? positionGetter() {
+      if (!widget.scrollController.hasClients || !widget.scrollController.position.hasContentDimensions) {
+        return null;
+      }
+      return widget.scrollController.position;
     }
+
     bool canShow = false;
-    var pos = widget.scrollController.position;
     switch (widget.condition) {
+      case ScrollAnimatedCondition.forceShow:
+        canShow = true;
+        break;
+      case ScrollAnimatedCondition.forceHide:
+        canShow = false;
+        break;
       case ScrollAnimatedCondition.offset:
+        var pos = positionGetter();
+        if (pos == null) return;
         canShow = pos.extentBefore > widget.offset;
         break;
       case ScrollAnimatedCondition.reverseOffset:
+        var pos = positionGetter();
+        if (pos == null) return;
         canShow = pos.extentAfter > widget.offset;
         break;
       case ScrollAnimatedCondition.direction:
+        var pos = positionGetter();
+        if (pos == null) return;
         canShow = pos.extentBefore > 0 && pos.userScrollDirection == ScrollDirection.forward;
         break;
       case ScrollAnimatedCondition.reverseDirection:
+        var pos = positionGetter();
+        if (pos == null) return;
         canShow = pos.extentAfter > 0 && pos.userScrollDirection == ScrollDirection.reverse;
         break;
       case ScrollAnimatedCondition.custom:
+        var pos = positionGetter();
+        if (pos == null) return;
         canShow = widget.customBehavior?.call(pos) ?? true;
         break;
     }
-    canShow ? _controller.show() : _controller.hide();
+    if (_controller.hasClient) {
+      canShow ? _controller.show() : _controller.hide();
+    }
   }
 
   @override
