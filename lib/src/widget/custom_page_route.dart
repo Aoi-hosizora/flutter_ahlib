@@ -6,11 +6,15 @@ import 'package:flutter/material.dart';
 /// but this [PageRoute] supports customizable transition duration, transitions builder, and
 /// more, and these settings are fixed and can not be customized in these builtin [PageRoute].
 class CustomPageRoute<T> extends PageRoute<T> {
-  /// Creates a [CustomPageRoute] using given [context] and named parameters.
+  /// Creates a [CustomPageRoute] using given nullable [context] and named parameters.
   ///
   /// Here [transitionDuration], [reverseTransitionDuration], [barrierColor], [barrierCurve]
   /// and [transitionsBuilder] will fallback to use [CustomPageRouteThemeData] if these values
   /// are null.
+  ///
+  /// Note that when [Navigator.pushReplacement] is used, you need to pass the parent context to
+  /// [context], or use [CustomPageRoute.fromTheme] with previously stored [CustomPageRouteThemeData],
+  /// in order to get the correct theme data from not disposed context.
   CustomPageRoute({
     required this.context,
     required this.builder,
@@ -35,6 +39,39 @@ class CustomPageRoute<T> extends PageRoute<T> {
         super(settings: settings, fullscreenDialog: fullscreenDialog) {
     assert(opaque);
   }
+
+  /// Creates a [CustomPageRoute] using given [CustomPageRouteThemeData] and named parameters.
+  ///
+  /// Note that the only difference between the default constructor is, this constructor do not
+  /// retrieve [CustomPageRouteTheme] from [context], and use passed nullable [themeData] instead.
+  CustomPageRoute.fromTheme({
+    required CustomPageRouteThemeData? themeData,
+    required WidgetBuilder builder,
+    RouteSettings? settings,
+    bool fullscreenDialog = false,
+    bool maintainState = true,
+    // <<<
+    Duration? transitionDuration,
+    Duration? reverseTransitionDuration,
+    Color? barrierColor,
+    Curve? barrierCurve,
+    bool? disableCanTransitionTo,
+    bool? disableCanTransitionFrom,
+    PageTransitionsBuilder? transitionsBuilder,
+  }) : this(
+          context: null,
+          builder: builder,
+          settings: settings,
+          fullscreenDialog: fullscreenDialog,
+          maintainState: maintainState,
+          transitionDuration: transitionDuration ?? themeData?.transitionDuration,
+          reverseTransitionDuration: reverseTransitionDuration ?? themeData?.reverseTransitionDuration,
+          barrierColor: barrierColor ?? themeData?.barrierColor,
+          barrierCurve: barrierCurve ?? themeData?.barrierCurve,
+          disableCanTransitionTo: disableCanTransitionTo ?? themeData?.disableCanTransitionTo,
+          disableCanTransitionFrom: disableCanTransitionFrom ?? themeData?.disableCanTransitionFrom,
+          transitionsBuilder: transitionsBuilder ?? themeData?.transitionsBuilder,
+        );
 
   /// The build context which is used for getting [CustomPageRouteThemeData] of the route.
   ///

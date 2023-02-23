@@ -207,9 +207,9 @@ class ExtendedPhotoGalleryState extends State<ExtendedPhotoGallery> {
 
   /// Reloads the [ImageProvider] of given index from [ExtendedPhotoGallery]. Note that here index should exclude
   /// non-photo pages, just the same as indies passed to [photoPageBuilder] for [ExtendedPhotoGallery.advanced].
-  void reloadPhoto(int index) {
+  void reloadPhoto(int index, {bool alsoEvict = true}) {
     if (index >= 0 && index < widget._pageCount) {
-      _photoViewKeys[index].currentState?.reload();
+      _photoViewKeys[index].currentState?.reload(alsoEvict: alsoEvict);
     }
   }
 

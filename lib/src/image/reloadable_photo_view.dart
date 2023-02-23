@@ -155,11 +155,18 @@ class ReloadablePhotoViewState extends State<ReloadablePhotoView> {
   ///   // ...
   /// );
   ///
+  /// // to reload image
   /// await _cache.removeFile(url);
   /// _photoViewKey.currentState?.reload();
   /// ```
-  void reload() {
+  void reload({bool alsoEvict = true}) {
     _notifier.value = DateTime.now().microsecondsSinceEpoch.toString();
+
+    if (alsoEvict) {
+      // evict from flutter ImageCache
+      var key = ValueKey<String>(_notifier.value);
+      widget.imageProviderBuilder.call(key).evict();
+    }
   }
 
   @override
