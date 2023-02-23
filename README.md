@@ -36,8 +36,8 @@ import 'package:flutter_ahlib/flutter_ahlib_util.dart';
     + `LazyIndexedStack` `PositionArgument`
     + `NestedPageViewNotifier`
     + `flatButtonStyle` `raisedButtonStyle` `outlineButtonStyle` `ThemeDataExtension`
-    + `PlaceholderText`
-    + `TextDialogOption` `IconTextDialogOption` `CircularProgressDialogOption`
+    + `PlaceholderText` `PreviouslySwitchedWidget` `switchLayoutBuilderWithSwitchedFlag`
+    + `TextDialogOption` `IconTextDialogOption` `CircularProgressDialogOption` `showYesNoAlertDialog`
     + `PreloadablePageView` `PageChangedListener`
     + `SliverHeaderDelegate` `SliverSeparatedListDelegate` `SliverSeparatedListBuilderDelegate`
     + `TableWholeRowInkWell` `TableCellHelper`
@@ -54,6 +54,7 @@ import 'package:flutter_ahlib/flutter_ahlib_util.dart';
 + Image widgets ([lib/src/image/](./lib/src/image))
     + `ExtendedPhotoGallery` `ExtendedPhotoGalleryState`
     + `loadLocalOrNetworkImageBytes` `loadLocalOrNetworkImageCodec`
+    + `LocalOrCachedNetworkImage`
     + `LocalOrCachedNetworkImageProvider`
     + `MultiImageStreamCompleter`
     + `ReloadablePhotoView` `ReloadablePhotoViewState`
@@ -64,7 +65,7 @@ import 'package:flutter_ahlib/flutter_ahlib_util.dart';
     + `ExtendedLogger` `PreferredPrinter`
     + `filesize` `filesizeWithoutSpace`
     + `Flutter material constants`
-    + `StateExtension` `ScrollControllerExtension` `ScrollMetricsExtension` `PageControllerExtension` `RenderObjectExtension` `BuildContextExtension`
+    + `StateExtension` `ScrollControllerExtension` `ScrollMetricsExtension` `PageControllerExtension` `TextSpanExtension` `RenderObjectExtension` `BuildContextExtension`
     + `getMimeFromExtension` `getExtensionsFromMime` `getPreferredExtensionFromMime`
     + `TaskResult` `Ok` `Err` `TaskResultFutureExtension`
     + `Tuple2` ~ `Tuple6`

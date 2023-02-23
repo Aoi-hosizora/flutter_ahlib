@@ -61,6 +61,7 @@ class UpdatableDataViewSetting<T> {
     this.restorationId,
     this.clipBehavior = Clip.hardEdge,
     this.wantKeepAlive = true,
+    this.flashListDuration = kFlashListDuration,
     // display settings for scrollbar
     this.scrollbar = true,
     this.alwaysShowScrollbar = false,
@@ -133,6 +134,9 @@ class UpdatableDataViewSetting<T> {
 
   /// The wantKeepAlive for [AutomaticKeepAliveClientMixin], defaults to true.
   final bool? wantKeepAlive;
+
+  /// The duration to flash the displaying of [ScrollView] when refreshing, defaults to [kFlashListDuration].
+  final Duration? flashListDuration;
 
   /// The visibility for [Scrollbar], defaults to true.
   final bool? scrollbar;

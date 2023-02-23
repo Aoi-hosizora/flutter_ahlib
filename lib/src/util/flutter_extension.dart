@@ -129,6 +129,38 @@ extension PageControllerExtension on PageController {
   }
 }
 
+/// An extension for [TextSpan].
+extension TextSpanExtension on TextSpan {
+  /// Calculates and returns the painted size of current [TextSpan] with given parameters.
+  Size layoutSize(
+    BuildContext context, {
+    double minWidth = 0.0,
+    double maxWidth = double.infinity,
+    TextDirection? textDirection,
+    double? textScaleFactor,
+    int? maxLines,
+    String? ellipsis,
+    Locale? locale,
+    StrutStyle? strutStyle,
+    TextWidthBasis? textWidthBasis,
+    TextHeightBehavior? textHeightBehavior,
+  }) {
+    var painter = TextPainter(
+      text: this,
+      textDirection: textDirection ?? TextDirection.ltr,
+      textScaleFactor: textScaleFactor ?? MediaQuery.of(context).textScaleFactor,
+      maxLines: maxLines,
+      ellipsis: ellipsis,
+      locale: locale,
+      strutStyle: strutStyle,
+      textWidthBasis: textWidthBasis ?? TextWidthBasis.parent,
+      textHeightBehavior: textHeightBehavior,
+    );
+    painter.layout(minWidth: minWidth, maxWidth: maxWidth);
+    return painter.size;
+  }
+}
+
 /// An extension for [RenderObject].
 extension RenderObjectExtension on RenderObject {
   /// Returns the [Rect] which contains the size (semantic bound size) and position (in the coordinate

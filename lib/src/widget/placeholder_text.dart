@@ -92,6 +92,7 @@ class PlaceholderSetting with Diagnosticable {
     this.iconPadding,
     this.buttonPadding,
     this.progressPadding,
+    this.wholePaddingUnlessNormal,
     // style
     this.textStyle,
     this.textMaxLines,
@@ -148,17 +149,18 @@ class PlaceholderSetting with Diagnosticable {
       // padding
       textPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
       iconPadding: const EdgeInsets.all(5),
-      buttonPadding: const EdgeInsets.all(5),
-      progressPadding: const EdgeInsets.fromLTRB(25, 5, 25, 35),
+      buttonPadding: const EdgeInsets.fromLTRB(5, 10, 5, 5),
+      progressPadding: const EdgeInsets.fromLTRB(5, 10, 5, 30),
+      wholePaddingUnlessNormal: EdgeInsets.zero,
       // style
       textStyle: Theme.of(context).textTheme.headline6?.copyWith(fontSize: 20, fontWeight: FontWeight.normal),
       textMaxLines: 15,
       textOverflow: TextOverflow.ellipsis,
       buttonTextStyle: Theme.of(context).textTheme.button?.copyWith(fontSize: 14, fontWeight: FontWeight.normal, color: Theme.of(context).primaryColor),
-      buttonStyle: Theme.of(context).outlinedButtonTheme.style,
+      buttonStyle: Theme.of(context).outlinedButtonTheme.style?.copyWith(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
       iconSize: 50,
       iconColor: Colors.grey,
-      progressSize: 45,
+      progressSize: 50,
       progressStrokeWidth: 4.5,
       // show xxx
       showLoadingProgress: true,
@@ -203,6 +205,7 @@ class PlaceholderSetting with Diagnosticable {
     EdgeInsets? iconPadding,
     EdgeInsets? buttonPadding,
     EdgeInsets? progressPadding,
+    EdgeInsets? wholePaddingUnlessNormal,
     TextStyle? textStyle,
     int? textMaxLines,
     TextOverflow? textOverflow,
@@ -250,6 +253,7 @@ class PlaceholderSetting with Diagnosticable {
       iconPadding: iconPadding ?? this.iconPadding,
       buttonPadding: buttonPadding ?? this.buttonPadding,
       progressPadding: progressPadding ?? this.progressPadding,
+      wholePaddingUnlessNormal: wholePaddingUnlessNormal ?? this.wholePaddingUnlessNormal,
       textStyle: textStyle ?? this.textStyle,
       textMaxLines: textMaxLines ?? this.textMaxLines,
       textOverflow: textOverflow ?? this.textOverflow,
@@ -334,6 +338,7 @@ class PlaceholderSetting with Diagnosticable {
       iconPadding: data.iconPadding ?? fallback?.iconPadding,
       buttonPadding: data.buttonPadding ?? fallback?.buttonPadding,
       progressPadding: data.progressPadding ?? fallback?.progressPadding,
+      wholePaddingUnlessNormal: data.wholePaddingUnlessNormal ?? fallback?.wholePaddingUnlessNormal,
       textStyle: data.textStyle ?? fallback?.textStyle,
       textMaxLines: data.textMaxLines ?? fallback?.textMaxLines,
       textOverflow: data.textOverflow ?? fallback?.textOverflow,
@@ -390,6 +395,7 @@ class PlaceholderSetting with Diagnosticable {
         other.iconPadding == iconPadding &&
         other.buttonPadding == buttonPadding &&
         other.progressPadding == progressPadding &&
+        other.wholePaddingUnlessNormal == wholePaddingUnlessNormal &&
         other.textStyle == textStyle &&
         other.textMaxLines == textMaxLines &&
         other.textOverflow == textOverflow &&
@@ -406,17 +412,18 @@ class PlaceholderSetting with Diagnosticable {
         other.showNothingRetry == showNothingRetry &&
         other.showErrorIcon == showErrorIcon &&
         other.showErrorText == showErrorText &&
-        other.showErrorRetry == showErrorRetry;
-    // other.customLoadingProgressBuilder == customLoadingProgressBuilder &&
-    // other.customLoadingTextBuilder == customLoadingTextBuilder &&
-    // other.customNothingIconBuilder == customNothingIconBuilder &&
-    // other.customNothingTextBuilder == customNothingTextBuilder &&
-    // other.customNothingRetryBuilder == customNothingRetryBuilder &&
-    // other.customErrorIconBuilder == customErrorIconBuilder &&
-    // other.customErrorTextBuilder == customErrorTextBuilder &&
-    // other.customErrorRetryBuilder == customErrorRetryBuilder &&
-    // other.customNormalStateBuilder == customNormalStateBuilder &&
-    // other.customSwitcherBuilder == customSwitcherBuilder &&
+        other.showErrorRetry == showErrorRetry &&
+        // other.customLoadingProgressBuilder == customLoadingProgressBuilder &&
+        // other.customLoadingTextBuilder == customLoadingTextBuilder &&
+        // other.customNothingIconBuilder == customNothingIconBuilder &&
+        // other.customNothingTextBuilder == customNothingTextBuilder &&
+        // other.customNothingRetryBuilder == customNothingRetryBuilder &&
+        // other.customErrorIconBuilder == customErrorIconBuilder &&
+        // other.customErrorTextBuilder == customErrorTextBuilder &&
+        // other.customErrorRetryBuilder == customErrorRetryBuilder &&
+        // other.customNormalStateBuilder == customNormalStateBuilder &&
+        // other.customSwitcherBuilder == customSwitcherBuilder &&
+        true;
   }
 
   @override
@@ -440,6 +447,7 @@ class PlaceholderSetting with Diagnosticable {
       iconPadding,
       buttonPadding,
       progressPadding,
+      wholePaddingUnlessNormal,
       textStyle,
       textMaxLines,
       textOverflow,
@@ -495,6 +503,7 @@ class PlaceholderSetting with Diagnosticable {
   final EdgeInsets? iconPadding;
   final EdgeInsets? buttonPadding;
   final EdgeInsets? progressPadding;
+  final EdgeInsets? wholePaddingUnlessNormal;
 
   // style
   final TextStyle? textStyle;
@@ -635,11 +644,6 @@ class PlaceholderText extends StatefulWidget {
 }
 
 class _PlaceholderTextState extends State<PlaceholderText> {
-  final _normalKey = GlobalKey();
-  final _loadingKey = GlobalKey();
-  final _nothingKey = GlobalKey();
-  final _errorKey = GlobalKey();
-
   @override
   void didUpdateWidget(covariant PlaceholderText oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -664,13 +668,12 @@ class _PlaceholderTextState extends State<PlaceholderText> {
       // normal
       // ======
       case PlaceholderState.normal:
+        view = Builder(
+          key: const ValueKey(PlaceholderState.normal),
+          builder: widget.childBuilder,
+        );
         if (setting.customNormalStateBuilder != null) {
-          view = setting.customNormalStateBuilder!.call(
-            context,
-            (c) => Builder(key: _normalKey, builder: widget.childBuilder),
-          );
-        } else {
-          view = Builder(key: _normalKey, builder: widget.childBuilder);
+          view = setting.customNormalStateBuilder!.call(context, (c) => view);
         }
         break;
       // =======
@@ -678,39 +681,45 @@ class _PlaceholderTextState extends State<PlaceholderText> {
       // =======
       case PlaceholderState.loading:
         view = Center(
-          key: _loadingKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              if (setting.showLoadingProgress!)
-                Padding(
-                  padding: setting.progressPadding!,
-                  child: setting.customLoadingProgressBuilder?.call(context) ??
-                      SizedBox(
-                        height: setting.progressSize!,
-                        width: setting.progressSize!,
-                        child: CircularProgressIndicator(
-                          strokeWidth: setting.progressStrokeWidth!,
+          key: const ValueKey(PlaceholderState.loading),
+          child: Padding(
+            padding: setting.wholePaddingUnlessNormal!,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                if (setting.showLoadingProgress!)
+                  Padding(
+                    padding: setting.progressPadding!,
+                    child: setting.customLoadingProgressBuilder?.call(context) ??
+                        SizedBox(
+                          height: setting.progressSize!,
+                          width: setting.progressSize!,
+                          child: Padding(
+                            padding: EdgeInsets.all(setting.progressStrokeWidth! / 2),
+                            child: CircularProgressIndicator(
+                              strokeWidth: setting.progressStrokeWidth!,
+                            ),
+                          ),
                         ),
-                      ),
-                ),
-              if (setting.showLoadingText!)
-                Padding(
-                  padding: setting.textPadding!,
-                  child: setting.customLoadingTextBuilder?.call(context) ??
-                      DefaultTextStyle(
-                        style: Theme.of(context).textTheme.subtitle1!,
-                        child: Text(
-                          setting.loadingText!,
-                          textAlign: TextAlign.center,
-                          style: setting.textStyle!,
-                          maxLines: setting.textMaxLines!,
-                          overflow: setting.textOverflow!,
+                  ),
+                if (setting.showLoadingText!)
+                  Padding(
+                    padding: setting.textPadding!,
+                    child: setting.customLoadingTextBuilder?.call(context) ??
+                        DefaultTextStyle(
+                          style: Theme.of(context).textTheme.subtitle1!,
+                          child: Text(
+                            setting.loadingText!,
+                            textAlign: TextAlign.center,
+                            style: setting.textStyle!,
+                            maxLines: setting.textMaxLines!,
+                            overflow: setting.textOverflow!,
+                          ),
                         ),
-                      ),
-                ),
-            ],
+                  ),
+              ],
+            ),
           ),
         );
         break;
@@ -719,53 +728,56 @@ class _PlaceholderTextState extends State<PlaceholderText> {
       // =======
       case PlaceholderState.nothing:
         view = Center(
-          key: _nothingKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              if (setting.showNothingIcon!)
-                Padding(
-                  padding: setting.iconPadding!,
-                  child: setting.customNothingIconBuilder?.call(context) ??
-                      Icon(
-                        setting.nothingIcon!,
-                        size: setting.iconSize!,
-                        color: setting.iconColor!,
-                      ),
-                ),
-              if (setting.showNothingText!)
-                Padding(
-                  padding: setting.textPadding!,
-                  child: setting.customNothingTextBuilder?.call(context) ??
-                      DefaultTextStyle(
-                        style: Theme.of(context).textTheme.subtitle1!,
-                        child: Text(
-                          setting.nothingText!,
-                          textAlign: TextAlign.center,
-                          style: setting.textStyle!,
-                          maxLines: setting.textMaxLines!,
-                          overflow: setting.textOverflow!,
+          key: const ValueKey(PlaceholderState.nothing),
+          child: Padding(
+            padding: setting.wholePaddingUnlessNormal!,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                if (setting.showNothingIcon!)
+                  Padding(
+                    padding: setting.iconPadding!,
+                    child: setting.customNothingIconBuilder?.call(context) ??
+                        Icon(
+                          setting.nothingIcon!,
+                          size: setting.iconSize!,
+                          color: setting.iconColor!,
                         ),
-                      ),
-                ),
-              if (setting.showNothingRetry!)
-                Padding(
-                  padding: setting.buttonPadding!,
-                  child: setting.customNothingRetryBuilder?.call(
-                        context,
-                        () => (widget.onRetryForNothing ?? widget.onRefresh)?.call(),
-                      ) ??
-                      OutlinedButton(
-                        child: Text(
-                          setting.nothingRetryText!,
-                          style: setting.buttonTextStyle!,
+                  ),
+                if (setting.showNothingText!)
+                  Padding(
+                    padding: setting.textPadding!,
+                    child: setting.customNothingTextBuilder?.call(context) ??
+                        DefaultTextStyle(
+                          style: Theme.of(context).textTheme.subtitle1!,
+                          child: Text(
+                            setting.nothingText!,
+                            textAlign: TextAlign.center,
+                            style: setting.textStyle!,
+                            maxLines: setting.textMaxLines!,
+                            overflow: setting.textOverflow!,
+                          ),
                         ),
-                        style: setting.buttonStyle /* nullable */,
-                        onPressed: () => (widget.onRetryForNothing ?? widget.onRefresh)?.call(),
-                      ),
-                ),
-            ],
+                  ),
+                if (setting.showNothingRetry!)
+                  Padding(
+                    padding: setting.buttonPadding!,
+                    child: setting.customNothingRetryBuilder?.call(
+                          context,
+                          () => (widget.onRetryForNothing ?? widget.onRefresh)?.call(),
+                        ) ??
+                        OutlinedButton(
+                          child: Text(
+                            setting.nothingRetryText!,
+                            style: setting.buttonTextStyle!,
+                          ),
+                          style: setting.buttonStyle /* nullable */,
+                          onPressed: () => (widget.onRetryForNothing ?? widget.onRefresh)?.call(),
+                        ),
+                  ),
+              ],
+            ),
           ),
         );
         break;
@@ -774,55 +786,58 @@ class _PlaceholderTextState extends State<PlaceholderText> {
       // =====
       case PlaceholderState.error:
         view = Center(
-          key: _errorKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              if (setting.showErrorIcon!)
-                Padding(
-                  padding: setting.iconPadding!,
-                  child: setting.customErrorIconBuilder?.call(context) ??
-                      Icon(
-                        setting.errorIcon!,
-                        size: setting.iconSize!,
-                        color: setting.iconColor!,
-                      ),
-                ),
-              if (setting.showErrorText!)
-                Padding(
-                  padding: setting.textPadding!,
-                  child: setting.customErrorTextBuilder?.call(context) ??
-                      DefaultTextStyle(
-                        style: Theme.of(context).textTheme.subtitle1!,
-                        child: Text(
-                          widget.errorText?.isNotEmpty == true
-                              ? widget.errorText! //
-                              : setting.unknownErrorText!,
-                          textAlign: TextAlign.center,
-                          style: setting.textStyle!,
-                          maxLines: setting.textMaxLines!,
-                          overflow: setting.textOverflow!,
+          key: const ValueKey(PlaceholderState.error),
+          child: Padding(
+            padding: setting.wholePaddingUnlessNormal!,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                if (setting.showErrorIcon!)
+                  Padding(
+                    padding: setting.iconPadding!,
+                    child: setting.customErrorIconBuilder?.call(context) ??
+                        Icon(
+                          setting.errorIcon!,
+                          size: setting.iconSize!,
+                          color: setting.iconColor!,
                         ),
-                      ),
-                ),
-              if (setting.showErrorRetry!)
-                Padding(
-                  padding: setting.buttonPadding!,
-                  child: setting.customErrorRetryBuilder?.call(
-                        context,
-                        () => (widget.onRetryForError ?? widget.onRefresh)?.call(),
-                      ) ??
-                      OutlinedButton(
-                        child: Text(
-                          setting.errorRetryText!,
-                          style: setting.buttonTextStyle!,
+                  ),
+                if (setting.showErrorText!)
+                  Padding(
+                    padding: setting.textPadding!,
+                    child: setting.customErrorTextBuilder?.call(context) ??
+                        DefaultTextStyle(
+                          style: Theme.of(context).textTheme.subtitle1!,
+                          child: Text(
+                            widget.errorText?.isNotEmpty == true
+                                ? widget.errorText! //
+                                : setting.unknownErrorText!,
+                            textAlign: TextAlign.center,
+                            style: setting.textStyle!,
+                            maxLines: setting.textMaxLines!,
+                            overflow: setting.textOverflow!,
+                          ),
                         ),
-                        style: setting.buttonStyle /* nullable */,
-                        onPressed: () => (widget.onRetryForError ?? widget.onRefresh)?.call(),
-                      ),
-                ),
-            ],
+                  ),
+                if (setting.showErrorRetry!)
+                  Padding(
+                    padding: setting.buttonPadding!,
+                    child: setting.customErrorRetryBuilder?.call(
+                          context,
+                          () => (widget.onRetryForError ?? widget.onRefresh)?.call(),
+                        ) ??
+                        OutlinedButton(
+                          child: Text(
+                            setting.errorRetryText!,
+                            style: setting.buttonTextStyle!,
+                          ),
+                          style: setting.buttonStyle /* nullable */,
+                          onPressed: () => (widget.onRetryForError ?? widget.onRefresh)?.call(),
+                        ),
+                  ),
+              ],
+            ),
           ),
         );
         break;
@@ -850,4 +865,76 @@ class _PlaceholderTextState extends State<PlaceholderText> {
       layoutBuilder: setting.switchLayoutBuilder!,
     );
   }
+}
+
+/// An inherited widget that associates [switched] flag with a subtree, which represents whether
+/// a widget was shown previously and is switched out currently, in [AnimatedSwitcher].
+///
+/// It can be used to control some different behaviors when the specific widget is switched out
+/// and replaced by a new widget.
+class PreviouslySwitchedWidget extends InheritedWidget {
+  const PreviouslySwitchedWidget({
+    Key? key,
+    required Widget child,
+    required this.switched,
+  }) : super(key: key, child: child);
+
+  /// The data associated with the subtree.
+  final bool switched;
+
+  /// Returns the widget most closely associated with the given context.
+  static PreviouslySwitchedWidget? of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<PreviouslySwitchedWidget>();
+  }
+
+  /// Determines whether the widget is marked as switched, which means the widget has already switched
+  /// out in [AnimatedSwitcher].
+  static bool isPrevious(BuildContext context) {
+    return of(context)?.switched == true;
+  }
+
+  @override
+  bool updateShouldNotify(PreviouslySwitchedWidget oldWidget) {
+    return switched != oldWidget.switched;
+  }
+}
+
+/// A switch layout builder for [AnimatedSwitcher], which is almost the same as [AnimatedSwitcher.defaultLayoutBuilder],
+/// but this builder wraps [PreviouslySwitchedWidget] with tracked key to specific widgets in [Stack].
+///
+/// Note that you should use this layout builder when you are using any kinds of [UpdatableDataView],
+/// in order to invalidate the [ScrollController] for switched out [Scrollable] and [Scrollbar], and
+/// deal with `The provided ScrollController is currently attached to more than one ScrollPosition`
+/// kinds of exceptions.
+Widget switchLayoutBuilderWithSwitchedFlag(Widget? currentChild, List<Widget> previousChildren) {
+  return Stack(
+    alignment: Alignment.center,
+    children: [
+      // previous widgets
+      for (var child in previousChildren) //
+        child is! KeyedSubtree
+            ? child // unreachable, child is almost a KeyedSubtree
+            : KeyedSubtree(
+                key: child.key,
+                child: PreviouslySwitchedWidget(
+                  key: child.key, // <<< must set the key to track widget correctly
+                  child: child.child,
+                  switched: true,
+                ),
+              ),
+
+      // current widget
+      if (currentChild != null)
+        currentChild is! KeyedSubtree
+            ? currentChild // unreachable, currentChild is almost a KeyedSubtree
+            : KeyedSubtree(
+                key: currentChild.key,
+                child: PreviouslySwitchedWidget(
+                  key: currentChild.key, // <<< must set the key to track widget correctly
+                  child: currentChild.child,
+                  switched: false,
+                ),
+              ),
+    ],
+  );
 }

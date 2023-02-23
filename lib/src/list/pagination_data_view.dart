@@ -293,9 +293,12 @@ class PaginationDataViewState<T> extends State<PaginationDataView<T>> with Autom
       // replace or append
       if (reset) {
         if (widget.data.isNotEmpty) {
-          widget.data.clear();
+          _forceState = PlaceholderState.loading;
           if (mounted) setState(() {});
-          await Future.delayed(kFlashListDuration);
+          await WidgetsBinding.instance?.endOfFrame;
+          await Future.delayed(widget.setting.flashListDuration ?? kFlashListDuration);
+          _forceState = null;
+          widget.data.clear();
         }
         widget.data.addAll(list.list);
       } else {
@@ -369,7 +372,7 @@ class PaginationDataViewState<T> extends State<PaginationDataView<T>> with Autom
 
     if (!sliver) {
       return ListView.separated(
-        controller: widget.scrollController,
+        controller: PreviouslySwitchedWidget.isPrevious(context) ? null : widget.scrollController,
         padding: widget.setting.padding,
         physics: widget.setting.physics ?? const AlwaysScrollableScrollPhysics(),
         reverse: widget.setting.reverse ?? false,
@@ -387,7 +390,7 @@ class PaginationDataViewState<T> extends State<PaginationDataView<T>> with Autom
     }
 
     return CustomScrollView(
-      controller: widget.scrollController,
+      controller: PreviouslySwitchedWidget.isPrevious(context) ? null : widget.scrollController,
       physics: widget.setting.physics ?? const AlwaysScrollableScrollPhysics(),
       reverse: widget.setting.reverse ?? false,
       shrinkWrap: widget.setting.shrinkWrap ?? false,
@@ -421,7 +424,7 @@ class PaginationDataViewState<T> extends State<PaginationDataView<T>> with Autom
   Widget _buildMasonryGridView(BuildContext context, bool sliver) {
     if (!sliver) {
       return MasonryGridView.count(
-        controller: widget.scrollController,
+        controller: PreviouslySwitchedWidget.isPrevious(context) ? null : widget.scrollController,
         padding: widget.setting.padding,
         physics: widget.setting.physics ?? const AlwaysScrollableScrollPhysics(),
         reverse: widget.setting.reverse ?? false,
@@ -441,7 +444,7 @@ class PaginationDataViewState<T> extends State<PaginationDataView<T>> with Autom
     }
 
     return CustomScrollView(
-      controller: widget.scrollController,
+      controller: PreviouslySwitchedWidget.isPrevious(context) ? null : widget.scrollController,
       physics: widget.setting.physics ?? const AlwaysScrollableScrollPhysics(),
       reverse: widget.setting.reverse ?? false,
       shrinkWrap: widget.setting.shrinkWrap ?? false,
@@ -476,20 +479,17 @@ class PaginationDataViewState<T> extends State<PaginationDataView<T>> with Autom
   Widget build(BuildContext context) {
     super.build(context);
 
-    Widget view;
-    switch (widget.style) {
-      case UpdatableDataViewStyle.listView:
-        view = _buildListView(context, false);
-        break;
-      case UpdatableDataViewStyle.sliverListView:
-        view = _buildListView(context, true);
-        break;
-      case UpdatableDataViewStyle.masonryGridView:
-        view = _buildMasonryGridView(context, false);
-        break;
-      case UpdatableDataViewStyle.sliverMasonryGridView:
-        view = _buildMasonryGridView(context, true);
-        break;
+    Widget _buildView(BuildContext context) {
+      switch (widget.style) {
+        case UpdatableDataViewStyle.listView:
+          return _buildListView(context, false);
+        case UpdatableDataViewStyle.sliverListView:
+          return _buildListView(context, true);
+        case UpdatableDataViewStyle.masonryGridView:
+          return _buildMasonryGridView(context, false);
+        case UpdatableDataViewStyle.sliverMasonryGridView:
+          return _buildMasonryGridView(context, true);
+      }
     }
 
     return AppendIndicator(
@@ -530,17 +530,17 @@ class PaginationDataViewState<T> extends State<PaginationDataView<T>> with Autom
                         onNotification: (s) => _onScroll(s),
                         child: widget.setting.scrollbar ?? true
                             ? ExtendedScrollbar(
-                                interactive: widget.setting.interactiveScrollbar ?? false,
+                                interactive: PreviouslySwitchedWidget.isPrevious(c) ? false : widget.setting.interactiveScrollbar ?? false,
                                 isAlwaysShown: widget.setting.alwaysShowScrollbar ?? false,
                                 radius: widget.setting.scrollbarRadius,
                                 thickness: widget.setting.scrollbarThickness,
                                 mainAxisMargin: widget.setting.scrollbarMainAxisMargin,
                                 crossAxisMargin: widget.setting.scrollbarCrossAxisMargin,
                                 extraMargin: widget.setting.scrollbarExtraMargin,
-                                controller: widget.scrollController,
-                                child: view,
+                                controller: PreviouslySwitchedWidget.isPrevious(c) ? null : widget.scrollController,
+                                child: _buildView(c),
                               )
-                            : view,
+                            : _buildView(c),
                       ),
                     ),
                     if (widget.extra?.innerBottomWidgets != null) ...(widget.extra?.innerBottomWidgets)!,

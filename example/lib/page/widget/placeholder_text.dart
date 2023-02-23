@@ -17,6 +17,8 @@ class _PlaceholderTextPageState extends State<PlaceholderTextPage> {
   var _loading = false;
   var _error = false;
   var _custom = false;
+  var _anime = false;
+  var _styled = false;
 
   @override
   Widget build(BuildContext context) {
@@ -42,97 +44,121 @@ class _PlaceholderTextPageState extends State<PlaceholderTextPage> {
           ),
         ],
       ),
-      body: PlaceholderText(
-        state: _state,
-        onRefresh: () => printLog('onRefresh'),
-        onChanged: (_, __) => printLog('onChanged'),
-        childBuilder: (_) => Column(
-          children: [
-            Expanded(
-              child: PlaceholderText.from(
-                setting: const PlaceholderSetting().copyWithJapanese().copyWith(
-                      customLoadingProgressBuilder: !_custom ? null : (c) => const Text('customLoadingProgress'),
-                      customLoadingTextBuilder: !_custom ? null : (c) => const Text('customLoadingText'),
-                      customNothingIconBuilder: !_custom ? null : (c) => const Text('customNothingIcon'),
-                      customNothingTextBuilder: !_custom ? null : (c) => const Text('customNothingText'),
-                      customNothingRetryBuilder: !_custom ? null : (c, callback) => ElevatedButton(child: const Text('customNothingRetry'), onPressed: callback),
-                      customErrorIconBuilder: !_custom ? null : (c) => const Text('customErrorIcon'),
-                      customErrorTextBuilder: !_custom ? null : (c) => const Text('customErrorText'),
-                      customErrorRetryBuilder: !_custom ? null : (c, callback) => ElevatedButton(child: const Text('customErrorRetryBuilder'), onPressed: callback),
-                    ),
-                isEmpty: _empty,
-                isLoading: _loading,
-                errorText: _error ? 'エラー' : '',
-                displayRule: _rule,
-                childBuilder: (_) => const Center(
-                  child: SizedBox(
-                    width: 300,
-                    height: 200,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(color: Colors.blue),
+      body: PlaceholderTextTheme(
+        setting: PlaceholderSetting(
+          useAnimatedSwitcher: _anime,
+          errorIcon: !_styled ? null : Icons.question_mark,
+          nothingIcon: !_styled ? null : Icons.delete_forever,
+          textStyle: !_styled ? null : PlaceholderSetting.defaultSetting(context).textStyle!.copyWith(fontSize: 14),
+          iconSize: !_styled ? null : 75,
+          progressSize: !_styled ? null : 70,
+        ),
+        child: PlaceholderText(
+          state: _state,
+          onRefresh: () => printLog('onRefresh'),
+          onChanged: (_, __) => printLog('onChanged'),
+          childBuilder: (_) => Column(
+            children: [
+              Expanded(
+                child: PlaceholderText.from(
+                  setting: const PlaceholderSetting().copyWithJapanese().copyWith(
+                        customLoadingProgressBuilder: !_custom ? null : (c) => const Text('customLoadingProgress'),
+                        customLoadingTextBuilder: !_custom ? null : (c) => const Text('customLoadingText'),
+                        customNothingIconBuilder: !_custom ? null : (c) => const Text('customNothingIcon'),
+                        customNothingTextBuilder: !_custom ? null : (c) => const Text('customNothingText'),
+                        customNothingRetryBuilder: !_custom ? null : (c, callback) => ElevatedButton(child: const Text('customNothingRetry'), onPressed: callback),
+                        customErrorIconBuilder: !_custom ? null : (c) => const Text('customErrorIcon'),
+                        customErrorTextBuilder: !_custom ? null : (c) => const Text('customErrorText'),
+                        customErrorRetryBuilder: !_custom ? null : (c, callback) => ElevatedButton(child: const Text('customErrorRetryBuilder'), onPressed: callback),
+                      ),
+                  isEmpty: _empty,
+                  isLoading: _loading,
+                  errorText: _error ? 'エラー' : '',
+                  displayRule: _rule,
+                  childBuilder: (_) => const Center(
+                    child: SizedBox(
+                      width: 300,
+                      height: 200,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(color: Colors.blue),
+                      ),
                     ),
                   ),
+                  onRefresh: () => printLog('onRefresh2'),
+                  onRetryForError: () => printLog('onRetryForError2'),
+                  onRetryForNothing: () => printLog('onRetryForNothing2'),
+                  onChanged: (_, __) => printLog('onChanged2'),
                 ),
-                onRefresh: () => printLog('onRefresh2'),
-                onRetryForError: () => printLog('onRetryForError2'),
-                onRetryForNothing: () => printLog('onRetryForNothing2'),
-                onChanged: (_, __) => printLog('onChanged2'),
               ),
-            ),
-            Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  DropdownButton<PlaceholderDisplayRule>(
-                    value: _rule,
-                    items: PlaceholderDisplayRule.values
-                        .map(
-                          (s) => DropdownMenuItem<PlaceholderDisplayRule>(
-                            child: Text(s.toString(), style: Theme.of(context).textTheme.bodyText2),
-                            value: s,
-                          ),
-                        )
-                        .toList(),
-                    underline: Container(color: Colors.transparent),
-                    onChanged: (v) {
-                      if (v != null) {
-                        _rule = v;
-                        if (mounted) setState(() {});
-                      }
-                    },
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text('empty'),
-                      Switch(value: _empty, onChanged: (b) => mountedSetState(() => _empty = b)),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text('loading'),
-                      Switch(value: _loading, onChanged: (b) => mountedSetState(() => _loading = b)),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text('error'),
-                      Switch(value: _error, onChanged: (b) => mountedSetState(() => _error = b)),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text('custom'),
-                      Switch(value: _custom, onChanged: (b) => mountedSetState(() => _custom = b)),
-                    ],
-                  ),
-                ],
+              Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    DropdownButton<PlaceholderDisplayRule>(
+                      value: _rule,
+                      items: PlaceholderDisplayRule.values
+                          .map(
+                            (s) => DropdownMenuItem<PlaceholderDisplayRule>(
+                              child: Text(s.toString(), style: Theme.of(context).textTheme.bodyText2),
+                              value: s,
+                            ),
+                          )
+                          .toList(),
+                      underline: Container(color: Colors.transparent),
+                      onChanged: (v) {
+                        if (v != null) {
+                          _rule = v;
+                          if (mounted) setState(() {});
+                        }
+                      },
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text('empty'),
+                        Switch(value: _empty, onChanged: (b) => mountedSetState(() => _empty = b)),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text('loading'),
+                        Switch(value: _loading, onChanged: (b) => mountedSetState(() => _loading = b)),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text('error'),
+                        Switch(value: _error, onChanged: (b) => mountedSetState(() => _error = b)),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text('custom'),
+                        Switch(value: _custom, onChanged: (b) => mountedSetState(() => _custom = b)),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text('anime (use theme)'),
+                        Switch(value: _anime, onChanged: (b) => mountedSetState(() => _anime = b)),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text('styled (use theme)'),
+                        Switch(value: _styled, onChanged: (b) => mountedSetState(() => _styled = b)),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
