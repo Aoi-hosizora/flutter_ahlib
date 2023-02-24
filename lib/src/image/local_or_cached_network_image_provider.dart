@@ -17,11 +17,24 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 /// An [ImageProvider] for loading image from local file or network using a cache.
 ///
 /// Some tips of parameters:
-/// 1. At lease one of [file] and [url] (or result of [fileFuture] and [urlFuture]) must be non-null value.
-/// 2. If given [file] (or result of [fileFuture]) is not null and exists, this provider will load image from this file.
-/// 3. If given [file] is not null but does not exist, behavior will depend on [fileMustExist]. An exception will be thrown if true, otherwise [url] will be used as fallback.
-/// 4. If given [file] is null while given [url] is not null, this provider will load image from this web url.
-/// 5. Only [file] (or [fileFuture]), [url] (or [urlFuture]), [scale], [maxWidth], [maxHeight] will be used to determine whether it represents the same image.
+///
+/// 1. At lease one of [file] and [url] (or [fileFuture] and [urlFuture], or [file] and [url] results of these two futures) must
+/// be non-null value, otherwise argument error will be thrown.
+///
+/// 2. If given [file] (or result of [fileFuture]) is not null and exists, this provider will try to load image from this file,
+/// this also means local image has a higher priority than network image.
+///
+/// 3. If given [file] is not null but does not exist, behavior will be depended by [fileMustExist]. Exception `Image file "xxx" is not found.`
+/// will be thrown if [fileMustExist] is true, otherwise [url] will be used as fallback.
+///
+/// 4. If given [file] is null or [url] is decided to be used, while given [url] (or result of [urlFuture]) is not null, this provider
+/// will try to load image from this web url, invalid format exception or network error exception may be thrown here.
+///
+/// 5. If given [file] is null or not exists, while [url] is null (not include invalid format exceptions), this provider will
+/// throw an exception `Image file "xxx" is not found while given url is null.`
+///
+/// 6. Only [file] (or [fileFuture]), [url] (or [urlFuture]), [scale], [maxWidth], [maxHeight] will be used to determine
+/// whether it represents the same image.
 class LocalOrCachedNetworkImageProvider extends ImageProvider<LocalOrCachedNetworkImageProvider> {
   /// Creates [LocalOrCachedNetworkImageProvider] with nullable [file] and [url].
   const LocalOrCachedNetworkImageProvider({
@@ -50,6 +63,34 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<LocalOrCachedNetwo
         fileFuture = null,
         urlFuture = null,
         assert(file != null || url != null);
+
+  /// Creates [LocalOrCachedNetworkImageProvider] with nullable [fileFuture] and [urlFuture].
+  const LocalOrCachedNetworkImageProvider.fromFutures({
+    // general
+    this.key,
+    required this.fileFuture,
+    required this.urlFuture,
+    this.scale = 1.0,
+    // local
+    this.fileMustExist = true,
+    // network
+    this.headers,
+    this.cacheManager,
+    this.cacheKey,
+    this.maxWidth,
+    this.maxHeight,
+    this.asyncHeadFirst = false,
+    this.networkTimeout,
+    // callbacks
+    this.onFileLoading,
+    this.onUrlLoading,
+    this.onFileLoaded,
+    this.onUrlLoaded,
+  })  : // general
+        _useFuture = true,
+        file = null,
+        url = null,
+        assert(fileFuture != null || urlFuture != null);
 
   /// Creates [LocalOrCachedNetworkImageProvider] with non-null [file] only.
   const LocalOrCachedNetworkImageProvider.fromLocal({
@@ -107,15 +148,40 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<LocalOrCachedNetwo
         onFileLoading = null,
         onFileLoaded = null;
 
-  /// Creates [LocalOrCachedNetworkImageProvider] with non-null [fileFuture] and [urlFuture].
-  const LocalOrCachedNetworkImageProvider.fromFutures({
+  /// Creates [LocalOrCachedNetworkImageProvider] with non-null [fileFuture] only.
+  const LocalOrCachedNetworkImageProvider.fromLocalWithFuture({
     // general
     this.key,
     required Future<io.File?> this.fileFuture,
-    required Future<String?> this.urlFuture,
     this.scale = 1.0,
     // local
     this.fileMustExist = true,
+    // callback
+    this.onFileLoading,
+    this.onFileLoaded,
+  })  : // general
+        _useFuture = true,
+        url = null,
+        file = null,
+        urlFuture = null,
+        // network
+        headers = null,
+        cacheManager = null,
+        cacheKey = null,
+        maxWidth = null,
+        maxHeight = null,
+        asyncHeadFirst = false,
+        networkTimeout = null,
+        // callback
+        onUrlLoading = null,
+        onUrlLoaded = null;
+
+  /// Creates [LocalOrCachedNetworkImageProvider] with non-null [urlFuture] only.
+  const LocalOrCachedNetworkImageProvider.fromNetworkWithFuture({
+    // general
+    this.key,
+    required Future<String?> this.urlFuture,
+    this.scale = 1.0,
     // network
     this.headers,
     this.cacheManager,
@@ -124,15 +190,19 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<LocalOrCachedNetwo
     this.maxHeight,
     this.asyncHeadFirst = false,
     this.networkTimeout,
-    // callbacks
-    this.onFileLoading,
+    // callback
     this.onUrlLoading,
-    this.onFileLoaded,
     this.onUrlLoaded,
   })  : // general
         _useFuture = true,
         file = null,
-        url = null;
+        url = null,
+        fileFuture = null,
+        // local
+        fileMustExist = true,
+        // callback
+        onFileLoading = null,
+        onFileLoaded = null;
 
   // =======
   // general
@@ -141,7 +211,7 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<LocalOrCachedNetwo
   /// The key that can be used to reload the image in force when different [Key] passed.
   final Key? key;
 
-  // Describes whether xxxFuture parameters used or not.
+  // Describes whether to use future parameters or not, set by constructors.
   final bool _useFuture;
 
   /// The local file of the image to load.
@@ -222,27 +292,45 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<LocalOrCachedNetwo
   @override
   ImageStreamCompleter load(LocalOrCachedNetworkImageProvider key, DecoderCallback decode) {
     assert(key == this);
+
+    var option = !_useFuture
+        ? LoadImageOption(
+            file: file /* nullable */,
+            url: url /* nullable */,
+            scale: scale,
+            fileMustExist: fileMustExist,
+            headers: headers,
+            cacheManager: cacheManager,
+            cacheKey: cacheKey,
+            maxWidth: maxWidth,
+            maxHeight: maxHeight,
+            asyncHeadFirst: asyncHeadFirst,
+            networkTimeout: networkTimeout,
+            onFileLoading: onFileLoading,
+            onUrlLoading: onUrlLoading,
+            onFileLoaded: onFileLoaded,
+            onUrlLoaded: onUrlLoaded,
+          )
+        : LoadImageOption.fromFutures(
+            fileFuture: fileFuture /* nullable */,
+            urlFuture: urlFuture /* nullable */,
+            scale: scale,
+            fileMustExist: fileMustExist,
+            headers: headers,
+            cacheManager: cacheManager,
+            cacheKey: cacheKey,
+            maxWidth: maxWidth,
+            maxHeight: maxHeight,
+            asyncHeadFirst: asyncHeadFirst,
+            networkTimeout: networkTimeout,
+            onFileLoading: onFileLoading,
+            onUrlLoading: onUrlLoading,
+            onFileLoaded: onFileLoaded,
+            onUrlLoaded: onUrlLoaded,
+          );
     final chunkEvents = StreamController<ImageChunkEvent>();
     Stream<ui.Codec> stream = loadLocalOrNetworkImageCodec(
-      options: LoadImageOption(
-        file: file,
-        url: url,
-        fileFuture: fileFuture,
-        urlFuture: urlFuture,
-        scale: scale,
-        fileMustExist: fileMustExist,
-        headers: headers,
-        cacheManager: cacheManager,
-        cacheKey: cacheKey,
-        maxWidth: maxWidth,
-        maxHeight: maxHeight,
-        asyncHeadFirst: asyncHeadFirst,
-        networkTimeout: networkTimeout,
-        onFileLoading: onFileLoading,
-        onUrlLoading: onUrlLoading,
-        onFileLoaded: onFileLoaded,
-        onUrlLoaded: onUrlLoaded,
-      ),
+      option: option,
       decode: decode,
       chunkEvents: chunkEvents,
       evictImageAsync: () => scheduleMicrotask(() {

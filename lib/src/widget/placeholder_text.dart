@@ -33,11 +33,14 @@ enum PlaceholderDisplayRule {
   errorFirst,
 }
 
-/// A widget builder function, with void callback parameter.
-typedef VoidCallbackWidgetBuilder = Widget Function(BuildContext context, VoidCallback callback);
+/// A widget builder function, with [PlaceholderSetting].
+typedef PlaceholderWidgetBuilder = Widget Function(BuildContext context, PlaceholderSetting setting);
 
-/// A widget builder function, with widget builder parameter.
-typedef WidgetBuilderWidgetBuilder = Widget Function(BuildContext context, WidgetBuilder childBuilder);
+/// A widget builder function, with [PlaceholderSetting] and [VoidCallback].
+typedef PlaceholderVoidCallbackWidgetBuilder = Widget Function(BuildContext context, PlaceholderSetting setting, VoidCallback callback);
+
+/// A widget builder function, with [PlaceholderSetting] and [WidgetBuilder].
+typedef PlaceholderWidgetBuilderWidgetBuilder = Widget Function(BuildContext context, PlaceholderSetting setting, WidgetBuilder childBuilder);
 
 /// A [PlaceholderText.state] changed callback function, with old state and new state.
 typedef PlaceholderStateChangedCallback = void Function(PlaceholderState oldState, PlaceholderState newState);
@@ -132,7 +135,7 @@ class PlaceholderSetting with Diagnosticable {
       // animation
       useAnimatedSwitcher: false,
       switchDuration: const Duration(milliseconds: 200),
-      switchReverseDuration: null,
+      switchReverseDuration: const Duration(milliseconds: 200),
       switchInCurve: Curves.linear,
       switchOutCurve: Curves.linear,
       switchTransitionBuilder: AnimatedSwitcher.defaultTransitionBuilder,
@@ -223,16 +226,16 @@ class PlaceholderSetting with Diagnosticable {
     bool? showErrorIcon,
     bool? showErrorText,
     bool? showErrorRetry,
-    WidgetBuilder? customLoadingProgressBuilder,
-    WidgetBuilder? customLoadingTextBuilder,
-    WidgetBuilder? customNothingIconBuilder,
-    WidgetBuilder? customNothingTextBuilder,
-    VoidCallbackWidgetBuilder? customNothingRetryBuilder,
-    WidgetBuilder? customErrorIconBuilder,
-    WidgetBuilder? customErrorTextBuilder,
-    VoidCallbackWidgetBuilder? customErrorRetryBuilder,
-    WidgetBuilderWidgetBuilder? customNormalStateBuilder,
-    WidgetBuilderWidgetBuilder? customSwitcherBuilder,
+    PlaceholderWidgetBuilder? customLoadingProgressBuilder,
+    PlaceholderWidgetBuilder? customLoadingTextBuilder,
+    PlaceholderWidgetBuilder? customNothingIconBuilder,
+    PlaceholderWidgetBuilder? customNothingTextBuilder,
+    PlaceholderVoidCallbackWidgetBuilder? customNothingRetryBuilder,
+    PlaceholderWidgetBuilder? customErrorIconBuilder,
+    PlaceholderWidgetBuilder? customErrorTextBuilder,
+    PlaceholderVoidCallbackWidgetBuilder? customErrorRetryBuilder,
+    PlaceholderWidgetBuilderWidgetBuilder? customNormalStateBuilder,
+    PlaceholderWidgetBuilderWidgetBuilder? customSwitcherBuilder,
   }) {
     return PlaceholderSetting(
       useAnimatedSwitcher: useAnimatedSwitcher ?? this.useAnimatedSwitcher,
@@ -527,16 +530,16 @@ class PlaceholderSetting with Diagnosticable {
   final bool? showErrorRetry;
 
   // custom builder
-  final WidgetBuilder? customLoadingProgressBuilder;
-  final WidgetBuilder? customLoadingTextBuilder;
-  final WidgetBuilder? customNothingIconBuilder;
-  final WidgetBuilder? customNothingTextBuilder;
-  final VoidCallbackWidgetBuilder? customNothingRetryBuilder;
-  final WidgetBuilder? customErrorIconBuilder;
-  final WidgetBuilder? customErrorTextBuilder;
-  final VoidCallbackWidgetBuilder? customErrorRetryBuilder;
-  final WidgetBuilderWidgetBuilder? customNormalStateBuilder;
-  final WidgetBuilderWidgetBuilder? customSwitcherBuilder;
+  final PlaceholderWidgetBuilder? customLoadingProgressBuilder;
+  final PlaceholderWidgetBuilder? customLoadingTextBuilder;
+  final PlaceholderWidgetBuilder? customNothingIconBuilder;
+  final PlaceholderWidgetBuilder? customNothingTextBuilder;
+  final PlaceholderVoidCallbackWidgetBuilder? customNothingRetryBuilder;
+  final PlaceholderWidgetBuilder? customErrorIconBuilder;
+  final PlaceholderWidgetBuilder? customErrorTextBuilder;
+  final PlaceholderVoidCallbackWidgetBuilder? customErrorRetryBuilder;
+  final PlaceholderWidgetBuilderWidgetBuilder? customNormalStateBuilder;
+  final PlaceholderWidgetBuilderWidgetBuilder? customSwitcherBuilder;
 }
 
 /// A placeholder text mainly used with [ListView] when using network request, includes four
@@ -673,7 +676,7 @@ class _PlaceholderTextState extends State<PlaceholderText> {
           builder: widget.childBuilder,
         );
         if (setting.customNormalStateBuilder != null) {
-          view = setting.customNormalStateBuilder!.call(context, (c) => view);
+          view = setting.customNormalStateBuilder!.call(context, setting, (c) => view);
         }
         break;
       // =======
@@ -691,7 +694,7 @@ class _PlaceholderTextState extends State<PlaceholderText> {
                 if (setting.showLoadingProgress!)
                   Padding(
                     padding: setting.progressPadding!,
-                    child: setting.customLoadingProgressBuilder?.call(context) ??
+                    child: setting.customLoadingProgressBuilder?.call(context, setting) ??
                         SizedBox(
                           height: setting.progressSize!,
                           width: setting.progressSize!,
@@ -706,7 +709,7 @@ class _PlaceholderTextState extends State<PlaceholderText> {
                 if (setting.showLoadingText!)
                   Padding(
                     padding: setting.textPadding!,
-                    child: setting.customLoadingTextBuilder?.call(context) ??
+                    child: setting.customLoadingTextBuilder?.call(context, setting) ??
                         DefaultTextStyle(
                           style: Theme.of(context).textTheme.subtitle1!,
                           child: Text(
@@ -738,7 +741,7 @@ class _PlaceholderTextState extends State<PlaceholderText> {
                 if (setting.showNothingIcon!)
                   Padding(
                     padding: setting.iconPadding!,
-                    child: setting.customNothingIconBuilder?.call(context) ??
+                    child: setting.customNothingIconBuilder?.call(context, setting) ??
                         Icon(
                           setting.nothingIcon!,
                           size: setting.iconSize!,
@@ -748,7 +751,7 @@ class _PlaceholderTextState extends State<PlaceholderText> {
                 if (setting.showNothingText!)
                   Padding(
                     padding: setting.textPadding!,
-                    child: setting.customNothingTextBuilder?.call(context) ??
+                    child: setting.customNothingTextBuilder?.call(context, setting) ??
                         DefaultTextStyle(
                           style: Theme.of(context).textTheme.subtitle1!,
                           child: Text(
@@ -765,6 +768,7 @@ class _PlaceholderTextState extends State<PlaceholderText> {
                     padding: setting.buttonPadding!,
                     child: setting.customNothingRetryBuilder?.call(
                           context,
+                          setting,
                           () => (widget.onRetryForNothing ?? widget.onRefresh)?.call(),
                         ) ??
                         OutlinedButton(
@@ -772,7 +776,7 @@ class _PlaceholderTextState extends State<PlaceholderText> {
                             setting.nothingRetryText!,
                             style: setting.buttonTextStyle!,
                           ),
-                          style: setting.buttonStyle /* nullable */,
+                          style: setting.buttonStyle!,
                           onPressed: () => (widget.onRetryForNothing ?? widget.onRefresh)?.call(),
                         ),
                   ),
@@ -796,7 +800,7 @@ class _PlaceholderTextState extends State<PlaceholderText> {
                 if (setting.showErrorIcon!)
                   Padding(
                     padding: setting.iconPadding!,
-                    child: setting.customErrorIconBuilder?.call(context) ??
+                    child: setting.customErrorIconBuilder?.call(context, setting) ??
                         Icon(
                           setting.errorIcon!,
                           size: setting.iconSize!,
@@ -806,7 +810,7 @@ class _PlaceholderTextState extends State<PlaceholderText> {
                 if (setting.showErrorText!)
                   Padding(
                     padding: setting.textPadding!,
-                    child: setting.customErrorTextBuilder?.call(context) ??
+                    child: setting.customErrorTextBuilder?.call(context, setting) ??
                         DefaultTextStyle(
                           style: Theme.of(context).textTheme.subtitle1!,
                           child: Text(
@@ -825,6 +829,7 @@ class _PlaceholderTextState extends State<PlaceholderText> {
                     padding: setting.buttonPadding!,
                     child: setting.customErrorRetryBuilder?.call(
                           context,
+                          setting,
                           () => (widget.onRetryForError ?? widget.onRefresh)?.call(),
                         ) ??
                         OutlinedButton(
@@ -832,7 +837,7 @@ class _PlaceholderTextState extends State<PlaceholderText> {
                             setting.errorRetryText!,
                             style: setting.buttonTextStyle!,
                           ),
-                          style: setting.buttonStyle /* nullable */,
+                          style: setting.buttonStyle!,
                           onPressed: () => (widget.onRetryForError ?? widget.onRefresh)?.call(),
                         ),
                   ),
@@ -850,7 +855,7 @@ class _PlaceholderTextState extends State<PlaceholderText> {
     }
 
     if (setting.customSwitcherBuilder != null) {
-      return setting.customSwitcherBuilder!.call(context, (c) => view);
+      return setting.customSwitcherBuilder!.call(context, setting, (c) => view);
     }
     if (!setting.useAnimatedSwitcher!) {
       return view;
@@ -858,7 +863,7 @@ class _PlaceholderTextState extends State<PlaceholderText> {
     return AnimatedSwitcher(
       child: view,
       duration: setting.switchDuration!,
-      reverseDuration: setting.switchReverseDuration ?? setting.switchDuration!,
+      reverseDuration: setting.switchReverseDuration!,
       switchInCurve: setting.switchInCurve!,
       switchOutCurve: setting.switchOutCurve!,
       transitionBuilder: setting.switchTransitionBuilder!,

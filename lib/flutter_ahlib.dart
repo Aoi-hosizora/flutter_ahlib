@@ -37,6 +37,7 @@ export 'src/widget/custom_page_route.dart';
 export 'src/widget/custom_scroll_physics.dart';
 export 'src/widget/custom_single_child_layout.dart';
 export 'src/widget/drawer_scaffold.dart';
+export 'src/widget/extended_dropdown.dart';
 export 'src/widget/extended_nested_scroll_view.dart';
 export 'src/widget/extended_scrollbar.dart';
 export 'src/widget/icon_text.dart';

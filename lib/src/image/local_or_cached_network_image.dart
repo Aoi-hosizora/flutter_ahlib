@@ -18,7 +18,7 @@ class LocalOrCachedNetworkImage extends StatelessWidget {
     this.imageBuilder,
     this.placeholderBuilder,
     this.progressIndicatorBuilder,
-    this.errorWidgetBuilder,
+    this.errorBuilder,
     this.fadeOutDuration = const Duration(milliseconds: 1000),
     this.fadeOutCurve = Curves.easeOut,
     this.fadeInDuration = const Duration(milliseconds: 500),
@@ -51,7 +51,7 @@ class LocalOrCachedNetworkImage extends StatelessWidget {
   final OctoProgressIndicatorBuilder? progressIndicatorBuilder;
 
   /// Mirrors to [OctoImage.errorBuilder].
-  final OctoErrorBuilder? errorWidgetBuilder;
+  final OctoErrorBuilder? errorBuilder;
 
   /// Mirrors to [OctoImage.fadeOutDuration].
   final Duration? fadeOutDuration;
@@ -115,7 +115,7 @@ class LocalOrCachedNetworkImage extends StatelessWidget {
       imageBuilder: imageBuilder == null ? null : (c, _) => imageBuilder!.call(c, provider),
       placeholderBuilder: placeholderBuilder,
       progressIndicatorBuilder: progressIndicatorBuilder,
-      errorBuilder: errorWidgetBuilder,
+      errorBuilder: errorBuilder,
       fadeOutDuration: fadeOutDuration,
       fadeOutCurve: fadeOutCurve,
       fadeInDuration: fadeInDuration,

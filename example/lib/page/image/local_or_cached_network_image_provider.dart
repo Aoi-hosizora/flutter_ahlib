@@ -113,9 +113,9 @@ class _TestPageState extends State<_TestPage> {
           child: Center(
             child: ValueListenableBuilder(
               valueListenable: _vn1,
-              builder: (_, k, __) => Image(
+              builder: (_, k, __) => LocalOrCachedNetworkImage(
                 key: ValueKey(k),
-                image: !widget.useFuture
+                provider: !widget.useFuture
                     ? LocalOrCachedNetworkImageProvider.fromNetwork(
                         key: ValueKey(k),
                         url: _url,
@@ -135,6 +135,9 @@ class _TestPageState extends State<_TestPage> {
                         onUrlLoading: () => printLog('(first future) onUrlLoading'),
                         onUrlLoaded: (e) => printLog('(first future) onUrlLoaded $e'),
                       ),
+                placeholderBuilder: (c) => const Center(
+                  child: Icon(Icons.more_horiz),
+                ),
                 errorBuilder: (_, e, __) => Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -150,9 +153,9 @@ class _TestPageState extends State<_TestPage> {
           child: Center(
             child: ValueListenableBuilder(
               valueListenable: _vn2,
-              builder: (_, k, __) => Image(
+              builder: (_, k, __) => LocalOrCachedNetworkImage(
                 key: ValueKey(k),
-                image: !widget.useFuture
+                provider: !widget.useFuture
                     ? LocalOrCachedNetworkImageProvider.fromLocal(
                         key: ValueKey(k),
                         file: _correctFile ? File(_path1) : File(_path2),
@@ -170,6 +173,9 @@ class _TestPageState extends State<_TestPage> {
                         onUrlLoading: () => printLog('(second future) onUrlLoading'),
                         onUrlLoaded: (e) => printLog('(second future) onUrlLoaded $e'),
                       ),
+                placeholderBuilder: (c) => const Center(
+                  child: Icon(Icons.more_horiz),
+                ),
                 errorBuilder: (_, e, __) => Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

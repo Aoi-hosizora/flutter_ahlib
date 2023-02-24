@@ -805,13 +805,13 @@ class _ExtendedNestedScrollCoordinator implements ScrollActivityDelegate, Scroll
     );
   }
 
-  // This method is added by @Aoi-hosizora.
+  // This method is added by AoiHosizora.
   void _setInnerControllerCount(int value) {
     _innerControllerCount = value;
     _updateInnerControllers();
   }
 
-  // This method is added by @Aoi-hosizora.
+  // This method is added by AoiHosizora.
   void _updateInnerControllers() {
     if (_innerControllers.length > _innerControllerCount) {
       _innerControllers.removeRange(_innerControllerCount, _innerControllers.length);
@@ -828,7 +828,7 @@ class _ExtendedNestedScrollCoordinator implements ScrollActivityDelegate, Scroll
     }
   }
 
-  // This method is added by @Aoi-hosizora.
+  // This method is added by AoiHosizora.
   void _setActivatedPageIndex(int value) {
     _activatedPageIndex = value;
   }

@@ -13,6 +13,24 @@ class LoadImageOption {
   const LoadImageOption({
     this.file,
     this.url,
+    this.scale = 1.0,
+    this.fileMustExist = true,
+    this.headers,
+    this.cacheManager,
+    this.cacheKey,
+    this.maxWidth,
+    this.maxHeight,
+    this.asyncHeadFirst = false,
+    this.networkTimeout,
+    this.onFileLoading,
+    this.onUrlLoading,
+    this.onFileLoaded,
+    this.onUrlLoaded,
+  })  : useFuture = false,
+        fileFuture = null,
+        urlFuture = null;
+
+  const LoadImageOption.fromFutures({
     this.fileFuture,
     this.urlFuture,
     this.scale = 1.0,
@@ -28,10 +46,11 @@ class LoadImageOption {
     this.onUrlLoading,
     this.onFileLoaded,
     this.onUrlLoaded,
-  });
+  })  : useFuture = true,
+        file = null,
+        url = null;
 
-  bool get _useFuture => fileFuture != null || urlFuture != null;
-
+  final bool useFuture;
   final io.File? file;
   final String? url;
   final Future<io.File?>? fileFuture;
@@ -58,56 +77,55 @@ Stream<Uint8List> loadLocalOrNetworkImageBytes({
   StreamController<ImageChunkEvent>? chunkEvents,
   void Function()? evictImageAsync,
 }) async* {
-  // 0. check option
-  if (!option._useFuture && (option.file == null && option.url == null)) {
-    throw ArgumentError('At most one of option.file and option.url can be null if not to use future.');
-  }
-  if (option._useFuture && (option.fileFuture == null || option.urlFuture == null)) {
-    throw ArgumentError('Both of option.fileFuture and option.urlFuture can not be null if using future.');
-  }
-
   // 1. get file and url
   io.File? file;
   String? url;
-  if (!option._useFuture) {
-    file = option.file;
-    url = option.url;
+  if (!option.useFuture) {
+    file = option.file; // nullable
+    url = option.url; // nullable
   } else {
-    file = await option.fileFuture!;
-    url = await option.urlFuture!;
-  }
-  if (file == null && url == null) {
-    throw ArgumentError('At most one of file and url can be null.');
+    file = await option.fileFuture; // nullable
+    url = await option.urlFuture; // nullable
   }
 
   // 2. check file and url validity
   var useFile = false;
   var useUrl = false;
   if (file == null) {
-    useUrl = true;
+    if (url == null) {
+      var ex = const LoadImageException.bothNull();
+      option.onFileLoading?.call();
+      option.onFileLoaded?.call(ex);
+      throw ex; // => null file, null url
+    } else {
+      useUrl = true; // => null file, non-null url
+    }
   } else {
     var existed = false;
     try {
       existed = await file.exists();
     } catch (_) {
       if (option.fileMustExist) {
-        rethrow; // throw exceptions if fileMustExist flag is true
+        // throw exceptions only if fileMustExist flag is true
+        rethrow;
       }
     }
     if (existed) {
-      useFile = true;
+      useFile = true; // => valid file
     } else if (option.fileMustExist) {
-      var ex = Exception('Image file "${file.path}" is not found.');
+      var ex = LoadImageException.notExistedFile(filepath: file.path);
       option.onFileLoading?.call();
       option.onFileLoaded?.call(ex);
-      throw ex;
-    } else if (url != null) {
-      useUrl = true;
+      throw ex; // => invalid file
     } else {
-      var ex = Exception('Image file "${file.path}" is not found while given url is null.');
-      option.onFileLoading?.call();
-      option.onFileLoaded?.call(ex);
-      throw ex;
+      if (url == null) {
+        var ex = LoadImageException.notExistedFileNullUrl(filepath: file.path);
+        option.onFileLoading?.call();
+        option.onFileLoaded?.call(ex);
+        throw ex; // => invalid file, null url
+      } else {
+        useUrl = true; // => invalid file, non-null url
+      }
     }
   }
 
@@ -141,17 +159,57 @@ Stream<Uint8List> loadLocalOrNetworkImageBytes({
   }
 }
 
+/// An enum type that represents types of LoadImageException.
+enum LoadImageExceptionType {
+  /// A type that describes [file] and [url] are both null.
+  bothNull,
+
+  /// A type that describes [file] is not found.
+  notExistedFile,
+
+  /// A type that describes [file] is not found and [url] is null.
+  notExistedFileNullUrl,
+}
+
+/// An exception type used by [loadLocalOrNetworkImageBytes].
+class LoadImageException with Exception {
+  const LoadImageException.bothNull()
+      : type = LoadImageExceptionType.bothNull,
+        filepath = '';
+
+  const LoadImageException.notExistedFile({required this.filepath}) //
+      : type = LoadImageExceptionType.notExistedFile;
+
+  const LoadImageException.notExistedFileNullUrl({required this.filepath}) //
+      : type = LoadImageExceptionType.notExistedFileNullUrl;
+
+  final LoadImageExceptionType type;
+  final String filepath;
+
+  @override
+  String toString() {
+    switch (type) {
+      case LoadImageExceptionType.bothNull:
+        return 'Given file and url are both null.';
+      case LoadImageExceptionType.notExistedFile:
+        return 'Image file "$filepath" is not found.';
+      case LoadImageExceptionType.notExistedFileNullUrl:
+        return 'Image file "$filepath" is not found while given url is null.';
+    }
+  }
+}
+
 /// Loads local image codec or cached network image codec, using given [option] and [chunkEvents],
 /// which is used by [LocalOrCachedNetworkImageProvider]. If the image is downloaded, it will also
 /// be recorded to given [CacheManager].
 Stream<ui.Codec> loadLocalOrNetworkImageCodec({
-  required LoadImageOption options,
+  required LoadImageOption option,
   required DecoderCallback decode,
   StreamController<ImageChunkEvent>? chunkEvents,
   void Function()? evictImageAsync,
 }) async* {
   var stream = loadLocalOrNetworkImageBytes(
-    option: options,
+    option: option,
     chunkEvents: chunkEvents,
     evictImageAsync: evictImageAsync,
   );

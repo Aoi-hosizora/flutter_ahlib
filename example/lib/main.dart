@@ -32,7 +32,12 @@ class MyApp extends StatelessWidget {
       builder: (context, child) => Scaffold(
         body: Column(
           children: [
-            Expanded(child: child!),
+            Expanded(
+              child: ViewInsetsData(
+                viewInsets: MediaQuery.of(context).viewInsets,
+                child: child!,
+              ),
+            ),
             const Divider(height: 0, thickness: 1),
             SizedBox(
               height: (MediaQuery.of(context).size.height - MediaQuery.of(context).padding.vertical) / 5,

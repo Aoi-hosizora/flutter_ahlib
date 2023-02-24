@@ -62,14 +62,14 @@ class _PlaceholderTextPageState extends State<PlaceholderTextPage> {
               Expanded(
                 child: PlaceholderText.from(
                   setting: const PlaceholderSetting().copyWithJapanese().copyWith(
-                        customLoadingProgressBuilder: !_custom ? null : (c) => const Text('customLoadingProgress'),
-                        customLoadingTextBuilder: !_custom ? null : (c) => const Text('customLoadingText'),
-                        customNothingIconBuilder: !_custom ? null : (c) => const Text('customNothingIcon'),
-                        customNothingTextBuilder: !_custom ? null : (c) => const Text('customNothingText'),
-                        customNothingRetryBuilder: !_custom ? null : (c, callback) => ElevatedButton(child: const Text('customNothingRetry'), onPressed: callback),
-                        customErrorIconBuilder: !_custom ? null : (c) => const Text('customErrorIcon'),
-                        customErrorTextBuilder: !_custom ? null : (c) => const Text('customErrorText'),
-                        customErrorRetryBuilder: !_custom ? null : (c, callback) => ElevatedButton(child: const Text('customErrorRetryBuilder'), onPressed: callback),
+                        customLoadingProgressBuilder: !_custom ? null : (c, _) => const Text('customLoadingProgress'),
+                        customLoadingTextBuilder: !_custom ? null : (c, _) => const Text('customLoadingText'),
+                        customNothingIconBuilder: !_custom ? null : (c, _) => const Text('customNothingIcon'),
+                        customNothingTextBuilder: !_custom ? null : (c, _) => const Text('customNothingText'),
+                        customNothingRetryBuilder: !_custom ? null : (c, _, callback) => ElevatedButton(child: const Text('customNothingRetry'), onPressed: callback),
+                        customErrorIconBuilder: !_custom ? null : (c, _) => const Text('customErrorIcon'),
+                        customErrorTextBuilder: !_custom ? null : (c, _) => const Text('customErrorText'),
+                        customErrorRetryBuilder: !_custom ? null : (c, _, callback) => ElevatedButton(child: const Text('customErrorRetryBuilder'), onPressed: callback),
                       ),
                   isEmpty: _empty,
                   isLoading: _loading,

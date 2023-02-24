@@ -19,6 +19,7 @@ import 'package:flutter_ahlib_example/page/widget/custom_page_route.dart';
 import 'package:flutter_ahlib_example/page/widget/custom_scroll_physics.dart';
 import 'package:flutter_ahlib_example/page/widget/custom_single_child_layout.dart';
 import 'package:flutter_ahlib_example/page/widget/drawer_scaffold.dart';
+import 'package:flutter_ahlib_example/page/widget/extended_dropdown.dart';
 import 'package:flutter_ahlib_example/page/widget/extended_nested_scroll_view.dart';
 import 'package:flutter_ahlib_example/page/widget/extended_scrollbar.dart';
 import 'package:flutter_ahlib_example/page/widget/icon_text.dart';
@@ -127,6 +128,7 @@ class _IndexPageState extends State<IndexPage> {
               _button('DrawerScaffold', const DrawerScaffoldPage()),
               _button('CustomDrawerController', const CustomDrawerControllerPage()),
               _button('CustomScrollPhysics', const CustomScrollPhysicsPage()),
+              _button('ExtendedDropdown', const ExtendedDropdownPage()),
             ],
           ),
           Align(

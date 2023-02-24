@@ -61,7 +61,7 @@ void main() {
     test('load image file (future)', _wrapFunction(() async {
       var f = File(_filePath);
       await f.writeAsBytes(List.generate(1024, (_) => 0));
-      var bytes = await _toBytes(loadLocalOrNetworkImageBytes(option: LoadImageOption(fileFuture: Future.value(File(_filePath)), urlFuture: Future.value(null), onFileLoaded: _onFileLoaded)));
+      var bytes = await _toBytes(loadLocalOrNetworkImageBytes(option: LoadImageOption.fromFutures(fileFuture: Future.value(File(_filePath)), onFileLoaded: _onFileLoaded)));
       expect(bytes.length, 1024);
     }));
 
@@ -74,7 +74,7 @@ void main() {
     }));
 
     test('download image (future)', _wrapFunction(() async {
-      var bytes = await _toBytes(loadLocalOrNetworkImageBytes(option: LoadImageOption(fileFuture: Future.value(null), urlFuture: Future.value(_testImageUrl), onUrlLoaded: _onUrlLoaded)));
+      var bytes = await _toBytes(loadLocalOrNetworkImageBytes(option: LoadImageOption.fromFutures(urlFuture: Future.value(_testImageUrl), onUrlLoaded: _onUrlLoaded)));
       expect(bytes.isNotEmpty, true);
       var info = await DefaultCacheManager().getFileFromCache(_testImageUrl);
       expect(info != null, true);
@@ -89,7 +89,7 @@ void main() {
 
     test('load from cache (future)', _wrapFunction(() async {
       await DefaultCacheManager().putFile(_testImageUrl, Uint8List(1024), key: 'key');
-      var bytes = await _toBytes(loadLocalOrNetworkImageBytes(option: LoadImageOption(fileFuture: Future.value(null), urlFuture: Future.value(_testImageUrl), cacheKey: 'key', onUrlLoaded: _onUrlLoaded)));
+      var bytes = await _toBytes(loadLocalOrNetworkImageBytes(option: LoadImageOption.fromFutures(urlFuture: Future.value(_testImageUrl), cacheKey: 'key', onUrlLoaded: _onUrlLoaded)));
       expect(bytes.length, 1024);
     }));
 
@@ -99,7 +99,7 @@ void main() {
     }));
 
     test('download image as fallback (future)', _wrapFunction(() async {
-      var bytes = await _toBytes(loadLocalOrNetworkImageBytes(option: LoadImageOption(fileFuture: Future.value(File(_filePath)), urlFuture: Future.value(_testImageUrl), fileMustExist: false, onUrlLoaded: _onUrlLoaded)));
+      var bytes = await _toBytes(loadLocalOrNetworkImageBytes(option: LoadImageOption.fromFutures(fileFuture: Future.value(File(_filePath)), urlFuture: Future.value(_testImageUrl), fileMustExist: false, onUrlLoaded: _onUrlLoaded)));
       expect(bytes.length > 1024, true);
     }));
   });
@@ -110,7 +110,7 @@ void main() {
         await _toBytes(loadLocalOrNetworkImageBytes(option: LoadImageOption(file: File(_filePath), fileMustExist: true, onFileLoaded: _onFileLoaded)));
       } catch (e) {
         print(e);
-        expect(e is Exception, true);
+        expect(e is LoadImageException && e.type == LoadImageExceptionType.notExistedFile, true);
         return;
       }
       fail('should throw Exception');
@@ -121,7 +121,7 @@ void main() {
         await _toBytes(loadLocalOrNetworkImageBytes(option: LoadImageOption(file: File(_filePath), url: null, fileMustExist: false, onFileLoaded: _onFileLoaded)));
       } catch (e) {
         print(e);
-        expect(e is Exception, true);
+        expect(e is LoadImageException && e.type == LoadImageExceptionType.notExistedFileNullUrl, true);
         return;
       }
       fail('should throw Exception');
@@ -166,7 +166,7 @@ void main() {
           await _toBytes(loadLocalOrNetworkImageBytes(option: const LoadImageOption(file: null, url: null))); // all null
         } catch (e) {
           print(e);
-          expect(e is ArgumentError, true);
+          expect(e is LoadImageException && e.type == LoadImageExceptionType.bothNull, true);
           return;
         }
         fail('should throw Exception');
@@ -186,20 +186,20 @@ void main() {
     test('future wrong argument', _wrapFunction(() async {
       () async {
         try {
-          await _toBytes(loadLocalOrNetworkImageBytes(option: LoadImageOption(fileFuture: null, urlFuture: Future.value(null)))); // null future
+          await _toBytes(loadLocalOrNetworkImageBytes(option: const LoadImageOption.fromFutures(fileFuture: null, urlFuture: null))); // all null
         } catch (e) {
           print(e);
-          expect(e is ArgumentError, true);
+          expect(e is LoadImageException && e.type == LoadImageExceptionType.bothNull, true);
           return;
         }
         fail('should throw Exception');
       }();
       () async {
         try {
-          await _toBytes(loadLocalOrNetworkImageBytes(option: LoadImageOption(fileFuture: Future.value(null), urlFuture: Future.value(null)))); // all results are null
+          await _toBytes(loadLocalOrNetworkImageBytes(option: LoadImageOption.fromFutures(fileFuture: Future.value(null), urlFuture: Future.value(null)))); // all results are null
         } catch (e) {
           print(e);
-          expect(e is ArgumentError, true);
+          expect(e is LoadImageException && e.type == LoadImageExceptionType.bothNull, true);
           return;
         }
         fail('should throw Exception');

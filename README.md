@@ -30,6 +30,7 @@ import 'package:flutter_ahlib/flutter_ahlib_util.dart';
     + `CustomScrollPhysics` `CustomScrollPhysicsController` `DefaultCustomScrollPhysics`
     + `CustomSingleChildLayoutDelegate`
     + `DrawerScaffold` `DrawerScaffoldState`
+    + `ExtendedDropdownButton` `ExtendedDropdownButtonState` `ViewInsetsData`
     + `ExtendedNestedScrollView` `ExtendedNestedScrollViewState`
     + `ExtendedScrollbar`
     + `IconText`
