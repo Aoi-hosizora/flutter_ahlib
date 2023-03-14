@@ -129,6 +129,17 @@ extension PageControllerExtension on PageController {
   }
 }
 
+/// An extension for [Color].
+extension ColorExtension on Color {
+  /// Returns a new [Color] with 1.0 opacity, which implies the origin foreground color with given [opacity] in [backgroundColor].
+  Color applyOpacity(double opacity, {Color backgroundColor = Colors.white}) {
+    var r = opacity * red + (1 - opacity) * backgroundColor.red;
+    var g = opacity * green + (1 - opacity) * backgroundColor.green;
+    var b = opacity * blue + (1 - opacity) * backgroundColor.blue;
+    return Color.fromRGBO(r.toInt(), g.toInt(), b.toInt(), 1.0);
+  }
+}
+
 /// An extension for [TextSpan].
 extension TextSpanExtension on TextSpan {
   /// Calculates and returns the painted size of current [TextSpan] with given parameters.

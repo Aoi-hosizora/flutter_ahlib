@@ -110,6 +110,25 @@ void main() {
     });
   });
 
+  group('callAll', () {
+    test('empty', () {
+      callAll([]);
+    });
+
+    test('multiple & future', () async {
+      var i = 0.0;
+      callAll([() => i++]);
+      expect(i, 1);
+
+      callAll([() => i += 2, () => i *= 3]);
+      expect(i, 9);
+
+      callAll([() => i += 1, () => Future.delayed(Duration(milliseconds: 50), () => i -= 2), () => i /= 5]);
+      await Future.delayed(Duration(seconds: 1)); // i -= 2 will be called at last.
+      expect(i, 0);
+    });
+  });
+
   group('ObjectExtension', () {
     test('is & as', () {
       Object objI = 1;

@@ -66,7 +66,7 @@ import 'package:flutter_ahlib/flutter_ahlib_util.dart';
     + `ExtendedLogger` `PreferredPrinter`
     + `filesize` `filesizeWithoutSpace`
     + `Flutter material constants`
-    + `StateExtension` `ScrollControllerExtension` `ScrollMetricsExtension` `PageControllerExtension` `TextSpanExtension` `RenderObjectExtension` `BuildContextExtension`
+    + `StateExtension` `ScrollControllerExtension` `ScrollMetricsExtension` `PageControllerExtension` `ColorExtension` `TextSpanExtension` `RenderObjectExtension` `BuildContextExtension`
     + `getMimeFromExtension` `getExtensionsFromMime` `getPreferredExtensionFromMime`
     + `TaskResult` `Ok` `Err` `TaskResultFutureExtension`
     + `Tuple2` ~ `Tuple6`

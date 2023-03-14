@@ -109,6 +109,13 @@ extension ListExtension<T> on List<T> {
   }
 }
 
+/// Calls given all functions, this function can be used to avoid introducing braces and makes code more compact.
+void callAll(List<void Function()> functions) {
+  for (var f in functions) {
+    f.call();
+  }
+}
+
 /// An extension for any non-null values.
 extension ObjectExtension<T extends Object> on T {
   /// This method works the same as `is` keyword.
