@@ -12,6 +12,7 @@ class _CustomScrollPhysicsPageState extends State<CustomScrollPhysicsPage> {
   final _physicsController = CustomScrollPhysicsController();
   var _single = false;
   var _hasController = true;
+  var _useDisableMoreParent = false;
 
   @override
   Widget build(BuildContext context) {
@@ -22,61 +23,64 @@ class _CustomScrollPhysicsPageState extends State<CustomScrollPhysicsPage> {
       body: Column(
         children: [
           Expanded(
-              child: Row(
-            children: [
-              Expanded(
-                child: PageView(
-                  physics: CustomScrollPhysics(
-                    controller: _hasController ? _physicsController : null,
-                  ),
-                  children: [
-                    if (_single)
-                      Container(
-                        color: Colors.grey,
-                        child: const Center(child: Text('The only page')),
-                      ),
-                    if (!_single) ...[
-                      Container(
-                        color: Colors.yellow,
-                        child: const Center(child: Text('Page 1')),
-                      ),
-                      Container(
-                        color: Colors.green,
-                        child: const Center(child: Text('Page 2')),
-                      ),
-                      Container(
-                        color: Colors.purple,
-                        child: const Center(child: Text('Page 3')),
-                      ),
-                      Container(
-                        color: Colors.red,
-                        child: const Center(child: Text('Page 4')),
-                      ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: PageView(
+                    physics: CustomScrollPhysics(
+                      controller: _hasController ? _physicsController : null,
+                      parent: !_useDisableMoreParent ? null : CustomScrollPhysics(controller: CustomScrollPhysicsController(disableScrollMore: true)),
+                    ),
+                    children: [
+                      if (_single)
+                        Container(
+                          color: Colors.grey,
+                          child: const Center(child: Text('The only page')),
+                        ),
+                      if (!_single) ...[
+                        Container(
+                          color: Colors.yellow,
+                          child: const Center(child: Text('Page 1')),
+                        ),
+                        Container(
+                          color: Colors.green,
+                          child: const Center(child: Text('Page 2')),
+                        ),
+                        Container(
+                          color: Colors.purple,
+                          child: const Center(child: Text('Page 3')),
+                        ),
+                        Container(
+                          color: Colors.red,
+                          child: const Center(child: Text('Page 4')),
+                        ),
+                      ],
                     ],
-                  ],
-                ),
-              ),
-              Expanded(
-                child: DefaultScrollPhysics(
-                  physics: CustomScrollPhysics(
-                    controller: _hasController ? _physicsController : null,
                   ),
-                  child: Builder(
-                    builder: (c) => ListView.separated(
-                      physics: DefaultScrollPhysics.of(c), // <<<
-                      itemCount: !_single ? 50 : 1,
-                      separatorBuilder: (_, __) => const Divider(height: 0, thickness: 1),
-                      itemBuilder: (_, i) => ListTile(
-                        dense: true,
-                        title: Text('Item ${i + 1}'),
-                        onTap: () {},
+                ),
+                Expanded(
+                  child: DefaultScrollPhysics(
+                    physics: CustomScrollPhysics(
+                      controller: _hasController ? _physicsController : null,
+                      parent: !_useDisableMoreParent ? null : CustomScrollPhysics(controller: CustomScrollPhysicsController(disableScrollMore: true)),
+                    ),
+                    child: Builder(
+                      builder: (c) => ListView.separated(
+                        physics: DefaultScrollPhysics.of(c), // <<<
+                        itemCount: !_single ? 50 : 1,
+                        separatorBuilder: (_, __) => const Divider(height: 0, thickness: 1),
+                        itemBuilder: (_, i) => ListTile(
+                          dense: true,
+                          title: Text('Item ${i + 1}'),
+                          onTap: () {},
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
-          )),
+              ],
+            ),
+          ),
           Column(
             children: [
               Row(
@@ -105,6 +109,13 @@ class _CustomScrollPhysicsPageState extends State<CustomScrollPhysicsPage> {
                 children: [
                   const Text('hasController'),
                   Switch(value: _hasController, onChanged: (b) => mountedSetState(() => _hasController = b)),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text('use disable more parent'),
+                  Switch(value: _useDisableMoreParent, onChanged: (b) => mountedSetState(() => _useDisableMoreParent = b)),
                 ],
               ),
             ],

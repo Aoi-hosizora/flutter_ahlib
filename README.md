@@ -33,10 +33,12 @@ import 'package:flutter_ahlib/flutter_ahlib_util.dart';
     + `ExtendedDropdownButton` `ExtendedDropdownButtonState` `ViewInsetsData`
     + `ExtendedNestedScrollView` `ExtendedNestedScrollViewState`
     + `ExtendedScrollbar`
+    + `ExtendedTabBarView` `ExtendedTabBarViewState`
     + `IconText`
     + `LazyIndexedStack` `PositionArgument`
     + `NestedPageViewNotifier`
     + `flatButtonStyle` `raisedButtonStyle` `outlineButtonStyle` `ThemeDataExtension`
+    + `OverflowClipBox`
     + `PlaceholderText` `PreviouslySwitchedWidget` `switchLayoutBuilderWithSwitchedFlag`
     + `TextDialogOption` `IconTextDialogOption` `CircularProgressDialogOption` `showYesNoAlertDialog`
     + `PreloadablePageView` `PageChangedListener`

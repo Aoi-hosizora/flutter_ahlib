@@ -285,6 +285,9 @@ class SelectableItemTip {
 /// The signature for building a widget with [key] and [SelectableItemTip], used by [SelectableItem].
 typedef SelectableItemWidgetBuilder<K extends Key> = Widget Function(BuildContext context, K key, SelectableItemTip tip);
 
+/// The signature for describing a void callback with [key] and [SelectableItemTip], used by [SelectableItem].
+typedef SelectableItemVoidCallback<K extends Key> = void Function(BuildContext context, K key, SelectableItemTip tip);
+
 /// A widget which contains selection toggling logic, typically is used under [MultiSelectable]. Note
 /// that the selection toggling interaction should be designed through [builder] by yourself. Use
 /// [SelectableCheckboxItem] if you want to simply display a [Checkbox] for selection interaction.
@@ -363,6 +366,7 @@ class SelectableCheckboxItem<K extends Key> extends StatelessWidget {
     this.useFullRipple = true,
     this.fullRipplePosition = const PositionArgument.fill(),
     this.fullRippleBuilder,
+    this.onFullRippleLongPressed,
   })  : _key = key,
         super(key: key);
 
@@ -398,6 +402,9 @@ class SelectableCheckboxItem<K extends Key> extends StatelessWidget {
 
   /// The full ripple builder of this widget, defaults to use [Material] with [InkWell] inside.
   final SelectableItemWidgetBuilder<K>? fullRippleBuilder;
+
+  /// The default full ripple long press callback, default to null.
+  final SelectableItemVoidCallback<K>? onFullRippleLongPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -438,6 +445,7 @@ class SelectableCheckboxItem<K extends Key> extends StatelessWidget {
                     color: Colors.transparent,
                     child: InkWell(
                       onTap: () => t.toToggle?.call(),
+                      onLongPress: onFullRippleLongPressed == null ? null : () => onFullRippleLongPressed?.call(c, k, t),
                     ),
                   ),
             ),

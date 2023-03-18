@@ -4,6 +4,8 @@ import 'package:flutter_ahlib/src/util/flutter_constants.dart';
 import 'package:flutter_ahlib/src/widget/custom_drawer_controller.dart';
 import 'package:flutter_ahlib/src/widget/custom_scroll_physics.dart';
 
+// ignore_for_file: avoid_function_literals_in_foreach_calls
+
 /// An extended [Scaffold] with [Drawer], mainly for making [Drawer] openable when [PageView]
 /// or [TabBarView] is overscrolled horizontally, and customizing more drawer drag triggers.
 class DrawerScaffold extends StatefulWidget {
@@ -193,6 +195,10 @@ class DrawerScaffoldState extends State<DrawerScaffold> with RestorationMixin {
   final _drawerOpened = RestorableBool(false);
   final _endDrawerOpened = RestorableBool(false);
 
+  late final _onPhysicsControllerChangedListeners = [widget.onPhysicsControllerChanged];
+  late final _onDrawerChangedListeners = [widget.onDrawerChanged];
+  late final _onEndDrawerChangedListeners = [widget.onEndDrawerChanged];
+
   @override
   void initState() {
     super.initState();
@@ -203,6 +209,39 @@ class DrawerScaffoldState extends State<DrawerScaffold> with RestorationMixin {
 
   /// Returns the origin [ScaffoldState] of this widget.
   ScaffoldState? get scaffoldState => _scaffoldKey.currentState;
+
+  /// Adds physics controller changed listener to [DrawerScaffold], which will be invoked when
+  /// something in [DrawerScaffold.physicsController] changed.
+  void addOnPhysicsControllerChangedListener(void Function() callback) {
+    _onPhysicsControllerChangedListeners.add(callback);
+  }
+
+  /// Removes the physics controller changed listener from [DrawerScaffold].
+  void removeOnPhysicsControllerChangedListener(void Function() callback) {
+    _onPhysicsControllerChangedListeners.remove(callback);
+  }
+
+  /// Adds drawer changed listener to [DrawerScaffold], which will be invoked when the
+  /// [DrawerScaffold.drawer] is opened or closed.
+  void addOnDrawerChangedListener(void Function(bool) callback) {
+    _onDrawerChangedListeners.add(callback);
+  }
+
+  /// Removes the drawer changed listener from [DrawerScaffold].
+  void removeOnDrawerChangedListener(void Function(bool) callback) {
+    _onDrawerChangedListeners.remove(callback);
+  }
+
+  /// Adds end drawer changed listener to [DrawerScaffold], which will be invoked when the
+  /// [DrawerScaffold.endDrawer] is opened or closed.
+  void addOnEndDrawerChangedListener(void Function(bool) callback) {
+    _onEndDrawerChangedListeners.add(callback);
+  }
+
+  /// Removes the end drawer changed listener from [DrawerScaffold].
+  void removeOnEndDrawerChangedListener(void Function(bool) callback) {
+    _onEndDrawerChangedListeners.remove(callback);
+  }
 
   /// Returns true if this scaffold has a non-null drawer.
   bool get hasDrawer => widget.drawer != null;
@@ -246,7 +285,7 @@ class DrawerScaffoldState extends State<DrawerScaffold> with RestorationMixin {
     if (_drawerOpened.value != isOpened) {
       _drawerOpened.value = isOpened;
       if (mounted) setState(() {});
-      widget.onDrawerChanged?.call(isOpened);
+      _onDrawerChangedListeners.forEach((c) => c?.call(isOpened));
     }
   }
 
@@ -254,7 +293,7 @@ class DrawerScaffoldState extends State<DrawerScaffold> with RestorationMixin {
     if (_endDrawerOpened.value != isOpened) {
       _endDrawerOpened.value = isOpened;
       if (mounted) setState(() {});
-      widget.onEndDrawerChanged?.call(isOpened);
+      _onEndDrawerChangedListeners.forEach((c) => c?.call(isOpened));
     }
   }
 
@@ -278,7 +317,7 @@ class DrawerScaffoldState extends State<DrawerScaffold> with RestorationMixin {
       _overscrollingForEndDrawer = isEndDrawer;
       widget.physicsController?.disableScrollLess = true;
       widget.physicsController?.disableScrollMore = true;
-      widget.onPhysicsControllerChanged?.call();
+      _onPhysicsControllerChangedListeners.forEach((c) => c?.call());
       if (mounted) setState(() {});
     } else if (_overscrolling && !newValue) {
       _overscrolling = false;
@@ -286,7 +325,7 @@ class DrawerScaffoldState extends State<DrawerScaffold> with RestorationMixin {
       _overscrollingForEndDrawer = false;
       widget.physicsController?.disableScrollLess = false;
       widget.physicsController?.disableScrollMore = false;
-      widget.onPhysicsControllerChanged?.call();
+      _onPhysicsControllerChangedListeners.forEach((c) => c?.call());
       if (mounted) setState(() {});
     }
   }
@@ -499,8 +538,8 @@ class DrawerScaffoldState extends State<DrawerScaffold> with RestorationMixin {
       drawerEdgeDragWidth: null,
       drawerDragStartBehavior: widget.drawerDragStartBehavior,
       drawerScrimColor: widget.drawerScrimColor,
-      onDrawerChanged: widget.onDrawerChanged,
-      onEndDrawerChanged: widget.onEndDrawerChanged,
+      onDrawerChanged: (isOpened) => _onDrawerChangedListeners.forEach((c) => c?.call(isOpened)),
+      onEndDrawerChanged: (isOpened) => _onEndDrawerChangedListeners.forEach((c) => c?.call(isOpened)),
       // ===
       appBar: widget.appBar,
       floatingActionButton: widget.floatingActionButton,

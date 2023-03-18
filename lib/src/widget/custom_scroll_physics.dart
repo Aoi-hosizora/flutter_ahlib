@@ -54,13 +54,19 @@ class CustomScrollPhysics extends ScrollPhysics {
       return super.applyBoundaryConditions(position, value);
     }
 
+    // merge current controller with parent controller
+    var parentController = parent is! CustomScrollPhysics ? null : (parent as CustomScrollPhysics).controller;
+    var disableScrollMore = (parentController?.disableScrollMore ?? false) || controller!.disableScrollMore;
+    var disableScrollLess = (parentController?.disableScrollLess ?? false) || controller!.disableScrollLess;
+
+    // apply boundary condition using current flags
     final lastScrollValue = controller!._lastScrollValue;
     if (lastScrollValue != null) {
-      if (value > lastScrollValue && controller!.disableScrollMore) {
+      if (value > lastScrollValue && disableScrollMore) {
         // value turns larger => scroll more
         return value - position.pixels;
       }
-      if (value < lastScrollValue && controller!.disableScrollLess) {
+      if (value < lastScrollValue && disableScrollLess) {
         // value turns smaller => scroll less
         return value - position.pixels;
       }

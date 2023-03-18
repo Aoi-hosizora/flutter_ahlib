@@ -22,10 +22,12 @@ import 'package:flutter_ahlib_example/page/widget/drawer_scaffold.dart';
 import 'package:flutter_ahlib_example/page/widget/extended_dropdown.dart';
 import 'package:flutter_ahlib_example/page/widget/extended_nested_scroll_view.dart';
 import 'package:flutter_ahlib_example/page/widget/extended_scrollbar.dart';
+import 'package:flutter_ahlib_example/page/widget/extended_tab_bar_view.dart';
 import 'package:flutter_ahlib_example/page/widget/icon_text.dart';
 import 'package:flutter_ahlib_example/page/widget/lazy_indexed_stack.dart';
 import 'package:flutter_ahlib_example/page/widget/nested_page_view_notifier.dart';
 import 'package:flutter_ahlib_example/page/widget/new_button_style.dart';
+import 'package:flutter_ahlib_example/page/widget/overflow_clip_box.dart';
 import 'package:flutter_ahlib_example/page/widget/placeholder_text.dart';
 import 'package:flutter_ahlib_example/page/widget/popup_dialog_option.dart';
 import 'package:flutter_ahlib_example/page/widget/preloadable_page_view.dart';
@@ -128,7 +130,9 @@ class _IndexPageState extends State<IndexPage> {
               _button('DrawerScaffold', const DrawerScaffoldPage()),
               _button('CustomDrawerController', const CustomDrawerControllerPage()),
               _button('CustomScrollPhysics', const CustomScrollPhysicsPage()),
+              _button('OverflowClipBox', const OverflowClipBoxPage()),
               _button('ExtendedDropdown', const ExtendedDropdownPage()),
+              _button('ExtendedTabBarView', const ExtendedTabBarViewPage()),
             ],
           ),
           Align(
