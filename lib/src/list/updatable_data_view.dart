@@ -40,11 +40,20 @@ enum UpdatableDataViewStyle {
   /// Displays data in [SliverList] and [CustomScrollView].
   sliverListView,
 
+  /// Displays data in [GridView].
+  gridView,
+
+  /// Displays data in [GridView] and [CustomScrollView].
+  sliverGridView,
+
   /// Displays data in [MasonryGridView].
   masonryGridView,
 
   /// Displays data in [SliverMasonryGrid] and [CustomScrollView].
   sliverMasonryGridView,
+
+  /// Displays data in custom view style.
+  customView,
 }
 
 /// A list of behavior and display settings for [UpdatableDataView].
@@ -289,20 +298,22 @@ class UpdatableDataViewExtraWidgets {
   /// The widget before [ScrollView] and inside [PlaceholderText].
   final List<Widget>? innerTopWidgets;
 
-  /// The slivers in the top of [CustomScrollView]. Note that this is only available for [UpdatableDataViewStyle.sliverListView]
-  /// and [UpdatableDataViewStyle.sliverMasonryGridView].
+  /// The slivers in the top of [CustomScrollView]. Note that this is only available for [UpdatableDataViewStyle.sliverListView],
+  /// [UpdatableDataViewStyle.sliverGridView] and [UpdatableDataViewStyle.sliverMasonryGridView].
   final List<Widget>? listTopSlivers;
 
   /// The widgets in the top of inner [ScrollView]. Note that there is no separator between these widgets, and this is unavailable
-  /// for [UpdatableDataViewStyle.masonryGridView] and [UpdatableDataViewStyle.sliverMasonryGridView].
+  /// for [UpdatableDataViewStyle.gridView], [UpdatableDataViewStyle.sliverGridView], [UpdatableDataViewStyle.masonryGridView] and
+  /// [UpdatableDataViewStyle.sliverMasonryGridView].
   final List<Widget>? listTopWidgets;
 
   /// The widgets in the bottom of inner [ScrollView]. Note that there is no separator between these widgets, and this is unavailable
-  /// for [UpdatableDataViewStyle.masonryGridView] and [UpdatableDataViewStyle.sliverMasonryGridView].
+  /// for [UpdatableDataViewStyle.gridView], [UpdatableDataViewStyle.sliverGridView], [UpdatableDataViewStyle.masonryGridView] and
+  /// [UpdatableDataViewStyle.sliverMasonryGridView].
   final List<Widget>? listBottomWidgets;
 
-  /// The slivers in the bottom of [CustomScrollView]. Note that this is only available for [UpdatableDataViewStyle.sliverListView]
-  /// and [UpdatableDataViewStyle.sliverMasonryGridView].
+  /// The slivers in the bottom of [CustomScrollView]. Note that this is only available for [UpdatableDataViewStyle.sliverListView],
+  /// [UpdatableDataViewStyle.sliverGridView] and [UpdatableDataViewStyle.sliverMasonryGridView].
   final List<Widget>? listBottomSlivers;
 
   /// The widget after [ScrollView] and inside [PlaceholderText].

@@ -1,6 +1,8 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/flutter_ahlib.dart';
 import 'package:flutter_ahlib_example/main.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class PaginationNoSliverDataViewPage extends StatefulWidget {
   const PaginationNoSliverDataViewPage({Key? key}) : super(key: key);
@@ -9,11 +11,18 @@ class PaginationNoSliverDataViewPage extends StatefulWidget {
   _PaginationNoSliverDataViewPageState createState() => _PaginationNoSliverDataViewPageState();
 }
 
+enum _Style {
+  list,
+  grid,
+  masonryGrid,
+  custom,
+}
+
 class _PaginationNoSliverDataViewPageState extends State<PaginationNoSliverDataViewPage> {
   final _pdvKey = GlobalKey<PaginationDataViewState>();
   final _scrollController = ScrollController();
   final _fabController = AnimatedFabController();
-  var _listOrGrid = true;
+  var _style = _Style.list;
   var _isEmpty = false;
   var _isError = false;
   final _data = <String>[]; // <String>['1', '2', '3', '4', '5']
@@ -69,9 +78,23 @@ class _PaginationNoSliverDataViewPageState extends State<PaginationNoSliverDataV
             onPressed: () => _pdvKey.currentState?.append(),
           ),
           IconButton(
-            icon: Icon(_listOrGrid ? Icons.list : Icons.grid_view),
+            icon: Icon(
+              _style == _Style.list
+                  ? Icons.list
+                  : _style == _Style.grid
+                      ? Icons.grid_view
+                      : _style == _Style.masonryGrid
+                          ? Icons.space_dashboard
+                          : Icons.view_carousel,
+            ),
             onPressed: () {
-              _listOrGrid = !_listOrGrid;
+              _style = _style == _Style.list
+                  ? _Style.grid
+                  : _style == _Style.grid
+                      ? _Style.masonryGrid
+                      : _style == _Style.masonryGrid
+                          ? _Style.custom
+                          : _Style.list;
               if (mounted) setState(() {});
             },
           ),
@@ -128,7 +151,13 @@ class _PaginationNoSliverDataViewPageState extends State<PaginationNoSliverDataV
       body: PaginationDataView<String>(
         key: _pdvKey,
         data: _data,
-        style: _listOrGrid ? UpdatableDataViewStyle.listView : UpdatableDataViewStyle.masonryGridView,
+        style: _style == _Style.list
+            ? UpdatableDataViewStyle.listView
+            : _style == _Style.grid
+                ? UpdatableDataViewStyle.gridView
+                : _style == _Style.masonryGrid
+                    ? UpdatableDataViewStyle.masonryGridView
+                    : UpdatableDataViewStyle.customView,
         getData: ({indicator}) => _getData(page: indicator),
         scrollController: _scrollController,
         paginationSetting: const PaginationSetting(
@@ -155,13 +184,15 @@ class _PaginationNoSliverDataViewPageState extends State<PaginationNoSliverDataV
           onStopRefreshing: () => printLog('onStopRefreshing'),
           onFinalSetState: () => printLog('onFinalSetState'),
         ),
-        itemBuilder: (_, idx, item) => _listOrGrid
+        itemBuilder: (_, idx, item) => _style == _Style.list
             ? ListTile(
                 title: Text(item),
                 onTap: () {},
               )
             : SizedBox(
-                height: 50.0 + (idx % 5) * 10,
+                height: _style == _Style.grid || _style == _Style.custom //
+                    ? 50.0
+                    : 50.0 + (idx % 5) * 10,
                 child: Card(
                   elevation: 4.0,
                   child: InkWell(
@@ -176,6 +207,38 @@ class _PaginationNoSliverDataViewPageState extends State<PaginationNoSliverDataV
         crossAxisCount: 4,
         mainAxisSpacing: 2.0,
         crossAxisSpacing: 2.0,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+          mainAxisSpacing: 2.0,
+          crossAxisSpacing: 2.0,
+          childAspectRatio: 1.0,
+        ),
+        customViewBuilder: (c, v) => GridView.custom(
+          controller: PreviouslySwitchedWidget.isPrevious(context) ? null : v.scrollController,
+          padding: v.setting.padding,
+          physics: v.setting.physics ?? const AlwaysScrollableScrollPhysics(),
+          reverse: v.setting.reverse ?? false,
+          shrinkWrap: v.setting.shrinkWrap ?? false,
+          cacheExtent: v.setting.cacheExtent,
+          dragStartBehavior: v.setting.dragStartBehavior ?? DragStartBehavior.start,
+          keyboardDismissBehavior: v.setting.keyboardDismissBehavior ?? ScrollViewKeyboardDismissBehavior.manual,
+          restorationId: v.setting.restorationId,
+          clipBehavior: v.setting.clipBehavior ?? Clip.hardEdge,
+          // ===================================
+          gridDelegate: SliverWovenGridDelegate.count(
+            crossAxisCount: 4,
+            mainAxisSpacing: 8,
+            crossAxisSpacing: 8,
+            pattern: const [
+              WovenGridTile(1),
+              WovenGridTile(5 / 7, alignment: AlignmentDirectional.centerEnd),
+            ],
+          ),
+          childrenDelegate: SliverChildBuilderDelegate(
+            (c, idx) => v.itemBuilder(c, idx, v.data[idx]), // ignore extra listTopWidgets and listBottomWidgets
+            childCount: v.data.length,
+          ),
+        ),
         extra: UpdatableDataViewExtraWidgets(
           outerTopWidgets: [
             if (_outerTopW) const Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('outer top widget'))),

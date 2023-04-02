@@ -22,9 +22,11 @@ class RefreshableDataView<T> extends UpdatableDataView<T> {
     // ===================================
     this.separator,
     this.useOverlapInjector = false,
+    this.gridDelegate,
     this.crossAxisCount = 2,
     this.mainAxisSpacing = 0.0,
     this.crossAxisSpacing = 0.0,
+    this.customViewBuilder,
   }) : super(key: key);
 
   /// Creates a [RefreshableDataView] with given [UpdatableDataViewStyle.listView].
@@ -40,9 +42,11 @@ class RefreshableDataView<T> extends UpdatableDataView<T> {
     this.separator,
   })  : style = UpdatableDataViewStyle.listView,
         useOverlapInjector = null,
+        gridDelegate = null,
         crossAxisCount = null,
         mainAxisSpacing = null,
         crossAxisSpacing = null,
+        customViewBuilder = null,
         super(key: key);
 
   /// Creates a [RefreshableDataView] with given [UpdatableDataViewStyle.sliverListView].
@@ -58,9 +62,51 @@ class RefreshableDataView<T> extends UpdatableDataView<T> {
     this.separator,
     this.useOverlapInjector = false,
   })  : style = UpdatableDataViewStyle.sliverListView,
+        gridDelegate = null,
         crossAxisCount = null,
         mainAxisSpacing = null,
         crossAxisSpacing = null,
+        customViewBuilder = null,
+        super(key: key);
+
+  /// Creates a [RefreshableDataView] with given [UpdatableDataViewStyle.gridView].
+  const RefreshableDataView.gridView({
+    Key? key,
+    required this.data,
+    required this.getData,
+    this.setting = const UpdatableDataViewSetting(),
+    this.scrollController,
+    required this.itemBuilder,
+    this.extra,
+    // ===================================
+    this.gridDelegate,
+  })  : style = UpdatableDataViewStyle.gridView,
+        separator = null,
+        useOverlapInjector = null,
+        crossAxisCount = null,
+        mainAxisSpacing = null,
+        crossAxisSpacing = null,
+        customViewBuilder = null,
+        super(key: key);
+
+  /// Creates a [RefreshableDataView] with given [UpdatableDataViewStyle.sliverGridView].
+  const RefreshableDataView.sliverGridView({
+    Key? key,
+    required this.data,
+    required this.getData,
+    this.setting = const UpdatableDataViewSetting(),
+    this.scrollController,
+    required this.itemBuilder,
+    this.extra,
+    // ===================================
+    this.useOverlapInjector = false,
+    this.gridDelegate,
+  })  : style = UpdatableDataViewStyle.sliverGridView,
+        separator = null,
+        crossAxisCount = null,
+        mainAxisSpacing = null,
+        crossAxisSpacing = null,
+        customViewBuilder = null,
         super(key: key);
 
   /// Creates a [RefreshableDataView] with given [UpdatableDataViewStyle.masonryGridView].
@@ -79,6 +125,8 @@ class RefreshableDataView<T> extends UpdatableDataView<T> {
   })  : style = UpdatableDataViewStyle.masonryGridView,
         separator = null,
         useOverlapInjector = null,
+        gridDelegate = null,
+        customViewBuilder = null,
         super(key: key);
 
   /// Creates a [RefreshableDataView] with given [UpdatableDataViewStyle.sliverMasonryGridView].
@@ -97,6 +145,28 @@ class RefreshableDataView<T> extends UpdatableDataView<T> {
     this.crossAxisSpacing = 0.0,
   })  : style = UpdatableDataViewStyle.sliverMasonryGridView,
         separator = null,
+        gridDelegate = null,
+        customViewBuilder = null,
+        super(key: key);
+
+  /// Creates a [RefreshableDataView] with given [UpdatableDataViewStyle.customView].
+  const RefreshableDataView.customView({
+    Key? key,
+    required this.data,
+    required this.getData,
+    this.setting = const UpdatableDataViewSetting(),
+    this.scrollController,
+    required this.itemBuilder,
+    this.extra,
+    // ===================================
+    this.separator,
+    this.useOverlapInjector = false,
+    this.gridDelegate,
+    this.crossAxisCount = 2,
+    this.mainAxisSpacing = 0.0,
+    this.crossAxisSpacing = 0.0,
+    required this.customViewBuilder,
+  })  : style = UpdatableDataViewStyle.customView,
         super(key: key);
 
   // General properties
@@ -133,8 +203,11 @@ class RefreshableDataView<T> extends UpdatableDataView<T> {
   /// The separator for [ListView] and [SliverList].
   final Widget? separator;
 
-  /// The switcher to use [SliverOverlapInjector] in the top of sliver list for [SliverList], defaults to false.
+  /// The switcher to use [SliverOverlapInjector] in the top of sliver widgets, defaults to false.
   final bool? useOverlapInjector;
+
+  /// The gridDelegate for [GridView] and [SliverGrid], defaults to `SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2)`.
+  final SliverGridDelegate? gridDelegate;
 
   /// The crossAxisCount for [MasonryGridView] and [SliverMasonryGrid], defaults to 2.
   final int? crossAxisCount;
@@ -144,6 +217,9 @@ class RefreshableDataView<T> extends UpdatableDataView<T> {
 
   /// The crossAxisSpacing for [MasonryGridView] and [SliverMasonryGrid], defaults to 0.0.
   final double? crossAxisSpacing;
+
+  /// The customViewBuilder for [UpdatableDataViewStyle.customView].
+  final Widget Function(BuildContext context, RefreshableDataView<T> view)? customViewBuilder;
 
   @override
   RefreshableDataViewState<T> createState() => RefreshableDataViewState<T>();
@@ -298,6 +374,66 @@ class RefreshableDataViewState<T> extends State<RefreshableDataView<T>> with Aut
     );
   }
 
+  Widget _buildGridView(BuildContext context, bool sliver) {
+    var gridDelegate = widget.gridDelegate ??
+        const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          mainAxisSpacing: 0.0,
+          crossAxisSpacing: 0.0,
+          childAspectRatio: 1.0,
+        );
+
+    if (!sliver) {
+      return GridView.builder(
+        controller: PreviouslySwitchedWidget.isPrevious(context) ? null : widget.scrollController,
+        padding: widget.setting.padding,
+        physics: widget.setting.physics ?? const AlwaysScrollableScrollPhysics(),
+        reverse: widget.setting.reverse ?? false,
+        shrinkWrap: widget.setting.shrinkWrap ?? false,
+        cacheExtent: widget.setting.cacheExtent,
+        dragStartBehavior: widget.setting.dragStartBehavior ?? DragStartBehavior.start,
+        keyboardDismissBehavior: widget.setting.keyboardDismissBehavior ?? ScrollViewKeyboardDismissBehavior.manual,
+        restorationId: widget.setting.restorationId,
+        clipBehavior: widget.setting.clipBehavior ?? Clip.hardEdge,
+        // ===================================
+        gridDelegate: gridDelegate,
+        itemCount: widget.data.length,
+        itemBuilder: (c, idx) => widget.itemBuilder(c, idx, widget.data[idx]), // ignore extra listTopWidgets and listBottomWidgets
+      );
+    }
+
+    return CustomScrollView(
+      controller: PreviouslySwitchedWidget.isPrevious(context) ? null : widget.scrollController,
+      physics: widget.setting.physics ?? const AlwaysScrollableScrollPhysics(),
+      reverse: widget.setting.reverse ?? false,
+      shrinkWrap: widget.setting.shrinkWrap ?? false,
+      cacheExtent: widget.setting.cacheExtent,
+      dragStartBehavior: widget.setting.dragStartBehavior ?? DragStartBehavior.start,
+      keyboardDismissBehavior: widget.setting.keyboardDismissBehavior ?? ScrollViewKeyboardDismissBehavior.manual,
+      restorationId: widget.setting.restorationId,
+      clipBehavior: widget.setting.clipBehavior ?? Clip.hardEdge,
+      // ===================================
+      slivers: [
+        if (widget.useOverlapInjector ?? false)
+          SliverOverlapInjector(
+            handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
+          ),
+        if (widget.extra?.listTopSlivers != null) ...(widget.extra?.listTopSlivers)!,
+        SliverPadding(
+          padding: widget.setting.padding ?? MediaQuery.maybeOf(context)?.padding.copyWith(top: 0, bottom: 0) ?? EdgeInsets.zero,
+          sliver: SliverGrid(
+            delegate: SliverChildBuilderDelegate(
+              (c, idx) => widget.itemBuilder(c, idx, widget.data[idx]), // ignore extra listTopWidgets and listBottomWidgets
+              childCount: widget.data.length,
+            ),
+            gridDelegate: gridDelegate,
+          ),
+        ),
+        if (widget.extra?.listBottomSlivers != null) ...(widget.extra?.listBottomSlivers)!,
+      ],
+    );
+  }
+
   Widget _buildMasonryGridView(BuildContext context, bool sliver) {
     if (!sliver) {
       return MasonryGridView.count(
@@ -352,6 +488,15 @@ class RefreshableDataViewState<T> extends State<RefreshableDataView<T>> with Aut
     );
   }
 
+  Widget _buildCustomView(BuildContext context) {
+    assert(
+      widget.customViewBuilder != null,
+      'customViewBuilder must not be null when using UpdatableDataViewStyle.customView',
+    );
+
+    return widget.customViewBuilder!.call(context, widget);
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -362,10 +507,16 @@ class RefreshableDataViewState<T> extends State<RefreshableDataView<T>> with Aut
           return _buildListView(context, false);
         case UpdatableDataViewStyle.sliverListView:
           return _buildListView(context, true);
+        case UpdatableDataViewStyle.gridView:
+          return _buildGridView(context, false);
+        case UpdatableDataViewStyle.sliverGridView:
+          return _buildGridView(context, true);
         case UpdatableDataViewStyle.masonryGridView:
           return _buildMasonryGridView(context, false);
         case UpdatableDataViewStyle.sliverMasonryGridView:
           return _buildMasonryGridView(context, true);
+        case UpdatableDataViewStyle.customView:
+          return _buildCustomView(context);
       }
     }
 
@@ -476,6 +627,60 @@ class RefreshableSliverListView<T> extends RefreshableDataView<T> {
         );
 }
 
+/// An implementation of [RefreshableDataView], which displays data in [GridView], only for backward compatibility.
+class RefreshableGridView<T> extends RefreshableDataView<T> {
+  /// This constructor is the same as [RefreshableDataView.gridView], only for backward compatibility.
+  const RefreshableGridView({
+    Key? key,
+    required List<T> data,
+    required Future<List<T>> Function() getData,
+    UpdatableDataViewSetting<T> setting = const UpdatableDataViewSetting(),
+    ScrollController? scrollController,
+    required Widget Function(BuildContext, int, T) itemBuilder,
+    UpdatableDataViewExtraWidgets? extra,
+    // ===================================
+    SliverGridDelegate? gridDelegate,
+  }) : super.gridView(
+          key: key,
+          data: data,
+          getData: getData,
+          setting: setting,
+          scrollController: scrollController,
+          itemBuilder: itemBuilder,
+          extra: extra,
+          // ===================================
+          gridDelegate: gridDelegate,
+        );
+}
+
+/// An implementation of [RefreshableDataView], which displays data in [SliverGrid] with [CustomScrollView], only for backward compatibility.
+class RefreshableSliverGridView<T> extends RefreshableDataView<T> {
+  /// This constructor is the same as [RefreshableDataView.sliverGridView], only for backward compatibility.
+  const RefreshableSliverGridView({
+    Key? key,
+    required List<T> data,
+    required Future<List<T>> Function() getData,
+    UpdatableDataViewSetting<T> setting = const UpdatableDataViewSetting(),
+    ScrollController? scrollController,
+    required Widget Function(BuildContext, int, T) itemBuilder,
+    UpdatableDataViewExtraWidgets? extra,
+    // ===================================
+    bool? useOverlapInjector = false,
+    SliverGridDelegate? gridDelegate,
+  }) : super.sliverGridView(
+          key: key,
+          data: data,
+          getData: getData,
+          setting: setting,
+          scrollController: scrollController,
+          itemBuilder: itemBuilder,
+          extra: extra,
+          // ===================================
+          useOverlapInjector: useOverlapInjector,
+          gridDelegate: gridDelegate,
+        );
+}
+
 /// An implementation of [RefreshableDataView], which displays data in [MasonryGridView], only for backward compatibility.
 class RefreshableMasonryGridView<T> extends RefreshableDataView<T> {
   /// This constructor is the same as [RefreshableDataView.masonryGridView], only for backward compatibility.
@@ -506,7 +711,7 @@ class RefreshableMasonryGridView<T> extends RefreshableDataView<T> {
         );
 }
 
-/// An implementation of [RefreshableDataView], which displays data in [MasonryGridView] with [CustomScrollView], only for backward compatibility.
+/// An implementation of [RefreshableDataView], which displays data in [SliverMasonryGrid] with [CustomScrollView], only for backward compatibility.
 class RefreshableSliverMasonryGridView<T> extends RefreshableDataView<T> {
   /// This constructor is the same as [RefreshableDataView.sliverMasonryGridView], only for backward compatibility.
   const RefreshableSliverMasonryGridView({

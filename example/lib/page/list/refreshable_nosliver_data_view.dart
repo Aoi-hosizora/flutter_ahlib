@@ -9,11 +9,17 @@ class RefreshableNoSliverDataViewPage extends StatefulWidget {
   _RefreshableNoSliverDataViewPageState createState() => _RefreshableNoSliverDataViewPageState();
 }
 
+enum _Style {
+  list,
+  grid,
+  masonryGrid,
+}
+
 class _RefreshableNoSliverDataViewPageState extends State<RefreshableNoSliverDataViewPage> {
   final _rdvKey = GlobalKey<RefreshableDataViewState>();
   final _scrollController = ScrollController();
   final _fabController = AnimatedFabController();
-  var _listOrGrid = true;
+  var _style = _Style.list;
   var _isEmpty = false;
   var _isError = false;
   final _data = <String>[];
@@ -59,9 +65,9 @@ class _RefreshableNoSliverDataViewPageState extends State<RefreshableNoSliverDat
             onPressed: () => _rdvKey.currentState?.refresh(),
           ),
           IconButton(
-            icon: Icon(_listOrGrid ? Icons.list : Icons.grid_view),
+            icon: Icon(_style == _Style.list ? Icons.list : (_style == _Style.grid ? Icons.grid_view : Icons.space_dashboard)),
             onPressed: () {
-              _listOrGrid = !_listOrGrid;
+              _style = _style == _Style.list ? _Style.grid : (_style == _Style.grid ? _Style.masonryGrid : _Style.list);
               if (mounted) setState(() {});
             },
           ),
@@ -118,7 +124,11 @@ class _RefreshableNoSliverDataViewPageState extends State<RefreshableNoSliverDat
       body: RefreshableDataView<String>(
         key: _rdvKey,
         data: _data,
-        style: _listOrGrid ? UpdatableDataViewStyle.listView : UpdatableDataViewStyle.masonryGridView,
+        style: _style == _Style.list
+            ? UpdatableDataViewStyle.listView
+            : _style == _Style.grid
+                ? UpdatableDataViewStyle.gridView
+                : UpdatableDataViewStyle.masonryGridView,
         getData: () => _getData(),
         scrollController: _scrollController,
         setting: UpdatableDataViewSetting(
@@ -139,13 +149,15 @@ class _RefreshableNoSliverDataViewPageState extends State<RefreshableNoSliverDat
           onStopRefreshing: () => printLog('onStopRefreshing'),
           onFinalSetState: () => printLog('onFinalSetState'),
         ),
-        itemBuilder: (_, idx, item) => _listOrGrid
+        itemBuilder: (_, idx, item) => _style == _Style.list
             ? ListTile(
                 title: Text(item),
                 onTap: () {},
               )
             : SizedBox(
-                height: 50.0 + (idx % 5) * 10,
+                height: _style == _Style.grid //
+                    ? 50.0
+                    : 50.0 + (idx % 5) * 10,
                 child: Card(
                   elevation: 4.0,
                   child: InkWell(
@@ -160,6 +172,12 @@ class _RefreshableNoSliverDataViewPageState extends State<RefreshableNoSliverDat
         crossAxisCount: 4,
         mainAxisSpacing: 2.0,
         crossAxisSpacing: 2.0,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+          mainAxisSpacing: 2.0,
+          crossAxisSpacing: 2.0,
+          childAspectRatio: 1.0,
+        ),
         extra: UpdatableDataViewExtraWidgets(
           outerTopWidgets: [
             if (_outerTopW) const Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('outer top widget'))),

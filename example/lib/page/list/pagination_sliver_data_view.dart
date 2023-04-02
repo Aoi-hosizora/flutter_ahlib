@@ -9,11 +9,17 @@ class PaginationSliverDataViewPage extends StatefulWidget {
   _PaginationSliverDataViewPageState createState() => _PaginationSliverDataViewPageState();
 }
 
+enum _Style {
+  list,
+  grid,
+  masonryGrid,
+}
+
 class _PaginationSliverDataViewPageState extends State<PaginationSliverDataViewPage> {
   final _pdvKey = GlobalKey<PaginationDataViewState>();
   final _scrollController = ScrollController();
   final _fabController = AnimatedFabController();
-  var _listOrGrid = true;
+  var _style = _Style.list;
   var _isEmpty = false;
   var _isError = false;
   final _data = <String>[];
@@ -71,9 +77,9 @@ class _PaginationSliverDataViewPageState extends State<PaginationSliverDataViewP
             onPressed: () => _pdvKey.currentState?.append(),
           ),
           IconButton(
-            icon: Icon(_listOrGrid ? Icons.list : Icons.grid_view),
+            icon: Icon(_style == _Style.list ? Icons.list : (_style == _Style.grid ? Icons.grid_view : Icons.space_dashboard)),
             onPressed: () {
-              _listOrGrid = !_listOrGrid;
+              _style = _style == _Style.list ? _Style.grid : (_style == _Style.grid ? _Style.masonryGrid : _Style.list);
               if (mounted) setState(() {});
             },
           ),
@@ -167,7 +173,11 @@ class _PaginationSliverDataViewPageState extends State<PaginationSliverDataViewP
               body: PaginationDataView<String>(
                 key: _pdvKey,
                 data: _data,
-                style: _listOrGrid ? UpdatableDataViewStyle.sliverListView : UpdatableDataViewStyle.sliverMasonryGridView,
+                style: _style == _Style.list
+                    ? UpdatableDataViewStyle.sliverListView
+                    : _style == _Style.grid
+                        ? UpdatableDataViewStyle.sliverGridView
+                        : UpdatableDataViewStyle.sliverMasonryGridView,
                 getData: ({indicator}) => _getData(page: indicator),
                 scrollController: PrimaryScrollController.of(c),
                 paginationSetting: const PaginationSetting(
@@ -193,13 +203,15 @@ class _PaginationSliverDataViewPageState extends State<PaginationSliverDataViewP
                   onStopRefreshing: () => printLog('onStopRefreshing'),
                   onFinalSetState: () => printLog('onFinalSetState'),
                 ),
-                itemBuilder: (_, idx, item) => _listOrGrid
+                itemBuilder: (_, idx, item) => _style == _Style.list
                     ? ListTile(
                         title: Text(item),
                         onTap: () {},
                       )
                     : SizedBox(
-                        height: 50.0 + (idx % 5) * 10,
+                        height: _style == _Style.grid //
+                            ? 50.0
+                            : 50.0 + (idx % 5) * 10,
                         child: Card(
                           elevation: 4.0,
                           child: InkWell(
@@ -215,6 +227,12 @@ class _PaginationSliverDataViewPageState extends State<PaginationSliverDataViewP
                 crossAxisCount: 4,
                 mainAxisSpacing: 2.0,
                 crossAxisSpacing: 2.0,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  mainAxisSpacing: 2.0,
+                  crossAxisSpacing: 2.0,
+                  childAspectRatio: 1.0,
+                ),
                 extra: UpdatableDataViewExtraWidgets(
                   outerTopWidgets: [
                     if (_outerTopW) const Align(alignment: Alignment.centerRight, child: Padding(padding: EdgeInsets.fromLTRB(0, 8, 10, 8), child: Text('outer top widget'))),

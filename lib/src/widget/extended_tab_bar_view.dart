@@ -84,6 +84,25 @@ class ExtendedTabBarViewState extends State<ExtendedTabBarView> {
     return _pageController;
   }
 
+  // This property is added by AoiHosizora.
+  final _pageControllerListeners = <VoidCallback>[];
+
+  // This method is added by AoiHosizora.
+  /// Adds listener to internal [PageController]. Note that you should use this method rather than [PageController.addListener] in order to
+  /// make listeners migrate-able when pageController is replaced as viewportFraction is changed.
+  void addListenerToPageController(VoidCallback listener) {
+    _pageControllerListeners.add(listener);
+    pageController.addListener(listener);
+  }
+
+  // This method is added by AoiHosizora.
+  /// Removes listener to internal [PageController]. Note that you should use this method rather than [PageController.removeListener] in order to
+  /// make listeners migrate-able when pageController is replaced as viewportFraction is changed.
+  void removeListenerFromPageController(VoidCallback listener) {
+    _pageControllerListeners.remove(listener);
+    pageController.removeListener(listener);
+  }
+
   // If the TabBarView is rebuilt with a new tab controller, the caller should
   // dispose the old one. In that case the old controller's animation will be
   // null and should not be accessed.
@@ -138,10 +157,15 @@ class ExtendedTabBarViewState extends State<ExtendedTabBarView> {
   void didUpdateWidget(ExtendedTabBarView oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.viewportFraction != oldWidget.viewportFraction) /* <<< Modified by AoiHosizora */ {
+      var oldController = _pageController;
       _pageController = PageController(
         initialPage: _currentIndex!,
         viewportFraction: widget.viewportFraction,
       );
+      for (var listen in _pageControllerListeners) {
+        _pageController.addListener(listen); // migrate old listeners to new page controller
+      }
+      WidgetsBinding.instance?.addPostFrameCallback((_) => oldController.dispose());
     }
     if (widget.controller != oldWidget.controller) {
       _updateTabController();
