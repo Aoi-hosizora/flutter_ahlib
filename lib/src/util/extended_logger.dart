@@ -6,6 +6,9 @@ import 'package:logger/logger.dart';
 // - Logger: https://github.com/leisim/logger/blob/7e510ec1cb/lib/src/logger.dart
 // - Logger: https://github.com/FMotalleb/logger/blob/5bf51b0f59/lib/src/logger_fork.dart
 
+/// The signature for callbacks when [LogPrinter.log] is called, used by [ExtendedLogger].
+typedef LogEventCallback = void Function(LogEvent event);
+
 /// The signature for callbacks when [OutputEvent] is generated, used by [ExtendedLogger].
 typedef OutputEventCallback = void Function(OutputEvent event);
 
@@ -97,10 +100,15 @@ class ExtendedLogger {
 
     var logEvent = LogEvent(level, message, error, stackTrace);
     if (_filter.shouldLog(logEvent)) {
+      for (var lis in _logListeners) {
+        try {
+          lis.call(logEvent); // <<< Added by AoiHosizora
+        } catch (_) {}
+      }
       var output = _printer.log(logEvent);
 
       if (output.isNotEmpty) {
-        var outputEvent = OutputEvent(level, output);
+        var outputEvent = OutputEvent(logEvent, output);
         // Issues with log output should NOT influence the main software behavior.
         if (ignoreOutput == null || ignoreOutput == false) {
           try {
@@ -117,6 +125,24 @@ class ExtendedLogger {
   }
 
   // >>> Following code are added by AoiHosizora
+
+  /// The list of log event listeners.
+  final List<LogEventCallback> _logListeners = [];
+
+  /// Adds a log event listener.
+  void addLogListener(LogEventCallback listener) {
+    _logListeners.add(listener);
+  }
+
+  /// Removes a log event listener.
+  void removeLogListener(LogEventCallback listener) {
+    _logListeners.remove(listener);
+  }
+
+  /// Removes all log event listeners.
+  void clearLogListeners() {
+    _logListeners.clear();
+  }
 
   /// The list of output event listeners.
   final List<OutputEventCallback> _outputListeners = [];
@@ -138,8 +164,13 @@ class ExtendedLogger {
 
   // <<< Above code are added by AoiHosizora
 
+  bool isClosed() {
+    return !_active;
+  }
+
   /// Closes the logger and releases all resources.
   void close() {
+    clearLogListeners(); // <<< Added by AoiHosizora
     clearOutputListeners(); // <<< Added by AoiHosizora
     _active = false;
     _filter.destroy();

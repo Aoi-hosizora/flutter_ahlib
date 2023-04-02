@@ -42,8 +42,9 @@ class CustomPageRoute<T> extends PageRoute<T> {
 
   /// Creates a [CustomPageRoute] using given [CustomPageRouteThemeData] and named parameters.
   ///
-  /// Note that the only difference between the default constructor is, this constructor do not
-  /// retrieve [CustomPageRouteTheme] from [context], and use passed nullable [themeData] instead.
+  /// Note that the only difference between this constructor and the default constructor is, this
+  /// constructor does not retrieve [CustomPageRouteTheme] from [context], but uses passed nullable
+  /// [themeData] instead.
   CustomPageRoute.fromTheme({
     required CustomPageRouteThemeData? themeData,
     required WidgetBuilder builder,
@@ -182,10 +183,36 @@ class CustomPageRouteTheme extends InheritedWidget {
   /// The data associated with the subtree.
   final CustomPageRouteThemeData data;
 
+  /// A global [CustomPageRouteThemeData] for convenient use, which can be assigned as a preferred
+  /// theme data, and can be passed to [CustomPageRoute.fromTheme] to construct [CustomPageRoute],
+  /// defaults to null.
+  static CustomPageRouteThemeData? globalThemeData;
+
+  /// A special flag to control whether to allow [of] throwing "deactivated ancestor" exception or
+  /// not, defaults to false.
+  static bool allowThrowingUnsafeAncestorException = false;
+
+  /// A global [CustomPageRouteThemeData] which will be used as fallback when [of] throws "deactivated
+  /// ancestor" exception, defaults to null.
+  static CustomPageRouteThemeData? fallbackThemeData;
+
   /// Returns the data most closely associated with the given context.
+  ///
+  /// Note that if [allowThrowingUnsafeAncestorException] is set to true, a warning message will be
+  /// printed and [fallbackThemeData] will be returned if "Looking up a deactivated widget's ancestor
+  /// is unsafe" exception is thrown.
   static CustomPageRouteThemeData? of(BuildContext context) {
-    final result = context.dependOnInheritedWidgetOfExactType<CustomPageRouteTheme>();
-    return result?.data;
+    try {
+      final result = context.dependOnInheritedWidgetOfExactType<CustomPageRouteTheme>();
+      return result?.data;
+    } catch (e) {
+      if (e.toString().contains("Looking up a deactivated widget's ancestor is unsafe") && !allowThrowingUnsafeAncestorException) {
+        print('########## WARNING: FOLLOWING EXCEPTION IS THROWN WHEN CALLING CustomPageRouteTheme.of ##########');
+        print(e);
+        return fallbackThemeData; // defaults to null
+      }
+      rethrow;
+    }
   }
 
   @override
