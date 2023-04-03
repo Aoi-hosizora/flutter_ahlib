@@ -1,280 +1,452 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_ahlib/src/util/flutter_extension.dart';
 
-/// An abstract text group item that represents [TextGroup]'s children, inherited by [NormalGroupText] and [LinkGroupText].
+/// An abstract text group item used for [TextGroup], which is inherited by builtin
+/// [SpanItem], [PlainTextItem] and [LinkTextItem].
 abstract class TextGroupItem {
   const TextGroupItem();
 
-  /// The content of this item.
-  String get text;
+  /// Builds [InlineSpan] for [TextGroupItem], which must be implemented by the subclasses
+  /// of [TextGroupItem].
+  InlineSpan buildSpan(BuildContext context);
 }
 
-/// A [TextGroupItem] that represents a normal text. This is not a [Widget], but just a data class to store options and used in [TextGroup].
-class NormalGroupText extends TextGroupItem {
-  const NormalGroupText({
-    @required this.text,
-    this.style,
-  })  : assert(text != null),
-        super();
+/// A kind of [TextGroupItem], which uses given [InlineSpan] (including [TextSpan] and
+/// [WidgetSpan]) as [TextGroup]'s texts.
+class SpanItem extends TextGroupItem {
+  const SpanItem({
+    required this.span,
+  });
 
-  /// The content of this item.
+  /// The span content of this item.
+  final InlineSpan span;
+
+  /// Builds [InlineSpan] for [SpanItem].
   @override
+  InlineSpan buildSpan(BuildContext context) => span;
+}
+
+/// A kind of [TextGroupItem], which wraps given plain text and style to [TextSpan], and
+/// uses it as [TextGroup]'s texts.
+class PlainTextItem extends TextGroupItem {
+  const PlainTextItem({
+    required this.text,
+    this.style,
+  });
+
+  /// The text content of this item.
   final String text;
 
   /// The text style of this item.
-  final TextStyle style;
+  final TextStyle? style;
+
+  /// Builds [InlineSpan], or said [TextSpan], for [PlainTextItem].
+  @override
+  InlineSpan buildSpan(BuildContext context) => TextSpan(
+        text: text,
+        style: style,
+      );
 }
 
-/// A [TextGroupItem] that represents a linked text. This is not a [Widget], but just a data class to store options and used in [TextGroup].
-class LinkGroupText extends TextGroupItem {
-  const LinkGroupText({
-    @required this.text,
-    this.styleFn,
+/// A kind of [TextGroupItem], which wraps given text and link style to [TextSpan] or
+/// [WidgetSpan], and uses it as [TextGroup]'s texts.
+class LinkTextItem extends TextGroupItem {
+  const LinkTextItem({
+    required this.text,
+    required this.onTap,
+    this.basicStyle,
     this.normalColor,
     this.pressedColor,
     this.showUnderline = true,
-    @required this.onTap,
-  })  : assert(text != null),
-        assert(showUnderline != null),
-        assert(onTap != null),
-        super();
+    this.wrapperBuilder,
+  })  : normalStyle = null,
+        pressedStyle = null;
 
-  /// The content of this item.
-  @override
+  const LinkTextItem.style({
+    required this.text,
+    required this.onTap,
+    this.normalStyle,
+    this.pressedStyle,
+    this.wrapperBuilder,
+  })  : basicStyle = null,
+        normalColor = null,
+        pressedColor = null,
+        showUnderline = null;
+
+  /// The link content of this item.
   final String text;
-
-  /// The text style function of this item.
-  final TextStyle Function(bool pressed) styleFn;
-
-  /// The link color when this item not pressed.
-  final Color normalColor;
-
-  /// The link color when this item pressed.
-  final Color pressedColor;
-
-  /// The switcher to show link underline.
-  final bool showUnderline;
 
   /// The behavior when the link is pressed.
   final Function() onTap;
+
+  /// The link basic style of this item. Note that this value will have no effect when
+  /// [normalStyle] or [pressedStyle] is not null.
+  final TextStyle? basicStyle;
+
+  /// The link color when this item is not pressed. Note that this value will have no
+  /// effect when [normalStyle] or [pressedStyle] is not null.
+  final Color? normalColor;
+
+  /// The link color when this item is pressed down. Note that this value will have no
+  /// effect when [normalStyle] or [pressedStyle] is not null.
+  final Color? pressedColor;
+
+  /// The switcher to show link underline, defaults to true. Note that this value will
+  /// have no effect when [normalStyle] or [pressedStyle] is not null.
+  final bool? showUnderline;
+
+  /// The text style when this item is not pressed.
+  final TextStyle? normalStyle;
+
+  /// The text style when this item is pressed down.
+  final TextStyle? pressedStyle;
+
+  /// The [WidgetSpan] wrapper builder. If this value is set, than returned [WidgetSpan]
+  /// will be used as [TextGroup]'s texts.
+  final WidgetSpan Function(BuildContext context, Widget t, bool tapped)? wrapperBuilder;
+
+  /// Builds [InlineSpan] for [LinkTextItem], but actually this function is just a
+  /// dummy. [buildSpanForLinkText] should be used for building [InlineSpan].
+  @override
+  InlineSpan buildSpan(BuildContext context) => const TextSpan();
+
+  /// Builds [InlineSpan], or said [TextSpan] or [WidgetSpan], for [LinkTextItem].
+  InlineSpan buildSpanForLinkText(BuildContext context, bool Function() tappedGetter, Function(bool) tappedSetter) {
+    TextStyle? textStyle;
+    if (normalStyle != null || pressedStyle != null) {
+      textStyle = !tappedGetter() ? normalStyle : pressedStyle;
+    } else {
+      var textColor = !tappedGetter() ? normalColor : pressedColor;
+      textStyle = basicStyle ?? const TextStyle();
+      textStyle = !(showUnderline ?? true)
+          ? textStyle.copyWith(
+              color: textColor,
+              decoration: TextDecoration.none,
+            )
+          : textStyle.copyWith(
+              color: Colors.transparent,
+              decoration: TextDecoration.underline,
+              decorationColor: textColor ?? Colors.black, // colorized underline
+              shadows: [
+                Shadow(
+                  offset: const Offset(0, -1), // text offset
+                  color: textColor ?? Colors.black,
+                ),
+              ],
+            );
+    }
+    var recognizer = TapGestureRecognizer()
+      ..onTap = onTap
+      ..onTapDown = ((_) => tappedSetter(true))
+      ..onTapUp = ((_) => tappedSetter(false))
+      ..onTapCancel = (() => tappedSetter(false));
+
+    if (wrapperBuilder == null) {
+      return TextSpan(
+        text: text,
+        style: textStyle,
+        recognizer: recognizer,
+      );
+    }
+    return wrapperBuilder!(
+      context,
+      GestureDetector(
+        child: Text(text, style: textStyle),
+        onTap: recognizer.onTap,
+        onTapDown: recognizer.onTapDown,
+        onTapUp: recognizer.onTapUp,
+        onTapCancel: recognizer.onTapCancel,
+      ),
+      tappedGetter(),
+    );
+  }
 }
 
-/// A [RichText] or [SelectableText] wrapped widget with state, including a list of child in [TextGroupItem] type, which can be
-/// [NormalGroupText] and [LinkGroupText].
+/// A [RichText] or [SelectableText] wrapper with states, including a list of [TextGroupItem]
+/// child, which can be [SpanItem], [PlainTextItem] or [LinkTextItem].
 class TextGroup extends StatefulWidget {
+  /// Creates a [TextGroup] which wraps [RichText] to show [TextGroupItem] list.
   const TextGroup({
-    Key key,
-    @required this.texts,
-    this.selectable = false,
+    Key? key,
+    required this.texts,
+    required this.selectable,
     this.style,
-    // RichText and SelectableText
+    this.outerSpanBuilder,
+    // both
     this.maxLines,
     this.strutStyle,
     this.textAlign = TextAlign.start,
     this.textDirection,
-    this.textScaleFactor = 1.0,
+    this.textScaleFactor,
     this.textWidthBasis = TextWidthBasis.parent,
     this.textHeightBehavior,
-    // RichText
+    // RichText only
     this.softWrap = true,
     this.overflow = TextOverflow.clip,
-    // SelectableText
+    this.locale,
+    // SelectableText only
     this.focusNode,
-    this.toolbarOptions,
+    this.showCursor = false,
+    this.autofocus = false,
+    this.enableInteractiveSelection = true,
+    this.toolbarOptions = const ToolbarOptions(selectAll: true, copy: true),
     this.cursorWidth = 2.0,
     this.cursorHeight,
     this.cursorRadius,
     this.cursorColor,
     this.dragStartBehavior = DragStartBehavior.start,
     this.minLines,
-  })  : assert(texts != null && texts.length > 0),
-        assert(selectable != null),
-        // RichText and SelectableText
+  })  : assert(texts.length > 0),
         assert(maxLines == null || maxLines > 0),
-        assert(textAlign != null),
-        assert(textScaleFactor != null),
-        assert(textWidthBasis != null),
-        // RichText
-        assert(softWrap != null),
-        assert(overflow != null),
-        // SelectableText
-        assert(dragStartBehavior != null),
         assert(minLines == null || minLines > 0),
+        super(key: key);
+
+  /// Creates a [TextGroup] which wraps [RichText] to show [TextGroupItem] list.
+  const TextGroup.normal({
+    Key? key,
+    required this.texts,
+    this.style,
+    this.outerSpanBuilder,
+    // both
+    this.maxLines,
+    this.strutStyle,
+    this.textAlign = TextAlign.start,
+    this.textDirection,
+    this.textScaleFactor,
+    this.textWidthBasis = TextWidthBasis.parent,
+    this.textHeightBehavior,
+    // RichText only
+    this.softWrap = true,
+    this.overflow = TextOverflow.clip,
+    this.locale,
+  })  : assert(texts.length > 0),
+        assert(maxLines == null || maxLines > 0),
+        selectable = false,
+        // SelectableText only
+        focusNode = null,
+        showCursor = null,
+        autofocus = null,
+        enableInteractiveSelection = null,
+        toolbarOptions = null,
+        cursorWidth = null,
+        cursorHeight = null,
+        cursorRadius = null,
+        cursorColor = null,
+        dragStartBehavior = null,
+        minLines = null,
+        super(key: key);
+
+  /// Creates a [TextGroup] which wraps [SelectableText] to show [TextGroupItem] list.
+  const TextGroup.selectable({
+    Key? key,
+    required this.texts,
+    this.style,
+    this.outerSpanBuilder,
+    // both
+    this.maxLines,
+    this.strutStyle,
+    this.textAlign = TextAlign.start,
+    this.textDirection,
+    this.textScaleFactor,
+    this.textWidthBasis = TextWidthBasis.parent,
+    this.textHeightBehavior,
+    // SelectableText only
+    this.focusNode,
+    this.showCursor = false,
+    this.autofocus = false,
+    this.enableInteractiveSelection = true,
+    this.toolbarOptions = const ToolbarOptions(selectAll: true, copy: true),
+    this.cursorWidth = 2.0,
+    this.cursorHeight,
+    this.cursorRadius,
+    this.cursorColor,
+    this.dragStartBehavior = DragStartBehavior.start,
+    this.minLines,
+  })  : assert(texts.length > 0),
+        assert(maxLines == null || maxLines > 0),
+        assert(minLines == null || minLines > 0),
+        selectable = true,
+        // RichText only
+        softWrap = null,
+        overflow = null,
+        locale = null,
         super(key: key);
 
   /// The children of this widget.
   final List<TextGroupItem> texts;
 
-  /// The switcher represents this widget can be selectable.
-  final bool selectable;
+  /// The switcher represents this widget can be selectable, defaults to false.
+  final bool? selectable;
 
   /// The text style of the outer [TextSpan].
-  final TextStyle style;
+  final TextStyle? style;
 
-  // RichText and SelectableText
+  /// The outer [TextSpan] builder， defaults to add empty [TextSpan] span list.
+  final TextSpan Function(BuildContext context, List<InlineSpan> spans, TextStyle? style)? outerSpanBuilder;
+
+  // both
 
   /// The max lines of [RichText] and [SelectableText].
-  final int maxLines;
+  final int? maxLines;
 
   /// The strutStyle of [RichText] and [SelectableText].
-  final StrutStyle strutStyle;
+  final StrutStyle? strutStyle;
 
-  /// The textAlign of [RichText] and [SelectableText].
-  final TextAlign textAlign;
+  /// The textAlign of [RichText] and [SelectableText], defaults to [TextAlign.start].
+  final TextAlign? textAlign;
 
   /// The textDirection of [RichText] and [SelectableText].
-  final TextDirection textDirection;
+  final TextDirection? textDirection;
 
-  /// The textScaleFactor of [RichText] and [SelectableText].
-  final double textScaleFactor;
+  /// The textScaleFactor of [RichText] and [SelectableText], defaults to [MediaQuery.of(context).textScaleFactor].
+  final double? textScaleFactor;
 
-  /// The textWidthBasis of [RichText] and [SelectableText].
-  final TextWidthBasis textWidthBasis;
+  /// The textWidthBasis of [RichText] and [SelectableText], defaults to
+  /// [TextWidthBasis.parent].
+  final TextWidthBasis? textWidthBasis;
 
   /// The textHeightBehavior of [RichText] and [SelectableText].
-  final TextHeightBehavior textHeightBehavior;
+  final TextHeightBehavior? textHeightBehavior;
 
-  // RichText
+  // RichText only
 
-  /// The softWrap of [RichText] when [selectable] is false.
-  final bool softWrap;
+  /// The softWrap of [RichText] when [selectable] is false, defaults to true.
+  final bool? softWrap;
 
-  /// The overflow of [RichText] when [selectable] is false.
-  final TextOverflow overflow;
+  /// The overflow of [RichText] when [selectable] is false, defaults to [TextOverflow.clip].
+  final TextOverflow? overflow;
 
-  // SelectableText
+  /// The locale of [RichText] when [selectable] is false.
+  final Locale? locale;
+
+  // SelectableText only
 
   /// The focusNode of [SelectableText] when [selectable] is true.
-  final FocusNode focusNode;
+  final FocusNode? focusNode;
 
-  /// The toolbarOptions of [SelectableText] when [selectable] is true.
-  final ToolbarOptions toolbarOptions;
+  /// The showCursor of [SelectableText] when [selectable] is true, defaults to false.
+  final bool? showCursor;
 
-  /// The cursorWidth of [SelectableText] when [selectable] is true.
-  final double cursorWidth;
+  /// The autofocus of [SelectableText] when [selectable] is true, defaults to false.
+  final bool? autofocus;
+
+  /// The enableInteractiveSelection of [SelectableText] when [selectable] is true, defaults
+  /// to true.
+  final bool? enableInteractiveSelection;
+
+  /// The toolbarOptions of [SelectableText] when [selectable] is true, defaults to
+  /// [ToolbarOptions(selectAll: true, copy: true)].
+  final ToolbarOptions? toolbarOptions;
+
+  /// The cursorWidth of [SelectableText] when [selectable] is true, defaults to 2.0.
+  final double? cursorWidth;
 
   /// The cursorHeight of [SelectableText] when [selectable] is true.
-  final double cursorHeight;
+  final double? cursorHeight;
 
   /// The cursorRadius of [SelectableText] when [selectable] is true.
-  final Radius cursorRadius;
+  final Radius? cursorRadius;
 
   /// The cursorColor of [SelectableText] when [selectable] is true.
-  final Color cursorColor;
+  final Color? cursorColor;
 
-  /// The dragStartBehavior of [SelectableText] when [selectable] is true.
-  final DragStartBehavior dragStartBehavior;
+  /// The dragStartBehavior of [SelectableText] when [selectable] is true, defaults to
+  /// [DragStartBehavior.start].
+  final DragStartBehavior? dragStartBehavior;
 
   /// The minLines of [SelectableText] when [selectable] is true.
-  final int minLines;
+  final int? minLines;
 
   @override
   _TextGroupState createState() => _TextGroupState();
 }
 
 class _TextGroupState extends State<TextGroup> {
-  var _tapDowns = <bool>[]; // tap down indicator list
+  var _tapped = <bool>[]; // tap down indicator list
 
   @override
   void initState() {
-    _tapDowns = List.generate(widget.texts.length, (_) => false);
     super.initState();
+    _tapped = List.generate(widget.texts.length, (_) => false);
+  }
+
+  @override
+  void didUpdateWidget(covariant TextGroup oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.texts.length != oldWidget.texts.length) {
+      _tapped = List.generate(widget.texts.length, (_) => false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    // inner textSpan-s
-    var spans = <TextSpan>[];
+    // inner InlineSpan-s
+    var spans = <InlineSpan>[];
     for (var i = 0; i < widget.texts.length; i++) {
       var t = widget.texts[i];
-      assert(t != null);
-
-      if (t is NormalGroupText) {
-        spans.add(
-          TextSpan(text: t.text, style: t.style),
-        );
-      } else if (t is LinkGroupText) {
-        var textColor = !_tapDowns[i] ? t.normalColor : t.pressedColor;
-        var textStyle = t.styleFn?.call(_tapDowns[i]) ??
-            (!t.showUnderline
-                ? TextStyle(color: textColor, decoration: TextDecoration.none)
-                : TextStyle(
-                    color: Colors.transparent,
-                    shadows: [Shadow(color: textColor ?? Colors.black, offset: Offset(0, -1))], // offset -1
-                    decoration: TextDecoration.underline,
-                    decorationColor: textColor ?? Colors.black,
-                  ));
-        spans.add(
-          TextSpan(
-            text: t.text,
-            style: textStyle,
-            recognizer: TapGestureRecognizer()
-              ..onTap = t.onTap
-              ..onTapDown = ((_) => mountedSetState(() => _tapDowns[i] = true))
-              ..onTapUp = ((_) => mountedSetState(() => _tapDowns[i] = false))
-              ..onTapCancel = (() => mountedSetState(() => _tapDowns[i] = false)),
-          ),
-        );
+      if (t is SpanItem) {
+        spans.add(t.buildSpan(context));
+      } else if (t is PlainTextItem) {
+        spans.add(t.buildSpan(context));
+      } else if (t is LinkTextItem) {
+        spans.add(t.buildSpanForLinkText(context, () => _tapped[i], (t) {
+          _tapped[i] = t;
+          if (mounted) setState(() {});
+        }));
       } else {
-        spans.add(
-          TextSpan(text: t.text), // custom TextSpan
-        ); // custom TextGroupItem
+        spans.add(t.buildSpan(context));
       }
     }
 
-    // outer textSpan
-    var textSpan = TextSpan(
-      text: '',
-      style: widget.style ?? DefaultTextStyle.of(context).style,
-      children: spans..add(TextSpan(text: ' ')), // final textSpan
-    );
+    // outer TextSpan
+    var textSpan = widget.outerSpanBuilder?.call(context, spans, widget.style) ??
+        TextSpan(
+          text: '',
+          style: widget.style ?? DefaultTextStyle.of(context).style,
+          children: spans..add(const TextSpan(text: ' ')), // final empty TextSpan
+        );
 
-    if (!widget.selectable) {
-      // RichText
+    // RichText or SelectedText
+    if (!(widget.selectable ?? false)) {
       return RichText(
         text: textSpan,
         // both
         maxLines: widget.maxLines,
         strutStyle: widget.strutStyle,
-        textAlign: widget.textAlign,
+        textAlign: widget.textAlign ?? TextAlign.start,
         textDirection: widget.textDirection,
-        textScaleFactor: widget.textScaleFactor,
-        textWidthBasis: widget.textWidthBasis,
+        textScaleFactor: widget.textScaleFactor ?? MediaQuery.of(context).textScaleFactor,
+        textWidthBasis: widget.textWidthBasis ?? TextWidthBasis.parent,
         textHeightBehavior: widget.textHeightBehavior,
         // only
-        softWrap: widget.softWrap,
-        overflow: widget.overflow,
-        // locale: widget.locale,
+        softWrap: widget.softWrap ?? true,
+        overflow: widget.overflow ?? TextOverflow.clip,
+        locale: widget.locale,
       );
     } else {
-      // SelectableText
       return SelectableText.rich(
         textSpan,
         // both
         maxLines: widget.maxLines,
         strutStyle: widget.strutStyle,
-        textAlign: widget.textAlign,
+        textAlign: widget.textAlign ?? TextAlign.start,
         textDirection: widget.textDirection,
-        textScaleFactor: widget.textScaleFactor,
-        textWidthBasis: widget.textWidthBasis,
+        textScaleFactor: widget.textScaleFactor ?? MediaQuery.of(context).textScaleFactor,
+        textWidthBasis: widget.textWidthBasis ?? TextWidthBasis.parent,
         textHeightBehavior: widget.textHeightBehavior,
         // only
         focusNode: widget.focusNode,
-        toolbarOptions: widget.toolbarOptions ?? ToolbarOptions(selectAll: true, copy: true),
-        cursorWidth: widget.cursorWidth,
+        showCursor: widget.showCursor ?? false,
+        autofocus: widget.autofocus ?? false,
+        enableInteractiveSelection: widget.enableInteractiveSelection ?? true,
+        toolbarOptions: widget.toolbarOptions ?? const ToolbarOptions(selectAll: true, copy: true),
+        minLines: widget.minLines,
+        cursorWidth: widget.cursorWidth ?? 2.0,
         cursorHeight: widget.cursorHeight,
         cursorRadius: widget.cursorRadius,
         cursorColor: widget.cursorColor,
-        dragStartBehavior: widget.dragStartBehavior,
-        minLines: widget.minLines,
-        // showCursor: widget.showCursor,
-        // autofocus: widget.autofocus,
-        // enableInteractiveSelection: widget.enableInteractiveSelection,
-        // selectionControls: widget.selectionControls,
-        // onTap: widget.onTap,
-        // scrollPhysics: widget.scrollPhysics,
-        // onSelectionChanged: widget.onSelectionChanged,
+        dragStartBehavior: widget.dragStartBehavior ?? DragStartBehavior.start,
+        // do not used => style, selectionControls, onTap, scrollPhysics, onSelectionChanged, semanticsLabel
       );
     }
   }

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/flutter_ahlib.dart';
+import 'package:flutter_ahlib_example/main.dart';
 
 class LazyIndexedStackPage extends StatefulWidget {
-  const LazyIndexedStackPage({Key key}) : super(key: key);
+  const LazyIndexedStackPage({Key? key}) : super(key: key);
 
   @override
   _LazyIndexedStackPageState createState() => _LazyIndexedStackPageState();
@@ -10,13 +11,13 @@ class LazyIndexedStackPage extends StatefulWidget {
 
 class _LazyIndexedStackPageState extends State<LazyIndexedStackPage> {
   var _currentIndex = 0;
-  var _pages = <Widget>[_PageA(), _PageB(), _PageC()];
+  final _pages = <Widget>[_PageA(), _PageB(), _PageC()];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('LazyIndexedStack Example'),
+        title: const Text('LazyIndexedStack Example'),
       ),
       body: LazyIndexedStack(
         index: _currentIndex,
@@ -29,7 +30,7 @@ class _LazyIndexedStackPageState extends State<LazyIndexedStackPage> {
         items: ['A', 'B', 'C']
             .map(
               (t) => BottomNavigationBarItem(
-                icon: Icon(Icons.chevron_right),
+                icon: const Icon(Icons.chevron_right),
                 label: t,
               ),
             )
@@ -52,12 +53,12 @@ class __PageAState extends State<_PageA> {
   @override
   void initState() {
     super.initState();
-    print('initState: A');
+    printLog('initState: A');
   }
 
   @override
   Widget build(BuildContext context) {
-    return Center(child: Text('A'));
+    return const Center(child: Text('A'));
   }
 }
 
@@ -70,12 +71,12 @@ class __PageBState extends State<_PageB> {
   @override
   void initState() {
     super.initState();
-    print('initState: B');
+    printLog('initState: B');
   }
 
   @override
   Widget build(BuildContext context) {
-    return Center(child: Text('B'));
+    return const Center(child: Text('B'));
   }
 }
 
@@ -88,11 +89,13 @@ class __PageCState extends State<_PageC> {
   @override
   void initState() {
     super.initState();
-    print('initState: C');
+    printLog('initState: C');
   }
 
   @override
   Widget build(BuildContext context) {
-    return Center(child: Text('C'));
+    return const Center(
+      child: Text('C'),
+    );
   }
 }

@@ -5,56 +5,90 @@
 [![pub package](https://img.shields.io/pub/v/flutter_ahlib.svg)](https://pub.dev/packages/flutter_ahlib)
 [![License](https://img.shields.io/badge/license-mit-blue.svg)](./LICENSE)
 
-+ A personal flutter library, contains some useful widgets and utils.
-+ See package in https://pub.dev/packages/flutter_ahlib.
++ A personal flutter library, contains some useful widgets and utilities.
++ Please visit https://pub.dev/packages/flutter_ahlib for this library. Note that this library only passes tests in Flutter 2.x.
 
 ### Usage
 
 ```dart
-import 'package:flutter_ahlib/widget.dart'; // for widgets
-import 'package:flutter_ahlib/list.dart'; // for list widgets
-import 'package:flutter_ahlib/image.dart'; // for image widgets
-import 'package:flutter_ahlib/util.dart'; // for utils
+// Import the whole library, including common widgets, list widgets, image widgets and utilities.
+import 'package:flutter_ahlib/flutter_ahlib.dart';
 
-// Or import all packages directly.
-import 'package:flutter_ahlib/flutter_ahlib.dart'; // the whole library
+// Only import the util library.
+import 'package:flutter_ahlib/flutter_ahlib_util.dart'; 
 ```
 
 ### Library contents
 
-+ widget.dart:
-    + `PlaceholderText`
-    + `DrawerListView`
-    + `IconText`
-    + `showPopupListMenu`
++ Common widgets ([lib/src/widget/](./lib/src/widget))
     + `AnimatedFab` `ScrollAnimatedFab` `AnimatedFabController`
-    + `SliverAppBarDelegate` `SliverAppBarSizedDelegate` `SliverSeparatedListDelegate` `SliverSeparatedListBuilderDelegate`
+    + `AppBarActionButtonTheme` `AppBarActionButton`
+    + `CustomDrawerController` `CustomDrawerControllerState`
+    + `CustomInkRipple` `CustomInkSplash`
+    + `CustomInkWell` `CustomInkResponse`
+    + `CustomPageRoute` `CustomPageRouteTheme` `NoPopGestureCupertinoPageTransitionsBuilder`
+    + `CustomScrollPhysics` `CustomScrollPhysicsController` `DefaultCustomScrollPhysics`
+    + `CustomSingleChildLayoutDelegate`
+    + `DrawerScaffold` `DrawerScaffoldState`
+    + `ExtendedDropdownButton` `ExtendedDropdownButtonState` `ViewInsetsData`
+    + `ExtendedNestedScrollView` `ExtendedNestedScrollViewState`
+    + `ExtendedScrollbar`
+    + `ExtendedTabBarView` `ExtendedTabBarViewState`
+    + `IconText`
+    + `LazyIndexedStack` `PositionArgument`
+    + `NestedPageViewNotifier`
+    + `flatButtonStyle` `raisedButtonStyle` `outlineButtonStyle` `ThemeDataExtension`
+    + `OverflowClipBox`
+    + `PlaceholderText` `PreviouslySwitchedWidget` `switchLayoutBuilderWithSwitchedFlag`
+    + `TextDialogOption` `IconTextDialogOption` `CircularProgressDialogOption` `showYesNoAlertDialog`
+    + `PreloadablePageView` `PageChangedListener`
+    + `SliverHeaderDelegate` `SliverSeparatedListDelegate` `SliverSeparatedListBuilderDelegate`
+    + `TableWholeRowInkWell` `TableCellHelper`
     + `TextGroup`
-    + `LazyIndexedStack`
-    + `TabInPageNotification`
-+ list.dart:
-    + `AppendIndicator`
-    + `UpdatableDataView` `UpdatableDataViewController`
-    + `RefreshableDataView` `RefreshableListView` `RefreshableSliverListView` `RefreshableStaggeredGridView`
-    + `PaginationDataView` `PaginationListView` `PaginationSliverListView` `PaginationStaggeredGridView`
-+ image.dart:
-    + `FileOrNetworkImageProvider`
+    + `TextSelectionConfig` `TextSelectionWithColorHandle`
+    + `VideoProgressIndicator`
+    + `StatelessWidgetWithCallback` `StatefulWidgetWithCallback`
++ List widgets ([lib/src/list/](./lib/src/list))
+    + `AppendIndicator` `AppendIndicatorState`
+    + `MultiSelectable` `MultiSelectableController` `SelectableItem` `SelectableCheckboxItem`
+    + `RefreshableDataView` `RefreshableDataViewState`
+    + `PaginationDataView` `PaginationDataViewState`
+    + `UpdatableDataView`
++ Image widgets ([lib/src/image/](./lib/src/image))
+    + `ExtendedPhotoGallery` `ExtendedPhotoGalleryState`
+    + `loadLocalOrNetworkImageBytes` `loadLocalOrNetworkImageCodec`
+    + `LocalOrCachedNetworkImage`
+    + `LocalOrCachedNetworkImageProvider`
     + `MultiImageStreamCompleter`
-+ util.dart:
+    + `ReloadablePhotoView` `ReloadablePhotoViewState`
++ Utilities ([lib/src/util/](./lib/src/util))
     + `ActionController`
+    + `BoolExtension` `IterableExtension` `ListExtension` `ObjectExtension` `FutureExtension`
+    + `downloadFile`
+    + `ExtendedLogger` `PreferredPrinter`
+    + `filesize` `filesizeWithoutSpace`
+    + `Flutter material constants`
+    + `StateExtension` `ScrollControllerExtension` `ScrollMetricsExtension` `PageControllerExtension` `ColorExtension` `TextSpanExtension` `RenderObjectExtension` `BuildContextExtension`
+    + `getMimeFromExtension` `getExtensionsFromMime` `getPreferredExtensionFromMime`
+    + `TaskResult` `Ok` `Err` `TaskResultFutureExtension`
     + `Tuple2` ~ `Tuple6`
-    + `hash2` ~ `hash6` `hashObjects`
-    + `BoolExtension` `ListExtension`
-    + `StateExtension` `ScrollControllerExtension` `PageControllerExtension` `ScrollMetricsExtension`
-    + `filesize`
-    + `NotifiableData`
 
 ### Dependencies
 
-+ See [pubspec.yaml](./pubspec.yaml)
++ Visit [pubspec.yaml](./pubspec.yaml) for details.
 
 ```yaml
-flutter_staggered_grid_view: ^0.3.2
-flutter_cache_manager: ">=2.0.0 <3.0.0" # 2.0.0
-http: ^0.12.2
+environment:
+  sdk: ">=2.16.2 <3.0.0"
+
+dependencies:
+  flutter_cache_manager: ^3.3.0
+  flutter_staggered_grid_view: ^0.6.1
+  http: ^0.13.4
+  logger: ^1.1.0
+  path: 1.8.0
+  photo_view: ^0.14.0
+
+dev_dependencies:
+  flutter_lints: ^1.0.0
 ```

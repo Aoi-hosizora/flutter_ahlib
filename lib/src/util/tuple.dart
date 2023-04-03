@@ -1,6 +1,26 @@
-// Refers to: https://github.com/google/tuple.dart/blob/master/lib/tuple.dart.
+import 'dart:ui';
 
-import 'package:flutter_ahlib/src/util/hash.dart';
+// Reference:
+// - https://github.com/google/tuple.dart/blob/master/lib/tuple.dart
+
+/// Represents a 1-tuple, which can be used to wrap simple type as referable type.
+class Tuple1<T> {
+  Tuple1(this.item);
+
+  /// The item of the tuple;
+  T item;
+
+  @override
+  String toString() => '[$item]';
+
+  @override
+  bool operator ==(Object other) {
+    return other is Tuple1 && other.item == item;
+  }
+
+  @override
+  int get hashCode => item.hashCode;
+}
 
 /// Represents a 2-tuple, or pair.
 class Tuple2<T1, T2> {
@@ -13,6 +33,8 @@ class Tuple2<T1, T2> {
   T2 item2;
 
   /// Creates a new tuple value with the specified list [items].
+  ///
+  /// Note that if given items length is less than 2, or types do not match tuple type, this constructor will throw error.
   factory Tuple2.fromList(List items) {
     if (items.length != 2) {
       throw ArgumentError('items must have length 2');
@@ -32,7 +54,7 @@ class Tuple2<T1, T2> {
   }
 
   @override
-  int get hashCode => hash2(item1.hashCode, item2.hashCode);
+  int get hashCode => hashValues(item1.hashCode, item2.hashCode);
 }
 
 /// Represents a 3-tuple, or triple.
@@ -49,6 +71,8 @@ class Tuple3<T1, T2, T3> {
   T3 item3;
 
   /// Creates a new tuple value with the specified list [items].
+  ///
+  /// Note that if given items length is less than 3, or types do not match tuple type, this constructor will throw error.
   factory Tuple3.fromList(List items) {
     if (items.length != 3) {
       throw ArgumentError('items must have length 3');
@@ -68,7 +92,7 @@ class Tuple3<T1, T2, T3> {
   }
 
   @override
-  int get hashCode => hash3(item1.hashCode, item2.hashCode, item3.hashCode);
+  int get hashCode => hashValues(item1.hashCode, item2.hashCode, item3.hashCode);
 }
 
 /// Represents a 4-tuple, or quadruple.
@@ -88,6 +112,8 @@ class Tuple4<T1, T2, T3, T4> {
   T4 item4;
 
   /// Creates a new tuple value with the specified list [items].
+  ///
+  /// Note that if given items length is less than 4, or types do not match tuple type, this constructor will throw error.
   factory Tuple4.fromList(List items) {
     if (items.length != 4) {
       throw ArgumentError('items must have length 4');
@@ -107,7 +133,7 @@ class Tuple4<T1, T2, T3, T4> {
   }
 
   @override
-  int get hashCode => hash4(item1.hashCode, item2.hashCode, item3.hashCode, item4.hashCode);
+  int get hashCode => hashValues(item1.hashCode, item2.hashCode, item3.hashCode, item4.hashCode);
 }
 
 /// Represents a 5-tuple, or quintuple.
@@ -130,6 +156,8 @@ class Tuple5<T1, T2, T3, T4, T5> {
   T5 item5;
 
   /// Creates a new tuple value with the specified list [items].
+  ///
+  /// Note that if given items length is less than 5, or types do not match tuple type, this constructor will throw error.
   factory Tuple5.fromList(List items) {
     if (items.length != 5) {
       throw ArgumentError('items must have length 5');
@@ -149,7 +177,7 @@ class Tuple5<T1, T2, T3, T4, T5> {
   }
 
   @override
-  int get hashCode => hash5(item1.hashCode, item2.hashCode, item3.hashCode, item4.hashCode, item5.hashCode);
+  int get hashCode => hashValues(item1.hashCode, item2.hashCode, item3.hashCode, item4.hashCode, item5.hashCode);
 }
 
 /// Represents a 6-tuple, or sextuple.
@@ -175,6 +203,8 @@ class Tuple6<T1, T2, T3, T4, T5, T6> {
   T6 item6;
 
   /// Creates a new tuple value with the specified list [items].
+  ///
+  /// Note that if given items length is less than 6, or types do not match tuple type, this constructor will throw error.
   factory Tuple6.fromList(List items) {
     if (items.length != 6) {
       throw ArgumentError('items must have length 6');
@@ -194,5 +224,5 @@ class Tuple6<T1, T2, T3, T4, T5, T6> {
   }
 
   @override
-  int get hashCode => hash6(item1.hashCode, item2.hashCode, item3.hashCode, item4.hashCode, item5.hashCode, item6.hashCode);
+  int get hashCode => hashValues(item1.hashCode, item2.hashCode, item3.hashCode, item4.hashCode, item5.hashCode, item6.hashCode);
 }
