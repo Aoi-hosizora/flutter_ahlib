@@ -1,12 +1,12 @@
 # flutter_ahlib
 
-[![Build Status](https://travis-ci.com/Aoi-hosizora/flutter_ahlib.svg?branch=master)](https://travis-ci.com/Aoi-hosizora/flutter_ahlib)
+[![Build Status](https://app.travis-ci.com/Aoi-hosizora/flutter_ahlib.svg?branch=master)](https://app.travis-ci.com/github/Aoi-hosizora/flutter_ahlib)
 [![Release](https://img.shields.io/github/v/release/Aoi-hosizora/flutter_ahlib)](https://github.com/Aoi-hosizora/flutter_ahlib/releases)
 [![pub package](https://img.shields.io/pub/v/flutter_ahlib.svg)](https://pub.dev/packages/flutter_ahlib)
 [![License](https://img.shields.io/badge/license-mit-blue.svg)](./LICENSE)
 
 + A personal flutter library, contains some useful widgets and utilities.
-+ Please visit https://pub.dev/packages/flutter_ahlib for this library. Note that this library only passes tests in Flutter 2.x.
++ Please visit https://pub.dev/packages/flutter_ahlib for details. Note that this library only passes tests in Flutter 2.x.
 
 ### Usage
 

@@ -1,3 +1,19 @@
+## [1.3.0] - Refactor and improve the whole library
+
+> This upgrading contains lots of large changes, visit https://github.com/Aoi-hosizora/flutter_ahlib/pull/14 for details.
+
+1. This is a break update, which begins to support null-safety dart. (Sorry for merging these updates and changes so late :P)
+2. Currently, this package is separated into four parts - `Common widgets`, `List widgets`, `Image widgets`, `Utilities`, each part contains some useful widgets or utilities.
+3. New common widgets since v1.2.0: `AppBarActionButton` `CustomDrawerController` `CustomInkRipple` `CustomInkSplash` `CustomInkWell` `CustomInkResponse` `CustomPageRoute` `CustomPageRouteTheme`
+   `CustomScrollPhysics` `DefaultCustomScrollPhysics` `CustomSingleChildLayoutDelegate` `DrawerScaffold` `ExtendedDropdownButton` `ExtendedNestedScrollView` `ExtendedScrollbar`
+   `ExtendedTabBarView` `OverflowClipBox` `PreviouslySwitchedWidget` `PreloadablePageView` `PageChangedListener` `TableWholeRowInkWell` `TextSelectionWithColorHandle` `VideoProgressIndicator` 
+   `StatelessWidgetWithCallback` `StatefulWidgetWithCallback` etc...
+4. New list widgets since v1.2.0: `MultiSelectable` `SelectableItem` `SelectableCheckboxItem` `PaginationGridView` `PaginationSliverGridView` `RefreshableGridView` `RefreshableSliverGridView`
+5. New image widgets and image utilities since v1.2.0: `ExtendedPhotoGallery` `loadLocalOrNetworkImageBytes` `loadLocalOrNetworkImageCodec` `LocalOrCachedNetworkImage` `ReloadablePhotoView`
+6. New utilities since v1.2.0: `downloadFile` `ExtendedLogger` `PreferredPrinter` `Flutter material constants` `Flutter extensions` `getMimeFromExtension` `getExtensionsFromMime` `TaskResult`
+7. Deleted or renamed components since v1.2.0: `DrawerListView -> x` `showPopupListMenu -> XXXDialogOption` `SliverAppBarDelegate / SliverAppBarSizedDelegate -> SliverHeaderDelegate` 
+   `TabInPageNotification -> NestedPageViewNotifier` `FileOrNetworkImageProvider -> LocalOrCachedNetworkImageProvider` `NotifiableData` etc...
+
 ## [1.2.0] - Refactor the whole library and add some widgets
 
 1. This is a break update, see https://github.com/Aoi-hosizora/flutter_ahlib/pull/13
