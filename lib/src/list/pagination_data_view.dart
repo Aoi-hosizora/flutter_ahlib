@@ -225,8 +225,9 @@ class PaginationDataView<T> extends UpdatableDataView<T> {
   @override
   final List<T> data;
 
-  /// The function to get list data with pagination.
-  final Future<PagedList<T>> Function({required dynamic indicator}) getData;
+  /// The function to get list data with pagination. You can set this field to null to hide refresh
+  /// indicator and append indicator, and this means given [data] never be updated by this widget.
+  final Future<PagedList<T>> Function({required dynamic indicator})? getData;
 
   /// The data display style.
   @override
@@ -360,7 +361,7 @@ class PaginationDataViewState<T> extends State<PaginationDataView<T>> with Autom
     }
 
     // get data
-    final func = widget.getData(indicator: _nextIndicator); // Future<PagedList<T>>
+    final func = widget.getData!(indicator: _nextIndicator); // Future<PagedList<T>>
     double? previousOffset;
     var needScrollDown = false;
 
@@ -650,7 +651,55 @@ class PaginationDataViewState<T> extends State<PaginationDataView<T>> with Autom
           return _buildCustomView(context);
       }
     }
+    
+    final view = Column(
+      crossAxisAlignment: widget.extra?.outerCrossAxisAlignment ?? CrossAxisAlignment.center,
+      children: [
+        if (widget.extra?.outerTopWidgets != null) ...(widget.extra?.outerTopWidgets)!,
+        Expanded(
+          child: PlaceholderText.from(
+            forceState: _forceState,
+            isEmpty: widget.data.isEmpty,
+            isLoading: _loading && widget.data.isEmpty,
+            errorText: _errorMessage,
+            onRefresh: () => _refreshIndicatorKey.currentState?.show(),
+            onChanged: widget.setting.onPlaceholderStateChanged,
+            setting: widget.setting.placeholderSetting ?? const PlaceholderSetting(),
+            displayRule: widget.setting.placeholderDisplayRule ?? PlaceholderDisplayRule.dataFirst,
+            childBuilder: (c) => Column(
+              crossAxisAlignment: widget.extra?.innerCrossAxisAlignment ?? CrossAxisAlignment.center,
+              children: [
+                if (widget.extra?.innerTopWidgets != null) ...(widget.extra?.innerTopWidgets)!,
+                Expanded(
+                  child: NotificationListener<ScrollNotification>(
+                    onNotification: (s) => _onScroll(s),
+                    child: widget.setting.scrollbar ?? true
+                        ? ExtendedScrollbar(
+                            interactive: PreviouslySwitchedWidget.isPrevious(c) ? false : widget.setting.interactiveScrollbar ?? false,
+                            isAlwaysShown: widget.setting.alwaysShowScrollbar ?? false,
+                            radius: widget.setting.scrollbarRadius,
+                            thickness: widget.setting.scrollbarThickness,
+                            mainAxisMargin: widget.setting.scrollbarMainAxisMargin,
+                            crossAxisMargin: widget.setting.scrollbarCrossAxisMargin,
+                            extraMargin: widget.setting.scrollbarExtraMargin,
+                            controller: PreviouslySwitchedWidget.isPrevious(c) ? null : widget.scrollController,
+                            child: _buildView(c),
+                          )
+                        : _buildView(c),
+                  ),
+                ),
+                if (widget.extra?.innerBottomWidgets != null) ...(widget.extra?.innerBottomWidgets)!,
+              ],
+            ),
+          ),
+        ),
+        if (widget.extra?.outerBottomWidgets != null) ...(widget.extra?.outerBottomWidgets)!,
+      ],
+    );
 
+    if (widget.getData == null) {
+      return view;
+    }
     return AppendIndicator(
       key: _appendIndicatorKey,
       onAppend: () => _getData(reset: false),
@@ -666,50 +715,7 @@ class PaginationDataViewState<T> extends State<PaginationDataView<T>> with Autom
         displacement: widget.setting.refreshIndicatorDisplacement ?? 40.0,
         strokeWidth: widget.setting.refreshIndicatorStrokeWidth ?? RefreshProgressIndicator.defaultStrokeWidth,
         notificationPredicate: widget.setting.refreshNotificationPredicate ?? defaultScrollNotificationPredicate,
-        child: Column(
-          crossAxisAlignment: widget.extra?.outerCrossAxisAlignment ?? CrossAxisAlignment.center,
-          children: [
-            if (widget.extra?.outerTopWidgets != null) ...(widget.extra?.outerTopWidgets)!,
-            Expanded(
-              child: PlaceholderText.from(
-                forceState: _forceState,
-                isEmpty: widget.data.isEmpty,
-                isLoading: _loading && widget.data.isEmpty,
-                errorText: _errorMessage,
-                onRefresh: () => _refreshIndicatorKey.currentState?.show(),
-                onChanged: widget.setting.onPlaceholderStateChanged,
-                setting: widget.setting.placeholderSetting ?? const PlaceholderSetting(),
-                displayRule: widget.setting.placeholderDisplayRule ?? PlaceholderDisplayRule.dataFirst,
-                childBuilder: (c) => Column(
-                  crossAxisAlignment: widget.extra?.innerCrossAxisAlignment ?? CrossAxisAlignment.center,
-                  children: [
-                    if (widget.extra?.innerTopWidgets != null) ...(widget.extra?.innerTopWidgets)!,
-                    Expanded(
-                      child: NotificationListener<ScrollNotification>(
-                        onNotification: (s) => _onScroll(s),
-                        child: widget.setting.scrollbar ?? true
-                            ? ExtendedScrollbar(
-                                interactive: PreviouslySwitchedWidget.isPrevious(c) ? false : widget.setting.interactiveScrollbar ?? false,
-                                isAlwaysShown: widget.setting.alwaysShowScrollbar ?? false,
-                                radius: widget.setting.scrollbarRadius,
-                                thickness: widget.setting.scrollbarThickness,
-                                mainAxisMargin: widget.setting.scrollbarMainAxisMargin,
-                                crossAxisMargin: widget.setting.scrollbarCrossAxisMargin,
-                                extraMargin: widget.setting.scrollbarExtraMargin,
-                                controller: PreviouslySwitchedWidget.isPrevious(c) ? null : widget.scrollController,
-                                child: _buildView(c),
-                              )
-                            : _buildView(c),
-                      ),
-                    ),
-                    if (widget.extra?.innerBottomWidgets != null) ...(widget.extra?.innerBottomWidgets)!,
-                  ],
-                ),
-              ),
-            ),
-            if (widget.extra?.outerBottomWidgets != null) ...(widget.extra?.outerBottomWidgets)!,
-          ],
-        ),
+        child: view,
       ),
     );
   }
@@ -721,7 +727,7 @@ class PaginationListView<T> extends PaginationDataView<T> {
   const PaginationListView({
     Key? key,
     required List<T> data,
-    required Future<PagedList<T>> Function({required dynamic indicator}) getData,
+    required Future<PagedList<T>> Function({required dynamic indicator})? getData,
     UpdatableDataViewSetting<T> setting = const UpdatableDataViewSetting(),
     PaginationSetting paginationSetting = const PaginationSetting(),
     ScrollController? scrollController,
@@ -749,7 +755,7 @@ class PaginationSliverListView<T> extends PaginationDataView<T> {
   const PaginationSliverListView({
     Key? key,
     required List<T> data,
-    required Future<PagedList<T>> Function({required dynamic indicator}) getData,
+    required Future<PagedList<T>> Function({required dynamic indicator})? getData,
     UpdatableDataViewSetting<T> setting = const UpdatableDataViewSetting(),
     PaginationSetting paginationSetting = const PaginationSetting(),
     ScrollController? scrollController,
@@ -779,7 +785,7 @@ class PaginationGridView<T> extends PaginationDataView<T> {
   const PaginationGridView({
     Key? key,
     required List<T> data,
-    required Future<PagedList<T>> Function({required dynamic indicator}) getData,
+    required Future<PagedList<T>> Function({required dynamic indicator})? getData,
     UpdatableDataViewSetting<T> setting = const UpdatableDataViewSetting(),
     PaginationSetting paginationSetting = const PaginationSetting(),
     ScrollController? scrollController,
@@ -807,7 +813,7 @@ class PaginationSliverGridView<T> extends PaginationDataView<T> {
   const PaginationSliverGridView({
     Key? key,
     required List<T> data,
-    required Future<PagedList<T>> Function({required dynamic indicator}) getData,
+    required Future<PagedList<T>> Function({required dynamic indicator})? getData,
     UpdatableDataViewSetting<T> setting = const UpdatableDataViewSetting(),
     PaginationSetting paginationSetting = const PaginationSetting(),
     ScrollController? scrollController,
@@ -837,7 +843,7 @@ class PaginationMasonryGridView<T> extends PaginationDataView<T> {
   const PaginationMasonryGridView({
     Key? key,
     required List<T> data,
-    required Future<PagedList<T>> Function({required dynamic indicator}) getData,
+    required Future<PagedList<T>> Function({required dynamic indicator})? getData,
     UpdatableDataViewSetting<T> setting = const UpdatableDataViewSetting(),
     PaginationSetting paginationSetting = const PaginationSetting(),
     ScrollController? scrollController,
@@ -869,7 +875,7 @@ class PaginationSliverMasonryGridView<T> extends PaginationDataView<T> {
   const PaginationSliverMasonryGridView({
     Key? key,
     required List<T> data,
-    required Future<PagedList<T>> Function({required dynamic indicator}) getData,
+    required Future<PagedList<T>> Function({required dynamic indicator})? getData,
     UpdatableDataViewSetting<T> setting = const UpdatableDataViewSetting(),
     PaginationSetting paginationSetting = const PaginationSetting(),
     ScrollController? scrollController,

@@ -175,8 +175,9 @@ class RefreshableDataView<T> extends UpdatableDataView<T> {
   @override
   final List<T> data;
 
-  /// The function to get list data.
-  final Future<List<T>> Function() getData;
+  /// The function to get list data. You can set this field to null to hide refresh indicator,
+  /// and this means given [data] never be updated by this widget.
+  final Future<List<T>> Function()? getData;
 
   /// The data display style.
   @override
@@ -261,7 +262,7 @@ class RefreshableDataViewState<T> extends State<RefreshableDataView<T>> with Aut
     if (mounted) setState(() {});
 
     // get data
-    final func = widget.getData(); // Future<List<T>>
+    final func = widget.getData!(); // Future<List<T>>
 
     // return future
     return func.then((List<T> list) async {
@@ -520,6 +521,51 @@ class RefreshableDataViewState<T> extends State<RefreshableDataView<T>> with Aut
       }
     }
 
+    final view = Column(
+      crossAxisAlignment: widget.extra?.outerCrossAxisAlignment ?? CrossAxisAlignment.center,
+      children: [
+        if (widget.extra?.outerTopWidgets != null) ...(widget.extra?.outerTopWidgets)!,
+        Expanded(
+          child: PlaceholderText.from(
+            forceState: _forceState,
+            isEmpty: widget.data.isEmpty,
+            isLoading: _loading && widget.data.isEmpty,
+            errorText: _errorMessage,
+            onRefresh: () => _refreshIndicatorKey.currentState?.show(),
+            onChanged: widget.setting.onPlaceholderStateChanged,
+            setting: widget.setting.placeholderSetting ?? const PlaceholderSetting(),
+            displayRule: widget.setting.placeholderDisplayRule ?? PlaceholderDisplayRule.dataFirst,
+            childBuilder: (c) => Column(
+              crossAxisAlignment: widget.extra?.innerCrossAxisAlignment ?? CrossAxisAlignment.center,
+              children: [
+                if (widget.extra?.innerTopWidgets != null) ...(widget.extra?.innerTopWidgets)!,
+                Expanded(
+                  child: widget.setting.scrollbar ?? true
+                      ? ExtendedScrollbar(
+                          interactive: PreviouslySwitchedWidget.isPrevious(c) ? false : widget.setting.interactiveScrollbar ?? false,
+                          isAlwaysShown: widget.setting.alwaysShowScrollbar ?? false,
+                          radius: widget.setting.scrollbarRadius,
+                          thickness: widget.setting.scrollbarThickness,
+                          mainAxisMargin: widget.setting.scrollbarMainAxisMargin,
+                          crossAxisMargin: widget.setting.scrollbarCrossAxisMargin,
+                          extraMargin: widget.setting.scrollbarExtraMargin,
+                          controller: PreviouslySwitchedWidget.isPrevious(c) ? null : widget.scrollController,
+                          child: _buildView(c),
+                        )
+                      : _buildView(c),
+                ),
+                if (widget.extra?.innerBottomWidgets != null) ...(widget.extra?.innerBottomWidgets)!,
+              ],
+            ),
+          ),
+        ),
+        if (widget.extra?.outerBottomWidgets != null) ...(widget.extra?.outerBottomWidgets)!,
+      ],
+    );
+
+    if (widget.getData == null) {
+      return view;
+    }
     return RefreshIndicator(
       key: _refreshIndicatorKey,
       onRefresh: () => _getData(),
@@ -528,47 +574,7 @@ class RefreshableDataViewState<T> extends State<RefreshableDataView<T>> with Aut
       displacement: widget.setting.refreshIndicatorDisplacement ?? 40.0,
       strokeWidth: widget.setting.refreshIndicatorStrokeWidth ?? RefreshProgressIndicator.defaultStrokeWidth,
       notificationPredicate: widget.setting.refreshNotificationPredicate ?? defaultScrollNotificationPredicate,
-      child: Column(
-        crossAxisAlignment: widget.extra?.outerCrossAxisAlignment ?? CrossAxisAlignment.center,
-        children: [
-          if (widget.extra?.outerTopWidgets != null) ...(widget.extra?.outerTopWidgets)!,
-          Expanded(
-            child: PlaceholderText.from(
-              forceState: _forceState,
-              isEmpty: widget.data.isEmpty,
-              isLoading: _loading && widget.data.isEmpty,
-              errorText: _errorMessage,
-              onRefresh: () => _refreshIndicatorKey.currentState?.show(),
-              onChanged: widget.setting.onPlaceholderStateChanged,
-              setting: widget.setting.placeholderSetting ?? const PlaceholderSetting(),
-              displayRule: widget.setting.placeholderDisplayRule ?? PlaceholderDisplayRule.dataFirst,
-              childBuilder: (c) => Column(
-                crossAxisAlignment: widget.extra?.innerCrossAxisAlignment ?? CrossAxisAlignment.center,
-                children: [
-                  if (widget.extra?.innerTopWidgets != null) ...(widget.extra?.innerTopWidgets)!,
-                  Expanded(
-                    child: widget.setting.scrollbar ?? true
-                        ? ExtendedScrollbar(
-                            interactive: PreviouslySwitchedWidget.isPrevious(c) ? false : widget.setting.interactiveScrollbar ?? false,
-                            isAlwaysShown: widget.setting.alwaysShowScrollbar ?? false,
-                            radius: widget.setting.scrollbarRadius,
-                            thickness: widget.setting.scrollbarThickness,
-                            mainAxisMargin: widget.setting.scrollbarMainAxisMargin,
-                            crossAxisMargin: widget.setting.scrollbarCrossAxisMargin,
-                            extraMargin: widget.setting.scrollbarExtraMargin,
-                            controller: PreviouslySwitchedWidget.isPrevious(c) ? null : widget.scrollController,
-                            child: _buildView(c),
-                          )
-                        : _buildView(c),
-                  ),
-                  if (widget.extra?.innerBottomWidgets != null) ...(widget.extra?.innerBottomWidgets)!,
-                ],
-              ),
-            ),
-          ),
-          if (widget.extra?.outerBottomWidgets != null) ...(widget.extra?.outerBottomWidgets)!,
-        ],
-      ),
+      child: view,
     );
   }
 }
@@ -579,7 +585,7 @@ class RefreshableListView<T> extends RefreshableDataView<T> {
   const RefreshableListView({
     Key? key,
     required List<T> data,
-    required Future<List<T>> Function() getData,
+    required Future<List<T>> Function()? getData,
     UpdatableDataViewSetting<T> setting = const UpdatableDataViewSetting(),
     ScrollController? scrollController,
     required Widget Function(BuildContext, int, T) itemBuilder,
@@ -605,7 +611,7 @@ class RefreshableSliverListView<T> extends RefreshableDataView<T> {
   const RefreshableSliverListView({
     Key? key,
     required List<T> data,
-    required Future<List<T>> Function() getData,
+    required Future<List<T>> Function()? getData,
     UpdatableDataViewSetting<T> setting = const UpdatableDataViewSetting(),
     ScrollController? scrollController,
     required Widget Function(BuildContext, int, T) itemBuilder,
@@ -633,7 +639,7 @@ class RefreshableGridView<T> extends RefreshableDataView<T> {
   const RefreshableGridView({
     Key? key,
     required List<T> data,
-    required Future<List<T>> Function() getData,
+    required Future<List<T>> Function()? getData,
     UpdatableDataViewSetting<T> setting = const UpdatableDataViewSetting(),
     ScrollController? scrollController,
     required Widget Function(BuildContext, int, T) itemBuilder,
@@ -659,7 +665,7 @@ class RefreshableSliverGridView<T> extends RefreshableDataView<T> {
   const RefreshableSliverGridView({
     Key? key,
     required List<T> data,
-    required Future<List<T>> Function() getData,
+    required Future<List<T>> Function()? getData,
     UpdatableDataViewSetting<T> setting = const UpdatableDataViewSetting(),
     ScrollController? scrollController,
     required Widget Function(BuildContext, int, T) itemBuilder,
@@ -687,7 +693,7 @@ class RefreshableMasonryGridView<T> extends RefreshableDataView<T> {
   const RefreshableMasonryGridView({
     Key? key,
     required List<T> data,
-    required Future<List<T>> Function() getData,
+    required Future<List<T>> Function()? getData,
     UpdatableDataViewSetting<T> setting = const UpdatableDataViewSetting(),
     ScrollController? scrollController,
     required Widget Function(BuildContext, int, T) itemBuilder,
@@ -717,7 +723,7 @@ class RefreshableSliverMasonryGridView<T> extends RefreshableDataView<T> {
   const RefreshableSliverMasonryGridView({
     Key? key,
     required List<T> data,
-    required Future<List<T>> Function() getData,
+    required Future<List<T>> Function()? getData,
     UpdatableDataViewSetting<T> setting = const UpdatableDataViewSetting(),
     ScrollController? scrollController,
     required Widget Function(BuildContext, int, T) itemBuilder,

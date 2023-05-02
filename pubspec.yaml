@@ -6,7 +6,8 @@ homepage: https://github.com/Aoi-hosizora/flutter_ahlib
 repository: https://github.com/Aoi-hosizora/flutter_ahlib
 
 environment:
-  sdk: ">=2.16.2 <3.0.0"
+  sdk: '>=2.16.2 <3.0.0'
+  flutter: '>=2.0.0 <3.0.0'
 
 dependencies:
   flutter:
