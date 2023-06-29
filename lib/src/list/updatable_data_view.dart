@@ -92,6 +92,7 @@ class UpdatableDataViewSetting<T> {
     this.appendIndicatorMinHeight = 5.0,
     this.appendNotificationPredicate = defaultScrollNotificationPredicate,
     // display settings for placeholder text
+    this.initialForceState,
     this.placeholderSetting = const PlaceholderSetting(),
     this.placeholderDisplayRule = PlaceholderDisplayRule.dataFirst,
     this.onPlaceholderStateChanged,
@@ -197,6 +198,9 @@ class UpdatableDataViewSetting<T> {
 
   /// The notificationPredicate for [AppendIndicator], defaults to [defaultScrollNotificationPredicate], only used for pagination.
   final ScrollNotificationPredicate? appendNotificationPredicate;
+
+  /// The initial force state for [PlaceholderText], defaults to null.
+  final PlaceholderState? initialForceState;
 
   /// The setting for [PlaceholderText], defaults to [PlaceholderSetting()].
   final PlaceholderSetting? placeholderSetting;

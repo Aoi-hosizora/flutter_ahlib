@@ -304,7 +304,8 @@ class PaginationDataViewState<T> extends State<PaginationDataView<T>> with Autom
       _forceState = PlaceholderState.loading;
       WidgetsBinding.instance?.addPostFrameCallback((_) => _refreshIndicatorKey.currentState?.show());
     } else {
-      _forceState = widget.data.isEmpty ? PlaceholderState.nothing : PlaceholderState.normal;
+      _forceState = widget.setting.initialForceState ?? //
+          (widget.data.isEmpty ? PlaceholderState.nothing : PlaceholderState.normal);
     }
     if (widget.data.isNotEmpty) {
       _currentIndicator = widget.paginationSetting.currentIndicator ?? widget.paginationSetting.initialIndicator;
@@ -651,7 +652,7 @@ class PaginationDataViewState<T> extends State<PaginationDataView<T>> with Autom
           return _buildCustomView(context);
       }
     }
-    
+
     final view = Column(
       crossAxisAlignment: widget.extra?.outerCrossAxisAlignment ?? CrossAxisAlignment.center,
       children: [

@@ -183,14 +183,18 @@ class _PreloadablePageViewState extends State<PreloadablePageView> {
   }
 }
 
+// ignore_for_file: deprecated_member_use_from_same_package
+
 /// A widget which wraps [NotificationListener] for [PageView] or [TabBarView], to overwrite the
-/// behavior of these widgets' [onPageChanged] callback.
+/// behavior of those builtin [onPageChanged] callback.
 class PageChangedListener extends StatefulWidget {
   const PageChangedListener({
     Key? key,
     required this.child,
     this.initialPage,
     this.onPageChanged,
+    this.onPageChangedForScrollUpdate,
+    this.onPageChangedForScrollEnd,
     this.onPageMetricsChanged,
     this.callPageChangedAtEnd = true,
   }) : super(key: key);
@@ -204,7 +208,17 @@ class PageChangedListener extends StatefulWidget {
 
   /// The callback that will be invoked when the current page changed, and its invoking timing
   /// also depends on [callPageChangedAtEnd].
+  @Deprecated("use onPageChangedForScrollUpdate and onPageChangedForScrollEnd instead.")
   final ValueChanged<int>? onPageChanged;
+
+  /// The callback that will be invoked when the current page (rounded value) changed, note that
+  /// only this callback will only be invoked when the scroll offset is updating.
+  final ValueChanged<int>? onPageChangedForScrollUpdate;
+
+  /// The callback that will be invoked when the current page (rounded value) changed, note that
+  /// only this callback will only be invoked when the scroll offset finished updating, and this
+  /// behaves the same as builtin [PageView].
+  final ValueChanged<int>? onPageChangedForScrollEnd;
 
   /// The callback that will be invoked when [PageMetrics] changed, and [callPageChangedAtEnd]
   /// has no influence on this callback.
@@ -215,6 +229,7 @@ class PageChangedListener extends StatefulWidget {
   ///
   /// Note that this flag has no influence to listeners in [PageController], those will still be
   /// called when round value of page offset changed.
+  @Deprecated("use onPageChangedForScrollUpdate and onPageChangedForScrollEnd instead.")
   final bool callPageChangedAtEnd;
 
   @override
@@ -222,11 +237,16 @@ class PageChangedListener extends StatefulWidget {
 }
 
 class _PageChangedListenerState extends State<PageChangedListener> {
-  late int _lastReportedPage = widget.initialPage ?? 0;
+  late int _lastReportedPage = widget.initialPage ?? 0; // for onPageChanged
+  late int _lastReportedPageForUpdate = widget.initialPage ?? 0; // for onPageChangedForScrollUpdate
+  late int _lastReportedPageForEnd = widget.initialPage ?? 0; // for onPageChangedForScrollEnd
 
   void _onNotification(ScrollNotification notification) {
     // check parameters
-    if (notification.depth != 0 || widget.onPageChanged == null) {
+    if (notification.depth != 0) {
+      return;
+    }
+    if (widget.onPageChanged == null && widget.onPageChangedForScrollUpdate == null && widget.onPageChangedForScrollEnd == null && widget.onPageMetricsChanged == null) {
       return;
     }
 
@@ -237,20 +257,28 @@ class _PageChangedListenerState extends State<PageChangedListener> {
     final PageMetrics metrics = notification.metrics as PageMetrics;
     widget.onPageMetricsChanged?.call(metrics);
 
-    // get page int value
-    if (!widget.callPageChangedAtEnd && notification is ScrollUpdateNotification) {
-      // continue
-    } else if (widget.callPageChangedAtEnd && notification is ScrollEndNotification) {
-      // continue
-    } else {
-      return;
-    }
-
-    // check current page equality
+    // decide whether to invoke callback
     int currentPage = metrics.page!.round();
-    if (currentPage != _lastReportedPage) {
-      _lastReportedPage = currentPage;
-      widget.onPageChanged!(currentPage);
+    if (notification is ScrollUpdateNotification) {
+      // check current page equality
+      if (currentPage != _lastReportedPageForUpdate && widget.onPageChangedForScrollUpdate != null) {
+        _lastReportedPageForUpdate = currentPage;
+        widget.onPageChangedForScrollUpdate?.call(currentPage); // <<< for update
+      }
+      if (!widget.callPageChangedAtEnd && currentPage != _lastReportedPage && widget.onPageChanged != null) {
+        _lastReportedPage = currentPage;
+        widget.onPageChanged?.call(currentPage); // <<< for update
+      }
+    } else if (notification is ScrollEndNotification) {
+      // check current page equality
+      if (currentPage != _lastReportedPageForEnd && widget.onPageChangedForScrollEnd != null) {
+        _lastReportedPageForEnd = currentPage;
+        widget.onPageChangedForScrollEnd?.call(currentPage); // <<< for end
+      }
+      if (widget.callPageChangedAtEnd && currentPage != _lastReportedPage && widget.onPageChanged != null) {
+        _lastReportedPage = currentPage;
+        widget.onPageChanged?.call(currentPage); // <<< for end
+      }
     }
   }
 

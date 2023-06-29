@@ -240,7 +240,8 @@ class RefreshableDataViewState<T> extends State<RefreshableDataView<T>> with Aut
       _forceState = PlaceholderState.loading;
       WidgetsBinding.instance?.addPostFrameCallback((_) => _refreshIndicatorKey.currentState?.show());
     } else {
-      _forceState = widget.data.isEmpty ? PlaceholderState.nothing : PlaceholderState.normal;
+      _forceState = widget.setting.initialForceState ?? //
+          (widget.data.isEmpty ? PlaceholderState.nothing : PlaceholderState.normal);
     }
   }
 

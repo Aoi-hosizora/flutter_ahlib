@@ -28,35 +28,71 @@ class TextDialogOption extends StatelessWidget {
     required this.onPressed,
     this.onLongPressed,
     this.padding = kTextDialogOptionPadding,
+    this.predicateForPress,
+    this.predicateForLongPress,
     this.popWhenPress,
+    this.popWhenLongPress,
   }) : super(key: key);
 
   /// The text widget below this widget in the tree, typically a [Text] widget.
   final Widget text;
 
+  /// The callback that is called when this option is tapped, note that you can set [predicateForPress]
+  /// and [popWhenPress] for convenience, see these two fields to details.
+  final void Function() onPressed;
+
+  /// The callback that is called when this option is long pressed, note that you can set [predicateForLongPress]
+  /// and [popWhenLongPress] for convenience, see these two fields to details.
+  final void Function()? onLongPressed;
+
   /// The padding to surround the [text], defaults to `EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0)`.
   final EdgeInsets padding;
 
-  /// The callback that is called when this option is selected.
-  final void Function() onPressed;
+  /// The predicate function for deciding whether to execute [onTap] callback or not, defaults to null, which
+  /// means always to execute the [onPressed] callback when pressed.
+  final Future<bool> Function()? predicateForPress;
 
-  /// The callback that is called when this option is long pressed.
-  final void Function()? onLongPressed;
+  /// The predicate function for deciding whether to execute [onLongPress] callback or not, defaults to null,
+  /// which means always to execute the [onLongPressed] callback when pressed.
+  final Future<bool> Function()? predicateForLongPress;
 
   /// This is a convenient field only used in [showDialog]. If you set the this value to dialog's context,
   /// the specific dialog will be popped before [onPressed] is invoked.
   final BuildContext? popWhenPress;
 
+  /// This is a convenient field only used in [showDialog]. If you set the this value to dialog's context,
+  /// the specific dialog will be popped before [onLongPressed] is invoked.
+  final BuildContext? popWhenLongPress;
+
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {
+      onTap: () async {
+        if (predicateForPress != null) {
+          var ok = await predicateForPress?.call() ?? true;
+          if (!ok) {
+            return;
+          }
+        }
         if (popWhenPress != null) {
           Navigator.of(popWhenPress!).pop();
         }
         onPressed.call();
       },
-      onLongPress: onLongPressed,
+      onLongPress: onLongPressed == null
+          ? null
+          : () async {
+              if (predicateForLongPress != null) {
+                var ok = await predicateForLongPress?.call() ?? true;
+                if (!ok) {
+                  return;
+                }
+              }
+              if (popWhenLongPress != null) {
+                Navigator.of(popWhenLongPress!).pop();
+              }
+              onLongPressed?.call();
+            },
       child: Padding(
         padding: padding,
         child: DefaultTextStyle(
@@ -79,7 +115,10 @@ class IconTextDialogOption extends StatelessWidget {
     this.padding = kIconTextDialogOptionPadding,
     this.space = kIconTextDialogOptionSpace,
     this.rtl = false,
+    this.predicateForPress,
+    this.predicateForLongPress,
     this.popWhenPress,
+    this.popWhenLongPress,
   }) : super(key: key);
 
   /// The icon widget below this widget in the tree, typically is a [Icon] widget.
@@ -88,10 +127,12 @@ class IconTextDialogOption extends StatelessWidget {
   /// The text widget below this widget in the tree, typically is a [Text] widget.
   final Widget text;
 
-  /// The callback that is called when this option is selected.
+  /// The callback that is called when this option is tapped, note that you can set [predicateForPress]
+  /// and [popWhenPress] for convenience, see these two fields to details.
   final void Function() onPressed;
 
-  /// The callback that is called when this option is long pressed.
+  /// The callback that is called when this option is long pressed, note that you can set [predicateForLongPress]
+  /// and [popWhenLongPress] for convenience, see these two fields to details.
   final void Function()? onLongPressed;
 
   /// The padding to surround the [icon] and [text], defaults to `EdgeInsets.symmetric(horizontal: 24.0, vertical: 10.0)`.
@@ -103,20 +144,51 @@ class IconTextDialogOption extends StatelessWidget {
   /// The flag to display widget in `text | icon` order, defaults to false.
   final bool rtl;
 
+  /// The predicate function for deciding whether to execute [onTap] callback or not, defaults to null, which
+  /// means always to execute the [onPressed] callback when pressed.
+  final Future<bool> Function()? predicateForPress;
+
+  /// The predicate function for deciding whether to execute [onLongPress] callback or not, defaults to null,
+  /// which means always to execute the [onLongPressed] callback when pressed.
+  final Future<bool> Function()? predicateForLongPress;
+
   /// This is a convenient field only used in [showDialog]. If you set the this value to dialog's context,
   /// the specific dialog will be popped before [onPressed] is invoked.
   final BuildContext? popWhenPress;
 
+  /// This is a convenient field only used in [showDialog]. If you set the this value to dialog's context,
+  /// the specific dialog will be popped before [onLongPressed] is invoked.
+  final BuildContext? popWhenLongPress;
+
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {
+      onTap: () async {
+        if (predicateForPress != null) {
+          var ok = await predicateForPress?.call() ?? true;
+          if (!ok) {
+            return;
+          }
+        }
         if (popWhenPress != null) {
           Navigator.of(popWhenPress!).pop();
         }
         onPressed.call();
       },
-      onLongPress: onLongPressed,
+      onLongPress: onLongPressed == null
+          ? null
+          : () async {
+              if (predicateForLongPress != null) {
+                var ok = await predicateForLongPress?.call() ?? true;
+                if (!ok) {
+                  return;
+                }
+              }
+              if (popWhenLongPress != null) {
+                Navigator.of(popWhenLongPress!).pop();
+              }
+              onLongPressed?.call();
+            },
       child: Padding(
         padding: padding,
         child: DefaultTextStyle(
@@ -309,4 +381,112 @@ Future<bool?> showYesNoAlertDialog({
     useRootNavigator: useRootNavigator,
     routeSettings: routeSettings,
   );
+}
+
+// Note: The following code is based on Flutter's source code, and is modified by AoiHosizora (GitHub: @Aoi-hosizora).
+//
+// The following code in this file keeps the same as the following source code:
+// - PopupMenuItem: https://github.com/flutter/flutter/blob/2.10.5/packages/flutter/lib/src/material/popup_menu.dart
+
+/// A long pressable [PopupMenuItem], which adds [onLongPressed] property.
+class LongPressablePopupMenuItem<T> extends PopupMenuEntry<T> {
+  const LongPressablePopupMenuItem({
+    Key? key,
+    this.value,
+    this.onTap,
+    this.onLongPressed,
+    this.enabled = true,
+    this.height = kMinInteractiveDimension,
+    this.padding,
+    this.textStyle,
+    this.mouseCursor,
+    required this.child,
+  }) : super(key: key);
+
+  final T? value;
+  final VoidCallback? onTap;
+  final VoidCallback? onLongPressed; // <<< Added by AoiHosizora
+  final bool enabled;
+  @override
+  final double height;
+  final EdgeInsets? padding;
+  final TextStyle? textStyle;
+  final MouseCursor? mouseCursor;
+  final Widget? child;
+
+  @override
+  bool represents(T? value) => value == this.value;
+
+  @override
+  PopupMenuItemState<T, LongPressablePopupMenuItem<T>> createState() => PopupMenuItemState<T, LongPressablePopupMenuItem<T>>();
+}
+
+/// The [State] for [LongPressablePopupMenuItem] subclasses.
+class PopupMenuItemState<T, W extends LongPressablePopupMenuItem<T>> extends State<W> {
+  static const double _kMenuHorizontalPadding = 16.0;
+
+  @protected
+  Widget? buildChild() => widget.child;
+
+  @protected
+  void handleTap() {
+    widget.onTap?.call();
+    Navigator.pop<T>(context, widget.value);
+  }
+
+  // This method is added by AoiHosizora.
+  void _handleLongPress() {
+    widget.onLongPressed?.call();
+    Navigator.pop<T>(context, widget.value);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final PopupMenuThemeData popupMenuTheme = PopupMenuTheme.of(context);
+    TextStyle style = widget.textStyle ?? popupMenuTheme.textStyle ?? theme.textTheme.subtitle1!;
+
+    if (!widget.enabled) {
+      style = style.copyWith(color: theme.disabledColor);
+    }
+
+    Widget item = AnimatedDefaultTextStyle(
+      style: style,
+      duration: kThemeChangeDuration,
+      child: Container(
+        alignment: AlignmentDirectional.centerStart,
+        constraints: BoxConstraints(minHeight: widget.height),
+        padding: widget.padding ?? const EdgeInsets.symmetric(horizontal: _kMenuHorizontalPadding),
+        child: buildChild(),
+      ),
+    );
+
+    if (!widget.enabled) {
+      final bool isDark = theme.brightness == Brightness.dark;
+      item = IconTheme.merge(
+        data: IconThemeData(opacity: isDark ? 0.5 : 0.38),
+        child: item,
+      );
+    }
+    final MouseCursor effectiveMouseCursor = MaterialStateProperty.resolveAs<MouseCursor>(
+      widget.mouseCursor ?? MaterialStateMouseCursor.clickable,
+      <MaterialState>{
+        if (!widget.enabled) MaterialState.disabled,
+      },
+    );
+
+    return MergeSemantics(
+      child: Semantics(
+        enabled: widget.enabled,
+        button: true,
+        child: InkWell(
+          onTap: widget.enabled ? handleTap : null,
+          onLongPress: widget.enabled ? _handleLongPress : null /* <<< Added by AoiHosizora */,
+          canRequestFocus: widget.enabled,
+          mouseCursor: effectiveMouseCursor,
+          child: item,
+        ),
+      ),
+    );
+  }
 }
