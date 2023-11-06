@@ -22,11 +22,17 @@ abstract class UpdatableDataView<T> extends StatefulWidget {
   /// The display and behavior setting.
   UpdatableDataViewSetting<T> get setting;
 
+  /// The key for [ScrollView].
+  Key? get scrollViewKey;
+
   /// The controller for [ScrollView].
   ScrollController? get scrollController;
 
   /// The itemBuilder for [ScrollView].
   Widget Function(BuildContext, int, T) get itemBuilder;
+
+  /// The callback function to be called when [style] is changed.
+  void Function(UpdatableDataViewStyle oldStyle, UpdatableDataViewStyle newStyle)? get onStyleChanged;
 
   /// The extra widgets around [ScrollView].
   UpdatableDataViewExtraWidgets? get extra;

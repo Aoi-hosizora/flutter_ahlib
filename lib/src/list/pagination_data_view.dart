@@ -59,8 +59,10 @@ class PaginationDataView<T> extends UpdatableDataView<T> {
     required this.getData,
     this.setting = const UpdatableDataViewSetting(),
     this.paginationSetting = const PaginationSetting(),
+    this.scrollViewKey,
     this.scrollController,
     required this.itemBuilder,
+    this.onStyleChanged,
     this.extra,
     // ===================================
     this.separator,
@@ -79,12 +81,14 @@ class PaginationDataView<T> extends UpdatableDataView<T> {
     required this.getData,
     this.setting = const UpdatableDataViewSetting(),
     this.paginationSetting = const PaginationSetting(),
+    this.scrollViewKey,
     this.scrollController,
     required this.itemBuilder,
     this.extra,
     // ===================================
     this.separator,
   })  : style = UpdatableDataViewStyle.listView,
+        onStyleChanged = null,
         useOverlapInjector = null,
         gridDelegate = null,
         crossAxisCount = null,
@@ -100,6 +104,7 @@ class PaginationDataView<T> extends UpdatableDataView<T> {
     required this.getData,
     this.setting = const UpdatableDataViewSetting(),
     this.paginationSetting = const PaginationSetting(),
+    this.scrollViewKey,
     this.scrollController,
     required this.itemBuilder,
     this.extra,
@@ -107,6 +112,7 @@ class PaginationDataView<T> extends UpdatableDataView<T> {
     this.separator,
     this.useOverlapInjector = false,
   })  : style = UpdatableDataViewStyle.sliverListView,
+        onStyleChanged = null,
         gridDelegate = null,
         crossAxisCount = null,
         mainAxisSpacing = null,
@@ -121,12 +127,14 @@ class PaginationDataView<T> extends UpdatableDataView<T> {
     required this.getData,
     this.setting = const UpdatableDataViewSetting(),
     this.paginationSetting = const PaginationSetting(),
+    this.scrollViewKey,
     this.scrollController,
     required this.itemBuilder,
     this.extra,
     // ===================================
     this.gridDelegate,
   })  : style = UpdatableDataViewStyle.gridView,
+        onStyleChanged = null,
         separator = null,
         useOverlapInjector = null,
         crossAxisCount = null,
@@ -142,6 +150,7 @@ class PaginationDataView<T> extends UpdatableDataView<T> {
     required this.getData,
     this.setting = const UpdatableDataViewSetting(),
     this.paginationSetting = const PaginationSetting(),
+    this.scrollViewKey,
     this.scrollController,
     required this.itemBuilder,
     this.extra,
@@ -149,6 +158,7 @@ class PaginationDataView<T> extends UpdatableDataView<T> {
     this.useOverlapInjector = false,
     this.gridDelegate,
   })  : style = UpdatableDataViewStyle.sliverGridView,
+        onStyleChanged = null,
         separator = null,
         crossAxisCount = null,
         mainAxisSpacing = null,
@@ -163,6 +173,7 @@ class PaginationDataView<T> extends UpdatableDataView<T> {
     required this.getData,
     this.setting = const UpdatableDataViewSetting(),
     this.paginationSetting = const PaginationSetting(),
+    this.scrollViewKey,
     this.scrollController,
     required this.itemBuilder,
     this.extra,
@@ -171,6 +182,7 @@ class PaginationDataView<T> extends UpdatableDataView<T> {
     this.mainAxisSpacing = 0.0,
     this.crossAxisSpacing = 0.0,
   })  : style = UpdatableDataViewStyle.masonryGridView,
+        onStyleChanged = null,
         separator = null,
         useOverlapInjector = null,
         gridDelegate = null,
@@ -184,6 +196,7 @@ class PaginationDataView<T> extends UpdatableDataView<T> {
     required this.getData,
     this.setting = const UpdatableDataViewSetting(),
     this.paginationSetting = const PaginationSetting(),
+    this.scrollViewKey,
     this.scrollController,
     required this.itemBuilder,
     this.extra,
@@ -193,6 +206,7 @@ class PaginationDataView<T> extends UpdatableDataView<T> {
     this.mainAxisSpacing = 0.0,
     this.crossAxisSpacing = 0.0,
   })  : style = UpdatableDataViewStyle.sliverMasonryGridView,
+        onStyleChanged = null,
         separator = null,
         gridDelegate = null,
         customViewBuilder = null,
@@ -205,6 +219,7 @@ class PaginationDataView<T> extends UpdatableDataView<T> {
     required this.getData,
     this.setting = const UpdatableDataViewSetting(),
     this.paginationSetting = const PaginationSetting(),
+    this.scrollViewKey,
     this.scrollController,
     required this.itemBuilder,
     this.extra,
@@ -217,6 +232,7 @@ class PaginationDataView<T> extends UpdatableDataView<T> {
     this.crossAxisSpacing = 0.0,
     required this.customViewBuilder,
   })  : style = UpdatableDataViewStyle.customView,
+        onStyleChanged = null,
         super(key: key);
 
   // General properties
@@ -240,6 +256,10 @@ class PaginationDataView<T> extends UpdatableDataView<T> {
   @override
   final UpdatableDataViewSetting<T> setting;
 
+  /// The key for [ScrollView].
+  @override
+  final Key? scrollViewKey;
+
   /// The controller for [ScrollView].
   @override
   final ScrollController? scrollController;
@@ -247,6 +267,10 @@ class PaginationDataView<T> extends UpdatableDataView<T> {
   /// The itemBuilder for [ScrollView].
   @override
   final Widget Function(BuildContext, int, T) itemBuilder;
+
+  /// The callback function to be called when [style] is changed.
+  @override
+  final void Function(UpdatableDataViewStyle oldStyle, UpdatableDataViewStyle newStyle)? onStyleChanged;
 
   /// The extra widgets around [ScrollView].
   @override
@@ -310,6 +334,14 @@ class PaginationDataViewState<T> extends State<PaginationDataView<T>> with Autom
     if (widget.data.isNotEmpty) {
       _currentIndicator = widget.paginationSetting.currentIndicator ?? widget.paginationSetting.initialIndicator;
       _nextIndicator = widget.paginationSetting.currentNextIndicator ?? (_currentIndicator + 1);
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant PaginationDataView<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.style != widget.style) {
+      widget.onStyleChanged?.call(oldWidget.style, widget.style);
     }
   }
 
@@ -458,6 +490,7 @@ class PaginationDataViewState<T> extends State<PaginationDataView<T>> with Autom
 
     if (!sliver) {
       return ListView.separated(
+        key: widget.scrollViewKey,
         controller: PreviouslySwitchedWidget.isPrevious(context) ? null : widget.scrollController,
         padding: widget.setting.padding,
         physics: widget.setting.physics ?? const AlwaysScrollableScrollPhysics(),
@@ -476,6 +509,7 @@ class PaginationDataViewState<T> extends State<PaginationDataView<T>> with Autom
     }
 
     return CustomScrollView(
+      key: widget.scrollViewKey,
       controller: PreviouslySwitchedWidget.isPrevious(context) ? null : widget.scrollController,
       physics: widget.setting.physics ?? const AlwaysScrollableScrollPhysics(),
       reverse: widget.setting.reverse ?? false,
@@ -518,6 +552,7 @@ class PaginationDataViewState<T> extends State<PaginationDataView<T>> with Autom
 
     if (!sliver) {
       return GridView.builder(
+        key: widget.scrollViewKey,
         controller: PreviouslySwitchedWidget.isPrevious(context) ? null : widget.scrollController,
         padding: widget.setting.padding,
         physics: widget.setting.physics ?? const AlwaysScrollableScrollPhysics(),
@@ -536,6 +571,7 @@ class PaginationDataViewState<T> extends State<PaginationDataView<T>> with Autom
     }
 
     return CustomScrollView(
+      key: widget.scrollViewKey,
       controller: PreviouslySwitchedWidget.isPrevious(context) ? null : widget.scrollController,
       physics: widget.setting.physics ?? const AlwaysScrollableScrollPhysics(),
       reverse: widget.setting.reverse ?? false,
@@ -570,6 +606,7 @@ class PaginationDataViewState<T> extends State<PaginationDataView<T>> with Autom
   Widget _buildMasonryGridView(BuildContext context, bool sliver) {
     if (!sliver) {
       return MasonryGridView.count(
+        key: widget.scrollViewKey,
         controller: PreviouslySwitchedWidget.isPrevious(context) ? null : widget.scrollController,
         padding: widget.setting.padding,
         physics: widget.setting.physics ?? const AlwaysScrollableScrollPhysics(),
@@ -590,6 +627,7 @@ class PaginationDataViewState<T> extends State<PaginationDataView<T>> with Autom
     }
 
     return CustomScrollView(
+      key: widget.scrollViewKey,
       controller: PreviouslySwitchedWidget.isPrevious(context) ? null : widget.scrollController,
       physics: widget.setting.physics ?? const AlwaysScrollableScrollPhysics(),
       reverse: widget.setting.reverse ?? false,
@@ -731,6 +769,7 @@ class PaginationListView<T> extends PaginationDataView<T> {
     required Future<PagedList<T>> Function({required dynamic indicator})? getData,
     UpdatableDataViewSetting<T> setting = const UpdatableDataViewSetting(),
     PaginationSetting paginationSetting = const PaginationSetting(),
+    Key? scrollViewKey,
     ScrollController? scrollController,
     required Widget Function(BuildContext, int, T) itemBuilder,
     UpdatableDataViewExtraWidgets? extra,
@@ -742,6 +781,7 @@ class PaginationListView<T> extends PaginationDataView<T> {
           getData: getData,
           setting: setting,
           paginationSetting: paginationSetting,
+          scrollViewKey: scrollViewKey,
           scrollController: scrollController,
           itemBuilder: itemBuilder,
           extra: extra,
@@ -759,6 +799,7 @@ class PaginationSliverListView<T> extends PaginationDataView<T> {
     required Future<PagedList<T>> Function({required dynamic indicator})? getData,
     UpdatableDataViewSetting<T> setting = const UpdatableDataViewSetting(),
     PaginationSetting paginationSetting = const PaginationSetting(),
+    Key? scrollViewKey,
     ScrollController? scrollController,
     required Widget Function(BuildContext, int, T) itemBuilder,
     UpdatableDataViewExtraWidgets? extra,
@@ -771,6 +812,7 @@ class PaginationSliverListView<T> extends PaginationDataView<T> {
           getData: getData,
           setting: setting,
           paginationSetting: paginationSetting,
+          scrollViewKey: scrollViewKey,
           scrollController: scrollController,
           itemBuilder: itemBuilder,
           extra: extra,
@@ -789,6 +831,7 @@ class PaginationGridView<T> extends PaginationDataView<T> {
     required Future<PagedList<T>> Function({required dynamic indicator})? getData,
     UpdatableDataViewSetting<T> setting = const UpdatableDataViewSetting(),
     PaginationSetting paginationSetting = const PaginationSetting(),
+    Key? scrollViewKey,
     ScrollController? scrollController,
     required Widget Function(BuildContext, int, T) itemBuilder,
     UpdatableDataViewExtraWidgets? extra,
@@ -800,6 +843,7 @@ class PaginationGridView<T> extends PaginationDataView<T> {
           getData: getData,
           setting: setting,
           paginationSetting: paginationSetting,
+          scrollViewKey: scrollViewKey,
           scrollController: scrollController,
           itemBuilder: itemBuilder,
           extra: extra,
@@ -817,6 +861,7 @@ class PaginationSliverGridView<T> extends PaginationDataView<T> {
     required Future<PagedList<T>> Function({required dynamic indicator})? getData,
     UpdatableDataViewSetting<T> setting = const UpdatableDataViewSetting(),
     PaginationSetting paginationSetting = const PaginationSetting(),
+    Key? scrollViewKey,
     ScrollController? scrollController,
     required Widget Function(BuildContext, int, T) itemBuilder,
     UpdatableDataViewExtraWidgets? extra,
@@ -829,6 +874,7 @@ class PaginationSliverGridView<T> extends PaginationDataView<T> {
           getData: getData,
           setting: setting,
           paginationSetting: paginationSetting,
+          scrollViewKey: scrollViewKey,
           scrollController: scrollController,
           itemBuilder: itemBuilder,
           extra: extra,
@@ -847,6 +893,7 @@ class PaginationMasonryGridView<T> extends PaginationDataView<T> {
     required Future<PagedList<T>> Function({required dynamic indicator})? getData,
     UpdatableDataViewSetting<T> setting = const UpdatableDataViewSetting(),
     PaginationSetting paginationSetting = const PaginationSetting(),
+    Key? scrollViewKey,
     ScrollController? scrollController,
     required Widget Function(BuildContext, int, T) itemBuilder,
     UpdatableDataViewExtraWidgets? extra,
@@ -860,6 +907,7 @@ class PaginationMasonryGridView<T> extends PaginationDataView<T> {
           getData: getData,
           setting: setting,
           paginationSetting: paginationSetting,
+          scrollViewKey: scrollViewKey,
           scrollController: scrollController,
           itemBuilder: itemBuilder,
           extra: extra,
@@ -879,6 +927,7 @@ class PaginationSliverMasonryGridView<T> extends PaginationDataView<T> {
     required Future<PagedList<T>> Function({required dynamic indicator})? getData,
     UpdatableDataViewSetting<T> setting = const UpdatableDataViewSetting(),
     PaginationSetting paginationSetting = const PaginationSetting(),
+    Key? scrollViewKey,
     ScrollController? scrollController,
     required Widget Function(BuildContext, int, T) itemBuilder,
     UpdatableDataViewExtraWidgets? extra,
@@ -893,6 +942,7 @@ class PaginationSliverMasonryGridView<T> extends PaginationDataView<T> {
           getData: getData,
           setting: setting,
           paginationSetting: paginationSetting,
+          scrollViewKey: scrollViewKey,
           scrollController: scrollController,
           itemBuilder: itemBuilder,
           extra: extra,

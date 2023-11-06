@@ -32,6 +32,7 @@ class ExtendedNestedScrollView extends StatefulWidget {
     required this.innerControllerCount,
     required this.activeControllerIndex,
     required this.bodyBuilder,
+    this.onActiveIndexChanged,
     this.dragStartBehavior = DragStartBehavior.start,
     this.floatHeaderSlivers = false,
     this.clipBehavior = Clip.hardEdge,
@@ -67,6 +68,9 @@ class ExtendedNestedScrollView extends StatefulWidget {
   /// possibly you need to wrap some pages with [PrimaryScrollController].
   final Widget Function(BuildContext context, List<ScrollController> innerControllers) bodyBuilder;
 
+  /// The callback function to be called when [activeControllerIndex] is changed.
+  final void Function(int oldIndex, int newIndex)? onActiveIndexChanged;
+
   /// The function called when a notification of the appropriate type arrives at this
   /// location in the tree, and it is the same as [NotificationListener.onNotification].
   final bool Function(Notification notification)? onNotification;
@@ -100,6 +104,9 @@ class ExtendedNestedScrollViewState extends State<ExtendedNestedScrollView> {
 
   /// The inner controllers of [ExtendedNestedScrollView].
   List<ScrollController> get innerControllers => _coordinator!._innerControllers; // <<<
+
+  /// The active inner controller of [ExtendedNestedScrollView].
+  ScrollController get activeInnerController => _coordinator!._innerControllers[widget.activeControllerIndex];
 
   /// The outer controller of [ExtendedNestedScrollView].
   ScrollController get outerController => _coordinator!._outerController;
@@ -136,6 +143,7 @@ class ExtendedNestedScrollViewState extends State<ExtendedNestedScrollView> {
     }
     if (oldWidget.activeControllerIndex != widget.activeControllerIndex) {
       _coordinator!._setActivatedPageIndex(widget.activeControllerIndex);
+      widget.onActiveIndexChanged?.call(oldWidget.activeControllerIndex, widget.activeControllerIndex);
     }
   }
 

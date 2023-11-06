@@ -16,8 +16,10 @@ class RefreshableDataView<T> extends UpdatableDataView<T> {
     required this.style,
     required this.getData,
     this.setting = const UpdatableDataViewSetting(),
+    this.scrollViewKey,
     this.scrollController,
     required this.itemBuilder,
+    this.onStyleChanged,
     this.extra,
     // ===================================
     this.separator,
@@ -35,12 +37,14 @@ class RefreshableDataView<T> extends UpdatableDataView<T> {
     required this.data,
     required this.getData,
     this.setting = const UpdatableDataViewSetting(),
+    this.scrollViewKey,
     this.scrollController,
     required this.itemBuilder,
     this.extra,
     // ===================================
     this.separator,
   })  : style = UpdatableDataViewStyle.listView,
+        onStyleChanged = null,
         useOverlapInjector = null,
         gridDelegate = null,
         crossAxisCount = null,
@@ -55,6 +59,7 @@ class RefreshableDataView<T> extends UpdatableDataView<T> {
     required this.data,
     required this.getData,
     this.setting = const UpdatableDataViewSetting(),
+    this.scrollViewKey,
     this.scrollController,
     required this.itemBuilder,
     this.extra,
@@ -62,6 +67,7 @@ class RefreshableDataView<T> extends UpdatableDataView<T> {
     this.separator,
     this.useOverlapInjector = false,
   })  : style = UpdatableDataViewStyle.sliverListView,
+        onStyleChanged = null,
         gridDelegate = null,
         crossAxisCount = null,
         mainAxisSpacing = null,
@@ -75,12 +81,14 @@ class RefreshableDataView<T> extends UpdatableDataView<T> {
     required this.data,
     required this.getData,
     this.setting = const UpdatableDataViewSetting(),
+    this.scrollViewKey,
     this.scrollController,
     required this.itemBuilder,
     this.extra,
     // ===================================
     this.gridDelegate,
   })  : style = UpdatableDataViewStyle.gridView,
+        onStyleChanged = null,
         separator = null,
         useOverlapInjector = null,
         crossAxisCount = null,
@@ -95,6 +103,7 @@ class RefreshableDataView<T> extends UpdatableDataView<T> {
     required this.data,
     required this.getData,
     this.setting = const UpdatableDataViewSetting(),
+    this.scrollViewKey,
     this.scrollController,
     required this.itemBuilder,
     this.extra,
@@ -102,6 +111,7 @@ class RefreshableDataView<T> extends UpdatableDataView<T> {
     this.useOverlapInjector = false,
     this.gridDelegate,
   })  : style = UpdatableDataViewStyle.sliverGridView,
+        onStyleChanged = null,
         separator = null,
         crossAxisCount = null,
         mainAxisSpacing = null,
@@ -115,6 +125,7 @@ class RefreshableDataView<T> extends UpdatableDataView<T> {
     required this.data,
     required this.getData,
     this.setting = const UpdatableDataViewSetting(),
+    this.scrollViewKey,
     this.scrollController,
     required this.itemBuilder,
     this.extra,
@@ -123,6 +134,7 @@ class RefreshableDataView<T> extends UpdatableDataView<T> {
     this.mainAxisSpacing = 0.0,
     this.crossAxisSpacing = 0.0,
   })  : style = UpdatableDataViewStyle.masonryGridView,
+        onStyleChanged = null,
         separator = null,
         useOverlapInjector = null,
         gridDelegate = null,
@@ -135,6 +147,7 @@ class RefreshableDataView<T> extends UpdatableDataView<T> {
     required this.data,
     required this.getData,
     this.setting = const UpdatableDataViewSetting(),
+    this.scrollViewKey,
     this.scrollController,
     required this.itemBuilder,
     this.extra,
@@ -144,6 +157,7 @@ class RefreshableDataView<T> extends UpdatableDataView<T> {
     this.mainAxisSpacing = 0.0,
     this.crossAxisSpacing = 0.0,
   })  : style = UpdatableDataViewStyle.sliverMasonryGridView,
+        onStyleChanged = null,
         separator = null,
         gridDelegate = null,
         customViewBuilder = null,
@@ -155,6 +169,7 @@ class RefreshableDataView<T> extends UpdatableDataView<T> {
     required this.data,
     required this.getData,
     this.setting = const UpdatableDataViewSetting(),
+    this.scrollViewKey,
     this.scrollController,
     required this.itemBuilder,
     this.extra,
@@ -167,6 +182,7 @@ class RefreshableDataView<T> extends UpdatableDataView<T> {
     this.crossAxisSpacing = 0.0,
     required this.customViewBuilder,
   })  : style = UpdatableDataViewStyle.customView,
+        onStyleChanged = null,
         super(key: key);
 
   // General properties
@@ -187,6 +203,10 @@ class RefreshableDataView<T> extends UpdatableDataView<T> {
   @override
   final UpdatableDataViewSetting<T> setting;
 
+  /// The key for [ScrollView].
+  @override
+  final Key? scrollViewKey;
+
   /// The controller for [ScrollView].
   @override
   final ScrollController? scrollController;
@@ -194,6 +214,10 @@ class RefreshableDataView<T> extends UpdatableDataView<T> {
   /// The itemBuilder for [ScrollView].
   @override
   final Widget Function(BuildContext, int, T) itemBuilder;
+
+  /// The callback function to be called when [style] is changed.
+  @override
+  final void Function(UpdatableDataViewStyle oldStyle, UpdatableDataViewStyle newStyle)? onStyleChanged;
 
   /// The extra widgets around [ScrollView].
   @override
@@ -242,6 +266,14 @@ class RefreshableDataViewState<T> extends State<RefreshableDataView<T>> with Aut
     } else {
       _forceState = widget.setting.initialForceState ?? //
           (widget.data.isEmpty ? PlaceholderState.nothing : PlaceholderState.normal);
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant RefreshableDataView<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.style != widget.style) {
+      widget.onStyleChanged?.call(oldWidget.style, widget.style);
     }
   }
 
@@ -327,6 +359,7 @@ class RefreshableDataViewState<T> extends State<RefreshableDataView<T>> with Aut
 
     if (!sliver) {
       return ListView.separated(
+        key: widget.scrollViewKey,
         controller: PreviouslySwitchedWidget.isPrevious(context) ? null : widget.scrollController,
         padding: widget.setting.padding,
         physics: widget.setting.physics ?? const AlwaysScrollableScrollPhysics(),
@@ -345,6 +378,7 @@ class RefreshableDataViewState<T> extends State<RefreshableDataView<T>> with Aut
     }
 
     return CustomScrollView(
+      key: widget.scrollViewKey,
       controller: PreviouslySwitchedWidget.isPrevious(context) ? null : widget.scrollController,
       physics: widget.setting.physics ?? const AlwaysScrollableScrollPhysics(),
       reverse: widget.setting.reverse ?? false,
@@ -387,6 +421,7 @@ class RefreshableDataViewState<T> extends State<RefreshableDataView<T>> with Aut
 
     if (!sliver) {
       return GridView.builder(
+        key: widget.scrollViewKey,
         controller: PreviouslySwitchedWidget.isPrevious(context) ? null : widget.scrollController,
         padding: widget.setting.padding,
         physics: widget.setting.physics ?? const AlwaysScrollableScrollPhysics(),
@@ -405,6 +440,7 @@ class RefreshableDataViewState<T> extends State<RefreshableDataView<T>> with Aut
     }
 
     return CustomScrollView(
+      key: widget.scrollViewKey,
       controller: PreviouslySwitchedWidget.isPrevious(context) ? null : widget.scrollController,
       physics: widget.setting.physics ?? const AlwaysScrollableScrollPhysics(),
       reverse: widget.setting.reverse ?? false,
@@ -439,6 +475,7 @@ class RefreshableDataViewState<T> extends State<RefreshableDataView<T>> with Aut
   Widget _buildMasonryGridView(BuildContext context, bool sliver) {
     if (!sliver) {
       return MasonryGridView.count(
+        key: widget.scrollViewKey,
         controller: PreviouslySwitchedWidget.isPrevious(context) ? null : widget.scrollController,
         padding: widget.setting.padding,
         physics: widget.setting.physics ?? const AlwaysScrollableScrollPhysics(),
@@ -459,6 +496,7 @@ class RefreshableDataViewState<T> extends State<RefreshableDataView<T>> with Aut
     }
 
     return CustomScrollView(
+      key: widget.scrollViewKey,
       controller: PreviouslySwitchedWidget.isPrevious(context) ? null : widget.scrollController,
       physics: widget.setting.physics ?? const AlwaysScrollableScrollPhysics(),
       reverse: widget.setting.reverse ?? false,
@@ -588,6 +626,7 @@ class RefreshableListView<T> extends RefreshableDataView<T> {
     required List<T> data,
     required Future<List<T>> Function()? getData,
     UpdatableDataViewSetting<T> setting = const UpdatableDataViewSetting(),
+    Key? scrollViewKey,
     ScrollController? scrollController,
     required Widget Function(BuildContext, int, T) itemBuilder,
     UpdatableDataViewExtraWidgets? extra,
@@ -598,6 +637,7 @@ class RefreshableListView<T> extends RefreshableDataView<T> {
           data: data,
           getData: getData,
           setting: setting,
+          scrollViewKey: scrollViewKey,
           scrollController: scrollController,
           itemBuilder: itemBuilder,
           extra: extra,
@@ -614,6 +654,7 @@ class RefreshableSliverListView<T> extends RefreshableDataView<T> {
     required List<T> data,
     required Future<List<T>> Function()? getData,
     UpdatableDataViewSetting<T> setting = const UpdatableDataViewSetting(),
+    Key? scrollViewKey,
     ScrollController? scrollController,
     required Widget Function(BuildContext, int, T) itemBuilder,
     UpdatableDataViewExtraWidgets? extra,
@@ -625,6 +666,7 @@ class RefreshableSliverListView<T> extends RefreshableDataView<T> {
           data: data,
           getData: getData,
           setting: setting,
+          scrollViewKey: scrollViewKey,
           scrollController: scrollController,
           itemBuilder: itemBuilder,
           extra: extra,
@@ -642,6 +684,7 @@ class RefreshableGridView<T> extends RefreshableDataView<T> {
     required List<T> data,
     required Future<List<T>> Function()? getData,
     UpdatableDataViewSetting<T> setting = const UpdatableDataViewSetting(),
+    Key? scrollViewKey,
     ScrollController? scrollController,
     required Widget Function(BuildContext, int, T) itemBuilder,
     UpdatableDataViewExtraWidgets? extra,
@@ -652,6 +695,7 @@ class RefreshableGridView<T> extends RefreshableDataView<T> {
           data: data,
           getData: getData,
           setting: setting,
+          scrollViewKey: scrollViewKey,
           scrollController: scrollController,
           itemBuilder: itemBuilder,
           extra: extra,
@@ -668,6 +712,7 @@ class RefreshableSliverGridView<T> extends RefreshableDataView<T> {
     required List<T> data,
     required Future<List<T>> Function()? getData,
     UpdatableDataViewSetting<T> setting = const UpdatableDataViewSetting(),
+    Key? scrollViewKey,
     ScrollController? scrollController,
     required Widget Function(BuildContext, int, T) itemBuilder,
     UpdatableDataViewExtraWidgets? extra,
@@ -679,6 +724,7 @@ class RefreshableSliverGridView<T> extends RefreshableDataView<T> {
           data: data,
           getData: getData,
           setting: setting,
+          scrollViewKey: scrollViewKey,
           scrollController: scrollController,
           itemBuilder: itemBuilder,
           extra: extra,
@@ -696,6 +742,7 @@ class RefreshableMasonryGridView<T> extends RefreshableDataView<T> {
     required List<T> data,
     required Future<List<T>> Function()? getData,
     UpdatableDataViewSetting<T> setting = const UpdatableDataViewSetting(),
+    Key? scrollViewKey,
     ScrollController? scrollController,
     required Widget Function(BuildContext, int, T) itemBuilder,
     UpdatableDataViewExtraWidgets? extra,
@@ -708,6 +755,7 @@ class RefreshableMasonryGridView<T> extends RefreshableDataView<T> {
           data: data,
           getData: getData,
           setting: setting,
+          scrollViewKey: scrollViewKey,
           scrollController: scrollController,
           itemBuilder: itemBuilder,
           extra: extra,
@@ -726,6 +774,7 @@ class RefreshableSliverMasonryGridView<T> extends RefreshableDataView<T> {
     required List<T> data,
     required Future<List<T>> Function()? getData,
     UpdatableDataViewSetting<T> setting = const UpdatableDataViewSetting(),
+    Key? scrollViewKey,
     ScrollController? scrollController,
     required Widget Function(BuildContext, int, T) itemBuilder,
     UpdatableDataViewExtraWidgets? extra,
@@ -739,6 +788,7 @@ class RefreshableSliverMasonryGridView<T> extends RefreshableDataView<T> {
           data: data,
           getData: getData,
           setting: setting,
+          scrollViewKey: scrollViewKey,
           scrollController: scrollController,
           itemBuilder: itemBuilder,
           extra: extra,
