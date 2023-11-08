@@ -273,6 +273,11 @@ class ExtendedDropdownButtonState<T> extends State<ExtendedDropdownButton<T>> wi
 
   TextStyle? get _textStyle => widget.style ?? Theme.of(context).textTheme.subtitle1;
 
+  // The method is added by AoiHosizora.
+  void showDropdownMenu() {
+    _handleTap();
+  }
+
   // This method's signature is modified by AoiHosizora.
   Future<void> _handleTap() async {
     if (widget.onTapBefore != null) {
