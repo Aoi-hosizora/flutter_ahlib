@@ -36,6 +36,7 @@ class DrawerScaffold extends StatefulWidget {
     this.testColorForEndDrawerDragArea,
     this.testColorForDrawerDragTriggers,
     this.testColorForEndDrawerDragTriggers,
+    this.onWillPop,
     // ===
     this.appBar,
     this.floatingActionButton,
@@ -159,6 +160,10 @@ class DrawerScaffold extends StatefulWidget {
 
   /// The color for testing end drawer's drag triggers in [DrawerScaffold], default to null.
   final Color? testColorForEndDrawerDragTriggers;
+
+  /// The onWillPop callback, note that this scaffold will be wrapped by [WillPopScope] if
+  /// [onWillPop] is not null, default to null.
+  final WillPopCallback? onWillPop;
 
   // ===
 
@@ -558,7 +563,7 @@ class DrawerScaffoldState extends State<DrawerScaffold> with RestorationMixin {
       scaffold = _wrapImplicitPageView(scaffold);
     }
 
-    return Stack(
+    var stack = Stack(
       fit: StackFit.expand,
       children: [
         // scaffold with notification listener
@@ -602,6 +607,14 @@ class DrawerScaffoldState extends State<DrawerScaffold> with RestorationMixin {
           ),
       ],
     );
+
+    if (widget.onWillPop != null) {
+      return WillPopScope(
+        onWillPop: widget.onWillPop,
+        child: stack,
+      );
+    }
+    return stack;
   }
 }
 

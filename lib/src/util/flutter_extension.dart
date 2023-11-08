@@ -210,9 +210,19 @@ extension BuildContextExtension on BuildContext {
     return renderObject;
   }
 
+  /// Get the ancestor element of current element, returns null if current element is the root.
+  Element? getAncestorElement() {
+    Element? out;
+    visitAncestorElements((el) {
+      out = el;
+      return false;
+    });
+    return out;
+  }
+
   /// Visits descendant child element and finds some non-null objects using given [checker] and DFS algorithm.
   /// Note that this method will return all found objects if given non-positive [count].
-  List<T> findDescendantElementsDFS<T extends Object>(int count, T? Function(Element element) checker) {
+  List<T> findDescendantElementsDFS<T extends Object>(int count, T? Function(Element element) checker, {bool reverse = false}) {
     var out = <T>[];
 
     void visit(Element el) {
@@ -221,10 +231,13 @@ extension BuildContextExtension on BuildContext {
       }
 
       var t = checker(el);
-      if (t != null) {
+      if (t != null && !reverse) {
         out.add(t);
       }
       el.visitChildElements(visit);
+      if (t != null && reverse) {
+        out.add(t);
+      }
     }
 
     visitChildElements(visit);
@@ -239,17 +252,24 @@ extension BuildContextExtension on BuildContext {
 
     visitChildElements((el) => queue.addLast(el));
     while (queue.isNotEmpty) {
-      if (count > 0 && out.length >= count) {
-        return out;
+      var queueStash = <Element>[];
+      while (queue.isNotEmpty) {
+        var el = queue.first;
+        queue.removeFirst();
+        queueStash.add(el);
+
+        var t = checker(el);
+        if (t != null) {
+          if (count > 0 && out.length >= count) {
+            return out;
+          }
+          out.add(t);
+        }
       }
 
-      var el = queue.first;
-      queue.removeFirst();
-      var t = checker(el);
-      if (t != null) {
-        out.add(t);
+      for (var el in queueStash) {
+        el.visitChildElements((el) => queue.addLast(el));
       }
-      el.visitChildElements((el) => queue.addLast(el));
     }
 
     return out;
