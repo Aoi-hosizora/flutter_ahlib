@@ -4,6 +4,7 @@ import 'dart:ui' as ui show Codec, FrameInfo;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter_ahlib/src/util/dart_extension.dart';
 
 // Note: This file is completely based on Baseflow/flutter_cached_network_image.
 //
@@ -156,7 +157,7 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
       return;
     }
     _frameCallbackScheduled = true;
-    SchedulerBinding.instance?.scheduleFrameCallback(_handleAppFrame);
+    ambiguate(SchedulerBinding.instance)?.scheduleFrameCallback(_handleAppFrame);
   }
 
   void _emitFrame(ImageInfo imageInfo) {

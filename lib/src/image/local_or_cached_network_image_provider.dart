@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/src/image/load_local_or_network_image.dart';
 import 'package:flutter_ahlib/src/image/multi_image_stream_completer.dart';
+import 'package:flutter_ahlib/src/util/dart_extension.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 // Note: This file is based on Baseflow/flutter_cached_network_image, and is modified by AoiHosizora (GitHub: @Aoi-hosizora).
@@ -337,7 +338,7 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<LocalOrCachedNetwo
         // Depending on where the exception was thrown, the image cache may not have had
         // a chance to track the key in the cache at all. Schedule a microtask to give
         // the cache a chance to add the key.
-        PaintingBinding.instance?.imageCache?.evict(key);
+        ambiguate(PaintingBinding.instance)?.imageCache?.evict(key);
       }),
     );
     return MultiImageStreamCompleter(

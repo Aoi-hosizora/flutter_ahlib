@@ -50,7 +50,7 @@ class _ExtendedPhotoGalleryPageState extends State<ExtendedPhotoGalleryPage> {
     return WillPopScope(
       onWillPop: () async {
         await _cache.emptyCache();
-        PaintingBinding.instance?.imageCache?.clear();
+        ambiguate(PaintingBinding.instance)?.imageCache?.clear();
         printLog('emptyCache');
         return true;
       },
@@ -95,7 +95,7 @@ class _ExtendedPhotoGalleryPageState extends State<ExtendedPhotoGalleryPage> {
               tooltip: 'Open advanced pace',
               onPressed: () async {
                 await _cache.emptyCache();
-                PaintingBinding.instance?.imageCache?.clear();
+                ambiguate(PaintingBinding.instance)?.imageCache?.clear();
                 printLog('emptyCache');
                 await Navigator.of(context).push(
                   MaterialPageRoute(
@@ -103,7 +103,7 @@ class _ExtendedPhotoGalleryPageState extends State<ExtendedPhotoGalleryPage> {
                   ),
                 );
                 await _cache.emptyCache();
-                PaintingBinding.instance?.imageCache?.clear();
+                ambiguate(PaintingBinding.instance)?.imageCache?.clear();
                 printLog('emptyCache');
               },
             ),

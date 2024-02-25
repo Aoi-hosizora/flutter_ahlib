@@ -10,6 +10,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_ahlib/src/util/dart_extension.dart';
 import 'package:flutter_ahlib/src/widget/lazy_indexed_stack.dart';
 
 // Note: This file is based on Flutter's source code, and is modified by AoiHosizora (GitHub: @Aoi-hosizora).
@@ -200,16 +201,16 @@ class ExtendedDropdownButtonState<T> extends State<ExtendedDropdownButton<T>> wi
       ),
     };
     focusNode!.addListener(_handleFocusChanged);
-    final FocusManager focusManager = WidgetsBinding.instance!.focusManager;
+    final FocusManager focusManager = ambiguate(WidgetsBinding.instance)!.focusManager;
     _focusHighlightMode = focusManager.highlightMode;
     focusManager.addHighlightModeListener(_handleFocusHighlightModeChange);
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance!.removeObserver(this);
+    ambiguate(WidgetsBinding.instance)!.removeObserver(this);
     removeDropdownRoute();
-    WidgetsBinding.instance!.focusManager.removeHighlightModeListener(_handleFocusHighlightModeChange);
+    ambiguate(WidgetsBinding.instance)!.focusManager.removeHighlightModeListener(_handleFocusHighlightModeChange);
     focusNode!.removeListener(_handleFocusChanged);
     _internalNode?.dispose();
     super.dispose();
