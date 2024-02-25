@@ -715,7 +715,7 @@ class _PlaceholderTextState extends State<PlaceholderText> {
                           child: Text(
                             setting.loadingText!,
                             textAlign: TextAlign.center,
-                            style: setting.textStyle!,
+                            style: setting.textStyle,
                             maxLines: setting.textMaxLines!,
                             overflow: setting.textOverflow!,
                           ),
@@ -757,7 +757,7 @@ class _PlaceholderTextState extends State<PlaceholderText> {
                           child: Text(
                             setting.nothingText!,
                             textAlign: TextAlign.center,
-                            style: setting.textStyle!,
+                            style: setting.textStyle,
                             maxLines: setting.textMaxLines!,
                             overflow: setting.textOverflow!,
                           ),
@@ -774,9 +774,9 @@ class _PlaceholderTextState extends State<PlaceholderText> {
                         OutlinedButton(
                           child: Text(
                             setting.nothingRetryText!,
-                            style: setting.buttonTextStyle!,
+                            style: setting.buttonTextStyle,
                           ),
-                          style: setting.buttonStyle!,
+                          style: setting.buttonStyle,
                           onPressed: () => (widget.onRetryForNothing ?? widget.onRefresh)?.call(),
                         ),
                   ),
@@ -818,7 +818,7 @@ class _PlaceholderTextState extends State<PlaceholderText> {
                                 ? widget.errorText! //
                                 : setting.unknownErrorText!,
                             textAlign: TextAlign.center,
-                            style: setting.textStyle!,
+                            style: setting.textStyle,
                             maxLines: setting.textMaxLines!,
                             overflow: setting.textOverflow!,
                           ),
@@ -835,9 +835,9 @@ class _PlaceholderTextState extends State<PlaceholderText> {
                         OutlinedButton(
                           child: Text(
                             setting.errorRetryText!,
-                            style: setting.buttonTextStyle!,
+                            style: setting.buttonTextStyle,
                           ),
-                          style: setting.buttonStyle!,
+                          style: setting.buttonStyle,
                           onPressed: () => (widget.onRetryForError ?? widget.onRefresh)?.call(),
                         ),
                   ),
