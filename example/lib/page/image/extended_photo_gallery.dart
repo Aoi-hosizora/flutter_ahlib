@@ -34,7 +34,7 @@ class _ExtendedPhotoGalleryPageState extends State<ExtendedPhotoGalleryPage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
+    ambiguate(WidgetsBinding.instance)?.addPostFrameCallback((_) {
       if (mounted) setState(() {});
     });
   }
@@ -72,7 +72,7 @@ class _ExtendedPhotoGalleryPageState extends State<ExtendedPhotoGalleryPage> {
               onPressed: () {
                 _correctUrl = !_correctUrl;
                 if (mounted) setState(() {});
-                WidgetsBinding.instance?.addPostFrameCallback((_) {
+                ambiguate(WidgetsBinding.instance)?.addPostFrameCallback((_) {
                   // setState will make the first ImageProvider reload image because different url, so here use addPostFrameCallback
                   if (_correctUrl) {
                     _urls[0] = _urls[0].replaceAll('userxxx-', 'user-');
@@ -231,7 +231,7 @@ class _AdvancedPageState extends State<_AdvancedPage> {
               if (mounted) setState(() {});
               var oldController = _controller;
               _controller = PageController(viewportFraction: _containsSpacer ? 1.08 : 1.0, initialPage: _currentPageIndex);
-              WidgetsBinding.instance?.addPostFrameCallback((_) => oldController.dispose());
+              ambiguate(WidgetsBinding.instance)?.addPostFrameCallback((_) => oldController.dispose());
             },
           ),
           IconButton(

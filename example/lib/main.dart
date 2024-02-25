@@ -14,7 +14,7 @@ void printLog(Object? s, {bool alsoPrint = true, bool logPrefix = true}) {
   Future.microtask(() {
     var text = s?.toString() ?? '<null>';
     _logger.value += (logPrefix ? '\n[log] ' : '\n') + text;
-    WidgetsBinding.instance?.addPostFrameCallback((_) => _controller.scrollToBottom());
+    ambiguate(WidgetsBinding.instance)?.addPostFrameCallback((_) => _controller.scrollToBottom());
   });
 }
 

@@ -28,7 +28,7 @@ class _DrawerScaffoldPageState extends State<DrawerScaffoldPage> with TickerProv
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
+    ambiguate(WidgetsBinding.instance)?.addPostFrameCallback((_) {
       if (mounted) setState(() {});
     });
   }

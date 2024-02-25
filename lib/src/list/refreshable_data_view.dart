@@ -4,6 +4,7 @@ import 'package:flutter_ahlib/src/list/updatable_data_view.dart';
 import 'package:flutter_ahlib/src/widget/placeholder_text.dart';
 import 'package:flutter_ahlib/src/widget/extended_scrollbar.dart';
 import 'package:flutter_ahlib/src/widget/sliver_delegate.dart';
+import 'package:flutter_ahlib/src/util/dart_extension.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 /// An implementation of [UpdatableDataView] for refreshable data, including [RefreshIndicator], [PlaceholderText], [Scrollbar] and some
@@ -262,7 +263,7 @@ class RefreshableDataViewState<T> extends State<RefreshableDataView<T>> with Aut
     super.initState();
     if (widget.setting.refreshFirst ?? true) {
       _forceState = PlaceholderState.loading;
-      WidgetsBinding.instance?.addPostFrameCallback((_) => _refreshIndicatorKey.currentState?.show());
+      ambiguate(WidgetsBinding.instance)?.addPostFrameCallback((_) => _refreshIndicatorKey.currentState?.show());
     } else {
       _forceState = widget.setting.initialForceState ?? //
           (widget.data.isEmpty ? PlaceholderState.nothing : PlaceholderState.normal);
@@ -304,7 +305,7 @@ class RefreshableDataViewState<T> extends State<RefreshableDataView<T>> with Aut
       if (widget.data.isNotEmpty) {
         _forceState = PlaceholderState.loading;
         if (mounted) setState(() {});
-        await WidgetsBinding.instance?.endOfFrame;
+        await ambiguate(WidgetsBinding.instance)?.endOfFrame;
         await Future.delayed(widget.setting.flashListDuration ?? kFlashListDuration);
         _forceState = null;
         widget.data.clear();

@@ -6,6 +6,7 @@ import 'package:flutter_ahlib/src/util/flutter_extension.dart';
 import 'package:flutter_ahlib/src/widget/placeholder_text.dart';
 import 'package:flutter_ahlib/src/widget/extended_scrollbar.dart';
 import 'package:flutter_ahlib/src/widget/sliver_delegate.dart';
+import 'package:flutter_ahlib/src/util/dart_extension.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 /// A data model for [PaginationDataView], represents the returned data.
@@ -326,7 +327,7 @@ class PaginationDataViewState<T> extends State<PaginationDataView<T>> with Autom
     super.initState();
     if (widget.setting.refreshFirst ?? true) {
       _forceState = PlaceholderState.loading;
-      WidgetsBinding.instance?.addPostFrameCallback((_) => _refreshIndicatorKey.currentState?.show());
+      ambiguate(WidgetsBinding.instance)?.addPostFrameCallback((_) => _refreshIndicatorKey.currentState?.show());
     } else {
       _forceState = widget.setting.initialForceState ?? //
           (widget.data.isEmpty ? PlaceholderState.nothing : PlaceholderState.normal);
@@ -413,7 +414,7 @@ class PaginationDataViewState<T> extends State<PaginationDataView<T>> with Autom
         if (widget.data.isNotEmpty) {
           _forceState = PlaceholderState.loading;
           if (mounted) setState(() {});
-          await WidgetsBinding.instance?.endOfFrame;
+          await ambiguate(WidgetsBinding.instance)?.endOfFrame;
           await Future.delayed(widget.setting.flashListDuration ?? kFlashListDuration);
           _forceState = null;
           widget.data.clear();
@@ -448,11 +449,11 @@ class PaginationDataViewState<T> extends State<PaginationDataView<T>> with Autom
       if (mounted) setState(() {});
       // keep scroll offset and scroll down the list, if needed
       if (previousOffset != null) {
-        await WidgetsBinding.instance?.endOfFrame;
+        await ambiguate(WidgetsBinding.instance)?.endOfFrame;
         widget.scrollController?.jumpTo(previousOffset!);
       }
       if (needScrollDown) {
-        await WidgetsBinding.instance?.endOfFrame;
+        await ambiguate(WidgetsBinding.instance)?.endOfFrame;
         await widget.scrollController?.scrollMore();
       }
       widget.setting.onFinalSetState?.call(); // final setState

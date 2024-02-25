@@ -4,6 +4,7 @@
 
 import 'package:flutter/gestures.dart' show DragStartBehavior;
 import 'package:flutter/material.dart';
+import 'package:flutter_ahlib/src/util/dart_extension.dart';
 
 // Note: This file is based on Flutter's source code, and is modified by AoiHosizora (GitHub: @Aoi-hosizora).
 //
@@ -165,7 +166,7 @@ class ExtendedTabBarViewState extends State<ExtendedTabBarView> {
       for (var listen in _pageControllerListeners) {
         _pageController.addListener(listen); // migrate old listeners to new page controller
       }
-      WidgetsBinding.instance?.addPostFrameCallback((_) => oldController.dispose());
+      ambiguate(WidgetsBinding.instance)?.addPostFrameCallback((_) => oldController.dispose());
     }
     if (widget.controller != oldWidget.controller) {
       _updateTabController();

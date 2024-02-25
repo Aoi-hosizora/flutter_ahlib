@@ -138,9 +138,15 @@ extension ObjectExtension<T extends Object> on T {
     return this as U;
   }
 
-  /// Calls given function when current value is not null.
+  /// Calls given function when current value is not null, and returns the returned value, just like kotlin's [let] and [run].
   R let<R>(R Function(T value) func) {
     return func.call(this);
+  }
+
+  /// Calls given function when current value is not null, and returns the current object, just like kotlin's [also] and [apply].
+  T also(void Function(T value) func) {
+    func(this);
+    return this; // TODO test
   }
 }
 
@@ -155,3 +161,6 @@ extension FutureExtension<T extends Object> on Future<T?> {
     return null;
   }
 }
+
+/// This allows a value of type `T` or `T?` to be treated as a value of type `T?`.
+T? ambiguate<T>(T? value) => value;

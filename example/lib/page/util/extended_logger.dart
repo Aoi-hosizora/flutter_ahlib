@@ -232,7 +232,7 @@ class _LogConsolePageState extends State<_LogConsolePage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
+    ambiguate(WidgetsBinding.instance)?.addPostFrameCallback((_) {
       _updateFilteredBuffer();
       _LogConsolePage._logger.addOutputListener(_updateFilteredBuffer);
     });
@@ -261,7 +261,7 @@ class _LogConsolePageState extends State<_LogConsolePage> {
     if (mounted) setState(() {});
 
     if (_scrollController.hasClients && _scrollController.position.atBottomEdge()) {
-      WidgetsBinding.instance?.addPostFrameCallback((_) {
+      ambiguate(WidgetsBinding.instance)?.addPostFrameCallback((_) {
         _scrollController.scrollToBottom();
       });
     }

@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_ahlib/src/util/dart_extension.dart';
 
 /// The data class which represents video progress, used in [VideoProgressIndicator].
 class VideoProgress {
@@ -126,7 +127,7 @@ class _VideoProgressIndicatorState extends State<VideoProgressIndicator> {
       var bufferedValue = math.max((widget.progress!.buffered ?? 0) / widget.progress!.duration, playedValue);
       var width = context.findRenderObject()?.semanticBounds.width;
       if (width == null) {
-        WidgetsBinding.instance?.addPostFrameCallback((_) {
+        ambiguate(WidgetsBinding.instance)?.addPostFrameCallback((_) {
           if (mounted) setState(() {});
         });
       }

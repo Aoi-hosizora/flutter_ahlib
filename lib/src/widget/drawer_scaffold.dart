@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/src/util/flutter_constants.dart';
 import 'package:flutter_ahlib/src/widget/custom_drawer_controller.dart';
 import 'package:flutter_ahlib/src/widget/custom_scroll_physics.dart';
+import 'package:flutter_ahlib/src/util/dart_extension.dart';
 
 // ignore_for_file: avoid_function_literals_in_foreach_calls
 
@@ -207,7 +208,7 @@ class DrawerScaffoldState extends State<DrawerScaffold> with RestorationMixin {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
+   ambiguate(WidgetsBinding.instance)?.addPostFrameCallback((_) {
       if (mounted) setState(() {});
     });
   }
@@ -518,7 +519,7 @@ class DrawerScaffoldState extends State<DrawerScaffold> with RestorationMixin {
         oldWidget.endDrawerEnableOpenDragGesture != widget.endDrawerEnableOpenDragGesture ||
         oldWidget.drawerEdgeDragWidth != widget.drawerEdgeDragWidth ||
         oldWidget.endDrawerEdgeDragWidth != widget.endDrawerEdgeDragWidth) {
-      WidgetsBinding.instance?.addPostFrameCallback((_) {
+      ambiguate(WidgetsBinding.instance)?.addPostFrameCallback((_) {
         if (mounted) setState(() {});
       });
     }

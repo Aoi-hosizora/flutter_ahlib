@@ -22,7 +22,7 @@ class _NestedPageViewNotifierPageState extends State<NestedPageViewNotifierPage>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
+    ambiguate(WidgetsBinding.instance)?.addPostFrameCallback((_) {
       _pageController = context.findDescendantElementBFS<PageController>((el) => el.asIf<PageView>()?.controller)!; // <<< use visitDescendantElementsBFS
     });
     _controller.addListener(() {

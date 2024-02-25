@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_ahlib/src/util/dart_extension.dart';
 
 /// The default duration of [AnimatedFab] and [ScrollAnimatedFab].
 const _kDefaultDuration = Duration(milliseconds: 250);
@@ -54,7 +55,7 @@ class _AnimatedFabState extends State<AnimatedFab> with SingleTickerProviderStat
   void initState() {
     super.initState();
     _controller.attachAnim(_animController);
-    WidgetsBinding.instance?.addPostFrameCallback((_) => _onShowChanged(widget.show));
+    ambiguate(WidgetsBinding.instance)?.addPostFrameCallback((_) => _onShowChanged(widget.show));
   }
 
   @override
@@ -177,7 +178,7 @@ class _ScrollAnimatedFabState extends State<ScrollAnimatedFab> with SingleTicker
     super.initState();
     _controller.attachAnim(_animController);
     widget.scrollController.addListener(_scrollListener);
-    WidgetsBinding.instance?.addPostFrameCallback((_) => _scrollListener());
+    ambiguate(WidgetsBinding.instance)?.addPostFrameCallback((_) => _scrollListener());
   }
 
   @override

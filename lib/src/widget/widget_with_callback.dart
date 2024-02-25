@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_ahlib/src/util/dart_extension.dart';
 
 /// A [StatelessWidget] with some callbacks.
 class StatelessWidgetWithCallback extends StatelessWidget {
@@ -38,7 +39,7 @@ class StatelessWidgetWithCallback extends StatelessWidget {
 
     buildCallback?.call(context);
     if (postFrameCallback != null) {
-      WidgetsBinding.instance?.addPostFrameCallback((_) => postFrameCallback?.call(context));
+      ambiguate(WidgetsBinding.instance)?.addPostFrameCallback((_) => postFrameCallback?.call(context));
     }
 
     if (child != null) {
@@ -159,10 +160,10 @@ class _StatefulWidgetWithCallbackState extends State<StatefulWidgetWithCallback>
       // Note: Persistent frame callbacks cannot be unregistered.
       // Once registered, they are called for every frame for the
       // lifetime of the application.
-      WidgetsBinding.instance?.addPersistentFrameCallback((_) => widget.permanentFrameCallback?.call(context, _stateSetter));
+      ambiguate(WidgetsBinding.instance)?.addPersistentFrameCallback((_) => widget.permanentFrameCallback?.call(context, _stateSetter));
     }
     if (widget.postFrameCallbackForInitState != null) {
-      WidgetsBinding.instance?.addPostFrameCallback((_) => widget.postFrameCallbackForInitState?.call(context, _stateSetter));
+      ambiguate(WidgetsBinding.instance)?.addPostFrameCallback((_) => widget.postFrameCallbackForInitState?.call(context, _stateSetter));
     }
   }
 
@@ -171,7 +172,7 @@ class _StatefulWidgetWithCallbackState extends State<StatefulWidgetWithCallback>
     super.didChangeDependencies();
     widget.didChangeDependenciesCallback?.call(context, _stateSetter);
     if (widget.postFrameCallbackForDidChangeDependencies != null) {
-      WidgetsBinding.instance?.addPostFrameCallback((_) => widget.postFrameCallbackForDidChangeDependencies?.call(context, _stateSetter));
+      ambiguate(WidgetsBinding.instance)?.addPostFrameCallback((_) => widget.postFrameCallbackForDidChangeDependencies?.call(context, _stateSetter));
     }
   }
 
@@ -180,7 +181,7 @@ class _StatefulWidgetWithCallbackState extends State<StatefulWidgetWithCallback>
     super.didUpdateWidget(oldWidget);
     widget.didUpdateWidgetCallback?.call(context, _stateSetter);
     if (widget.postFrameCallbackForDidUpdateWidget != null) {
-      WidgetsBinding.instance?.addPostFrameCallback((_) => widget.postFrameCallbackForDidUpdateWidget?.call(context, _stateSetter));
+      ambiguate(WidgetsBinding.instance)?.addPostFrameCallback((_) => widget.postFrameCallbackForDidUpdateWidget?.call(context, _stateSetter));
     }
   }
 
@@ -215,7 +216,7 @@ class _StatefulWidgetWithCallbackState extends State<StatefulWidgetWithCallback>
 
     widget.buildCallback?.call(context, _stateSetter);
     if (widget.postFrameCallbackForBuild != null) {
-      WidgetsBinding.instance?.addPostFrameCallback((_) => widget.postFrameCallbackForBuild?.call(context, _stateSetter));
+      ambiguate(WidgetsBinding.instance)?.addPostFrameCallback((_) => widget.postFrameCallbackForBuild?.call(context, _stateSetter));
     }
 
     if (child != null) {
