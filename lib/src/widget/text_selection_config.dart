@@ -56,7 +56,12 @@ class TextSelectionWithColorHandle extends MaterialTextSelectionControls {
         selectionHandleColor: handleColor, // <<<
       ),
       child: Builder(
-        builder: (context) => super.buildHandle(context, type, textHeight, onTap, startGlyphHeight, endGlyphHeight),
+        // for Flutter 2
+        // builder:  (context) => super.buildHandle(context, type, textHeight, onTap, startGlyphHeight, endGlyphHeight),
+        // Note: actually, `startGlyphHeight` and `endGlyphHeight` are not be used, so pass them both as None.
+
+        // for Flutter 3
+        builder: (context) => super.buildHandle(context, type, textHeight, onTap),
       ),
     );
   }
