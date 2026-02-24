@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_ahlib/flutter_ahlib_util.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -43,7 +42,7 @@ void main() {
       expect(ok.isOk, true);
       expect(ok.isErr, false);
       expect(ok.toString(), 'AsyncResult.ok(2)');
-      expect(ok.hashCode, hashValues(2, null));
+      expect(ok.hashCode, Object.hash(2, null));
       expect(ok == const Ok<int, Object>(2), true);
 
       // properties on Err
@@ -52,7 +51,7 @@ void main() {
       expect(err.isOk, false);
       expect(err.isErr, true);
       expect(err.toString(), 'AsyncResult.err(emergency failure)');
-      expect(err.hashCode, hashValues(null, 'emergency failure'));
+      expect(err.hashCode, Object.hash(null, 'emergency failure'));
       expect(err == const Err<Object, String>('emergency failure'), true);
 
       // expect/unwrap on Ok
