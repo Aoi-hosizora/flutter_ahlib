@@ -98,7 +98,7 @@ class ExtendedLogger {
       throw ArgumentError('Log events cannot have Level.nothing.');
     }
 
-    var logEvent = LogEvent(level, message, error, stackTrace);
+    var logEvent = LogEvent(level, message, error: error, stackTrace: stackTrace);
     if (_filter.shouldLog(logEvent)) {
       for (var lis in _logListeners) {
         try {

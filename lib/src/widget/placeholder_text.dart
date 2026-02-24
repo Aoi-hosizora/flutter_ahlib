@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_ahlib/src/util/text_theme_extension.dart';
 
 /// A state enum used to describe the current state of [PlaceholderText].
 enum PlaceholderState {

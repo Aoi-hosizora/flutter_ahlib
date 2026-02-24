@@ -291,7 +291,7 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<LocalOrCachedNetwo
   }
 
   @override
-  ImageStreamCompleter load(LocalOrCachedNetworkImageProvider key, DecoderCallback decode) {
+  ImageStreamCompleter loadImage(LocalOrCachedNetworkImageProvider key, ImageDecoderCallback decode) {
     assert(key == this);
 
     var option = !_useFuture
@@ -378,9 +378,9 @@ class LocalOrCachedNetworkImageProvider extends ImageProvider<LocalOrCachedNetwo
   @override
   int get hashCode {
     if (_useFuture) {
-      return hashValues(key, fileFuture, urlFuture, scale, maxWidth, maxHeight);
+      return Object.hash(key, fileFuture, urlFuture, scale, maxWidth, maxHeight);
     }
-    return hashValues(key, file, url, scale, maxWidth, maxHeight);
+    return Object.hash(key, file, url, scale, maxWidth, maxHeight);
   }
 
   @override

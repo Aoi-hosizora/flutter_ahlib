@@ -429,7 +429,7 @@ class AppBarActionButtonThemeData with Diagnosticable {
 
   @override
   int get hashCode {
-    return hashValues(
+    return Object.hash(
       iconSize,
       visualDensity,
       padding,

@@ -664,7 +664,7 @@ class DrawerDragTrigger {
 
   @override
   int get hashCode {
-    return hashValues(left, top, right, bottom, height, dragWidth, forBothSide);
+    return Object.hash(left, top, right, bottom, height, dragWidth, forBothSide);
   }
 
   @override

@@ -320,7 +320,7 @@ class CustomPageRouteThemeData with Diagnosticable {
 
   @override
   int get hashCode {
-    return hashValues(
+    return Object.hash(
       transitionDuration,
       reverseTransitionDuration,
       barrierColor,
@@ -346,7 +346,7 @@ class NoPopGestureCupertinoPageTransitionsBuilder extends PageTransitionsBuilder
     Widget child,
   ) {
     // return CupertinoRouteTransitionMixin.buildPageTransitions<T>(route, context, animation, secondaryAnimation, child);
-    final bool linearTransition = CupertinoRouteTransitionMixin.isPopGestureInProgress(route);
+    final bool linearTransition = route.popGestureInProgress;
     if (route.fullscreenDialog) {
       return CupertinoFullscreenDialogTransition(
         primaryRouteAnimation: animation,

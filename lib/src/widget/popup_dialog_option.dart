@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ahlib/src/widget/icon_text.dart';
 import 'package:flutter_ahlib/src/util/flutter_constants.dart';
+import 'package:flutter_ahlib/src/util/text_theme_extension.dart';
 
 /// The default padding for [TextDialogOption].
 const kTextDialogOptionPadding = EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0); // same as SimpleDialog's titlePadding

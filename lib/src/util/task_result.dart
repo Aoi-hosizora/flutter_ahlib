@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui';
 
 /// A type that represents either ok/success or err/failure result, and is referred from
 /// rust's `std::Result` enum.
@@ -235,7 +234,7 @@ abstract class TaskResult<T extends Object, E extends Object> {
   String toString() => isOk ? 'AsyncResult.ok($data)' : 'AsyncResult.err($error)';
 
   @override
-  int get hashCode => hashValues(data, error);
+  int get hashCode => Object.hash(data, error);
 
   @override
   bool operator ==(Object other) {

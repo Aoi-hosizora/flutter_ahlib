@@ -10,4 +10,5 @@ export 'src/util/flutter_constants.dart';
 export 'src/util/flutter_extension.dart';
 export 'src/util/mime.dart';
 export 'src/util/task_result.dart';
+export 'src/util/text_theme_extension.dart';
 export 'src/util/tuple.dart';

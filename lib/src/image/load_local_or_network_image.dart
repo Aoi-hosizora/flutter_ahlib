@@ -1,7 +1,7 @@
 import 'dart:async' show StreamController;
 import 'dart:io' as io show File;
 import 'dart:typed_data';
-import 'dart:ui' as ui show Codec;
+import 'dart:ui' as ui show Codec, ImmutableBuffer;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
@@ -172,7 +172,7 @@ enum LoadImageExceptionType {
 }
 
 /// An exception type used by [loadLocalOrNetworkImageBytes].
-class LoadImageException with Exception {
+class LoadImageException implements Exception {
   const LoadImageException.bothNull()
       : type = LoadImageExceptionType.bothNull,
         filepath = '';
@@ -204,7 +204,7 @@ class LoadImageException with Exception {
 /// be recorded to given [CacheManager].
 Stream<ui.Codec> loadLocalOrNetworkImageCodec({
   required LoadImageOption option,
-  required DecoderCallback decode,
+  required ImageDecoderCallback decode,
   StreamController<ImageChunkEvent>? chunkEvents,
   void Function()? evictImageAsync,
 }) async* {
@@ -213,9 +213,13 @@ Stream<ui.Codec> loadLocalOrNetworkImageCodec({
     chunkEvents: chunkEvents,
     evictImageAsync: evictImageAsync,
   );
-  await for (var bytes in stream) {
-    yield await decode(bytes);
+  final BytesBuilder builder = BytesBuilder(copy: false);
+  await for (final chunk in stream) {
+    builder.add(chunk);
   }
+  final Uint8List bytes = builder.toBytes();
+  final ui.ImmutableBuffer buffer = await ui.ImmutableBuffer.fromUint8List(bytes);
+  yield await decode(buffer);
 }
 
 // load local image

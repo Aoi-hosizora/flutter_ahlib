@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 // Reference:
 // - https://github.com/google/tuple.dart/blob/master/lib/tuple.dart
 
@@ -54,7 +52,7 @@ class Tuple2<T1, T2> {
   }
 
   @override
-  int get hashCode => hashValues(item1.hashCode, item2.hashCode);
+  int get hashCode => Object.hash(item1.hashCode, item2.hashCode);
 }
 
 /// Represents a 3-tuple, or triple.
@@ -92,7 +90,7 @@ class Tuple3<T1, T2, T3> {
   }
 
   @override
-  int get hashCode => hashValues(item1.hashCode, item2.hashCode, item3.hashCode);
+  int get hashCode => Object.hash(item1.hashCode, item2.hashCode, item3.hashCode);
 }
 
 /// Represents a 4-tuple, or quadruple.
@@ -133,7 +131,7 @@ class Tuple4<T1, T2, T3, T4> {
   }
 
   @override
-  int get hashCode => hashValues(item1.hashCode, item2.hashCode, item3.hashCode, item4.hashCode);
+  int get hashCode => Object.hash(item1.hashCode, item2.hashCode, item3.hashCode, item4.hashCode);
 }
 
 /// Represents a 5-tuple, or quintuple.
@@ -177,7 +175,7 @@ class Tuple5<T1, T2, T3, T4, T5> {
   }
 
   @override
-  int get hashCode => hashValues(item1.hashCode, item2.hashCode, item3.hashCode, item4.hashCode, item5.hashCode);
+  int get hashCode => Object.hash(item1.hashCode, item2.hashCode, item3.hashCode, item4.hashCode, item5.hashCode);
 }
 
 /// Represents a 6-tuple, or sextuple.
@@ -224,5 +222,5 @@ class Tuple6<T1, T2, T3, T4, T5, T6> {
   }
 
   @override
-  int get hashCode => hashValues(item1.hashCode, item2.hashCode, item3.hashCode, item4.hashCode, item5.hashCode, item6.hashCode);
+  int get hashCode => Object.hash(item1.hashCode, item2.hashCode, item3.hashCode, item4.hashCode, item5.hashCode, item6.hashCode);
 }

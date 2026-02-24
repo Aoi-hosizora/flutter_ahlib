@@ -39,11 +39,11 @@ ButtonStyle flatButtonStyle({
 }) {
   var style = TextButton.styleFrom(
     // fields for FlatButton
-    primary: primary ?? Colors.black87,
+    // primary: primary ?? Colors.black87,
     padding: padding ?? const EdgeInsets.symmetric(horizontal: 16.0),
     shape: shape ?? const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(2.0))),
     // fields for TextButton
-    onSurface: onSurface,
+    // onSurface: onSurface,
     backgroundColor: backgroundColor,
     shadowColor: shadowColor,
     elevation: elevation,
@@ -99,12 +99,12 @@ ButtonStyle raisedButtonStyle({
 }) {
   var style = ElevatedButton.styleFrom(
     // fields for RaisedButton
-    onPrimary: onPrimary ?? Colors.black87,
-    primary: primary ?? Colors.grey[300],
+    // onPrimary: onPrimary ?? Colors.black87,
+    // primary: primary ?? Colors.grey[300],
     padding: padding ?? const EdgeInsets.symmetric(horizontal: 16.0),
     shape: shape ?? const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(2.0))),
     // fields for ElevatedButton
-    onSurface: onSurface,
+    // onSurface: onSurface,
     shadowColor: shadowColor,
     elevation: elevation,
     textStyle: textStyle,
@@ -160,11 +160,11 @@ ButtonStyle outlineButtonStyle(
 }) {
   var style = OutlinedButton.styleFrom(
     // fields for OutlineButton
-    primary: primary ?? Colors.black87,
+    // primary: primary ?? Colors.black87,
     padding: padding ?? const EdgeInsets.symmetric(horizontal: 16.0),
     shape: shape ?? const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(2.0))),
     // fields for OutlinedButton
-    onSurface: onSurface,
+    // onSurface: onSurface,
     backgroundColor: backgroundColor,
     shadowColor: shadowColor,
     elevation: elevation,
@@ -227,7 +227,7 @@ ButtonStyle preferredTextButtonStyle(
   double splashColorOpacity = preferredSplashColorOpacity,
 ]) =>
     flatButtonStyle(
-      primary: colorScheme.primary,
+      // primary: colorScheme.primary,
       splashColor: colorScheme.primary.withOpacity(splashColorOpacity), // <<<
       splashFactory: CustomInkRipple.preferredSplashFactory,
     );
@@ -239,8 +239,8 @@ ButtonStyle preferredElevatedButtonStyle(
   double splashColorOpacityForDark = preferredSplashColorOpacityForDarkElevated,
 ]) =>
     raisedButtonStyle(
-      primary: colorScheme.primary,
-      onPrimary: colorScheme.onPrimary,
+      // primary: colorScheme.primary,
+      // onPrimary: colorScheme.onPrimary,
       splashColor: colorScheme.onPrimary.computeLuminance() < 0.5 //
           ? colorScheme.onPrimary.withOpacity(splashColorOpacityForLight)
           : colorScheme.onPrimary.withOpacity(splashColorOpacityForDark), // <<<
@@ -254,7 +254,7 @@ ButtonStyle preferredOutlinedButtonStyle(
 ]) =>
     outlineButtonStyle(
       colorScheme,
-      primary: colorScheme.primary,
+      // primary: colorScheme.primary,
       splashColor: colorScheme.primary.withOpacity(splashColorOpacity), // <<<
       splashFactory: CustomInkRipple.preferredSplashFactory,
     );
@@ -277,4 +277,143 @@ extension ThemeDataExtension on ThemeData {
         outlinedButtonTheme: OutlinedButtonThemeData(style: preferredOutlinedButtonStyle(colorScheme)),
         textButtonTheme: TextButtonThemeData(style: preferredTextButtonStyle(colorScheme)),
       );
+}
+
+/// [FlatButton] is used to compat with flutter2 and is implemented by [TextButton].
+class FlatButton extends TextButton {
+  FlatButton({
+    Key? key,
+    required VoidCallback? onPressed,
+    VoidCallback? onLongPress,
+    ButtonTextTheme? textTheme,
+    Color? textColor,
+    Color? disabledTextColor,
+    Color? color,
+    Color? disabledColor,
+    Color? focusColor,
+    Color? hoverColor,
+    Color? highlightColor,
+    Color? splashColor,
+    Brightness? colorBrightness,
+    EdgeInsetsGeometry? padding,
+    VisualDensity? visualDensity,
+    ShapeBorder? shape,
+    Clip? clipBehavior,
+    FocusNode? focusNode,
+    bool autofocus = false,
+    MaterialTapTargetSize? materialTapTargetSize,
+    Duration? animationDuration,
+    bool enableFeedback = true,
+    required Widget child,
+  }) : super(
+    key: key,
+    onPressed: onPressed,
+    onLongPress: onLongPress,
+    style: ButtonStyle(
+      foregroundColor: _resolveColor(textColor, disabledTextColor),
+      backgroundColor: MaterialStateProperty.all(color),
+      overlayColor: MaterialStateProperty.resolveWith((states) {
+        if (states.contains(MaterialState.hovered)) return hoverColor;
+        if (states.contains(MaterialState.focused)) return focusColor;
+        if (states.contains(MaterialState.pressed)) return splashColor;
+        return null;
+      }),
+      padding: MaterialStateProperty.all(padding),
+      shape: MaterialStateProperty.all(shape as OutlinedBorder?),
+    ),
+    child: child,
+  );
+
+  static MaterialStateProperty<Color?> _resolveColor(Color? normal, Color? disabled) {
+    return MaterialStateProperty.resolveWith((states) {
+      if (states.contains(MaterialState.disabled)) return disabled;
+      return normal;
+    });
+  }
+}
+
+/// [RaisedButton] is used to compat with flutter2 and is implemented by [ElevatedButton].
+class RaisedButton extends ElevatedButton {
+  RaisedButton({
+    Key? key,
+    required VoidCallback? onPressed,
+    VoidCallback? onLongPress,
+    ButtonTextTheme? textTheme,
+    Color? textColor,
+    Color? disabledTextColor,
+    Color? color,
+    Color? disabledColor,
+    Color? focusColor,
+    Color? hoverColor,
+    Color? highlightColor,
+    Color? splashColor,
+    Brightness? colorBrightness,
+    EdgeInsetsGeometry? padding,
+    VisualDensity? visualDensity,
+    ShapeBorder? shape,
+    Clip? clipBehavior,
+    FocusNode? focusNode,
+    bool autofocus = false,
+    MaterialTapTargetSize? materialTapTargetSize,
+    Duration? animationDuration,
+    bool enableFeedback = true,
+    required Widget child,
+  }) : super(
+    key: key,
+    onPressed: onPressed,
+    onLongPress: onLongPress,
+    style: ElevatedButton.styleFrom(
+      foregroundColor: textColor,
+      backgroundColor: color,
+      disabledForegroundColor: disabledTextColor,
+      disabledBackgroundColor: disabledColor,
+      shadowColor: splashColor,
+      elevation: 2.0,
+      padding: padding,
+      shape: shape as OutlinedBorder?,
+    ),
+    child: child,
+  );
+}
+
+
+/// [OutlineButton] is used to compat with flutter2 and is implemented by [OutlinedButton].
+class OutlineButton extends OutlinedButton {
+  OutlineButton({
+    Key? key,
+    required VoidCallback? onPressed,
+    VoidCallback? onLongPress,
+    ButtonTextTheme? textTheme,
+    Color? textColor,
+    Color? disabledTextColor,
+    Color? color,
+    Color? disabledColor,
+    Color? focusColor,
+    Color? hoverColor,
+    Color? highlightColor,
+    Color? splashColor,
+    Brightness? colorBrightness,
+    EdgeInsetsGeometry? padding,
+    VisualDensity? visualDensity,
+    ShapeBorder? shape,
+    Clip? clipBehavior,
+    FocusNode? focusNode,
+    bool autofocus = false,
+    MaterialTapTargetSize? materialTapTargetSize,
+    Duration? animationDuration,
+    bool enableFeedback = true,
+    required Widget child,
+  }) : super(
+    key: key,
+    onPressed: onPressed,
+    onLongPress: onLongPress,
+    style: OutlinedButton.styleFrom(
+      foregroundColor: textColor,
+      side: BorderSide(color: color ?? Colors.black),
+      disabledForegroundColor: disabledTextColor,
+      padding: padding,
+      shape: shape as OutlinedBorder?,
+    ),
+    child: child,
+  );
 }
