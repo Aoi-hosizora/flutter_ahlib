@@ -122,9 +122,9 @@ class _NewButtonStylePageState extends State<NewButtonStylePage> {
                   OutlinedButton(child: const Text('Styled 1 Preferred'), onPressed: () {}, style: outlineButtonStyle(themeData.colorScheme, splashColor: Colors.black.withOpacity(0.20))), // 0.20
                 ),
                 _row(
-                  OutlinedButton(child: const Text('Styled 2 Default'), onPressed: () {}, style: outlineButtonStyle(themeData.colorScheme, primary: primary)), // 0.12
-                  OutlinedButton(child: const Text('Styled 2 Old'), onPressed: () {}, style: outlineButtonStyle(themeData.colorScheme, primary: primary, splashColor: primary.withOpacity(0.26))), // 0.26
-                  OutlinedButton(child: const Text('Styled 2 Preferred'), onPressed: () {}, style: outlineButtonStyle(themeData.colorScheme, primary: primary, splashColor: primary.withOpacity(0.20))), // 0.20
+                  OutlinedButton(child: const Text('Styled 2 Default'), onPressed: () {}, style: outlineButtonStyle(themeData.colorScheme, /*primary: primary*/)), // 0.12
+                  OutlinedButton(child: const Text('Styled 2 Old'), onPressed: () {}, style: outlineButtonStyle(themeData.colorScheme, /*primary: primary,*/ splashColor: primary.withOpacity(0.26))), // 0.26
+                  OutlinedButton(child: const Text('Styled 2 Preferred'), onPressed: () {}, style: outlineButtonStyle(themeData.colorScheme, /*primary: primary,*/ splashColor: primary.withOpacity(0.20))), // 0.20
                 ),
                 const Divider(),
                 _row(

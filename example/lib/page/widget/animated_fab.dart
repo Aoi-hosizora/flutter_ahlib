@@ -34,7 +34,7 @@ class _AnimatedFabPageState extends State<AnimatedFabPage> {
         ],
       ),
       body: Scrollbar(
-        isAlwaysShown: true,
+        thumbVisibility: true,
         interactive: true,
         controller: _controller,
         child: ListView.builder(

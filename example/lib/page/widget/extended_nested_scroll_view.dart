@@ -107,7 +107,7 @@ class _TestPageState extends State<_TestPage> with AutomaticKeepAliveClientMixin
     super.build(context);
     return Scaffold(
       body: Scrollbar(
-        isAlwaysShown: true, // The provided ScrollController must be unique to a Scrollable widget.
+        thumbVisibility: true, // The provided ScrollController must be unique to a Scrollable widget.
         interactive: true,
         controller: widget.innerScrollController, // The provided ScrollController is currently attached to more than one ScrollPosition.
         child: CustomScrollView(

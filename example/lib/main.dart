@@ -26,6 +26,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'flutter_ahlib example',
       theme: ThemeData(
+        useMaterial3: false,
         primarySwatch: Colors.blue,
       ).withSplashFactory(CustomInkRipple.preferredSplashFactory),
       home: const IndexPage(),
