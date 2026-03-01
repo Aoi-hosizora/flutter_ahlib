@@ -71,6 +71,7 @@ import 'package:flutter_ahlib/flutter_ahlib_util.dart';
     + `StateExtension` `ScrollControllerExtension` `ScrollMetricsExtension` `PageControllerExtension` `ColorExtension` `TextSpanExtension` `RenderObjectExtension` `BuildContextExtension`
     + `getMimeFromExtension` `getExtensionsFromMime` `getPreferredExtensionFromMime`
     + `TaskResult` `Ok` `Err` `TaskResultFutureExtension`
+    + `TextThemeExtension` `preferredMaterial2TextTheme`
     + `Tuple2` ~ `Tuple6`
 
 ### Dependencies

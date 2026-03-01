@@ -223,18 +223,21 @@ const double preferredSplashColorOpacityForDarkElevated = 0.40;
 
 /// Returns the preferred [TextButton]'s [ButtonStyle] by AoiHosizora :)
 ButtonStyle preferredTextButtonStyle(
-  ColorScheme colorScheme, [
+  ColorScheme colorScheme,
+  TextTheme textTheme, [
   double splashColorOpacity = preferredSplashColorOpacity,
 ]) =>
     flatButtonStyle(
       // primary: colorScheme.primary,
       splashColor: colorScheme.primary.withOpacity(splashColorOpacity), // <<<
       splashFactory: CustomInkRipple.preferredSplashFactory,
+      textStyle: textTheme.labelLarge!.copyWith(letterSpacing: 0),
     );
 
 /// Returns the preferred [ElevatedButton]'s [ButtonStyle] by AoiHosizora :)
 ButtonStyle preferredElevatedButtonStyle(
-  ColorScheme colorScheme, [
+  ColorScheme colorScheme,
+  TextTheme textTheme, [
   double splashColorOpacityForLight = preferredSplashColorOpacityForLightElevated,
   double splashColorOpacityForDark = preferredSplashColorOpacityForDarkElevated,
 ]) =>
@@ -245,11 +248,13 @@ ButtonStyle preferredElevatedButtonStyle(
           ? colorScheme.onPrimary.withOpacity(splashColorOpacityForLight)
           : colorScheme.onPrimary.withOpacity(splashColorOpacityForDark), // <<<
       splashFactory: CustomInkRipple.preferredSplashFactory,
+      textStyle: textTheme.labelLarge!.copyWith(letterSpacing: 0),
     );
 
 /// Returns the preferred [OutlinedButton]'s [ButtonStyle] by AoiHosizora :)
 ButtonStyle preferredOutlinedButtonStyle(
-  ColorScheme colorScheme, [
+  ColorScheme colorScheme,
+  TextTheme textTheme, [
   double splashColorOpacity = preferredSplashColorOpacity,
 ]) =>
     outlineButtonStyle(
@@ -257,6 +262,7 @@ ButtonStyle preferredOutlinedButtonStyle(
       // primary: colorScheme.primary,
       splashColor: colorScheme.primary.withOpacity(splashColorOpacity), // <<<
       splashFactory: CustomInkRipple.preferredSplashFactory,
+      textStyle: textTheme.labelLarge!.copyWith(letterSpacing: 0),
     );
 
 /// An extension for [ThemeData].
@@ -273,9 +279,9 @@ extension ThemeDataExtension on ThemeData {
   /// Creates a copy of [ThemeData] but with referred [ButtonStyle] for [ElevatedButton], [OutlinedButton]
   /// and [TextButton].
   ThemeData withPreferredButtonStyles() => copyWith(
-        elevatedButtonTheme: ElevatedButtonThemeData(style: preferredElevatedButtonStyle(colorScheme)),
-        outlinedButtonTheme: OutlinedButtonThemeData(style: preferredOutlinedButtonStyle(colorScheme)),
-        textButtonTheme: TextButtonThemeData(style: preferredTextButtonStyle(colorScheme)),
+        elevatedButtonTheme: ElevatedButtonThemeData(style: preferredElevatedButtonStyle(colorScheme, textTheme)),
+        outlinedButtonTheme: OutlinedButtonThemeData(style: preferredOutlinedButtonStyle(colorScheme, textTheme)),
+        textButtonTheme: TextButtonThemeData(style: preferredTextButtonStyle(colorScheme, textTheme)),
       );
 }
 
